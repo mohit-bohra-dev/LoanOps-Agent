@@ -1,0 +1,7 @@
+---
+description: Servicing Agent project rules
+globs: ["**/*.py", "**/*.toml", "**/*.yaml", "**/*.yml", "**/*.ts", "**/*.tsx", "**/*.css"]
+alwaysApply: true
+---
+
+@AGENTS.md

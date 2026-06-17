@@ -1,0 +1,57 @@
+[project]
+name = "servicing-agent"
+version = "0.1.0"
+description = "Servicing Agent for Internal Care Reps"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "provider-contracts[ollama,openai,gemini,qdrant,bge,presidio,structlog]",
+    "fastapi==0.133.0",
+    "uvicorn[standard]==0.47.0",
+    "pydantic==2.14.0a1",
+    "pydantic-settings==2.14.1",
+    "agent-framework<1.6.0",
+    "spacy<4",
+    "ragas==0.4.3",
+    "opentelemetry-sdk==1.42.1",
+    "numpy<2",
+    "click<8.1.8",
+    "sentence-transformers==5.5.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==9.0.3",
+    "pytest-asyncio==1.4.0a2",
+    "ruff==0.15.14",
+    "mypy==2.1.0",
+    "pre-commit==4.6.0",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 99
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+mypy_path = "."
+explicit_package_bases = true
+namespace_packages = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = "."
+markers = ["integration: requires live external services"]
+
+[tool.uv.sources]
+provider-contracts = { path = "../provider-contracts", editable = true }
+
+[tool.uv]
+prerelease = "allow"
+
+[tool.uv.workspace]
+members = []

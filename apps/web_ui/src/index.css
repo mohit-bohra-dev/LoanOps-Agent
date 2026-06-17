@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+@theme {
+  /* ─── Typography ─── */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* ─── Brand Colors ─── */
+  --color-brand-50: oklch(0.97 0.01 250);
+  --color-brand-100: oklch(0.93 0.03 250);
+  --color-brand-200: oklch(0.86 0.06 250);
+  --color-brand-300: oklch(0.76 0.10 250);
+  --color-brand-400: oklch(0.65 0.15 250);
+  --color-brand-500: oklch(0.55 0.18 250);
+  --color-brand-600: oklch(0.48 0.18 250);
+  --color-brand-700: oklch(0.40 0.16 250);
+  --color-brand-800: oklch(0.33 0.12 250);
+  --color-brand-900: oklch(0.27 0.08 250);
+
+  /* ─── Surface Colors (Dark Mode First) ─── */
+  --color-surface-0: oklch(0.13 0.01 250);
+  --color-surface-1: oklch(0.17 0.01 250);
+  --color-surface-2: oklch(0.21 0.015 250);
+  --color-surface-3: oklch(0.25 0.015 250);
+  --color-surface-4: oklch(0.30 0.02 250);
+
+  /* ─── Text Colors ─── */
+  --color-text-primary: oklch(0.95 0.005 250);
+  --color-text-secondary: oklch(0.70 0.01 250);
+  --color-text-muted: oklch(0.50 0.01 250);
+
+  /* ─── Semantic Colors ─── */
+  --color-success: oklch(0.72 0.17 155);
+  --color-warning: oklch(0.80 0.15 80);
+  --color-danger: oklch(0.65 0.20 25);
+  --color-peach-100: oklch(0.90 0.08 45);
+  --color-peach-300: oklch(0.80 0.15 45);
+  --color-peach-500: oklch(0.70 0.20 45);
+
+  /* ─── Spacing ─── */
+  --spacing-panel-gap: 1rem;
+
+  /* ─── Border Radius ─── */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* ─── Shadows ─── */
+  --shadow-card: 0 1px 3px oklch(0 0 0 / 0.3), 0 1px 2px oklch(0 0 0 / 0.2);
+  --shadow-elevated: 0 4px 12px oklch(0 0 0 / 0.4), 0 2px 4px oklch(0 0 0 / 0.3);
+
+  /* ─── Animations ─── */
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-slide-up: slide-up 0.3s ease-out;
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ─── Base Styles ─── */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-surface-0);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-4);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-600);
+}
+
+/* ─── Keyframes ─── */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.55 0.18 250 / 0.4); }
+  50%      { box-shadow: 0 0 12px 4px oklch(0.55 0.18 250 / 0.15); }
+}

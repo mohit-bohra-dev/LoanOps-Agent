@@ -1,0 +1,35 @@
+# Ignore common build/output directories
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.git/
+
+# Ignore temporary files
+*.tmp
+*.temp
+*.log
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore large binary files
+*.zip
+*.rar
+*.tar.gz
+*.exe
+*.dll
+
+# Ignore IDE specific files
+.idea/
+.vscode/
+.cursor/
+
+# Qdrant data
+qdrant_data/
+
+# Graphify output (to prevent self-reference)
+graphify-out/

@@ -1,0 +1,44 @@
+# Secrets / env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Node / React (apps/web_ui)
+node_modules/
+apps/web_ui/dist/
+
+# Tools
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
+.idea/
+*.log
+
+# Project outputs
+out/
+audit/
+
+# AI tool local state
+.cursor/plans/*.plan.md
+.claude/settings.local.json
+
+# Graphify local state
+graphify-out/manifest.json
+graphify-out/cost.json
+graphify-out/cache/
+
+# Temporary files
+collect.txt
+fast.txt
+output.json
+*.whl

@@ -1,0 +1,6 @@
+---
+description: Quick-reference context for the servicing agent project.
+globs: [*]
+alwaysApply: true
+---
+@CONTEXT.md

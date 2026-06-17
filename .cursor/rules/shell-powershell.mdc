@@ -1,0 +1,49 @@
+---
+description: Shell command rules for Windows PowerShell (avoid bash-only syntax)
+alwaysApply: true
+---
+
+# Shell: Windows PowerShell only
+
+This workspace runs on **Windows PowerShell** (`powershell`, v5.1). Bash syntax
+fails. Generate every shell command in PowerShell-compatible form.
+
+## Command chaining — NO `&&` or `||`
+
+Windows PowerShell 5.1 does not support `&&` / `||`. The token `&&` errors with
+`'&&' is not a valid statement separator in this version.`
+
+- Run commands as **separate tool calls** (preferred — clearer output per step).
+- Or chain with `;` when you don't care about failure between steps.
+- For "run B only if A succeeds", use an explicit check:
+
+```powershell
+# ❌ BAD — bash only, errors in PowerShell
+ls -la && echo "done" && ls apps 2>/dev/null
+
+# ✅ GOOD — separate statements
+Get-ChildItem
+Write-Output "done"
+Get-ChildItem apps -ErrorAction SilentlyContinue
+
+# ✅ GOOD — stop-on-error chain
+if ($?) { npm run build } ; if ($?) { npm test }
+```
+
+## Other bash-isms to avoid
+
+| Bash | PowerShell |
+|------|-----------|
+| `ls -la` | `Get-ChildItem` (`ls` is an alias but flags differ) |
+| `cmd 2>/dev/null` | `cmd -ErrorAction SilentlyContinue` or `2>$null` |
+| `export VAR=x` | `$env:VAR = "x"` |
+| `rm -rf dir` | `Remove-Item dir -Recurse -Force` |
+| `cat file` | use the Read tool (not `cat`) |
+| `cmd1 \| grep x` | prefer the Grep tool; else `cmd1 \| Select-String x` |
+| `$(cmd)` | `$(cmd)` works, but `&&`/`||` inside do not |
+
+## Reminder
+
+Prefer the dedicated tools (Read, Grep, Glob, StrReplace) over shell for file
+operations. Reserve the shell for actual system/terminal commands, and keep
+those commands PowerShell-native.

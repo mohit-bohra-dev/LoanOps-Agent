@@ -1,0 +1,862 @@
+{
+  "D:\\Programming-Projects\\PennyMac_Demos\\check_imports.py": {
+    "mtime": 1779954510.74622,
+    "ast_hash": "1d35656c7b580ef16bf3b3d28a34ddea",
+    "semantic_hash": "1d35656c7b580ef16bf3b3d28a34ddea"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\run-demo.ps1": {
+    "mtime": 1780604387.62353,
+    "ast_hash": "5cee6462f0990e414f367c4a758d4757",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\stop-demo.ps1": {
+    "mtime": 1780604387.62353,
+    "ast_hash": "159772133b191193dfe0f2828f9c87a3",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\.claude\\settings.local.json": {
+    "mtime": 1781255900.649684,
+    "ast_hash": "403ade11112e94495b4302c7974e5f4c",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\__init__.py": {
+    "mtime": 1779356451.1392465,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\agent_api\\main.py": {
+    "mtime": 1781262754.0093331,
+    "ast_hash": "2c63ff10614e78a429f25b90c6e37f8f",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\agent_api\\models.py": {
+    "mtime": 1781256597.6113894,
+    "ast_hash": "3f3af94d0bd85bdbb970b5b248cdb6f8",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\agent_api\\__init__.py": {
+    "mtime": 1779356451.1399336,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\agent_api\\tests\\test_agent_api.py": {
+    "mtime": 1780989413.694795,
+    "ast_hash": "1a7cd3888e46addff6f50bb18ff3584e",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\agent_api\\tests\\__init__.py": {
+    "mtime": 1779952655.6774976,
+    "ast_hash": "41dd831e4d9ce90a8f4f15e81f19e098",
+    "semantic_hash": "41dd831e4d9ce90a8f4f15e81f19e098"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\tools_api\\main.py": {
+    "mtime": 1781261271.1805208,
+    "ast_hash": "40ae48c5a5f7474fdb5ab415d32cafe3",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\tools_api\\__init__.py": {
+    "mtime": 1779356451.140981,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\tools_api\\tests\\test_tools_api.py": {
+    "mtime": 1781258280.4965758,
+    "ast_hash": "4baaa1db4aececc5b1edd9e6c5acad51",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\eslint.config.js": {
+    "mtime": 1779530472.5807142,
+    "ast_hash": "0355276bc79439afe3c53e3a2470ca1e",
+    "semantic_hash": "0355276bc79439afe3c53e3a2470ca1e"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\package.json": {
+    "mtime": 1780646073.0970922,
+    "ast_hash": "9659f59333abc454cfcae2854eaa061a",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\tsconfig.app.json": {
+    "mtime": 1779530472.6208723,
+    "ast_hash": "136630b5accce1ca50663df229534a26",
+    "semantic_hash": "136630b5accce1ca50663df229534a26"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\tsconfig.json": {
+    "mtime": 1779530472.6276095,
+    "ast_hash": "a3d39fa780ebff65444de257f291ce6c",
+    "semantic_hash": "a3d39fa780ebff65444de257f291ce6c"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\tsconfig.node.json": {
+    "mtime": 1779530472.6330636,
+    "ast_hash": "70bdd0a673bcfc0e828080b306e7c680",
+    "semantic_hash": "70bdd0a673bcfc0e828080b306e7c680"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\vite.config.ts": {
+    "mtime": 1780646073.091518,
+    "ast_hash": "ba1ac06c9bb689fbff5bf787101f4ffd",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\src\\App.tsx": {
+    "mtime": 1781071736.671714,
+    "ast_hash": "9e16856e9469bd01731766dcf41d1457",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\src\\main.tsx": {
+    "mtime": 1779530472.7711315,
+    "ast_hash": "787e5a07efeb2bf6209d5937195f2f68",
+    "semantic_hash": "787e5a07efeb2bf6209d5937195f2f68"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\src\\components\\BorrowerContextPane.tsx": {
+    "mtime": 1781071745.4130576,
+    "ast_hash": "d279845b18d72bb51d6770bef3d13505",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\src\\components\\ChatMessage.tsx": {
+    "mtime": 1779953906.4357378,
+    "ast_hash": "badb76329d1ba99a710c12152fe6c0ee",
+    "semantic_hash": "badb76329d1ba99a710c12152fe6c0ee"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\src\\components\\ChatPane.tsx": {
+    "mtime": 1781248293.6663573,
+    "ast_hash": "419dd3765ef523157a58e08ccdb7a740",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\src\\lib\\api.ts": {
+    "mtime": 1779953906.4347394,
+    "ast_hash": "be6b7ea7dcdb7bf56a262c5c4603caee",
+    "semantic_hash": "be6b7ea7dcdb7bf56a262c5c4603caee"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\src\\types\\index.ts": {
+    "mtime": 1779953690.063461,
+    "ast_hash": "d4fd814180eda60ebe0a49ad6f0728cf",
+    "semantic_hash": "d4fd814180eda60ebe0a49ad6f0728cf"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\loans.json": {
+    "mtime": 1779881808.8365011,
+    "ast_hash": "e1fd41a2478cbfcd80f46514851b3a06",
+    "semantic_hash": "e1fd41a2478cbfcd80f46514851b3a06"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\docs\\Init-Project.ps1": {
+    "mtime": 1779516552.4792333,
+    "ast_hash": "43f7418d3c57099492a6d8e1777ffa1b",
+    "semantic_hash": "43f7418d3c57099492a6d8e1777ffa1b"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\__init__.py": {
+    "mtime": 1779356451.1346445,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\agent_core\\_agent.py": {
+    "mtime": 1781262712.4349205,
+    "ast_hash": "bf21f8c1f331fa06874d3987ea2446ef",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\agent_core\\_intent_router.py": {
+    "mtime": 1779951800.787341,
+    "ast_hash": "13f31a0e76d0577c79e12388db71f69b",
+    "semantic_hash": "13f31a0e76d0577c79e12388db71f69b"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\agent_core\\_output_parser.py": {
+    "mtime": 1781071766.2595825,
+    "ast_hash": "2acbf1e5cdbe7642ac1f91b861eb2172",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\agent_core\\_prompt_loader.py": {
+    "mtime": 1779951713.89691,
+    "ast_hash": "33afe7de85ab3c68a320c583d800467c",
+    "semantic_hash": "33afe7de85ab3c68a320c583d800467c"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\agent_core\\__init__.py": {
+    "mtime": 1779950586.972855,
+    "ast_hash": "9a95684c8251a0f6c994dbcf7dfe99bb",
+    "semantic_hash": "9a95684c8251a0f6c994dbcf7dfe99bb"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\agent_core\\tests\\conftest.py": {
+    "mtime": 1779951730.3829124,
+    "ast_hash": "1269d367e31331cecee44b70b50e0606",
+    "semantic_hash": "1269d367e31331cecee44b70b50e0606"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\agent_core\\tests\\test_agent_core.py": {
+    "mtime": 1781071875.202337,
+    "ast_hash": "e55da62b3b0c2638e5127898deae0343",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\agent_core\\tests\\__init__.py": {
+    "mtime": 1779950396.030217,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\schemas.py": {
+    "mtime": 1781257919.4262736,
+    "ast_hash": "f514988c4107f6d3df4aa200a27e4521",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\settings.py": {
+    "mtime": 1781071590.5554652,
+    "ast_hash": "ade19a60c162192ba4b39e3ed126894b",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\__init__.py": {
+    "mtime": 1779356451.113758,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\audit_sink.py": {
+    "mtime": 1779876715.0098355,
+    "ast_hash": "a38a5a15916a25297d61ad7ee48b6acd",
+    "semantic_hash": "a38a5a15916a25297d61ad7ee48b6acd"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\base.py": {
+    "mtime": 1779876715.0089083,
+    "ast_hash": "5d22c6ba91ad53eec85ba0fab6953ad4",
+    "semantic_hash": "5d22c6ba91ad53eec85ba0fab6953ad4"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\chat.py": {
+    "mtime": 1780908740.3479302,
+    "ast_hash": "a0e6348d54edf728f50c4232b3f1bc59",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\content_safety.py": {
+    "mtime": 1779876715.0066166,
+    "ast_hash": "99764df6936db640bd41337681e7e10e",
+    "semantic_hash": "99764df6936db640bd41337681e7e10e"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\embedding.py": {
+    "mtime": 1779876715.0066166,
+    "ast_hash": "dd149e2b938ccdbfcd7930a37388efe6",
+    "semantic_hash": "dd149e2b938ccdbfcd7930a37388efe6"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\factory.py": {
+    "mtime": 1781071784.6475458,
+    "ast_hash": "23535d8b85ed6eae0d5fe79b8fb2f7a9",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\pii.py": {
+    "mtime": 1779876715.0066166,
+    "ast_hash": "373e5a35cdedc2c1204fb70720dec230",
+    "semantic_hash": "373e5a35cdedc2c1204fb70720dec230"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\prompt_store.py": {
+    "mtime": 1779876715.0066166,
+    "ast_hash": "3896e97ab4b793ed4a8dd354cdb81d07",
+    "semantic_hash": "3896e97ab4b793ed4a8dd354cdb81d07"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\telemetry.py": {
+    "mtime": 1779876715.0089083,
+    "ast_hash": "20fe74b8701495b2fd0ea4832979e8d2",
+    "semantic_hash": "20fe74b8701495b2fd0ea4832979e8d2"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\testing.py": {
+    "mtime": 1781071784.6305106,
+    "ast_hash": "b0560cc12a69fd737d7cf092d1669c65",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\tools_client.py": {
+    "mtime": 1779876715.0108197,
+    "ast_hash": "4ee8904080eaf45bfa5273bac0e1969a",
+    "semantic_hash": "4ee8904080eaf45bfa5273bac0e1969a"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\vector_store.py": {
+    "mtime": 1779876715.0089083,
+    "ast_hash": "65de196ee7ac8fc76aeec938a4e0f3a0",
+    "semantic_hash": "65de196ee7ac8fc76aeec938a4e0f3a0"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\__init__.py": {
+    "mtime": 1781071784.6225114,
+    "ast_hash": "01b19c32a0787091416cc1438b749305",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\contract_tests\\test_audit_sink.py": {
+    "mtime": 1779876715.0079088,
+    "ast_hash": "3d85a209f5215aace053c5c93ed70b25",
+    "semantic_hash": "3d85a209f5215aace053c5c93ed70b25"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\contract_tests\\test_chat.py": {
+    "mtime": 1779876715.0066166,
+    "ast_hash": "3eac8176af0620b92e281fda53c12396",
+    "semantic_hash": "3eac8176af0620b92e281fda53c12396"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\contract_tests\\test_content_safety.py": {
+    "mtime": 1779876715.0055878,
+    "ast_hash": "0ea39d5f9409e219d54f280e37aeb7fb",
+    "semantic_hash": "0ea39d5f9409e219d54f280e37aeb7fb"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\contract_tests\\test_embedding.py": {
+    "mtime": 1779876715.0055878,
+    "ast_hash": "05e341a2dff9109f04160435c59893ad",
+    "semantic_hash": "05e341a2dff9109f04160435c59893ad"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\contract_tests\\test_pii.py": {
+    "mtime": 1779876715.0066166,
+    "ast_hash": "7a2a492b595a1feeb1de46f55c9164d8",
+    "semantic_hash": "7a2a492b595a1feeb1de46f55c9164d8"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\contract_tests\\test_prompt_store.py": {
+    "mtime": 1779876715.0066166,
+    "ast_hash": "85e1dc68af8427844892ed0960e54841",
+    "semantic_hash": "85e1dc68af8427844892ed0960e54841"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\contract_tests\\test_telemetry.py": {
+    "mtime": 1779876715.0066166,
+    "ast_hash": "062a4b6f13f26d6aef8d05208f981c44",
+    "semantic_hash": "062a4b6f13f26d6aef8d05208f981c44"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\contract_tests\\test_tools_client.py": {
+    "mtime": 1779876715.0066166,
+    "ast_hash": "94f4fab1929fcc70a2611908e450bf69",
+    "semantic_hash": "94f4fab1929fcc70a2611908e450bf69"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\contract_tests\\test_vector_store.py": {
+    "mtime": 1779876715.0079088,
+    "ast_hash": "d2b0b06921dff2c30cdb78244dac1b34",
+    "semantic_hash": "d2b0b06921dff2c30cdb78244dac1b34"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\contract_tests\\__init__.py": {
+    "mtime": 1779356451.133199,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\eval\\metrics.py": {
+    "mtime": 1780078457.035559,
+    "ast_hash": "de0e45939585e442057d041391e5215d",
+    "semantic_hash": "de0e45939585e442057d041391e5215d"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\eval\\models.py": {
+    "mtime": 1779982207.5124776,
+    "ast_hash": "8d9b2c7dff11f7689c18479bb024010b",
+    "semantic_hash": "8d9b2c7dff11f7689c18479bb024010b"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\eval\\run.py": {
+    "mtime": 1779982519.294369,
+    "ast_hash": "8d9836d2c6a1a96a89c94e5589e5dcb3",
+    "semantic_hash": "8d9836d2c6a1a96a89c94e5589e5dcb3"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\eval\\thresholds.py": {
+    "mtime": 1780207604.091534,
+    "ast_hash": "65d9ff86f3305b799959ec63f287a94a",
+    "semantic_hash": "65d9ff86f3305b799959ec63f287a94a"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\eval\\validate_data.py": {
+    "mtime": 1779878927.6685958,
+    "ast_hash": "63890003782e75ff4a4c13366b98045e",
+    "semantic_hash": "63890003782e75ff4a4c13366b98045e"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\eval\\__init__.py": {
+    "mtime": 1779982319.565775,
+    "ast_hash": "a37e01e3965ca124a1289de970a53012",
+    "semantic_hash": "a37e01e3965ca124a1289de970a53012"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\eval\\tests\\test_metrics.py": {
+    "mtime": 1780207604.091534,
+    "ast_hash": "c629ebdb909d06e625e7a1524e0ac56f",
+    "semantic_hash": "c629ebdb909d06e625e7a1524e0ac56f"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\eval\\tests\\test_runner.py": {
+    "mtime": 1780078457.035559,
+    "ast_hash": "eab551494af7ecb2fdaa22b0eee07a40",
+    "semantic_hash": "eab551494af7ecb2fdaa22b0eee07a40"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\eval\\tests\\__init__.py": {
+    "mtime": 1779982321.6293766,
+    "ast_hash": "1e903223c874dbc59253064950a0c385",
+    "semantic_hash": "1e903223c874dbc59253064950a0c385"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\rag\\chunker.py": {
+    "mtime": 1780207604.091534,
+    "ast_hash": "07f60f4a4521812703f82996f525736c",
+    "semantic_hash": "07f60f4a4521812703f82996f525736c"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\rag\\ingest.py": {
+    "mtime": 1780207604.0822723,
+    "ast_hash": "65ecd963880bf5f1ff07c48b7e979033",
+    "semantic_hash": "65ecd963880bf5f1ff07c48b7e979033"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\rag\\__init__.py": {
+    "mtime": 1779356451.1346445,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\rag\\tests\\test_nearest_neighbour.py": {
+    "mtime": 1780207604.091534,
+    "ast_hash": "78d5ed60f46ff7aee28d9af47fa4d6d8",
+    "semantic_hash": "78d5ed60f46ff7aee28d9af47fa4d6d8"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\rag\\tests\\test_rag.py": {
+    "mtime": 1779948966.4964604,
+    "ast_hash": "3f2af6c22079a9dad766c60bd4aedb99",
+    "semantic_hash": "3f2af6c22079a9dad766c60bd4aedb99"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\safety\\middleware.py": {
+    "mtime": 1781262667.8799949,
+    "ast_hash": "3fde11e02452c149747b37a356a1ad29",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\safety\\models.py": {
+    "mtime": 1781262643.8841345,
+    "ast_hash": "ccfb48a7c89c923d26ff26113171aa4f",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\safety\\__init__.py": {
+    "mtime": 1781262682.2411292,
+    "ast_hash": "4cb3c54121953bf724fd96a6de797272",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\safety\\tests\\test_content_safety.py": {
+    "mtime": 1779954345.4953594,
+    "ast_hash": "48185108c206c1046d0488a6dc543bf4",
+    "semantic_hash": "48185108c206c1046d0488a6dc543bf4"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\safety\\tests\\test_middleware.py": {
+    "mtime": 1779954365.4616072,
+    "ast_hash": "7a7d399b935c474ff24786ae01695d0a",
+    "semantic_hash": "7a7d399b935c474ff24786ae01695d0a"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\safety\\tests\\test_pii_redaction.py": {
+    "mtime": 1779954334.3808105,
+    "ast_hash": "dfb95715c76fc58cd0f2fe5f5c3977ae",
+    "semantic_hash": "dfb95715c76fc58cd0f2fe5f5c3977ae"
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\output.json": {
+    "mtime": 1781071766.2595825,
+    "ast_hash": "bea07e6d2b8dce396fe21baa61b34956",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\test_chat.py": {
+    "mtime": 1781243540.3718507,
+    "ast_hash": "5987c5b972e28fabc532e49d025f60eb",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\public\\redoc\\redoc.standalone.js": {
+    "mtime": 1780476716.6867092,
+    "ast_hash": "e0c4eb0c589d49e6002169cffd0c501d",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\scripts\\copy-redoc.mjs": {
+    "mtime": 1780646073.091518,
+    "ast_hash": "5069574e916e67d1b1b9e66a5417a53b",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\agent_core\\_memory.py": {
+    "mtime": 1781256591.2870622,
+    "ast_hash": "33ae2bdbafdcf10d2f12359f95c6550e",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\agent_core\\tests\\test_memory.py": {
+    "mtime": 1781075640.5491195,
+    "ast_hash": "93d1418a70ed74213f256f9681ff9fa8",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\common\\providers\\session_store.py": {
+    "mtime": 1781071546.4969988,
+    "ast_hash": "8fd0331e2d818dc9637c979ce3ca8926",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\.pre-commit-config.yaml": {
+    "mtime": 1779954973.6336725,
+    "ast_hash": "bd604f92865bf26a4861024f2993fee7",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\AGENTS.md": {
+    "mtime": 1780991434.2010927,
+    "ast_hash": "b8f1ae77e200166cc1ecd11ba586205e",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\ANALYSIS.md": {
+    "mtime": 1780989390.1360235,
+    "ast_hash": "593ca566525b73efe4b7f64a0d90b6ae",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\ARCHITECTURE.md": {
+    "mtime": 1780207604.091534,
+    "ast_hash": "2d8ba2120a26f94a65fe8b78add7a1a6",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\CLAUDE.md": {
+    "mtime": 1780991434.2010927,
+    "ast_hash": "b8f1ae77e200166cc1ecd11ba586205e",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\collect.txt": {
+    "mtime": 1780989408.2136452,
+    "ast_hash": "bf5db1aed9710cf16b40c28e65dca5bb",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\CONTEXT.md": {
+    "mtime": 1780646073.0940852,
+    "ast_hash": "f1695bab800b21d0a24e75723aa70836",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\decisions.md": {
+    "mtime": 1780909144.5199244,
+    "ast_hash": "3ac29b86290aa2da4c4c77e04a1709f2",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\fast.txt": {
+    "mtime": 1780989408.2096672,
+    "ast_hash": "47715f57226f419d495eec1fc3ed9db6",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\GEMINI.md": {
+    "mtime": 1780991434.2010927,
+    "ast_hash": "b8f1ae77e200166cc1ecd11ba586205e",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\GRAPHIFY_SETUP.md": {
+    "mtime": 1780604387.6119528,
+    "ast_hash": "027cef425afbe5662e67f8add1b6565f",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\logs.md": {
+    "mtime": 1781072100.3187892,
+    "ast_hash": "4edd3121b57e0201a388ea001815b633",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\notes.md": {
+    "mtime": 1779876849.8479822,
+    "ast_hash": "c778b50ae3abdaeb9280be0135043f67",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\output.txt": {
+    "mtime": 1780935695.8205855,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\README.md": {
+    "mtime": 1780209598.7053323,
+    "ast_hash": "494632f035c45a3124e13564d0277919",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\scratchpad.md": {
+    "mtime": 1779876849.842992,
+    "ast_hash": "364e1634f80c8ed174d2c7e6ed160f85",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\TASKS.md": {
+    "mtime": 1781072089.4936626,
+    "ast_hash": "81ac94bf9f739dc28e2f36d9c41568ae",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\.agents\\rules\\servicing-agent.md": {
+    "mtime": 1779876849.830752,
+    "ast_hash": "4c4db96c6ddedc27f3b14c81b6f01217",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\.claude\\commands\\build-step.md": {
+    "mtime": 1779876849.8414848,
+    "ast_hash": "d1ba91c9438877359127c5e9d596933f",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\.claude\\commands\\check-providers.md": {
+    "mtime": 1779876849.836559,
+    "ast_hash": "b84b22b58c476ebb2eb2c5dfcf17fa1e",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\.claude\\commands\\commit.md": {
+    "mtime": 1776494826.6686597,
+    "ast_hash": "3df1fee39035cea8c28f2d07d8747ef0",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\.github\\copilot-instructions.md": {
+    "mtime": 1779530073.1159837,
+    "ast_hash": "571b68e0feb5a1f0728e9e3f09512ad8",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\.github\\workflows\\ci.yml": {
+    "mtime": 1779876849.8405359,
+    "ast_hash": "48e3f1210265aee5d15646264d485925",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\.github\\workflows\\eval-gate.yml": {
+    "mtime": 1779876849.830752,
+    "ast_hash": "e35892f8ae9c0b88706b332270642006",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\.kiro\\steering\\project.md": {
+    "mtime": 1779876849.8498492,
+    "ast_hash": "3bdb6abd1321a4bdd6c8b40e74c11e55",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\index.html": {
+    "mtime": 1779530566.6141498,
+    "ast_hash": "2ac4dd67a0c09a7ae542b4517f1c06b0",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\README.md": {
+    "mtime": 1779530472.6470308,
+    "ast_hash": "f6e3faf55d738cf2affe1b44195f27cf",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\public\\docs\\agent-swagger.html": {
+    "mtime": 1780600930.3494234,
+    "ast_hash": "e1d26011e584eed0d2dbc20d6c4aa2a9",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\public\\docs\\agent.html": {
+    "mtime": 1780646073.091518,
+    "ast_hash": "d1871b2b4221900cb541ab54fa8368a3",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\public\\docs\\index.html": {
+    "mtime": 1780646073.0960927,
+    "ast_hash": "6545d9ac4cb2c9ada827f84bbdf24e0a",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\public\\docs\\tools-swagger.html": {
+    "mtime": 1780600933.489434,
+    "ast_hash": "e946a72fefb8b7c196c88b2bddc87fe0",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\public\\docs\\tools.html": {
+    "mtime": 1780646073.0940852,
+    "ast_hash": "f073b587d9c93ce4049fc0185817bc06",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\complaints\\complaint-handling.md": {
+    "mtime": 1779881808.8365011,
+    "ast_hash": "128a75aef1ef18684a724bb84419d326",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\complaints\\escalation-procedure.md": {
+    "mtime": 1779881808.8365011,
+    "ast_hash": "832718206dc78fa32f053e2d2dfe95fa",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\complaints\\identity-theft.md": {
+    "mtime": 1779881808.8365011,
+    "ast_hash": "16f08c0263751a706b0c53b0ca45023b",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\complaints\\quality-assurance.md": {
+    "mtime": 1779881808.8365011,
+    "ast_hash": "9de4ce8a7629019596aeebec275678c0",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\escrow\\annual-analysis.md": {
+    "mtime": 1779881808.8365011,
+    "ast_hash": "4d7aa196c26505aeaf753934fd8fb2be",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\escrow\\escrow-disbursements.md": {
+    "mtime": 1779881808.8365011,
+    "ast_hash": "958802b5859b806df8bdc586b7d4873b",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\escrow\\escrow-dispute.md": {
+    "mtime": 1779881808.8365011,
+    "ast_hash": "f8469c848b9710f102b9efd163b3b157",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\escrow\\escrow-qa.md": {
+    "mtime": 1779881808.8365011,
+    "ast_hash": "59de4ef342840d1eef285ff237e5434a",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\escrow\\escrow-voluntary-removal.md": {
+    "mtime": 1779881808.8365011,
+    "ast_hash": "535172316df15c25edd421bf1cdde105",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\hardship\\covid-forbearance.md": {
+    "mtime": 1779881808.8365011,
+    "ast_hash": "e0322716de9f86bb30fde52140bac9cf",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\hardship\\disaster-forbearance.md": {
+    "mtime": 1779881808.8406036,
+    "ast_hash": "40100ac075304d47b689524bc69d8267",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\hardship\\forbearance.md": {
+    "mtime": 1779881808.8406036,
+    "ast_hash": "e2fd128f8f56cdc48571bc8cabca0e60",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\hardship\\hardship-assistance-overview.md": {
+    "mtime": 1779881808.8406036,
+    "ast_hash": "af69c89824d7a7f314e3081a87b6d460",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\hardship\\military-scra.md": {
+    "mtime": 1779881808.8416128,
+    "ast_hash": "93a97f457639805bafc7a7ea1759c007",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\hardship\\repayment-plan.md": {
+    "mtime": 1779881808.8416128,
+    "ast_hash": "69938994ec3cee113f894ac1e11552fb",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\loss-mitigation\\foreclosure-prevention.md": {
+    "mtime": 1779881808.8421574,
+    "ast_hash": "67c992678d66980add9012c684d0570b",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\loss-mitigation\\hardship-evaluation-criteria.md": {
+    "mtime": 1779881808.8421574,
+    "ast_hash": "d5cb12fb481d28672a7314c45970031a",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\loss-mitigation\\loan-modification.md": {
+    "mtime": 1779881808.8421574,
+    "ast_hash": "dcedf6c1fcacd250452582d8a44f02f5",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\loss-mitigation\\loss-mitigation-application.md": {
+    "mtime": 1779881808.8421574,
+    "ast_hash": "8ab935ca1e47dd57dbaa1d257727b1d8",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\loss-mitigation\\payment-deferral.md": {
+    "mtime": 1779881808.8432293,
+    "ast_hash": "d6bf0d5cd49a73fdf2fb9f7edc9a20a1",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\loss-mitigation\\short-sale-dil.md": {
+    "mtime": 1779881808.8432293,
+    "ast_hash": "4f8eecaf754c9b9d3933123ea02bca5e",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\payments\\auto-pay-enrollment.md": {
+    "mtime": 1779881808.8432293,
+    "ast_hash": "c676fa3c10cae529d3ea90b18636a6fc",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\payments\\late-fee-waiver.md": {
+    "mtime": 1779881808.8432293,
+    "ast_hash": "1ebb046368059e9f1adc830315e73c12",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\payments\\payment-assistance.md": {
+    "mtime": 1779881808.8432293,
+    "ast_hash": "a5e30c5596b3e162f7f6d27fbae04ce7",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\payments\\payment-disputes.md": {
+    "mtime": 1779881808.8442283,
+    "ast_hash": "35c8de6d3f109eb708364cdbd123f3a1",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\payments\\payment-history-inquiry.md": {
+    "mtime": 1779881808.844745,
+    "ast_hash": "2c7f5713969a01e91c3e40548e76168f",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\payments\\payment-methods.md": {
+    "mtime": 1779881808.844745,
+    "ast_hash": "f7cc00bd278e219502009d33685c5e02",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\payments\\payment-processing.md": {
+    "mtime": 1779881808.844745,
+    "ast_hash": "2ecb2118dfcd073bb74aec8babe308a0",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\payments\\payment-schedule.md": {
+    "mtime": 1779881808.844745,
+    "ast_hash": "b552a8b03a4712cb4e6a1e25f307e2d9",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\payments\\principal-only-payments.md": {
+    "mtime": 1779881808.844745,
+    "ast_hash": "8ab1970510294ec5e99889ad31279e2d",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\payments\\returned-payments.md": {
+    "mtime": 1779881808.844745,
+    "ast_hash": "10f5d3664f4267d968b213d41ba26d89",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\payoff\\payoff-information.md": {
+    "mtime": 1779881808.844745,
+    "ast_hash": "d1da082d70737b06073357204ce9d36c",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\payoff\\payoff-process.md": {
+    "mtime": 1779881808.844745,
+    "ast_hash": "4171470ae1a1cce930b7347a83a86b23",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\state-specific\\california-policy.md": {
+    "mtime": 1779881808.844745,
+    "ast_hash": "a1b6a44a9ea1bbdc6d8e49542bb08f1a",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\state-specific\\florida-policy.md": {
+    "mtime": 1779881808.844745,
+    "ast_hash": "621a2233352c67d8c13484af82cf5078",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\state-specific\\new-york-policy.md": {
+    "mtime": 1779881808.844745,
+    "ast_hash": "298db66c8103839154aeaa81f40a8d93",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\state-specific\\ohio-policy.md": {
+    "mtime": 1779881808.844745,
+    "ast_hash": "0a9fe43bdbbf8ec16efe094460ae05eb",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\data\\sops\\state-specific\\texas-policy.md": {
+    "mtime": 1779881808.844745,
+    "ast_hash": "5188538f3aaa8be3b77355d47d60e1c3",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\docs\\01-servicing-agent-prompts.md": {
+    "mtime": 1780945694.241503,
+    "ast_hash": "ad645d9e4a47c31bb8302f307c77b0ee",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\docs\\04-conversation-memory-plan.md": {
+    "mtime": 1780989408.6605623,
+    "ast_hash": "e34482b643e3d227329244f9ea1c207d",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\docs\\04-tested-prompts.md": {
+    "mtime": 1780829078.5056524,
+    "ast_hash": "b1d9b4a75fdf7aaa9fea92fea7d68d1c",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\docs\\05-conversation-graph-models.md": {
+    "mtime": 1780990567.7593603,
+    "ast_hash": "ee7bd43dea497b0f61b67f8ca30d2321",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\docs\\PRD.md": {
+    "mtime": 1779876850.1764147,
+    "ast_hash": "6750952567a6b73e2d78fe5cdea45bdd",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\docs\\agent\\system.md": {
+    "mtime": 1780604387.6119528,
+    "ast_hash": "bc05392f0834eafe3aa01b8c4a6d402e",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\public\\favicon.svg": {
+    "mtime": 1779876849.838444,
+    "ast_hash": "098c888910dd3b64d291f1f0dc9e7033",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\agent_api\\tests\\test_memory_endpoint.py": {
+    "mtime": 1781248720.3749692,
+    "ast_hash": "1047d0fb3a4afbb02a6c0a64feac8e38",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\apps\\web_ui\\src\\types\\memory.ts": {
+    "mtime": 1781248249.6722772,
+    "ast_hash": "09dcb17301a188acd93833483c44b7b5",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\audit\\memory.md": {
+    "mtime": 1781261570.5151246,
+    "ast_hash": "ae37474c9055247011794238b1e442e9",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\safety\\tokenizer.py": {
+    "mtime": 1781262632.047204,
+    "ast_hash": "632907110cbb8333e6b30d6ac5bd856c",
+    "semantic_hash": ""
+  },
+  "D:\\Programming-Projects\\PennyMac_Demos\\packages\\safety\\tests\\test_tokenizer.py": {
+    "mtime": 1781262821.085281,
+    "ast_hash": "ba29bb9eb52b5af784d170dcb0876d1f",
+    "semantic_hash": ""
+  }
+}

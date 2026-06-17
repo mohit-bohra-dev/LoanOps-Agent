@@ -1,0 +1,14 @@
+{
+  "folders": [
+    {
+      "path": ".",
+    },
+    {
+      "path": "../provider-contracts",
+    },
+    {
+      "path": "../AI Projects/career-ops",
+    },
+  ],
+  "settings": {},
+}
