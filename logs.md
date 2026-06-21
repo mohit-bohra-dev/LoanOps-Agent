@@ -1,3 +1,31 @@
+## [2026-06-18] — Fix EscrowBalance Field Collision
+
+**Session type:** Bug fix
+
+**Completed:**
+- Renamed `current_balance_usd` to `escrow_balance_usd` inside the `EscrowBreakdown` schema (`packages/common/schemas.py`).
+- Updated `apps/tools_api/main.py` to use `escrow_balance_usd` in all `get_escrow_breakdown` tool return paths.
+- Updated the testing mock data (`packages/agent_core/tests/conftest.py`) and documentation (`docs/01-servicing-agent-prompts.md`) to reflect the new `escrow_balance_usd` key.
+- Kept `LoanSummary.current_balance_usd` intact, ensuring principal loan balance remains accurately represented.
+
+**Reason:** The LLM was hallucinating because the `EscrowBreakdown` and `LoanSummary` schemas previously shared the exact same field name (`current_balance_usd`). The agent mistakenly used the $0.00 escrow account balance as the principal loan balance when answering queries. Disambiguating the field name prevents this collision.
+
+---
+
+## [2026-06-18] — Bedrock API Key Auth & PII Stub Fixes
+
+**Session type:** Bug fix
+
+**Completed:**
+- Added a `stub` mode for the `PiiProvider` (`MockPiiProvider`) via `settings.py` and `factory.py` to fix slow local startup times caused by Presidio/spaCy loading.
+- Fixed Bedrock's `Converse` API integration returning blank responses by mapping non-compliant roles (`tool`, `function`) to `user` and throwing explicit errors if the `messages` array is empty.
+- Fixed Bedrock API key authentication (bearer token mode) by properly setting `os.environ["AWS_BEARER_TOKEN_BEDROCK"]` and using `bedrock-runtime.{region}` instead of forcing it through `aws_session_token`.
+- Added verbose `logging` to `BedrockProvider.chat()` for easier diagnostics.
+
+**Reason:** Agent API took 10-15s to start, and Bedrock was returning silent blanks due to malformed payload roles and incorrect AWS IAM header injection.
+
+---
+
 ## [2026-06-10] — Conversational Memory Feature
 
 **Session type:** Feature implementation

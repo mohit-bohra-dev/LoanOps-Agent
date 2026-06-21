@@ -52,7 +52,7 @@ class EscrowBreakdown(BaseModel):
 
     loan_id: str
     as_of: str
-    current_balance_usd: float
+    escrow_balance_usd: float
     monthly_escrow_usd: float
     monthly_escrow_change_usd: float
     change_effective: str

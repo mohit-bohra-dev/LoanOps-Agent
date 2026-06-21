@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          python-version: "3.11"
+      - run: uv sync --all-extras
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy --strict packages
+      - run: uv run pytest -x -m "not integration"
+
+  provider-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No concrete provider imports outside providers/
+        run: |
+          matches=$(git grep -nE "from packages\.common\.providers\.[a-z_]+_impls?\.[a-z_]+ import" -- \
+            ":!packages/common/providers" || true)
+          if [ -n "$matches" ]; then
+            echo "Direct concrete-provider imports detected:"; echo "$matches"; exit 1
+          fi
+      - name: No direct env reads outside settings.py
+        run: |
+          env_reads=$(git grep -nE "os\.environ|os\.getenv" -- \
+            ":!packages/common/settings.py" ":!**/tests/**" || true)
+          if [ -n "$env_reads" ]; then
+            echo "Direct env access detected:"; echo "$env_reads"; exit 1
+          fi

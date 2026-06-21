@@ -5,7 +5,7 @@ description = "Servicing Agent for Internal Care Reps"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
 dependencies = [
-    "provider-contracts[ollama,openai,gemini,qdrant,bge,presidio,structlog]",
+    "provider-contracts[ollama,openai,gemini,qdrant,bge,presidio,structlog,bedrock]",
     "fastapi==0.133.0",
     "uvicorn[standard]==0.47.0",
     "pydantic==2.14.0a1",

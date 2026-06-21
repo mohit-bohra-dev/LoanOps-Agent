@@ -324,7 +324,7 @@ async def get_escrow_breakdown(
         return schemas.EscrowBreakdown(
             loan_id=request.loan_id,
             as_of="2026-04-30",
-            current_balance_usd=0.0,
+            escrow_balance_usd=0.0,
             monthly_escrow_usd=0.0,
             monthly_escrow_change_usd=0.0,
             change_effective="",
@@ -338,7 +338,7 @@ async def get_escrow_breakdown(
         return schemas.EscrowBreakdown(
             loan_id=request.loan_id,
             as_of="2026-04-30",
-            current_balance_usd=1842.10,
+            escrow_balance_usd=1842.10,
             monthly_escrow_usd=615.30,
             monthly_escrow_change_usd=35.12,
             change_effective="2026-05-01",
@@ -362,7 +362,7 @@ async def get_escrow_breakdown(
     return schemas.EscrowBreakdown(
         loan_id=request.loan_id,
         as_of="2026-04-30",
-        current_balance_usd=1500.00,
+        escrow_balance_usd=1500.00,
         monthly_escrow_usd=500.00,
         monthly_escrow_change_usd=20.00,
         change_effective="2026-05-01",

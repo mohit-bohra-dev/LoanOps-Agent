@@ -96,10 +96,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:  # noqa: ARG001
     """
     # Warm up every provider so the first /chat request isn't slow.
     for _name, factory in _PROVIDER_FACTORIES:
-        try:
-            factory()
-        except Exception:  # noqa: BLE001
-            pass  # Individual provider failures surface in /health; don't abort boot.
+        import contextlib
+
+        with contextlib.suppress(Exception):
+            factory()  # Individual provider failures surface in /health; don't abort boot.
 
     yield
 

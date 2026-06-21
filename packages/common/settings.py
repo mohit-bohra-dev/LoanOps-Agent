@@ -31,16 +31,28 @@ class OpenAIChatConfig(BaseModel):
     model: str = "gpt-4o-mini"
 
 
+class BedrockChatConfig(BaseModel):
+    region: str = "us-east-1"
+    model_id: str = "us.amazon.nova-pro-v1:0"
+    # --- Auth option A: Bedrock API key (bearer token, easiest for local dev) ---
+    api_key: str | None = None
+    # --- Auth option B: IAM credentials (leave None to use boto3 default chain) ---
+    access_key_id: str | None = None
+    secret_access_key: str | None = None
+    session_token: str | None = None
+
+
 class GeminiChatConfig(BaseModel):
     api_key: str = ""
     model: str = "gemini-2.5-flash"
 
 
 class ChatConfig(BaseModel):
-    provider: Literal["ollama", "aoai", "openai", "gemini"] = "ollama"
+    provider: Literal["ollama", "aoai", "openai", "bedrock", "gemini"] = "ollama"
     ollama: OllamaChatConfig = Field(default_factory=OllamaChatConfig)
     aoai: AOAIChatConfig | None = None
     openai: OpenAIChatConfig | None = None
+    bedrock: BedrockChatConfig | None = None
     gemini: GeminiChatConfig | None = None
     deterministic_by_default: bool = False
 
@@ -69,13 +81,19 @@ class AOAIEmbeddingConfig(BaseModel):
     api_version: str = "2024-08-01-preview"
 
 
+class GeminiEmbeddingConfig(BaseModel):
+    api_key: str = ""
+    model: str = "text-embedding-004"
+
+
 class EmbeddingConfig(BaseModel):
-    provider: Literal["local_bge", "aoai"] = "local_bge"
+    provider: Literal["local_bge", "aoai", "gemini"] = "local_bge"
     aoai: AOAIEmbeddingConfig | None = None
+    gemini: GeminiEmbeddingConfig | None = None
 
 
 class PiiConfig(BaseModel):
-    provider: Literal["presidio"] = "presidio"
+    provider: Literal["presidio", "stub"] = "presidio"
     mode: Literal["redact_audit_only", "tokenize"] = "redact_audit_only"
 
 

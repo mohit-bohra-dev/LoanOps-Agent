@@ -38,7 +38,7 @@ def _get_settings() -> Settings:
     return Settings()
 
 
-# â”€â”€ Chat / LLM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â”€â”€ Chat / LLM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â
 @lru_cache(maxsize=1)
 def get_chat_provider() -> AbstractLLMProvider:
     """Return the configured chat (LLM) provider."""
@@ -73,6 +73,21 @@ def get_chat_provider() -> AbstractLLMProvider:
             model=cfg.llm.openai.model,
             base_url=cfg.llm.openai.base_url,
         )
+    if cfg.llm.provider == "bedrock":
+        from provider_contracts.llm.bedrock import BedrockProvider
+
+        if cfg.llm.bedrock is None:
+            raise ProviderConfigError(
+                "LLM__BEDROCK config section is required for 'bedrock' provider"
+            )
+        return BedrockProvider(
+            model_id=cfg.llm.bedrock.model_id,
+            region=cfg.llm.bedrock.region,
+            api_key=cfg.llm.bedrock.api_key,
+            access_key_id=cfg.llm.bedrock.access_key_id,
+            secret_access_key=cfg.llm.bedrock.secret_access_key,
+            session_token=cfg.llm.bedrock.session_token,
+        )
     if cfg.llm.provider == "gemini":
         from provider_contracts.llm.gemini import GeminiProvider
 
@@ -87,7 +102,7 @@ def get_chat_provider() -> AbstractLLMProvider:
     raise ProviderConfigError(f"Unknown chat provider: {cfg.llm.provider}")
 
 
-# â”€â”€ Embedding â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â”€â”€ Embedding â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
 @lru_cache(maxsize=1)
 def get_embedding_provider() -> AbstractEmbeddingProvider:
     """Return the configured embedding provider."""
@@ -112,10 +127,21 @@ def get_embedding_provider() -> AbstractEmbeddingProvider:
             deployment=cfg.embedding.aoai.deployment,
             api_version=cfg.embedding.aoai.api_version,
         )
+    if cfg.embedding.provider == "gemini":
+        from provider_contracts.embedding.gemini import GeminiEmbeddingProvider
+
+        if cfg.embedding.gemini is None:
+            raise ProviderConfigError(
+                "EMBEDDING__GEMINI config section is required for 'gemini' provider"
+            )
+        return GeminiEmbeddingProvider(
+            api_key=cfg.embedding.gemini.api_key,
+            model=cfg.embedding.gemini.model,
+        )
     raise ProviderConfigError(f"Unknown embedding provider: {cfg.embedding.provider}")
 
 
-# â”€â”€ Vector Store â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â”€â”€ Vector Store â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
 @lru_cache(maxsize=1)
 def get_vector_store_provider() -> AbstractVectorStoreProvider:
     """Return the configured vector store provider."""
@@ -145,7 +171,7 @@ def get_vector_store_provider() -> AbstractVectorStoreProvider:
     raise ProviderConfigError(f"Unknown vector store provider: {cfg.vector_store.provider}")
 
 
-# â”€â”€ PII â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â”€â”€ PII â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
 @lru_cache(maxsize=1)
 def get_pii_provider() -> AbstractPiiProvider:
     """Return the configured PII provider."""
@@ -154,10 +180,14 @@ def get_pii_provider() -> AbstractPiiProvider:
         from provider_contracts.pii.presidio import PresidioPiiProvider
 
         return PresidioPiiProvider()
+    if cfg.pii.provider == "stub":
+        from provider_contracts.pii.mock import MockPiiProvider
+
+        return MockPiiProvider()
     raise ProviderConfigError(f"Unknown PII provider: {cfg.pii.provider}")
 
 
-# â”€â”€ Content Safety â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â”€â”€ Content Safety â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 @lru_cache(maxsize=1)
 def get_content_safety_provider() -> AbstractContentSafetyProvider:
     """Return the configured content safety provider."""
@@ -175,7 +205,7 @@ def get_content_safety_provider() -> AbstractContentSafetyProvider:
     raise ProviderConfigError(f"Unknown safety provider: {cfg.safety.provider}")
 
 
-# â”€â”€ Audit Sink â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â”€â”€ Audit Sink â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â
 @lru_cache(maxsize=1)
 def get_audit_sink_provider() -> AbstractAuditSinkProvider:
     """Return the configured audit sink provider."""
@@ -191,7 +221,7 @@ def get_audit_sink_provider() -> AbstractAuditSinkProvider:
     raise ProviderConfigError(f"Unknown audit sink: {cfg.audit.sink}")
 
 
-# â”€â”€ Secrets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â”€â”€ Secrets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â
 @lru_cache(maxsize=1)
 def get_secrets_provider() -> AbstractSecretsProvider:
     """Return the configured secrets provider."""
@@ -207,7 +237,7 @@ def get_secrets_provider() -> AbstractSecretsProvider:
     raise ProviderConfigError(f"Unknown secrets provider: {cfg.secrets.provider}")
 
 
-# â”€â”€ Telemetry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â”€â”€ Telemetry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
 @lru_cache(maxsize=1)
 def get_telemetry_provider() -> AbstractTelemetryProvider:
     """Return the configured telemetry provider."""
@@ -223,7 +253,7 @@ def get_telemetry_provider() -> AbstractTelemetryProvider:
     raise ProviderConfigError(f"Unknown telemetry provider: {cfg.telemetry.provider}")
 
 
-# â”€â”€ Tools Client â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â”€â”€ Tools Client â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
 @lru_cache(maxsize=1)
 def get_tools_client_provider() -> AbstractToolsClientProvider:
     """Return the configured tools client provider."""
@@ -238,7 +268,7 @@ def get_tools_client_provider() -> AbstractToolsClientProvider:
     raise ProviderConfigError(f"Unknown tools client provider: {cfg.tools_client.provider}")
 
 
-# â”€â”€ Prompt Store â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â”€â”€ Prompt Store â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
 @lru_cache(maxsize=1)
 def get_prompt_store_provider() -> AbstractPromptStoreProvider:
     """Return the configured prompt store provider."""
@@ -254,7 +284,7 @@ def get_prompt_store_provider() -> AbstractPromptStoreProvider:
     raise ProviderConfigError(f"Unknown prompt store provider: {cfg.prompt_store.provider}")
 
 
-# â”€â”€ Session Store â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â”€â”€ Session Store â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â
 @lru_cache(maxsize=1)
 def get_session_store_provider() -> AbstractSessionStoreProvider:
     """Return the configured session store provider."""
@@ -269,7 +299,7 @@ def get_session_store_provider() -> AbstractSessionStoreProvider:
     raise ProviderConfigError(f"Unknown session store provider: {cfg.session_store.provider}")
 
 
-# â”€â”€ Re-ranker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â”€â”€ Re-ranker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
 @lru_cache(maxsize=1)
 def get_reranker_provider() -> AbstractRerankerProvider:
     """Return the configured re-ranker provider."""

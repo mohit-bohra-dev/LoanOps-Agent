@@ -695,7 +695,7 @@ The full 50-item set should preserve the same ratio: ~70% happy path, ~10% refus
 {
   "loan_id": "100245",
   "as_of": "2026-04-30",
-  "current_balance_usd": 1842.10,
+  "escrow_balance_usd": 1842.10,
   "monthly_escrow_usd": 615.30,
   "monthly_escrow_change_usd": 35.12,
   "change_effective": "2026-05-01",
