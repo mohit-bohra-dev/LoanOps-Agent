@@ -7,7 +7,7 @@
 
 An **internal copilot for licensed mortgage-servicing care reps** at a US
 mortgage servicer. Hybrid architecture: identical Python codebase runs
-locally (Ollama + Qdrant) or on Azure (AOAI + AI Search) via env-var swap.
+locally (Ollama + Qdrant) or on AWS (Bedrock + Qdrant Cloud) via env-var swap.
 Full brief: `docs/01-servicing-agent-prompts.md`.
 
 ## Read order
@@ -52,19 +52,19 @@ Windsurf, etc.).
 
 ## Tech stack
 
-| Layer | Local (dev) | Azure (target) |
+| Layer | Local (dev) | AWS (target) |
 |-------|-------------|----------------|
 | Language | Python 3.11 | Python 3.11 |
-| API framework | FastAPI | FastAPI on AKS |
+| API framework | FastAPI | FastAPI on ECS Fargate |
 | Orchestration | Microsoft Agent Framework | Same + Prompt Flow |
-| LLM | Ollama Llama 3.1 8B | Azure OpenAI GPT-4o |
+| LLM | Ollama Llama 3.1 8B | Amazon Bedrock GPT-4o |
 | Embeddings | bge-small-en-v1.5 | text-embedding-3-large |
-| Vector store | Qdrant (Docker) | Azure AI Search |
+| Vector store | Qdrant (Docker) | Qdrant Cloud |
 | PII | Presidio | Presidio |
-| Content safety | Rule-based stub | Azure AI Content Safety |
-| Audit log | JSONL on disk | App Insights + ADLS |
-| Observability | OTel to console | App Insights |
-| Secrets | .env | Key Vault + Managed Identity |
+| Content safety | Rule-based stub | AWS Content Safety |
+| Audit log | JSONL on disk | CloudWatch Logs + S3 |
+| Observability | OTel to console | CloudWatch Logs |
+| Secrets | .env | AWS Secrets Manager |
 | UI | React + TypeScript (Vite) | Static Web Apps |
 
 ## Provider Abstraction (load-bearing rule)
@@ -83,7 +83,7 @@ import a concrete provider class directly.
 ## Rules (non-negotiable)
 
 - **Graphify-first**: When `graphify-out/graph.json` exists, always run `graphify query` / `graphify path` before grepping or reading raw source files. See §Knowledge graph above.
-- **Local-first**: `make demo` must work with zero Azure credentials.
+- **Local-first**: `make demo` must work with zero AWS credentials.
 - **No concrete imports** outside `packages/common/providers/` — CI grep gate enforces this.
 - **No `os.environ` / `os.getenv`** outside `packages/common/settings.py`.
 - **No PII** anywhere in code, test fixtures, or commits. Use synthetic data.
@@ -116,7 +116,7 @@ import a concrete provider class directly.
 | Golden Q&A set | `data/golden.jsonl` |
 | Synthetic SOPs | `data/sops/` |
 | Synthetic loans | `data/loans.json` |
-| Azure IaC | `infra/bicep/` |
+| AWS IaC | `infra/terraform/` |
 
 ## Module layout
 

@@ -341,6 +341,15 @@ wheels = [
 ]
 
 [[package]]
+name = "backoff"
+version = "2.2.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/47/d7/5bbeb12c44d7c4f2fb5b56abce497eb5ed9f34d85701de869acedd602619/backoff-2.2.1.tar.gz", hash = "sha256:03f829f5bb1923180821643f8753b0502c3b682293992485b0eef2807afa5cba", size = 17001, upload-time = "2022-10-05T19:19:32.061Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/df/73/b6e24bd22e6720ca8ee9a85a0c4a2971af8497d8f3193fa05390cbd46e09/backoff-2.2.1-py3-none-any.whl", hash = "sha256:63579f9a0628e06278f7e47b7d7d5b6ce20dc65c5e96a6f3ca99a6adca0396e8", size = 15148, upload-time = "2022-10-05T19:19:30.546Z" },
+]
+
+[[package]]
 name = "blis"
 version = "1.3.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1288,6 +1297,25 @@ wheels = [
 ]
 
 [[package]]
+name = "langfuse"
+version = "4.13.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "backoff" },
+    { name = "httpx" },
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-exporter-otlp-proto-http" },
+    { name = "opentelemetry-sdk" },
+    { name = "packaging" },
+    { name = "pydantic" },
+    { name = "wrapt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/52/0c/a830958f9377e31114e8cbe74395a0adc515afaa3d02d8be5372d39e549c/langfuse-4.13.0.tar.gz", hash = "sha256:41b6b13e1e4e96f903a24e2bb69a38b83a8a296d12de11a345e33ec2763f10d2", size = 350477, upload-time = "2026-07-02T14:33:41.764Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2f/5c/87ddf37cfeb43332e84f173fe8ef64ff6ce8ed6defcbef3fa0c63f545393/langfuse-4.13.0-py3-none-any.whl", hash = "sha256:0e0c5af8c8f299d6878c328518ce8414a188d1f6333ad2109aa8208f2e41500a", size = 611573, upload-time = "2026-07-02T14:33:40.143Z" },
+]
+
+[[package]]
 name = "langgraph"
 version = "1.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1920,6 +1948,24 @@ wheels = [
 ]
 
 [[package]]
+name = "opentelemetry-exporter-otlp-proto-http"
+version = "1.42.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "googleapis-common-protos" },
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-exporter-otlp-proto-common" },
+    { name = "opentelemetry-proto" },
+    { name = "opentelemetry-sdk" },
+    { name = "requests" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/77/32/826bfa1d80ecea24f47808de03cd4a0d13c17ecc07712f45123f0f61e4ac/opentelemetry_exporter_otlp_proto_http-1.42.1.tar.gz", hash = "sha256:bf142a21035d7571ac3a09cb2e5639f49886f243972883cfe777ed3bf02b734d", size = 25406, upload-time = "2026-05-21T16:32:56.807Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d3/96/82cb223a1502f0787d4bbff12907f5f8d870a50731febcd5818d93ef9555/opentelemetry_exporter_otlp_proto_http-1.42.1-py3-none-any.whl", hash = "sha256:00a16da1b312a1d6c7233d600d557c91df71125af73020f3b9a7765bd699d59d", size = 21793, upload-time = "2026-05-21T16:32:35.277Z" },
+]
+
+[[package]]
 name = "opentelemetry-instrumentation"
 version = "0.63b1"
 source = { registry = "https://pypi.org/simple" }
@@ -2497,6 +2543,9 @@ bge = [
 gemini = [
     { name = "google-genai" },
 ]
+langfuse = [
+    { name = "langfuse" },
+]
 ollama = [
     { name = "httpx" },
 ]
@@ -2525,12 +2574,13 @@ requires-dist = [
     { name = "google-genai", marker = "extra == 'gemini'", specifier = ">=1.0.0" },
     { name = "httpx", marker = "extra == 'elevenlabs'", specifier = ">=0.27.0" },
     { name = "httpx", marker = "extra == 'ollama'", specifier = ">=0.27.0" },
+    { name = "langfuse", marker = "extra == 'langfuse'", specifier = ">=2.50" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.10.0" },
     { name = "openai", marker = "extra == 'openai'", specifier = ">=1.30.0" },
     { name = "pgvector", marker = "extra == 'pgvector'", specifier = ">=0.4.2" },
     { name = "presidio-analyzer", marker = "extra == 'presidio'", specifier = ">=2.2.35" },
     { name = "presidio-anonymizer", marker = "extra == 'presidio'", specifier = ">=2.2.35" },
-    { name = "provider-contracts", extras = ["openai", "anthropic", "bedrock", "gemini", "ollama", "redis", "r2", "pgvector", "elevenlabs", "whisper-local", "webrtc-vad", "celery", "qdrant", "bge", "presidio", "structlog", "reranker"], marker = "extra == 'all'" },
+    { name = "provider-contracts", extras = ["openai", "anthropic", "bedrock", "gemini", "ollama", "redis", "r2", "pgvector", "elevenlabs", "whisper-local", "webrtc-vad", "celery", "qdrant", "bge", "presidio", "structlog", "reranker", "langfuse"], marker = "extra == 'all'" },
     { name = "pydantic", specifier = ">=2.7.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.2.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23.0" },
@@ -2544,7 +2594,7 @@ requires-dist = [
     { name = "types-aiobotocore-bedrock-runtime", marker = "extra == 'bedrock'", specifier = ">=2.0.0" },
     { name = "webrtcvad", marker = "extra == 'webrtc-vad'", specifier = ">=2.0.10" },
 ]
-provides-extras = ["openai", "anthropic", "bedrock", "gemini", "ollama", "redis", "r2", "pgvector", "elevenlabs", "whisper-local", "webrtc-vad", "celery", "qdrant", "bge", "presidio", "structlog", "reranker", "all", "dev"]
+provides-extras = ["openai", "anthropic", "bedrock", "gemini", "ollama", "redis", "r2", "pgvector", "elevenlabs", "whisper-local", "webrtc-vad", "celery", "qdrant", "bge", "presidio", "structlog", "reranker", "langfuse", "all", "dev"]
 
 [[package]]
 name = "psutil"
@@ -3222,7 +3272,7 @@ dependencies = [
     { name = "fastapi" },
     { name = "numpy" },
     { name = "opentelemetry-sdk" },
-    { name = "provider-contracts", extra = ["bedrock", "bge", "gemini", "ollama", "openai", "presidio", "qdrant", "structlog"] },
+    { name = "provider-contracts", extra = ["bedrock", "bge", "gemini", "langfuse", "ollama", "openai", "presidio", "qdrant", "structlog"] },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "ragas" },
@@ -3247,7 +3297,7 @@ requires-dist = [
     { name = "fastapi", specifier = "==0.133.0" },
     { name = "numpy", specifier = "<2" },
     { name = "opentelemetry-sdk", specifier = "==1.42.1" },
-    { name = "provider-contracts", extras = ["ollama", "openai", "gemini", "qdrant", "bge", "presidio", "structlog", "bedrock"], editable = "../provider-contracts" },
+    { name = "provider-contracts", extras = ["ollama", "openai", "gemini", "qdrant", "bge", "presidio", "structlog", "bedrock", "langfuse"], editable = "../provider-contracts" },
     { name = "pydantic", specifier = "==2.14.0a1" },
     { name = "pydantic-settings", specifier = "==2.14.1" },
     { name = "ragas", specifier = "==0.4.3" },

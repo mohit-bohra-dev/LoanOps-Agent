@@ -1,6 +1,6 @@
 # Servicing Agent for Internal Care Reps
 
-Hybrid (local-first, Azure-deployable) copilot for licensed mortgage-servicing
+Hybrid (local-first, AWS-deployable) copilot for licensed mortgage-servicing
 care representatives at a US mortgage servicer.
 
 ## Quick start
@@ -53,8 +53,8 @@ LoanOps Agent_Demos/
     loans.json      50 synthetic loans
     golden.jsonl    50 Q&A golden items
   infra/
-    bicep/          Azure IaC
-    scripts/        azd hooks
+    terraform/      AWS IaC
+    scripts/        deployment hooks
   docs/
     01-servicing-agent-prompts.md  Project brief (do not edit)
     02-architecture.md
@@ -63,8 +63,8 @@ LoanOps Agent_Demos/
 
 ## Key constraints
 
-- **Local-first**: `make demo` must work without any Azure credentials.
+- **Local-first**: `make demo` must work without any AWS credentials.
 - **Provider Abstraction**: all external capabilities are Protocols; swap
-  local Ã¢â€ â€ Azure via env vars only. See `docs/01-servicing-agent-prompts.md` Ã‚Â§A.6.1.
+  local ↔ AWS via env vars only. See `docs/01-servicing-agent-prompts.md` §A.6.1.
 - **No PII in code or commits**. All loan data is synthetic.
 - **Eval gate is sacred**: never weaken a threshold; fix the root cause instead.

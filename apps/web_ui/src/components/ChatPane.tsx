@@ -54,10 +54,26 @@ export function ChatPane({ activeLoanId }: { activeLoanId?: string }) {
   }, [messages, loading]);
 
   useEffect(() => {
-    if (showMemoryViewer) {
-      fetchMemoryData();
+    let active = true;
+    if (showMemoryViewer && sessionId) {
+      setMemoryLoading(true);
+      fetch(`/api/chat/memory/${sessionId}`)
+        .then((res) => {
+          if (!res.ok) throw new Error(res.statusText);
+          return res.json();
+        })
+        .then((data: ChatMemoryResponse) => {
+          if (active) setMemoryData(data);
+        })
+        .catch((err) => {
+          if (active) console.error("Error fetching memory data:", err);
+        })
+        .finally(() => {
+          if (active) setMemoryLoading(false);
+        });
     }
-  }, [showMemoryViewer, messages, sessionId]);
+    return () => { active = false; };
+  }, [showMemoryViewer, sessionId]);
 
   const handleNewConversation = () => {
     setSessionId(crypto.randomUUID());

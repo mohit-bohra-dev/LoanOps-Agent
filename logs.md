@@ -1,5 +1,20 @@
-## [2026-06-18] — Fix EscrowBalance Field Collision
+## [2026-06-21] — Langfuse Telemetry Integration
 
+**Session type:** Feature implementation
+
+**Completed:**
+- Created `LangfuseTelemetryProvider` in `provider-contracts` using official Langfuse Python SDK.
+- Wired provider into `factory.py` with `TELEMETRY__PROVIDER=langfuse`.
+- Added configuration to `settings.py` (keys, host, optional).
+- Updated eval harness (`run.py`) to push custom scores (citation coverage, refusal correctness, latency) to Langfuse.
+- Added `docker-compose.langfuse.yml` for local self-hosting.
+- Fixed 6 review issues (imports, lazy load, test mock, dummy traces, etc.).
+
+**Reason:** Needed a dedicated eval UI/dashboard for OTel traces and metrics, per approved implementation plan.
+
+---
+
+## [2026-06-18] — Fix EscrowBalance Field Collision
 **Session type:** Bug fix
 
 **Completed:**

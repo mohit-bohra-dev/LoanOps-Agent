@@ -83,7 +83,11 @@ _SERVICING_TOOLS = [
             "type": "object",
             "properties": {
                 "loan_id": {"type": "string"},
-                "program": {"type": "string"},
+                "program": {
+                    "type": "string",
+                    "description": "The specific program to check.",
+                    "enum": ["disaster_forbearance", "covid_forbearance", "repayment_plan"]
+                },
             },
             "required": ["loan_id", "program"],
         },

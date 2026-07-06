@@ -1,5 +1,6 @@
-import { Bot, User, Check, AlertTriangle, ShieldAlert, FileText, Wrench } from "lucide-react";
+import { Bot, User, Check, AlertTriangle, ShieldAlert, FileText } from "lucide-react";
 import type { AgentTurnOutput } from "../types";
+import { AgentSteps } from "./AgentSteps";
 
 interface ChatMessageProps {
   role: "user" | "agent" | "error";
@@ -44,25 +45,9 @@ export function ChatMessage({ role, text, output }: ChatMessageProps) {
           {/* Agent specific formatting */}
           {isAgent && output && (
             <div className="mt-4 space-y-4">
-
-              {/* Tool Calls */}
-              {output.tool_calls.length > 0 && (
-                <div className="bg-surface-2 rounded-md border border-surface-3 p-3 space-y-2">
-                  <p className="text-xs font-medium text-text-secondary flex items-center gap-1.5 uppercase tracking-wide">
-                    <Wrench className="h-3 w-3" /> Tools Used
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {output.tool_calls.map((tool, idx) => (
-                      <div key={idx} className="bg-surface-3 px-2 py-1 rounded text-xs text-text-muted border border-surface-4 flex flex-col gap-1">
-                        <span className="font-mono text-brand-300">{tool.name}</span>
-                        <span className="truncate max-w-[250px]" title={tool.result_summary}>
-                          {tool.result_summary}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            
+              {/* Agent Steps Timeline */}
+              <AgentSteps toolCalls={output.tool_calls} />
 
               {/* Citations */}
               {output.citations.length > 0 && (

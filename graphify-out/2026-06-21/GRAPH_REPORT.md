@@ -1,16 +1,16 @@
-# Graph Report - LoanOps-Agent  (2026-06-21)
+# Graph Report - PennyMac_Demos  (2026-06-14)
 
 ## Corpus Check
-- 160 files · ~85,799 words
+- 159 files · ~88,885 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2840 nodes · 6043 edges · 221 communities (183 shown, 38 thin omitted)
-- Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 714 edges (avg confidence: 0.68)
+- 2541 nodes · 5456 edges · 202 communities (168 shown, 34 thin omitted)
+- Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 707 edges (avg confidence: 0.68)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `575eaf06`
+- Built from commit: `bd14e180`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -193,7 +193,6 @@
 - [[_COMMUNITY_Community 195|Community 195]]
 - [[_COMMUNITY_Community 196|Community 196]]
 - [[_COMMUNITY_Community 197|Community 197]]
-- [[_COMMUNITY_Community 198|Community 198]]
 - [[_COMMUNITY_Community 199|Community 199]]
 - [[_COMMUNITY_Community 200|Community 200]]
 - [[_COMMUNITY_Community 201|Community 201]]
@@ -204,148 +203,148 @@
 2. `a()` - 64 edges
 3. `AgentTurnOutput` - 55 edges
 4. `S` - 54 edges
-5. `Settings` - 54 edges
-6. `E` - 52 edges
+5. `E` - 52 edges
+6. `Settings` - 52 edges
 7. `u()` - 48 edges
 8. `p` - 48 edges
 9. `n` - 47 edges
 10. `i` - 46 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `HTTPAuthorizationCredentials` --uses--> `Settings`  [INFERRED]
+- `AgentTurnOutput` --uses--> `AgentTurnOutput`  [INFERRED]
+  apps/agent_api/tests/test_agent_api.py → packages/common/schemas.py
+- `PolicyChunks` --uses--> `Settings`  [INFERRED]
   apps/tools_api/main.py → packages/common/settings.py
-- `bool` --uses--> `Settings`  [INFERRED]
-  apps/tools_api/main.py → packages/common/settings.py
-- `PaymentSchedule` --uses--> `Settings`  [INFERRED]
-  apps/tools_api/main.py → packages/common/settings.py
-- `EscrowBreakdown` --uses--> `Settings`  [INFERRED]
-  apps/tools_api/main.py → packages/common/settings.py
-- `EligibilityHint` --uses--> `Settings`  [INFERRED]
-  apps/tools_api/main.py → packages/common/settings.py
+- `FastAPI` --uses--> `Settings`  [INFERRED]
+  apps/agent_api/main.py → packages/common/settings.py
+- `FastAPI` --uses--> `PiiTokenizer`  [INFERRED]
+  apps/agent_api/main.py → packages/safety/tokenizer.py
+- `HealthResponse` --uses--> `Settings`  [INFERRED]
+  apps/agent_api/main.py → packages/common/settings.py
 
 ## Import Cycles
 - 1-file cycle: `apps/agent_api/main.py -> apps/agent_api/main.py`
 
-## Communities (221 total, 38 thin omitted)
+## Communities (202 total, 34 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.15
-Nodes (28): AuditSinkProvider, ContentSafetyProvider, PiiProvider, str, EvaluationResult, AuditSinkProvider, ContentSafetyProvider, PiiProvider (+20 more)
+Nodes (24): EvaluationResult, AuditSinkProvider, ContentSafetyProvider, PiiProvider, str, evaluate_outbound(), Convenience wrapper for the safety middleware.     Obtains providers from facto, Convenience wrapper for the safety middleware.     Obtains providers from facto (+16 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.10
-Nodes (18): a(), add(), break(), const(), _def(), ed(), label(), _leafNode() (+10 more)
+Cohesion: 0.19
+Nodes (13): _blockNode(), _endBlockNode(), endFor(), endFunc(), _for(), forIn(), forOf(), forRange() (+5 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.06
-Nodes (28): object, float, str, build_valid_json_output(), Build a valid JSON string matching the AgentTurnOutput schema., Tests for the JSON output parser., Tests for the JSON output parser., Valid JSON matching the schema should parse successfully. (+20 more)
+Cohesion: 0.05
+Nodes (42): _fix_citations(), parse_agent_output(), Output parser — enforces the JSON output contract from Section B.  Parses the, Parse the raw LLM output string into an ``AgentTurnOutput``.      Raises ``Age, Try to extract a JSON object from the LLM response.      Handles cases where t, Try to extract a JSON object from the LLM response.      Handles cases where t, Parse the raw LLM output string into an ``AgentTurnOutput``.      Raises ``Age, Remove <think>...</think> blocks that thinking models prepend.      Some model (+34 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.06
-Nodes (47): BaseModel, DisbursementItem, EligibilityHint, EscrowBreakdown, LoanSummary, PaymentSchedule, PaymentScheduleItem, PolicyChunks (+39 more)
+Nodes (42): BaseModel, DisbursementItem, EligibilityHint, EscrowBreakdown, LoanSummary, PaymentSchedule, PaymentScheduleItem, PolicyChunks (+34 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.02
-Nodes (61): Ad(), Af, al(), As(), ax, ay, Bd(), bx (+53 more)
+Nodes (63): Ad(), Af, ax, ay, Bd(), bx, Cd(), componentDidMount() (+55 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.07
-Nodes (21): AbstractSessionStoreProvider, Exception, ProviderCallEvent, ProviderConfigError, ProviderError, ProviderHealth, Shared provider base types for the Servicing Agent.  Project-specific helpers th, Result of a single provider health check. (+13 more)
+Cohesion: 0.22
+Nodes (9): AgentTurnOutput, _make_agent_output(), POST /chat streams a single SSE data event with the agent output., POST /chat streams a single SSE data event with the agent output., POST /chat emits an audit event with the correct schema., POST /chat emits an audit event with the correct schema., Create a valid AgentTurnOutput with sensible defaults., test_chat_returns_sse() (+1 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.07
+Cohesion: 0.06
 Nodes (30): dependencies, lucide-react, react, react-dom, redoc, tailwindcss, @tailwindcss/vite, devDependencies (+22 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.05
-Nodes (57): Any, bool, str, HTTPAuthorizationCredentials, LoanSummary, PaymentSchedule, get_loan_or_404(), get_payment_schedule() (+49 more)
+Nodes (64): Any, bool, str, BaseSettings, Settings, EligibilityHint, EscrowBreakdown, HTTPAuthorizationCredentials (+56 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.10
-Nodes (27): Any, int, str, Path, str, Any, int, str (+19 more)
+Cohesion: 0.12
+Nodes (22): Any, int, str, Path, str, Chunk, MarkdownChunker, Markdown chunker for RAG pipeline. (+14 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.09
-Nodes (46): chat(), get_chat_memory(), health(), lifespan(), Servicing Agent API — FastAPI on :8000.  Endpoints:     POST /chat   — stream, Aggregate health of all 10 providers; 503 on any failure., Aggregate health of all 10 providers; 503 on any failure., Aggregate health of all 10 providers; 503 on any failure. (+38 more)
+Nodes (47): chat(), get_chat_memory(), health(), lifespan(), Servicing Agent API — FastAPI on :8000.  Endpoints:     POST /chat   — stream, Aggregate health of all 10 providers; 503 on any failure., Aggregate health of all 10 providers; 503 on any failure., Aggregate health of all 10 providers; 503 on any failure. (+39 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.09
-Nodes (30): _compute_ragas_metrics(), _load_golden(), main(), _print_report(), Eval runner — execute golden set, compute metrics, gate on thresholds.  Usage::, Compute Ragas faithfulness and answer_relevance.      Uses the ChatProvider as L, Compute Ragas faithfulness and answer_relevance.      Uses the ChatProvider as L, Run full evaluation pipeline.      Args:         golden_path: Path to golden JSO (+22 more)
+Cohesion: 0.12
+Nodes (23): _compute_ragas_metrics(), _load_golden(), main(), _print_report(), Compute Ragas faithfulness and answer_relevance.      Uses the ChatProvider as L, Run full evaluation pipeline.      Args:         golden_path: Path to golden JSO, Print human-readable summary to stdout., CLI entrypoint for ``python -m packages.eval.run``. (+15 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.09
-Nodes (41): GoldenItem, MockToolsClientProvider, Path, float, str, check_thresholds(), Check metrics against thresholds, return list of breaches.      Args:         me, GoldenItem (+33 more)
+Cohesion: 0.06
+Nodes (54): EscalationItem, Metric computation functions for the eval harness.  All functions are pure — the, EvalItemResult, EvalReport, GoldenExpected, GoldenItem, MetricValues, Pydantic models for the eval harness data pipeline.  These models flow through: (+46 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.08
-Nodes (44): AbstractAuditSinkProvider, AbstractLLMProvider, AbstractPiiProvider, AbstractPromptStoreProvider, AbstractRerankerProvider, AbstractSecretsProvider, AbstractTelemetryProvider, AbstractToolsClientProvider (+36 more)
+Cohesion: 0.05
+Nodes (52): AbstractAuditSinkProvider, AbstractLLMProvider, AbstractPiiProvider, AbstractPromptStoreProvider, AbstractSecretsProvider, AbstractSessionStoreProvider, AbstractTelemetryProvider, AbstractToolsClientProvider (+44 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.09
-Nodes (44): _build_tool_calls_section(), _execute_tools(), Agent runner — orchestrates a single agent turn.  Flow: 1. Load the system promp, Execute tool calls and return recorded items., Execute tool calls and return recorded items.      If *pii_token_map* is provide, Run a single agent turn and return structured output., Run a single agent turn and return structured output., Run a single agent turn and return structured output. (+36 more)
+Nodes (50): _build_tool_calls_section(), _execute_tools(), Agent runner — orchestrates a single agent turn.  Flow: 1. Load the system promp, Execute tool calls and return recorded items., Execute tool calls and return recorded items.      If *pii_token_map* is provide, Run a single agent turn and return structured output., Run a single agent turn and return structured output., Run a single agent turn and return structured output. (+42 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.13
-Nodes (24): MockLLMProvider, MockPromptStoreProvider, MockToolsClientProvider, MockLLMProvider, MockPromptStoreProvider, MockToolsClientProvider, When prompt contains a ```text fence, the fenced block should be extracted., When prompt contains a ```text fence, the fenced block should be extracted. (+16 more)
+Cohesion: 0.07
+Nodes (31): load_system_prompt(), System prompt loader — reads the Helix system prompt from the prompt store.  T, Load and return the system prompt template.      The prompt store is expected, PromptStoreProvider, str, MockLLMProvider, MockPromptStoreProvider, MockToolsClientProvider (+23 more)
 
 ### Community 15 - "Community 15"
-Cohesion: 0.07
-Nodes (33): MonkeyPatch, client(), mock_rag_providers(), Verify escrow breakdown for loan 100245., Verify disaster forbearance checks for CA loan vs OH loan., Verify RAG-backed policy search endpoint., Verify that endpoints reject missing or invalid tokens., Verify that endpoints reject missing or invalid tokens. (+25 more)
+Cohesion: 0.12
+Nodes (14): Verify escrow breakdown for loan 100245., Verify disaster forbearance checks for CA loan vs OH loan., Verify RAG-backed policy search endpoint., Verify search borrower endpoint returns valid results., Verify search borrower endpoint returns valid results., Verify 404 is returned for nonexistent borrower name., Verify 404 is returned for nonexistent borrower name., Verify schedule generation (matching example values for 100245). (+6 more)
 
 ### Community 16 - "Community 16"
 Cohesion: 0.11
 Nodes (18): compilerOptions, allowImportingTsExtensions, erasableSyntaxOnly, jsx, lib, module, moduleDetection, moduleResolution (+10 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.16
-Nodes (12): provider(), Contract tests for the chat (LLM) provider., Every ChatProvider implementation must pass these tests., TestChatProviderContract, provider(), Contract tests for the PII provider., Every PiiProvider implementation must pass these tests., TestPiiProviderContract (+4 more)
+Cohesion: 0.15
+Nodes (10): provider(), Contract tests for the chat (LLM) provider., Every ChatProvider implementation must pass these tests., TestChatProviderContract, provider(), Contract tests for the PII provider., Every PiiProvider implementation must pass these tests., TestPiiProviderContract (+2 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.11
 Nodes (17): compilerOptions, allowImportingTsExtensions, erasableSyntaxOnly, lib, module, moduleDetection, moduleResolution, noEmit (+9 more)
 
 ### Community 19 - "Community 19"
-Cohesion: 0.13
-Nodes (19): CitationItem, CitationItem, A citation backing a factual claim in agent turn output., A citation backing a factual claim in agent turn output., bool, EvalItemResult, float, str (+11 more)
+Cohesion: 0.38
+Nodes (5): Dg(), fg(), Lg(), Og(), xg()
 
 ### Community 20 - "Community 20"
-Cohesion: 0.09
-Nodes (25): AbstractEmbeddingProvider, AbstractVectorStoreProvider, PolicyChunks, get_embedding_provider(), get_vector_store_provider(), Return the configured vector store provider., Return the configured embedding provider., Return the configured vector store provider. (+17 more)
+Cohesion: 0.11
+Nodes (22): AbstractEmbeddingProvider, AbstractVectorStoreProvider, PolicyChunks, get_embedding_provider(), get_vector_store_provider(), Return the configured vector store provider., Return the configured embedding provider., Return the configured embedding provider. (+14 more)
 
 ### Community 21 - "Community 21"
 Cohesion: 0.07
-Nodes (23): classify_intent(), Intent router — a pure function that classifies a rep's prompt into an intent., Classify a rep prompt into an intent.      Returns a tuple of ``(intent_type,, str, str, Tests for the pure-function intent router., Tests for the pure-function intent router., A normal servicing question should classify as ANSWER. (+15 more)
+Nodes (18): Tests for the pure-function intent router., Tests for the pure-function intent router., A normal servicing question should classify as ANSWER., A normal servicing question should classify as ANSWER., Rate quote queries should be refused., Requests for financial advice should be refused., Requests for financial advice should be refused., CFPB complaint mentions should escalate. (+10 more)
 
 ### Community 22 - "Community 22"
 Cohesion: 0.18
 Nodes (13): BorrowerContextPane(), ChatMessage(), ChatMessageProps, ChatPane(), Message, lookupLoan(), AgentTurnOutput, CitationItem (+5 more)
 
 ### Community 23 - "Community 23"
-Cohesion: 0.12
-Nodes (21): _, block(), _blockNode(), code(), else(), elseIf(), _elseNode(), endBlock() (+13 more)
+Cohesion: 0.09
+Nodes (23): _, a(), add(), assign(), block(), break(), code(), const() (+15 more)
 
 ### Community 24 - "Community 24"
-Cohesion: 0.11
-Nodes (43): ac(), ae(), bi(), cc(), Da(), de(), dt(), ec() (+35 more)
+Cohesion: 0.09
+Nodes (53): ac(), As(), bc(), bi(), bt(), ca(), cr(), dt() (+45 more)
 
 ### Community 27 - "Community 27"
-Cohesion: 0.23
-Nodes (8): provider(), Contract tests for the prompt store provider., Every PromptStoreProvider implementation must pass these tests., TestPromptStoreProviderContract, MockPromptStoreProvider, PromptStoreProvider, MockPromptStoreProvider, PromptStoreProvider
+Cohesion: 0.24
+Nodes (6): provider(), Contract tests for the prompt store provider., Every PromptStoreProvider implementation must pass these tests., TestPromptStoreProviderContract, MockPromptStoreProvider, PromptStoreProvider
 
 ### Community 28 - "Community 28"
-Cohesion: 0.23
-Nodes (8): provider(), Contract tests for the tools client provider., Every ToolsClientProvider implementation must pass these tests., TestToolsClientProviderContract, MockToolsClientProvider, ToolsClientProvider, MockToolsClientProvider, ToolsClientProvider
+Cohesion: 0.24
+Nodes (6): provider(), Contract tests for the tools client provider., Every ToolsClientProvider implementation must pass these tests., TestToolsClientProviderContract, MockToolsClientProvider, ToolsClientProvider
 
 ### Community 29 - "Community 29"
 Cohesion: 0.29
 Nodes (5): provider(), Contract tests for the embedding provider., Every EmbeddingProvider implementation must pass these tests., TestEmbeddingProviderContract, EmbeddingProvider
 
 ### Community 30 - "Community 30"
-Cohesion: 0.37
-Nodes (11): int, str, _log(), main(), Validates all synthetic data artifacts for the Servicing Agent project.  Usage, Run all validations, print summary, return 0 on success., validate_golden(), validate_loans() (+3 more)
+Cohesion: 0.40
+Nodes (9): _log(), main(), Validates all synthetic data artifacts for the Servicing Agent project.  Usage, Run all validations, print summary, return 0 on success., validate_golden(), validate_loans(), validate_sops(), int (+1 more)
 
 ### Community 31 - "Community 31"
-Cohesion: 0.25
+Cohesion: 0.24
 Nodes (6): provider(), Contract tests for the telemetry provider., Every TelemetryProvider implementation must pass these tests., TestTelemetryProviderContract, MockTelemetryProvider, TelemetryProvider
 
 ### Community 32 - "Community 32"
@@ -353,12 +352,12 @@ Cohesion: 0.29
 Nodes (5): provider(), Contract tests for the vector store provider., Every VectorStoreProvider implementation must pass these tests., TestVectorStoreProviderContract, VectorStoreProvider
 
 ### Community 33 - "Community 33"
-Cohesion: 0.33
-Nodes (6): provider(), Contract tests for the content safety provider., Every ContentSafetyProvider implementation must pass these tests., TestContentSafetyProviderContract, ContentSafetyProvider, ContentSafetyProvider
+Cohesion: 0.31
+Nodes (5): provider(), Contract tests for the content safety provider., Every ContentSafetyProvider implementation must pass these tests., TestContentSafetyProviderContract, ContentSafetyProvider
 
 ### Community 34 - "Community 34"
-Cohesion: 0.22
-Nodes (9): AbstractContentSafetyProvider, get_content_safety_provider(), Return the configured content safety provider., Return the configured content safety provider., Return the configured content safety provider., Integration test for RuleBasedContentSafetyProvider.     Verifies that blocklis, Test that MockContentSafetyProvider returns a predictable result., test_mock_content_safety() (+1 more)
+Cohesion: 0.25
+Nodes (8): AbstractContentSafetyProvider, get_content_safety_provider(), Return the configured content safety provider., Return the configured content safety provider., Integration test for RuleBasedContentSafetyProvider.     Verifies that blocklis, Test that MockContentSafetyProvider returns a predictable result., test_mock_content_safety(), test_rule_based_content_safety()
 
 ### Community 36 - "Community 36"
 Cohesion: 0.50
@@ -373,156 +372,156 @@ Cohesion: 0.08
 Nodes (23): 10. PII patterns (Presidio), 11. Common one-liners, 12. Module layout (scaffold status), 13. Data directory, 14. Docker dependencies (local dev), 15. Commit conventions, 16. Web UI components (`apps/web_ui/`), 17. CI / CD (`.github/workflows/`) (+15 more)
 
 ### Community 60 - "Community 60"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (16): After each session, Approval required before, Build a step, Check provider invariants, Common workflows, Knowledge graph (Graphify) — mandatory, Module layout, Provider Abstraction (load-bearing rule) (+8 more)
 
 ### Community 61 - "Community 61"
-Cohesion: 0.13
-Nodes (14): [2026-05-28] — Step 7: Safety layer implemented, [2026-05-31] — Tooling: Graphify knowledge graph, [2026-06-08] — Fix mypy test monkeypatch signatures, [2026-06-09] — Fix Safety Middleware Showstopper, [2026-06-09] — Graphify-first rule added to all agent instructions, [2026-06-10] — Conversational Memory Feature, [2026-06-18] — Bedrock API Key Auth & PII Stub Fixes, [2026-06-18] — Fix EscrowBalance Field Collision (+6 more)
+Cohesion: 0.29
+Nodes (6): [2026-05-28] — Step 7: Safety layer implemented, [2026-05-31] — Tooling: Graphify knowledge graph, [2026-06-08] — Fix mypy test monkeypatch signatures, [2026-06-09] — Fix Safety Middleware Showstopper, [2026-06-09] — Graphify-first rule added to all agent instructions, [2026-06-10] — Conversational Memory Feature
 
 ### Community 62 - "Community 62"
-Cohesion: 0.18
-Nodes (10): AI / agent context, Key constraints, Layout, Quick start, Servicing Agent for Internal Care Reps, AI / agent context, Key constraints, Layout (+2 more)
+Cohesion: 0.33
+Nodes (5): AI / agent context, Key constraints, Layout, Quick start, Servicing Agent for Internal Care Reps
 
 ### Community 63 - "Community 63"
-Cohesion: 0.13
+Cohesion: 0.14
 Nodes (13): Servicing Agent â€” Task Tracker, Step 10 — IaC + CI, Step 11 — Conversational Memory (Feature), Step 1.5 â€” Provider contracts (do before any feature work), Step 1 â€” Repo skeleton (acceptance: `make install lint test` exits 0), Step 2 â€” Synthetic data, Step 3 â€” RAG pipeline, Step 4 — Tools API (+5 more)
 
 ### Community 67 - "Community 67"
 Cohesion: 0.11
-Nodes (12): constructor(), Fu, gc(), hc(), ir(), mc(), Mu(), tp (+4 more)
+Nodes (13): constructor(), Fu, gc(), hc(), mc(), Mu(), ri(), tp (+5 more)
 
 ### Community 68 - "Community 68"
-Cohesion: 0.20
-Nodes (4): i, oa(), ra(), warn()
+Cohesion: 0.16
+Nodes (6): getScrollYOffset(), hr(), i, Vr(), warn(), Wr()
 
 ### Community 69 - "Community 69"
-Cohesion: 0.08
-Nodes (61): aa(), ai(), ao(), bc(), bo(), By, ca(), ci() (+53 more)
+Cohesion: 0.12
+Nodes (39): aa(), ae(), bo(), dc(), Do(), eo(), fc(), ga() (+31 more)
 
 ### Community 70 - "Community 70"
-Cohesion: 0.18
-Nodes (4): iu(), ru(), tu(), x
+Cohesion: 0.14
+Nodes (8): cu(), Ei(), g, iu(), li(), ru(), tu(), x
 
 ### Community 71 - "Community 71"
-Cohesion: 0.07
-Nodes (37): A.10 Top risks and mitigations, A.1 Business problem, A.2 Users, A.3 In-scope and out-of-scope, A.4 Success metrics, A.5 Hybrid architecture, A.6.1 Provider Abstraction Pattern, A.6 Tech stack (+29 more)
+Cohesion: 0.06
+Nodes (33): A.10 Top risks and mitigations, A.1 Business problem, A.2 Users, A.3 In-scope and out-of-scope, A.4 Success metrics, A.5 Hybrid architecture, A.6.1 Provider Abstraction Pattern, A.6 Tech stack (+25 more)
 
 ### Community 72 - "Community 72"
-Cohesion: 0.06
-Nodes (53): build_history_messages(), estimate_tokens(), export_memory_markdown(), Memory strategy — builds history context for the LLM., Estimate token count from free text using a lightweight heuristic., Build history messages from a session using a sliding window strategy., Build history messages from a session using a sliding window strategy.      Stra, Export session memory as structured markdown for audit/debugging. (+45 more)
+Cohesion: 0.07
+Nodes (44): build_history_messages(), estimate_tokens(), export_memory_markdown(), Memory strategy — builds history context for the LLM., Estimate token count from free text using a lightweight heuristic., Build history messages from a session using a sliding window strategy., Build history messages from a session using a sliding window strategy.      Stra, Export session memory as structured markdown for audit/debugging. (+36 more)
 
 ### Community 73 - "Community 73"
-Cohesion: 0.13
-Nodes (21): assign(), b, c(), cu(), g, k, leave(), loadExternalRef() (+13 more)
+Cohesion: 0.14
+Nodes (13): b, l, leave(), m, Od(), optimize(), q(), r (+5 more)
 
 ### Community 74 - "Community 74"
-Cohesion: 0.17
-Nodes (14): EvalItemResult, EvalReport, GoldenExpected, GoldenItem, MetricValues, Pydantic models for the eval harness data pipeline.  These models flow through:, Expected outcome for a golden item., Single golden Q&A item loaded from ``data/golden.jsonl``. (+6 more)
+Cohesion: 0.16
+Nodes (13): br(), c(), j(), k, Kr(), object(), Pe(), qr() (+5 more)
 
 ### Community 76 - "Community 76"
-Cohesion: 0.20
-Nodes (4): dl(), ka(), pl(), ul()
+Cohesion: 0.13
+Nodes (5): cl(), dl(), ka(), pl(), ul()
 
 ### Community 77 - "Community 77"
 Cohesion: 0.10
 Nodes (3): bl(), Qw(), Xw()
 
 ### Community 78 - "Community 78"
-Cohesion: 0.12
-Nodes (35): Bn(), br(), cn(), dn(), ee(), en(), fn(), Fr() (+27 more)
+Cohesion: 0.08
+Nodes (22): Bn(), cn(), dn(), en(), Ff, fn(), Gr(), hn() (+14 more)
 
 ### Community 79 - "Community 79"
-Cohesion: 0.13
-Nodes (20): an(), bt(), Ds(), Es(), Fs(), gs(), hs(), Io() (+12 more)
+Cohesion: 0.10
+Nodes (22): ai(), an(), Ds(), Es(), Fs(), gs(), hs(), Io() (+14 more)
 
 ### Community 80 - "Community 80"
 Cohesion: 0.12
-Nodes (5): d, E, initOneOf(), p, ye()
+Nodes (7): d, initOneOf(), na(), oa(), p, ra(), ta()
 
 ### Community 81 - "Community 81"
-Cohesion: 0.11
-Nodes (17): hasType(), hi(), init(), initConditionalOperators(), initDiscriminator(), Iv(), iy, Jv (+9 more)
+Cohesion: 0.17
+Nodes (6): hi(), Iv(), iy, Jv, ly(), sortOptions()
 
 ### Community 82 - "Community 82"
-Cohesion: 0.09
-Nodes (19): At(), be(), bs(), Cs(), Dg(), fe(), fg(), hl() (+11 more)
+Cohesion: 0.10
+Nodes (10): be(), bs(), Cs(), hl(), ma(), Mg(), qn(), Qt() (+2 more)
 
 ### Community 83 - "Community 83"
-Cohesion: 0.18
-Nodes (17): _fix_citations(), parse_agent_output(), Output parser — enforces the JSON output contract from Section B.  Parses the, Parse the raw LLM output string into an ``AgentTurnOutput``.      Raises ``Age, Try to extract a JSON object from the LLM response.      Handles cases where t, Try to extract a JSON object from the LLM response.      Handles cases where t, Parse the raw LLM output string into an ``AgentTurnOutput``.      Raises ``Age, Remove <think>...</think> blocks that thinking models prepend.      Some model (+9 more)
+Cohesion: 0.50
+Nodes (4): Verify that endpoints reject missing or invalid tokens., Verify that endpoints reject missing or invalid tokens., Verify that endpoints reject missing or invalid tokens., test_auth_required()
 
 ### Community 84 - "Community 84"
-Cohesion: 0.13
-Nodes (13): load_system_prompt(), System prompt loader — reads the Helix system prompt from the prompt store.  T, Load and return the system prompt template.      The prompt store is expected, PromptStoreProvider, str, PromptStoreProvider, str, Tests for agent_core — happy, refuse, escalate paths using InMemory providers. (+5 more)
+Cohesion: 0.50
+Nodes (4): Verify listing tools works with valid token., Verify listing tools works with valid token., Verify listing tools works with valid token., test_list_tools()
 
 ### Community 85 - "Community 85"
-Cohesion: 0.16
-Nodes (10): Example(), Header(), Im, ll(), Parameter(), RequestBody(), Response(), Schema() (+2 more)
+Cohesion: 0.22
+Nodes (4): Ea(), Im, ll(), rg()
 
 ### Community 86 - "Community 86"
-Cohesion: 0.11
-Nodes (6): f, j(), m, n, optimize(), z()
+Cohesion: 0.09
+Nodes (18): At(), E, ee(), f, fe(), h, ie(), ir() (+10 more)
 
 ### Community 87 - "Community 87"
 Cohesion: 0.32
 Nodes (7): eu(), ku(), Ou(), pu(), uu(), wu(), xu()
 
 ### Community 88 - "Community 88"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (16): 1. Identify Memory Strategy Effectiveness, 2. Find Conversations Where Memory Prevented Escalation, 3. Context Overlap & Redundancy, 4. Memory Impact on Tool Usage, Compliance Note, Conversation Memory Graph Models, Core Entities, Graph Schema Extensions for Graphify (+8 more)
 
 ### Community 89 - "Community 89"
-Cohesion: 0.18
+Cohesion: 0.25
 Nodes (3): Lb, sh, Zw()
 
 ### Community 90 - "Community 90"
-Cohesion: 0.12
+Cohesion: 0.13
 Nodes (14): 10. Escalation — Fraud, 1. Happy Path — Escrow Query, 2. Happy Path — Payment Schedule, 3. Happy Path — Escrow Status (simple), 4. Happy Path — Hardship Eligibility, 5. Refusal — Rate Quote (out of scope), 6. Refusal — Financial Advice (out of scope), 7. Escalation — CFPB Complaint (+6 more)
 
 ### Community 91 - "Community 91"
-Cohesion: 0.17
-Nodes (20): cr(), er(), et(), ft(), gt(), He(), Kt(), le() (+12 more)
+Cohesion: 0.20
+Nodes (14): cc(), er(), et(), it(), je(), nr(), nt(), ot() (+6 more)
 
 ### Community 93 - "Community 93"
-Cohesion: 0.08
-Nodes (24): Broken Components, Conclusion, Critical Issues, Design Excellence, Documentation Drift, Executive Summary, Fundamental Demo Limitations, LoanOps Agent Servicing Agent - Project Analysis (+16 more)
+Cohesion: 0.15
+Nodes (12): Broken Components, Conclusion, Critical Issues, Design Excellence, Documentation Drift, Executive Summary, Fundamental Demo Limitations, PennyMac Servicing Agent - Project Analysis (+4 more)
 
 ### Community 94 - "Community 94"
-Cohesion: 0.12
-Nodes (16): After each session, Approval required before, Build a step, Check provider invariants, Common workflows, Knowledge graph (Graphify) — mandatory, Module layout, Provider Abstraction (load-bearing rule) (+8 more)
+Cohesion: 0.15
+Nodes (13): After each session, Approval required before, Knowledge graph (Graphify) — mandatory, Module layout, Provider Abstraction (load-bearing rule), Quick reference, Read order, Rules (+5 more)
 
 ### Community 95 - "Community 95"
-Cohesion: 0.19
-Nodes (4): il(), Iw, kl(), xl()
+Cohesion: 0.13
+Nodes (6): ev, il(), Iw, kl(), nl(), xl()
 
 ### Community 97 - "Community 97"
 Cohesion: 0.17
 Nodes (11): 1. Conversation Session Service, 2. Memory Context Provider, 3. Memory Strategy Interface, Architecture, Conversation Memory Extension Plan, Core Components, Current Architecture (Stateless), Extended Architecture (+3 more)
 
 ### Community 98 - "Community 98"
-Cohesion: 0.11
-Nodes (18): 10. Tools API, 12.1 Local Dev (`make demo`), 12.2 Azure Production (target — IaC not yet implemented), 12. Deployment Topology, 13. Responsible AI Controls, 15. Non-Negotiable Rules, 1. System Overview, 2. Module Layout (+10 more)
+Cohesion: 0.17
+Nodes (12): 10. Tools API, 13. Responsible AI Controls, 15. Non-Negotiable Rules, 1. System Overview, 2. Module Layout, 4. Configuration, 5. Request Flow, 6. Tech Stack (Hybrid) (+4 more)
 
 ### Community 100 - "Community 100"
-Cohesion: 0.21
-Nodes (14): 15. RACI Matrix, 16. Risks & Mitigations, 18. Glossary, 1. Executive Summary, 2. Problem Statement, 3. Product Vision & Goals, 5.1 In Scope (v1), 5.2 Out of Scope (v1) (+6 more)
+Cohesion: 0.18
+Nodes (10): 15. RACI Matrix, 16. Risks & Mitigations, 18. Glossary, 1. Executive Summary, 2. Problem Statement, 3. Product Vision & Goals, Goals, Product Requirements Document — Servicing Agent ("Helix") (+2 more)
 
 ### Community 101 - "Community 101"
 Cohesion: 0.18
 Nodes (10): MockLLMProvider, MockPromptStoreProvider, MockToolsClientProvider, mock_chat_provider(), mock_prompt_store(), mock_tools_client(), Pytest configuration for agent_core tests., Return a MockPromptStoreProvider with a canned system prompt. (+2 more)
 
 ### Community 102 - "Community 102"
-Cohesion: 0.11
-Nodes (18): 10. Tools API, 12.1 Local Dev (`make demo`), 12.2 Azure Production (target â€” IaC not yet implemented), 12. Deployment Topology, 13. Responsible AI Controls, 14.1 `ci.yml` â€” On every PR, 14.2 `eval-gate.yml` â€” On PR + nightly, 14. CI / CD (+10 more)
+Cohesion: 0.50
+Nodes (4): Verify details can be retrieved for a valid loan ID., Verify details can be retrieved for a valid loan ID., Verify details can be retrieved for a valid loan ID., test_lookup_loan_success()
 
 ### Community 103 - "Community 103"
 Cohesion: 0.35
 Nodes (3): ia(), Lf, Qf
 
 ### Community 105 - "Community 105"
-Cohesion: 0.12
-Nodes (17): EligibilityHint, EscrowBreakdown, check_hardship_eligibility(), CheckHardshipEligibilityRequest, get_escrow_breakdown(), GetEscrowBreakdownRequest, Retrieve escrow account breakdown and disbursement history., Retrieve escrow account breakdown and disbursement history. (+9 more)
+Cohesion: 0.28
+Nodes (9): Any, MagicMock, MagicMock, MonkeyPatch, _make_mock_provider(), mock_all_factories(), Create a MagicMock that looks like a provider instance., Patch all 10 provider factory functions with mock providers.      Also patches _ (+1 more)
 
 ### Community 106 - "Community 106"
 Cohesion: 0.22
@@ -533,63 +532,71 @@ Cohesion: 0.22
 Nodes (9): 6. Functional Requirements, FR-1: Loan Data Lookup, FR-2: Policy Search & Citations, FR-3: Response Drafting, FR-4: Escalation Handling, FR-5: Refusal Handling, FR-6: PII Handling, FR-7: Rep UI (+1 more)
 
 ### Community 109 - "Community 109"
+Cohesion: 0.29
+Nodes (8): Example(), Header(), Parameter(), RequestBody(), Response(), Schema(), SecurityScheme(), T()
+
+### Community 111 - "Community 111"
 Cohesion: 0.18
-Nodes (9): EscalationItem, compute_refusal_correctness(), Accuracy of refusal and escalation classification.      For each item:     - If, Tests for compute_refusal_correctness., Agent should have refused but answered instead., Agent refused but should not have., Non-refusal item correctly answered., TestRefusalCorrectness (+1 more)
+Nodes (10): Tests for the Agent API (apps/agent_api).  All provider dependencies are mocked, /version returns a dict with a 'version' key., /version returns a dict with a 'version' key., Verify apps/agent_api/ source has no direct imports from the     concrete provid, Verify apps/agent_api/ source has no direct imports from the     concrete provid, Verify apps/agent_api/ has no direct os.environ / os.getenv calls., Verify apps/agent_api/ has no direct os.environ / os.getenv calls., test_no_concrete_provider_imports() (+2 more)
 
 ### Community 112 - "Community 112"
-Cohesion: 0.22
+Cohesion: 0.25
 Nodes (7): CFPB Complaints, Complaint Categories, Complaint Handling, Handling by Type, Notice of Error (NOE), Overview, Qualified Written Request (QWR)
 
 ### Community 113 - "Community 113"
-Cohesion: 0.22
+Cohesion: 0.25
 Nodes (7): Decision Outcomes, Evaluation Factors, Financial, Hardship, Hardship Evaluation Criteria, NPV Test, Property
 
 ### Community 114 - "Community 114"
-Cohesion: 0.22
+Cohesion: 0.25
 Nodes (8): ADR-001 â€” Orchestration: Microsoft Agent Framework, ADR-002 â€” Local LLM: Ollama + Llama 3.1 8B, ADR-003 â€” Rep UI: Streamlit, ADR-004 â€” Provider Abstraction Pattern, ADR-005 â€” Unified Agent Rules: AGENTS.md, ADR-006 â€” Rep UI: React with TypeScript, ADR-007 — Native Tool Calling, Servicing Agent â€” Architecture Decision Records
+
+### Community 115 - "Community 115"
+Cohesion: 0.29
+Nodes (4): al(), de(), sl(), yl()
 
 ### Community 116 - "Community 116"
 Cohesion: 0.29
 Nodes (6): Examples from this repo, Scope rules, Step 1 — Show current status, Step 2 — Generate commit message, Subject rules, Types
 
 ### Community 117 - "Community 117"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (6): Account Actions, Documentation Required for Investigation, Identity Theft and Fraud, Immediate Steps, Overview, Reporting
 
 ### Community 118 - "Community 118"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (6): Annual Escrow Analysis, Cushion Limit, Overview, Shortage Handling, Surplus Handling, Timeline
 
 ### Community 119 - "Community 119"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (6): Disaster Forbearance, Eligibility, FEMA Declaration Verification, Overview, Post-Forbearance Options, Terms
 
 ### Community 120 - "Community 120"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (6): Documentation Required, Eligibility Criteria, Forbearance Program, Forbearance Terms, Overview, Qualifying Hardships
 
 ### Community 121 - "Community 121"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (6): Military Service Members (SCRA), Military Spouse Protections, Overview, SCRA Foreclosure Protection, SCRA Interest Rate Cap, SCRA Requirements
 
 ### Community 122 - "Community 122"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (6): Borrower Communication, Foreclosure Alternatives (Ordered by Preference), Foreclosure Prevention, Overview, State-Specific Protections, Timeline
 
 ### Community 123 - "Community 123"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (6): Eligibility Criteria, Evaluation Factors, Loan Modification, Modification Types, Overview, Trial Period
 
 ### Community 124 - "Community 124"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (6): Cash for Keys, Deed-in-Lieu of Foreclosure (DIL), Eligibility, Eligibility, Short Sale, Short Sale and Deed-in-Lieu
 
 ### Community 125 - "Community 125"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (6): Accepted Payment Methods, ACH (Automated Clearing House), Check by Mail, Debit Card, Not Accepted, Wire Transfer
 
 ### Community 126 - "Community 126"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (6): Late Payment Handling, Overview, Partial Payments, Payment Application Order, Payment Confirmation, Payment Processing
 
 ### Community 129 - "Community 129"
@@ -597,75 +604,75 @@ Cohesion: 0.33
 Nodes (5): dest, destDir, here, root, src
 
 ### Community 130 - "Community 130"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Call Scoring, Dispute Resolution, Overview, QA Scoring Criteria, Quality Assurance and Call Monitoring
 
 ### Community 131 - "Community 131"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Common Dispute Reasons, Dispute Handling Steps, Escrow Dispute Resolution, Overview, Resolution Timelines
 
 ### Community 132 - "Community 132"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Can I remove escrow?, Common Borrower Questions, Escrow Q&A for Reps, When is my next analysis?, Why did my escrow payment go up?
 
 ### Community 133 - "Community 133"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): CARES Act Protections, COVID-19 Forbearance, Key Policy, Overview, Repayment Options After COVID Forbearance
 
 ### Community 134 - "Community 134"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Default on Plan, Eligibility, Overview, Plan Terms, Repayment Plan
 
 ### Community 135 - "Community 135"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Application Steps, Incomplete Applications, Loss Mitigation Application Process, Overview, Required Documents
 
 ### Community 136 - "Community 136"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Documentation, Eligibility, Overview, Payment Deferral, Terms
 
 ### Community 137 - "Community 137"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Auto-Pay Enrollment, Cancellation, Disclosures Required, Enrollment Process, Overview
 
 ### Community 138 - "Community 138"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Federal Programs, Overview, Payment Assistance Programs, Rep Role, State Programs
 
 ### Community 139 - "Community 139"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Common Disputes, Escalation, Investigation Process, Overview, Payment Disputes
 
 ### Community 140 - "Community 140"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Application, Overview, Principal-Only Payments, Recasting, Rules
 
 ### Community 141 - "Community 141"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Consequences, Overview, Re-presentment Policy, Returned Payment Fee, Returned Payments (NSF)
 
 ### Community 142 - "Community 142"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Overview, Payoff Components, Payoff Information, What Reps Can Provide, What Reps Cannot Provide
 
 ### Community 143 - "Community 143"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): California Foreclosure Laws, California Relief Programs, California-Specific Policies, Disaster Relief (CA), Homeowner Bill of Rights (HBOR)
 
 ### Community 144 - "Community 144"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Florida Foreclosure Laws, Florida Homestead Exemption, Florida Hurricane Relief, Florida Insurance, Florida-Specific Policies
 
 ### Community 145 - "Community 145"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): New York Foreclosure Laws, New York Foreclosure Relief, New York Property Tax, New York-Specific Policies, New York Tenant Protection
 
 ### Community 146 - "Community 146"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Ohio Disaster Relief, Ohio Foreclosure Laws, Ohio Foreclosure Mediation, Ohio Property Tax, Ohio-Specific Policies
 
 ### Community 147 - "Community 147"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Texas Disaster Relief, Texas Foreclosure Laws, Texas Homestead, Texas Property Tax, Texas-Specific Policies
 
 ### Community 148 - "Community 148"
@@ -673,39 +680,39 @@ Cohesion: 0.33
 Nodes (6): 7.1 Performance, 7.2 Security, 7.3 Reliability, 7.4 Maintainability, 7.5 Portability, 7. Non-Functional Requirements
 
 ### Community 149 - "Community 149"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (5): Configuration, Graphify Setup, Installation, Output, Usage
 
 ### Community 150 - "Community 150"
-Cohesion: 0.33
+Cohesion: 0.40
 Nodes (4): Documentation, Escalation Procedure, Escalation Routing, When to Escalate
 
 ### Community 151 - "Community 151"
-Cohesion: 0.33
+Cohesion: 0.40
 Nodes (4): Disbursement Inquiry, Disbursement Schedule, Escrow Disbursements, Tax Disputes
 
 ### Community 152 - "Community 152"
-Cohesion: 0.33
+Cohesion: 0.40
 Nodes (4): Eligibility, Process, Risks to Borrower, Voluntary Escrow Removal
 
 ### Community 153 - "Community 153"
-Cohesion: 0.33
+Cohesion: 0.40
 Nodes (4): Available Programs, Escalation Criteria, Hardship Assistance Overview, Rep Role
 
 ### Community 154 - "Community 154"
-Cohesion: 0.33
+Cohesion: 0.40
 Nodes (4): Compelling Circumstances, Eligibility Criteria, Late Fee Waiver Policy, Waiver Process
 
 ### Community 155 - "Community 155"
-Cohesion: 0.33
+Cohesion: 0.40
 Nodes (4): How to Look Up Payment History, Information Available, Payment History Inquiry, What Not to Disclose
 
 ### Community 156 - "Community 156"
-Cohesion: 0.33
+Cohesion: 0.40
 Nodes (4): Payment Changes, Payment Schedule, Requesting a Payment Schedule, Standard Amortization
 
 ### Community 157 - "Community 157"
-Cohesion: 0.33
+Cohesion: 0.40
 Nodes (4): Escrow Balance at Payoff, Payoff Process, Payoff Processing Timeline, Requesting a Payoff Statement
 
 ### Community 158 - "Community 158"
@@ -713,15 +720,15 @@ Cohesion: 0.40
 Nodes (5): 10.1 Synthetic Loans (`data/loans.json`), 10.2 Synthetic SOPs (`data/sops/`), 10.3 Golden Q&A Set (`data/golden.jsonl`), 10.4 RAG Pipeline, 10. Data Requirements
 
 ### Community 159 - "Community 159"
-Cohesion: 0.29
-Nodes (7): 11.1 Agent API (`apps/agent_api` — port 8000), 11.1 Agent API (`apps/agent_api` â€” port 8000), 11.2 Tools API (`apps/tools_api` — port 8001), 11.2 Tools API (`apps/tools_api` â€” port 8001), 11.3 Agent Output Schema (`AgentTurnOutput`), 11.4 Audit Record Schema, 11. API Contracts
+Cohesion: 0.40
+Nodes (5): 11.1 Agent API (`apps/agent_api` — port 8000), 11.2 Tools API (`apps/tools_api` — port 8001), 11.3 Agent Output Schema (`AgentTurnOutput`), 11.4 Audit Record Schema, 11. API Contracts
 
 ### Community 160 - "Community 160"
 Cohesion: 0.40
 Nodes (5): 13.1 Metrics & Thresholds, 13.2 Eval Harness, 13.3 Sacred Rule, 13.4 CI Workflows, 13. Evaluation & Quality Gates
 
 ### Community 162 - "Community 162"
-Cohesion: 0.40
+Cohesion: 0.50
 Nodes (3): Expanding the ESLint configuration, React Compiler, React + TypeScript + Vite
 
 ### Community 163 - "Community 163"
@@ -748,80 +755,84 @@ Nodes (4): 3.1 Provider Catalogue, 3.2 Pattern Rules, 3.3 Dependency Graph (what
 Cohesion: 0.67
 Nodes (3): 14. Delivery Phasing & Milestones, Build Steps (POC Phase), Phase Overview
 
+### Community 169 - "Community 169"
+Cohesion: 0.67
+Nodes (3): 5.1 In Scope (v1), 5.2 Out of Scope (v1), 5. Scope
+
+### Community 171 - "Community 171"
+Cohesion: 0.67
+Nodes (3): Build a step, Check provider invariants, Common workflows
+
 ### Community 172 - "Community 172"
 Cohesion: 0.67
 Nodes (3): 11.1 Metrics & Thresholds, 11.2 CI Gate, 11. Eval Harness
 
 ### Community 173 - "Community 173"
-Cohesion: 0.40
-Nodes (5): Return the current API version., Return the current API version., Return the current API version., Return the current API version., version()
+Cohesion: 0.67
+Nodes (3): 12.1 Local Dev (`make demo`), 12.2 Azure Production (target — IaC not yet implemented), 12. Deployment Topology
 
 ### Community 174 - "Community 174"
 Cohesion: 0.67
 Nodes (3): 14.1 `ci.yml` — On every PR, 14.2 `eval-gate.yml` — On PR + nightly, 14. CI / CD
 
+### Community 175 - "Community 175"
+Cohesion: 0.67
+Nodes (3): 8.1 Inbound — PII Redaction, 8.2 Outbound — Content Safety, 8. Safety Layer
+
 ### Community 177 - "Community 177"
-Cohesion: 0.15
-Nodes (14): EvalItemResult, float, compute_cost_avg(), compute_latency_p95(), Metric computation functions for the eval harness.  All functions are pure — the, 95th percentile latency in milliseconds.      Returns 0.0 if no valid results., Average cost per turn in USD. Informational — no gate threshold.      Returns 0., EvalItemResult (+6 more)
+Cohesion: 0.09
+Nodes (26): CitationItem, compute_citation_coverage(), compute_cost_avg(), compute_latency_p95(), compute_refusal_correctness(), 95th percentile latency in milliseconds.      Returns 0.0 if no valid results., Average cost per turn in USD. Informational — no gate threshold.      Returns 0., Fraction of non-refusal/non-escalation items that have correct citations.      A (+18 more)
 
 ### Community 179 - "Community 179"
-Cohesion: 0.15
+Cohesion: 0.11
 Nodes (17): Unit tests for PiiTokenizer., Multiple PERSON spans get distinct numbered tokens., Text with no PII spans passes through unchanged., Detokenize reverses tokenize., detokenize_dict resolves tokens in tool call arguments., detokenize_dict handles nested dicts., Empty token map returns text unchanged., detokenize handles tokens without brackets (e.g. PERSON_1). (+9 more)
 
 ### Community 181 - "Community 181"
-Cohesion: 0.09
-Nodes (43): AgentTurnOutput, Any, MagicMock, str, AgentTurnOutput, Any, MagicMock, str (+35 more)
+Cohesion: 0.18
+Nodes (13): str, _get_app(), When all factories succeed, /health returns 200 with all providers ok., Import the app fresh (after patches are applied)., When one factory raises, /health returns 503., When all factories succeed, /health returns 200 with all providers ok., When one factory raises, /health returns 503., POST /chat returns an error SSE event when the agent raises. (+5 more)
 
 ### Community 191 - "Community 191"
-Cohesion: 0.14
-Nodes (13): provider(), Contract tests for the audit sink provider., Every AuditSinkProvider implementation must pass these tests., TestAuditSinkProviderContract, AuditSinkProvider, MockAuditSinkProvider, AuditSinkProvider, Unit test for sanitize_inbound with mock providers. (+5 more)
+Cohesion: 0.16
+Nodes (10): provider(), Contract tests for the audit sink provider., Every AuditSinkProvider implementation must pass these tests., TestAuditSinkProviderContract, MockAuditSinkProvider, AuditSinkProvider, Unit test for sanitize_inbound with mock providers., Unit test for evaluate_outbound with mock providers. (+2 more)
 
 ### Community 193 - "Community 193"
 Cohesion: 0.50
-Nodes (4): 3.1 Provider Catalogue, 3.2 Pattern Rules, 3.3 Dependency Graph (what imports what), 3. Provider Abstraction Pattern
+Nodes (4): Verify 404 is returned for nonexistent loan ID., Verify 404 is returned for nonexistent loan ID., Verify 404 is returned for nonexistent loan ID., test_lookup_loan_not_found()
 
 ### Community 194 - "Community 194"
-Cohesion: 0.26
-Nodes (11): Session: 1af0e50b-fbd0-4d5e-ae9f-4c90748840c9, Session: 23820353-b84e-4ce8-b4e4-a0ecab9462d1, Session: sess-99, Turn 1 — user, Turn 2 — assistant, Turn 3 — user, Turn 4 — assistant, Turn 5 — user (+3 more)
-
-### Community 196 - "Community 196"
-Cohesion: 0.67
-Nodes (3): 11.1 Metrics & Thresholds, 11.2 CI Gate, 11. Eval Harness
+Cohesion: 0.38
+Nodes (6): Session: 23820353-b84e-4ce8-b4e4-a0ecab9462d1, Session: sess-99, Turn 1 — user, Turn 2 — assistant, Turn 3 — user, Turn 4 — assistant
 
 ### Community 197 - "Community 197"
-Cohesion: 0.14
-Nodes (15): Any, str, Any, str, PiiSpan, PiiTokenizer, Replace detected PII spans with numbered tokens and provide reversal.      Exa, Replace detected PII spans with numbered tokens and provide reversal.      Examp (+7 more)
+Cohesion: 0.15
+Nodes (13): Any, str, PiiSpan, PiiTokenizer, Replace detected PII spans with numbered tokens and provide reversal.      Exa, Replace detected PII spans with numbered tokens and provide reversal.      Examp, Replace PII spans with deterministic numbered tokens.          Args:, Replace PII spans with deterministic numbered tokens.          Args: (+5 more)
 
-### Community 198 - "Community 198"
-Cohesion: 0.67
-Nodes (3): 8.1 Inbound â€” PII Redaction, 8.2 Outbound â€” Content Safety, 8. Safety Layer
+### Community 199 - "Community 199"
+Cohesion: 0.17
+Nodes (19): ao(), By, ci(), co(), Da(), Di(), fa(), hasType() (+11 more)
 
 ### Community 200 - "Community 200"
-Cohesion: 0.25
-Nodes (8): _get_bound_providers(), Snapshot which concrete provider is bound for each category.      Returns a dict, Snapshot which concrete provider is bound for each category.      Returns a di, Snapshot which concrete provider is bound for each category.      Returns a di, Snapshot which concrete provider is bound for each category.      Returns a di, Snapshot which concrete provider is bound for each category.      Returns a di, Snapshot which concrete provider is bound for each category.      Returns a di, Snapshot which concrete provider is bound for each category.      Returns a di
-
-### Community 201 - "Community 201"
-Cohesion: 0.39
-Nodes (3): Ea(), ml(), rg()
+Cohesion: 0.29
+Nodes (7): _get_bound_providers(), Snapshot which concrete provider is bound for each category.      Returns a dict, Snapshot which concrete provider is bound for each category.      Returns a di, Snapshot which concrete provider is bound for each category.      Returns a di, Snapshot which concrete provider is bound for each category.      Returns a di, Snapshot which concrete provider is bound for each category.      Returns a di, Snapshot which concrete provider is bound for each category.      Returns a di
 
 ### Community 207 - "Community 207"
-Cohesion: 0.18
-Nodes (4): Audit sink provider protocol — re-exports from provider_contracts., Content safety provider protocol — re-exports from provider_contracts., PII provider protocol — re-exports from provider_contracts., PII tokenizer — reversible token replacement for PII spans.
+Cohesion: 0.23
+Nodes (6): Audit sink provider protocol — re-exports from provider_contracts., Content safety provider protocol — re-exports from provider_contracts., PII provider protocol — re-exports from provider_contracts., PiiSpan, Represents a redacted PII entity in text., PII tokenizer — reversible token replacement for PII spans.
 
 ## Knowledge Gaps
-- **548 isolated node(s):** `allow`, `AgentTurnOutput`, `Any`, `dev`, `build` (+543 more)
+- **505 isolated node(s):** `allow`, `name`, `private`, `version`, `type` (+500 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **38 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **34 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `AgentTurnOutput` connect `Community 13` to `Community 2`, `Community 3`, `Community 74`, `Community 109`, `Community 14`, `Community 177`, `Community 19`, `Community 83`, `Community 181`, `Community 84`, `Community 21`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
-- **Why does `run_agent_turn()` connect `Community 13` to `Community 9`, `Community 10`, `Community 14`, `Community 83`, `Community 84`, `Community 21`?**
+- **Why does `AgentTurnOutput` connect `Community 13` to `Community 2`, `Community 3`, `Community 5`, `Community 105`, `Community 11`, `Community 14`, `Community 111`, `Community 177`, `Community 181`, `Community 21`?**
   _High betweenness centrality (0.023) - this node is a cross-community bridge._
-- **Why does `Settings` connect `Community 12` to `Community 34`, `Community 3`, `Community 5`, `Community 7`, `Community 9`, `Community 105`, `Community 15`, `Community 20`?**
+- **Why does `Settings` connect `Community 7` to `Community 34`, `Community 3`, `Community 9`, `Community 12`, `Community 15`, `Community 20`?**
   _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **Why does `run_agent_turn()` connect `Community 13` to `Community 2`, `Community 9`, `Community 10`, `Community 11`, `Community 14`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Are the 6 inferred relationships involving `o()` (e.g. with `h` and `ir()`) actually correct?**
   _`o()` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 19 inferred relationships involving `a()` (e.g. with `co()` and `oa()`) actually correct?**

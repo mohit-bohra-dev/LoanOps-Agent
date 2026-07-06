@@ -9,4 +9,4 @@
 - Microsoft Agent Framework: https://learn.microsoft.com/en-us/agent-framework/overview/
 - Presidio: https://microsoft.github.io/presidio/
 - Qdrant Python client: https://python-client.qdrant.tech/
-- Azure AI Search hybrid: https://learn.microsoft.com/en-us/azure/search/hybrid-search-overview
+- Qdrant Cloud hybrid: https://learn.microsoft.com/en-us/AWS/search/hybrid-search-overview

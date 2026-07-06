@@ -34,7 +34,7 @@
 
 **Helix** is an internal, citation-grounded AI copilot for licensed mortgage-servicing care representatives at a Tier-1 US mortgage servicer (modelled on LoanOps Agent, $700B+ serviced). The agent retrieves the right policy, calls read-only loan APIs, and drafts a response for the rep to approve before delivery to the borrower.
 
-The system is **hybrid by design**: an identical Python codebase runs locally (Ollama + Qdrant) or on Azure (Azure OpenAI + Azure AI Search) via environment-variable swap, with no code forks. The product is explicitly **not borrower-facing** and never offers licensed advice.
+The system is **hybrid by design**: an identical Python codebase runs locally (Ollama + Qdrant) or on AWS (Amazon Bedrock + Qdrant Cloud) via environment-variable swap, with no code forks. The product is explicitly **not borrower-facing** and never offers licensed advice.
 
 ---
 
@@ -223,7 +223,7 @@ This fragmented information landscape drives up **Average Handle Time (AHT)** an
 |-------------|---------|
 | No PII in code/commits | All loan data is synthetic |
 | Bearer token auth | Tools API protected via `TOOLS_API_TOKEN` |
-| Secrets management | `.env` (local) / Key Vault + Managed Identity (Azure) |
+| Secrets management | `.env` (local) / AWS Secrets Manager + IAM Roles (AWS) |
 | No keys in code | `.env.example` only; `.env` is gitignored |
 | Content delimiters | Retrieved content is delimited; system prompt treats it as untrusted data |
 | Tool allowlist | Only 5 whitelisted tools; no tool invention |
@@ -251,8 +251,8 @@ This fragmented information landscape drives up **Average Handle Time (AHT)** an
 
 | Requirement | Details |
 |-------------|---------|
-| Local-first | `make demo` runs with zero Azure credentials |
-| Hybrid parity | Same code path runs locally and in Azure; only bound provider changes |
+| Local-first | `make demo` runs with zero AWS credentials |
+| Hybrid parity | Same code path runs locally and in AWS; only bound provider changes |
 | Granular provider mix | e.g., cloud LLM + local vector store is a supported combination |
 
 ---
@@ -281,7 +281,7 @@ LoanOps Agent_Demos/
     loans.json          # 50 synthetic loans
     golden.jsonl        # 50 Q&A golden items
   infra/
-    bicep/              # Azure IaC modules
+    terraform/              # AWS IaC modules
     scripts/            # azd hooks
   docs/
     01-servicing-agent-prompts.md   # Project brief (source of truth â€” do not edit)
@@ -291,22 +291,22 @@ LoanOps Agent_Demos/
 
 ### 8.2 Tech Stack
 
-| Layer | Local (dev) | Azure (target) |
+| Layer | Local (dev) | AWS (target) |
 |-------|-------------|----------------|
 | Language | Python 3.11 | Python 3.11 |
-| API framework | FastAPI | FastAPI on AKS |
+| API framework | FastAPI | FastAPI on ECS Fargate |
 | Orchestration | Microsoft Agent Framework | Same + Prompt Flow |
-| LLM | Ollama (Llama 3.1 8B) | Azure OpenAI (GPT-4o-mini routing, GPT-4o complex) |
-| Embeddings | bge-small-en-v1.5 (local) | text-embedding-3-large (AOAI) |
-| Vector store | Qdrant (Docker) | Azure AI Search (BM25 + vector + semantic re-rank) |
+| LLM | Ollama (Llama 3.1 8B) | Amazon Bedrock (GPT-4o-mini routing, GPT-4o complex) |
+| Embeddings | bge-small-en-v1.5 (local) | text-embedding-3-large (Bedrock) |
+| Vector store | Qdrant (Docker) | Qdrant Cloud (BM25 + vector + semantic re-rank) |
 | PII | Presidio (en) | Presidio (same â€” runs on-host) |
-| Content safety | Rule-based stub | Azure AI Content Safety |
-| Audit log | JSONL on disk | App Insights custom events + ADLS append |
-| Observability | OpenTelemetry â†’ console | App Insights + Log Analytics |
-| Secrets | `.env` | Key Vault + Managed Identity |
+| Content safety | Rule-based stub | AWS AI Content Safety |
+| Audit log | JSONL on disk | CloudWatch Logs custom events + ADLS append |
+| Observability | OpenTelemetry â†’ console | CloudWatch Logs + CloudWatch Logs |
+| Secrets | `.env` | AWS Secrets Manager + IAM Roles |
 | UI | React + TypeScript (Vite) | Static Web Apps |
-| CI/CD | GitHub Actions (lint, test, eval-gate) | + `azd up` / Bicep deploy |
-| IaC | n/a | Bicep modules |
+| CI/CD | GitHub Actions (lint, test, eval-gate) | + `azd up` / Terraform deploy |
+| IaC | n/a | Terraform modules |
 
 ### 8.3 Architecture Diagram
 
@@ -371,13 +371,13 @@ flowchart LR
 
 ### 9.1 Provider Catalogue
 
-| # | Provider | Protocol | Local Implementation | Azure Implementation | Env Var |
+| # | Provider | Protocol | Local Implementation | AWS Implementation | Env Var |
 |---|----------|----------|---------------------|---------------------|---------|
-| 1 | LLM (chat) | `ChatProvider` | `OllamaChatProvider` | `AzureOpenAIChatProvider` | `LLM__PROVIDER` |
-| 2 | Embeddings | `EmbeddingProvider` | `LocalBgeEmbeddingProvider` | `AzureOpenAIEmbeddingProvider` | `EMBEDDING__PROVIDER` |
-| 3 | Vector store | `VectorStoreProvider` | `QdrantVectorStoreProvider` | `AzureAISearchVectorStoreProvider` | `VECTOR_STORE__PROVIDER` |
+| 1 | LLM (chat) | `ChatProvider` | `OllamaChatProvider` | `AWSOpenAIChatProvider` | `LLM__PROVIDER` |
+| 2 | Embeddings | `EmbeddingProvider` | `LocalBgeEmbeddingProvider` | `AWSOpenAIEmbeddingProvider` | `EMBEDDING__PROVIDER` |
+| 3 | Vector store | `VectorStoreProvider` | `QdrantVectorStoreProvider` | `AWSAISearchVectorStoreProvider` | `VECTOR_STORE__PROVIDER` |
 | 4 | PII detection | `PiiProvider` | `PresidioPiiProvider` | `PresidioPiiProvider` (same) | `PII__PROVIDER` |
-| 5 | Content safety | `ContentSafetyProvider` | `RuleBasedSafetyProvider` | `AzureContentSafetyProvider` | `SAFETY__PROVIDER` |
+| 5 | Content safety | `ContentSafetyProvider` | `RuleBasedSafetyProvider` | `AWSContentSafetyProvider` | `SAFETY__PROVIDER` |
 | 6 | Audit sink | `AuditSinkProvider` | `JsonlAuditSinkProvider` | `AppInsightsAuditSinkProvider` | `AUDIT__SINK` |
 | 7 | Secrets | `SecretsProvider` | `EnvFileSecretsProvider` | `KeyVaultSecretsProvider` | `SECRETS__PROVIDER` |
 | 8 | Telemetry | `TelemetryProvider` | `ConsoleOtelTelemetryProvider` | `AppInsightsTelemetryProvider` | `TELEMETRY__PROVIDER` |
@@ -530,7 +530,7 @@ Every drafted reply requires rep approval before borrower delivery. No tool in v
 ### 12.4 Content Safety at Egress
 
 - **Local:** Rule-based stub (block list + regex)
-- **Azure:** Azure AI Content Safety
+- **AWS:** AWS AI Content Safety
 - Categories: `hate`, `selfHarm`, `sexual`, `violence`, plus jailbreak detection
 
 ### 12.5 Audit Trail
@@ -562,7 +562,7 @@ Mandatory supervisor sampling on 10% of rep-approved replies.
 | Faithfulness (Ragas) | â‰¥ 0.85 | Eval gate, nightly + PR |
 | Citation coverage | = 1.0 (100% of non-refusal answers) | Custom metric |
 | Refusal correctness (TP rate) | â‰¥ 0.95 | Golden set |
-| p95 end-to-end latency | â‰¤ 4,000 ms | App Insights |
+| p95 end-to-end latency | â‰¤ 4,000 ms | CloudWatch Logs |
 | Cost per resolved query | â‰¤ $0.04 | Token accounting |
 
 ### 13.2 Eval Harness
@@ -647,7 +647,7 @@ Mandatory supervisor sampling on 10% of rep-approved replies.
 
 ### 17.1 Hard Constraints
 
-- **Local-first:** `make demo` must work with zero Azure credentials
+- **Local-first:** `make demo` must work with zero AWS credentials
 - **No concrete imports** outside `packages/common/providers/` â€” CI grep gate enforces this
 - **No `os.environ` / `os.getenv`** outside `packages/common/settings.py`
 - **No PII** anywhere in code, test fixtures, or commits
@@ -684,7 +684,7 @@ Mandatory supervisor sampling on 10% of rep-approved replies.
 | Term | Definition |
 |------|------------|
 | **AHT** | Average Handle Time â€” mean duration of a borrower interaction |
-| **AOAI** | Azure OpenAI Service |
+| **Bedrock** | Amazon Bedrock Service |
 | **Citation** | A reference to a source (policy chunk or tool output) backing a factual claim |
 | **FCR** | First-Contact Resolution â€” percentage of inquiries resolved on the first interaction |
 | **Golden set** | Curated Q&A pairs used for automated evaluation |

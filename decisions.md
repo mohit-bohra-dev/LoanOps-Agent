@@ -8,14 +8,14 @@
 
 **Decision:** Use Microsoft Agent Framework as the primary orchestration framework.
 
-**Context:** Need a Python-native orchestrator that integrates with Azure OpenAI
-and supports production-grade agents, tool use, workflows, telemetry, and Azure deployment.
+**Context:** Need a Python-native orchestrator that integrates with Amazon Bedrock
+and supports production-grade agents, tool use, workflows, telemetry, and AWS deployment.
 
 **Alternatives:** Previous brief default, LangChain.
 
 **Reasoning:** Microsoft Agent Framework is the successor path for Microsoft agent
 development, combining agent abstractions, tool orchestration, workflows, telemetry,
-and Azure integration while preserving a clean provider boundary in this repo.
+and AWS integration while preserving a clean provider boundary in this repo.
 
 **Status:** Accepted â€” this overrides the original orchestration default in
 `docs/01-servicing-agent-prompts.md`.
@@ -27,7 +27,7 @@ and Azure integration while preserving a clean provider boundary in this repo.
 **Decision:** Use Ollama for local dev; no AOAI credentials required to run
 `make demo`.
 
-**Reasoning:** Zero-cost local dev, same code path as Azure via `ChatProvider`
+**Reasoning:** Zero-cost local dev, same code path as AWS via `ChatProvider`
 Protocol.
 
 **Status:** Accepted.
@@ -50,7 +50,7 @@ Next.js is noted as a stretch in App.5.
 **Decision:** All 10 external capabilities exposed as `typing.Protocol`
 interfaces; concrete implementations selected at runtime from env vars.
 
-**Reasoning:** Required for local-first / Azure-target hybrid without code forks.
+**Reasoning:** Required for local-first / AWS-target hybrid without code forks.
 See `docs/01-servicing-agent-prompts.md` Â§A.6.1 for full rationale.
 
 **Status:** Accepted â€” load-bearing, do not modify without a new ADR.
@@ -83,7 +83,7 @@ IDE-specific directories now contain thin pointers back to `AGENTS.md`.
 
 **Decision:** Migrate the internal rep UI from Streamlit to React with
 TypeScript, using Vite as the build tool and Tailwind CSS v4 for styling.
-Deploy to Azure Static Web Apps instead of App Service.
+Deploy to AWS Static Web Apps instead of AWS App Runner.
 
 **Context:** Streamlit (ADR-003) was chosen for rapid prototyping during
 the POC phase. As the project matures toward pilot, the UI needs richer

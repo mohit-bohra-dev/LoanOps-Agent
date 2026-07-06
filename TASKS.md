@@ -1,37 +1,37 @@
-# Servicing Agent â€” Task Tracker
+# Servicing Agent — Task Tracker
 
-> **Current focus:** Step 3 â€” RAG pipeline
+> **Current focus:** Step 12 — Observability & Eval Dashboard
 
 ---
 
-## Step 1 â€” Repo skeleton (acceptance: `make install lint test` exits 0)
+## Step 1 — Repo skeleton (acceptance: `make install lint test` exits 0)
 
 - [x] Configure `uv` workspace (`pyproject.toml` already stubbed)
 - [x] Wire `ruff`, `mypy --strict`, `pytest` via `pyproject.toml`
 - [x] Install and configure `pre-commit`
 - [x] Verify `make install lint test` exits 0 on clean clone
 
-## Step 1.5 â€” Provider contracts (do before any feature work)
+## Step 1.5 — Provider contracts (do before any feature work)
 
-- [x] `packages/common/settings.py` â€” full Pydantic Settings with nested provider configs
-- [x] `packages/common/providers/base.py` â€” ProviderHealth, ProviderError, ProviderCallEvent
+- [x] `packages/common/settings.py` — full Pydantic Settings with nested provider configs
+- [x] `packages/common/providers/base.py` — ProviderHealth, ProviderError, ProviderCallEvent
 - [x] Implement Protocol + InMemory impl for all 10 provider categories
-- [x] `packages/common/providers/factory.py` â€” 10 factory functions, lru_cache
-- [x] `packages/common/providers/contract_tests/` â€” one test module per Protocol
+- [x] `packages/common/providers/factory.py` — 10 factory functions, lru_cache
+- [x] `packages/common/providers/contract_tests/` — one test module per Protocol
 - [ ] CI grep gate: no concrete imports outside providers/
 - [x] Accept: `mypy --strict packages/common` clean; contract tests green
 
-## Step 2 â€” Synthetic data
+## Step 2 — Synthetic data
 
-- [x] `data/loans.json` â€” 50 synthetic loans (CA/TX/FL/NY/OH mix)
-- [x] `data/sops/` â€” 30 synthetic markdown SOPs with YAML frontmatter
-- [x] `data/golden.jsonl` â€” 50 Q&A items (â‰¥5 refusal, â‰¥5 escalation)
+- [x] `data/loans.json` — 50 synthetic loans (CA/TX/FL/NY/OH mix)
+- [x] `data/sops/` — 30 synthetic markdown SOPs with YAML frontmatter
+- [x] `data/golden.jsonl` — 50 Q&A items (≥5 refusal, ≥5 escalation)
 - [x] `python -m packages.eval.validate_data` reports 0 errors
 
-## Step 3 â€” RAG pipeline
+## Step 3 — RAG pipeline
 
 - [x] `LocalBgeEmbeddingProvider` + `QdrantVectorStoreProvider`
-- [x] `AzureOpenAIEmbeddingProvider` + `AzureAISearchVectorStoreProvider`
+- [x] `AWSOpenAIEmbeddingProvider` + `AWSAISearchVectorStoreProvider`
 - [x] Chunker: ~600 tokens, 80 overlap, markdown header-aware
 - [x] `python -m packages.rag.ingest data/sops` ingests all SOPs
 - [x] Nearest-neighbour test: 10 known queries return correct chunk
@@ -51,7 +51,7 @@
 - [x] Unit tests: happy / refuse / escalate paths against InMemory providers
 - [x] Fix test monkeypatches to match protocol signature (self, json_mode)
 
-## Step 6 â€” Agent API
+## Step 6 — Agent API
 
 - [x] FastAPI :8000, `POST /chat` (SSE), `GET /health`, `GET /version`
 - [x] `GET /health` aggregates all 10 providers; 503 on failure
@@ -61,7 +61,7 @@
 ## Step 7 — Safety layer
 
 - [x] `PresidioPiiProvider` — SSN, DOB, account, name redaction
-- [x] `RuleBasedSafetyProvider` + `AzureContentSafetyProvider`
+- [x] `RuleBasedSafetyProvider` + `AWSContentSafetyProvider`
 - [x] Middleware: PII anonymize inbound, safety evaluate outbound
 - [x] Tests: redaction + blocking pass against both provider configs
 
@@ -79,7 +79,7 @@
 
 ## Step 10 — IaC + CI
 
-- [x] Bicep modules: AOAI, AI Search, AKS, KV, MI, App Insights, Private Endpoints
+- [x] Terraform modules: Bedrock, AI Search, ECS Fargate, KV, MI, CloudWatch Logs, Private Endpoints
 - [x] `ci.yml`: lint + mypy + unit tests on PR
 - [x] `eval-gate.yml`: nightly + PR; uploads `out/eval.json` artifact
 
@@ -90,3 +90,10 @@
 - [x] Agent core memory strategy (Sliding window)
 - [x] API integration with session context
 - [x] UI updates to handle session IDs and active loan mapping
+
+## Step 12 — Observability & Eval Dashboard
+
+- [x] Implement `LangfuseTelemetryProvider` in `provider-contracts`
+- [x] Wire Langfuse into `LoanOps-Agent` settings and factory
+- [x] Push eval metrics to Langfuse dashboard from `run_eval`
+- [x] Provide `docker-compose.langfuse.yml` for self-hosted instance

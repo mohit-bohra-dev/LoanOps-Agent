@@ -1,0 +1,1 @@
+{"id": "g001", "rep_prompt": "Loan 100245 escrow jumped $35 in May — draft a reply explaining why.", "loan_id": "100245", "expected": {"refusal": false, "escalation": null, "must_cite": ["policy:escrow/annual-analysis.md", "tool:get_escrow_breakdown"], "must_call_tools": ["get_escrow_breakdown"], "forbidden_phrases": []}}

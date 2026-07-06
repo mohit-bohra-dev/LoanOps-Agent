@@ -21,6 +21,7 @@ app = FastAPI(
     title="Servicing Tools API",
     description="Mock servicing API endpoints for the Servicing Agent",
     version="1.0.0",
+    docs_url="/",
     redoc_url=None,
 )
 
@@ -172,7 +173,6 @@ def search_loans_by_borrower_name(name: str) -> list[schemas.LoanSummary]:
 # ── Endpoints ──────────────────────────────────────────────────────────────
 
 
-@app.get("/")
 @app.get("/tools", response_model=list[str])
 async def list_tools(token: str = Depends(verify_token)) -> list[str]:
     """List all available tools."""

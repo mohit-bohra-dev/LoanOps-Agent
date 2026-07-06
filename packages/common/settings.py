@@ -48,11 +48,11 @@ class GeminiChatConfig(BaseModel):
 
 
 class ChatConfig(BaseModel):
-    provider: Literal["ollama", "aoai", "openai", "bedrock", "gemini"] = "ollama"
+    provider: Literal["ollama", "aoai", "openai", "bedrock", "gemini"] = "bedrock"
     ollama: OllamaChatConfig = Field(default_factory=OllamaChatConfig)
     aoai: AOAIChatConfig | None = None
     openai: OpenAIChatConfig | None = None
-    bedrock: BedrockChatConfig | None = None
+    bedrock: BedrockChatConfig = Field(default_factory=BedrockChatConfig)
     gemini: GeminiChatConfig | None = None
     deterministic_by_default: bool = False
 
@@ -82,14 +82,17 @@ class AOAIEmbeddingConfig(BaseModel):
 
 
 class GeminiEmbeddingConfig(BaseModel):
+    """Google Gemini embedding configuration."""
     api_key: str = ""
-    model: str = "text-embedding-004"
+    model: str = "gemini-embedding-2"
+    # api_key: str = Field(alias="GEMINI_API_KEY")
+    # model: str = "gemini-embedding-2"
 
 
 class EmbeddingConfig(BaseModel):
-    provider: Literal["local_bge", "aoai", "gemini"] = "local_bge"
+    provider: Literal["local_bge", "aoai", "gemini"] = "gemini"
     aoai: AOAIEmbeddingConfig | None = None
-    gemini: GeminiEmbeddingConfig | None = None
+    gemini: GeminiEmbeddingConfig = Field(default_factory=GeminiEmbeddingConfig)
 
 
 class PiiConfig(BaseModel):
@@ -110,8 +113,16 @@ class SecretsConfig(BaseModel):
     provider: Literal["env", "keyvault"] = "env"
 
 
+class LangfuseConfig(BaseModel):
+    public_key: str = "pk-lf-local"
+    secret_key: str = "sk-lf-local"
+    host: str = "http://localhost:3000"
+    flush_on_shutdown: bool = True
+
+
 class TelemetryConfig(BaseModel):
-    provider: Literal["console", "appinsights"] = "console"
+    provider: Literal["console", "appinsights", "langfuse"] = "console"
+    langfuse: LangfuseConfig | None = None
 
 
 class ToolsClientConfig(BaseModel):

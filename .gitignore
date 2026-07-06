@@ -42,3 +42,7 @@ collect.txt
 fast.txt
 output.json
 *.whl
+
+# Slidev Presentations
+presentations/*/node_modules/
+presentations/*/dist/

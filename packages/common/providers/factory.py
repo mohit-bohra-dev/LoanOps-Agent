@@ -246,7 +246,16 @@ def get_telemetry_provider() -> AbstractTelemetryProvider:
         from provider_contracts.telemetry.console import ConsoleTelemetryProvider
 
         return ConsoleTelemetryProvider()
+    if cfg.telemetry.provider == "langfuse":
+        from provider_contracts.telemetry.langfuse import LangfuseTelemetryProvider
+
+        return LangfuseTelemetryProvider(
+            public_key=cfg.telemetry.langfuse.public_key,
+            secret_key=cfg.telemetry.langfuse.secret_key,
+            host=cfg.telemetry.langfuse.host,
+        )
     if cfg.telemetry.provider == "appinsights":
+
         raise ProviderConfigError(
             "App Insights telemetry provider not yet implemented in provider_contracts"
         )

@@ -28,6 +28,7 @@ from packages.common.providers import (
 from packages.common.providers.factory import (
     get_chat_provider,
     get_prompt_store_provider,
+    get_telemetry_provider,
     get_tools_client_provider,
 )
 from packages.eval.metrics import (
@@ -254,6 +255,18 @@ async def run_eval(
     if metric_values.answer_relevance is not None:
         metrics_dict["answer_relevance"] = metric_values.answer_relevance
 
+    # Push eval scores to telemetry (appears on Langfuse dashboard)
+    telemetry = get_telemetry_provider()
+    for metric_name, value in metrics_dict.items():
+        await telemetry.record_metric(
+            f"eval.{metric_name}",
+            value,
+            unit="ratio" if metric_name != "latency_p95_ms" else "ms",
+            attributes={"total_items": str(metric_values.total_items), "error_count": str(metric_values.error_count)},
+        )
+    if hasattr(telemetry, "flush"):
+        await telemetry.flush()
+
     breaches = check_thresholds(metrics_dict, skip=set(skipped))
 
     report = EvalReport(
@@ -299,9 +312,9 @@ def _print_report(report: EvalReport) -> None:
 
     print()
     if report.thresholds_passed:
-        print("  ✓ ALL THRESHOLDS PASSED")
+        print("  [PASS] ALL THRESHOLDS PASSED")
     else:
-        print(f"  ✗ {len(report.breaches)} THRESHOLD BREACH(ES):")
+        print(f"  [FAIL] {len(report.breaches)} THRESHOLD BREACH(ES):")
         for b in report.breaches:
             op = ">=" if b.direction == "gte" else "<="
             print(f"    - {b.metric}: {b.actual:.4f} (need {op} {b.threshold})")

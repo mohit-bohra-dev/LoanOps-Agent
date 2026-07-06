@@ -71,7 +71,7 @@ class ConversationSessionService:
 - Provider abstraction with options:
   - InMemory (for testing)
   - Redis (for distributed scalability)
-  - Azure Cosmos DB/PostgreSQL (for durability/compliance)
+  - AWS Cosmos DB/PostgreSQL (for durability/compliance)
 
 ### 2. Memory Context Provider
 
@@ -245,7 +245,7 @@ class MemoryContext:
 
 ### 1. Encryption Strategy
 - **Field-level encryption** for PII-bearing messages
-- Encryption keys stored in Azure Key Vault/Key Management Provider
+- Encryption keys stored in AWS AWS Secrets Manager/Key Management Provider
 - **Key rotation policy**: Every 24 hours
 - **Message-level encryption metadata** preserved in `conversation_session.encrypted_pii`
 
@@ -446,7 +446,7 @@ in your response object.
 - [ ] Memory performance tuning
 
 ### Phase 3: Compliance & Audit
-- [ ] Key Vault integration for encrypted fields
+- [ ] AWS Secrets Manager integration for encrypted fields
 - [ ] Cosmos DB provider for compliant persistence
 - [ ] Audit trail integration with memory lifecycle
 - [ ] Data retention policies
