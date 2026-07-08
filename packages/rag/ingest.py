@@ -3,7 +3,12 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from packages.common.providers.factory import get_embedding_provider, get_vector_store_provider
+from packages.common.providers.factory import (
+    get_embedding_provider,
+    get_vector_store_provider,
+    get_policy_source_provider,
+)
+from packages.common.providers.policy_source import PolicyPage
 from packages.rag.chunker import MarkdownChunker
 
 logger = logging.getLogger(__name__)
@@ -11,19 +16,16 @@ logger = logging.getLogger(__name__)
 
 async def ingest_sops(sops_dir: str | Path) -> None:
     """
-    Reads SOPs from directory, chunks them, embeds them, and stores them in the vector store.
+    Reads SOPs from provider, chunks them, embeds them, and stores them in the vector store.
     """
-    sops_path = Path(sops_dir)
-    if not sops_path.exists():
-        raise FileNotFoundError(f"SOPs directory not found: {sops_dir}")
-
     chunker = MarkdownChunker()
     embedder = get_embedding_provider()
     vector_store = get_vector_store_provider()
+    policy_provider = get_policy_source_provider()
 
-    # Find all markdown files
-    md_files = list(sops_path.glob("**/*.md"))
-    logger.info(f"Found {len(md_files)} SOP files for ingestion.")
+    # Fetch pages from the configured provider
+    pages = await policy_provider.fetch_pages()
+    logger.info(f"Fetched {len(pages)} policy pages for ingestion.")
 
     # Ensure collection exists
     try:
@@ -34,28 +36,9 @@ async def ingest_sops(sops_dir: str | Path) -> None:
         # It might already exist, which is fine in some providers or handled by them
         logger.info(f"Collection 'sops' may already exist or error occurred: {e}")
 
-    for file_path in md_files:
-        logger.info(f"Ingesting {file_path.name}...")
-        text = file_path.read_text(encoding="utf-8")
-
-        # Extract YAML frontmatter if present
-        content = text
-        metadata = {"source": str(file_path.relative_to(sops_path))}
-        if text.startswith("---"):
-            try:
-                parts = text.split("---", 2)
-                if len(parts) >= 3:
-                    # Simple YAML-like split for frontmatter
-                    frontmatter = parts[1]
-                    content = parts[2].strip()
-                    for line in frontmatter.splitlines():
-                        if ":" in line:
-                            k, v = line.split(":", 1)
-                            metadata[k.strip()] = v.strip()
-            except Exception as e:
-                logger.warning(f"Failed to parse frontmatter in {file_path.name}: {e}")
-
-        chunks = chunker.chunk(content, metadata=metadata)
+    for page in pages:
+        logger.info(f"Ingesting {page.title}...")
+        chunks = chunker.chunk(page.content, metadata=page.metadata)
 
         # Process chunks in batches for efficiency
         for chunk in chunks:

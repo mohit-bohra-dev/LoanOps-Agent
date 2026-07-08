@@ -12,6 +12,25 @@ from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+class LoanApiConfig(BaseModel):
+    base_url: str = ""
+    api_key: str = ""
+    timeout_seconds: int = 10
+
+
+class ConfluenceConfig(BaseModel):
+    base_url: str = ""
+    api_token: str = ""
+    username: str = ""
+    space_keys: list[str] = []
+
+
+class DataConfig(BaseModel):
+    mode: Literal["mock", "real"] = "mock"
+    loan_api: LoanApiConfig = Field(default_factory=LoanApiConfig)
+    confluence: ConfluenceConfig = Field(default_factory=ConfluenceConfig)
+
+
 class OllamaChatConfig(BaseModel):
     base_url: str = "http://localhost:11434"
     model_fast: str = "llama3.1:8b"
@@ -155,6 +174,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
+    data: DataConfig = Field(default_factory=DataConfig)
     tools_api_token: str = Field(default="dev-token", validation_alias="TOOLS_API_TOKEN")
     llm: ChatConfig = Field(default_factory=ChatConfig)
     embedding: EmbeddingConfig = Field(default_factory=EmbeddingConfig)

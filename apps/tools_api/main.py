@@ -12,7 +12,11 @@ from provider_contracts.vector_store import SearchResult
 from pydantic import BaseModel
 
 from packages.common import schemas
-from packages.common.providers.factory import get_embedding_provider, get_vector_store_provider
+from packages.common.providers.factory import (
+    get_embedding_provider,
+    get_loan_data_provider,
+    get_vector_store_provider,
+)
 from packages.common.settings import Settings
 
 logger = logging.getLogger(__name__)
@@ -27,40 +31,6 @@ app = FastAPI(
 
 security = HTTPBearer()
 settings = Settings()
-
-# In-memory database loaded from loans.json
-LOANS_DB: dict[str, dict[str, Any]] = {}
-
-
-def load_loans_db() -> None:
-    """Load the synthetic loans database from loans.json."""
-    # Search in common locations
-    paths_to_try = [
-        Path("data/loans.json"),
-        Path(__file__).parent.parent.parent / "data" / "loans.json",
-    ]
-
-    loaded = False
-    for path in paths_to_try:
-        if path.exists():
-            try:
-                with open(path, encoding="utf-8") as f:
-                    loans_list = json.load(f)
-                    for loan in loans_list:
-                        LOANS_DB[loan["loan_id"]] = loan
-                loaded = True
-                break
-            except Exception as e:
-                print(f"Error loading loans database from {path}: {e}")
-
-    if not loaded:
-        print("WARNING: Loans database (loans.json) could not be loaded!")
-
-
-@app.on_event("startup")
-def startup_event() -> None:
-    load_loans_db()
-
 
 def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:  # noqa: B008
     """Verify that the Bearer token matches the configured TOOLS_API_TOKEN."""
@@ -110,14 +80,16 @@ class SearchBorrowerRequest(BaseModel):
 
 def get_loan_or_404(loan_id: str) -> dict[str, Any]:
     """Retrieve loan from the database or raise 404."""
+    raise NotImplementedError("Use async_get_loan_or_404 instead")
+
+async def async_get_loan_or_404(loan_id: str) -> dict[str, Any]:
+    """Retrieve loan from the data provider or raise 404."""
     # Strip whitespace to handle LLM formatting quirks
     clean_loan_id = loan_id.strip()
 
-    # Make sure DB is loaded (useful if startup event hasn't run in test context)
-    if not LOANS_DB:
-        load_loans_db()
-
-    loan = LOANS_DB.get(clean_loan_id)
+    provider = get_loan_data_provider()
+    loan = await provider.get_loan(clean_loan_id)
+    
     if not loan:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -144,30 +116,11 @@ def to_loan_summary(loan: dict[str, Any]) -> schemas.LoanSummary:
     )
 
 
-def matches_borrower_name(loan: dict[str, Any], query: str) -> bool:
-    """Return True when a case-insensitive borrower name match is found."""
-    query_tokens = [token for token in query.lower().split() if token]
-    if not query_tokens:
-        return False
-
-    first = loan["borrower_first_name"].lower()
-    last = loan["borrower_last_name"].lower()
-    full = f"{first} {last}"
-
-    return all(token in first or token in last or token in full for token in query_tokens)
-
-
-def search_loans_by_borrower_name(name: str) -> list[schemas.LoanSummary]:
-    """Search loan records by borrower name and return up to 10 matches."""
-    if not LOANS_DB:
-        load_loans_db()
-
-    matches: list[schemas.LoanSummary] = []
-    for loan in LOANS_DB.values():
-        if matches_borrower_name(loan, name):
-            matches.append(to_loan_summary(loan))
-
-    return matches[:10]
+async def search_loans_by_borrower_name(name: str) -> list[schemas.LoanSummary]:
+    """Search loan records by borrower name."""
+    provider = get_loan_data_provider()
+    matches = await provider.search_by_name(name)
+    return [to_loan_summary(loan) for loan in matches]
 
 
 # ── Endpoints ──────────────────────────────────────────────────────────────
@@ -193,7 +146,7 @@ async def lookup_loan(
     token: str = Depends(verify_token),
 ) -> schemas.LoanSummary:
     """Retrieve basic details about a loan."""
-    loan = get_loan_or_404(request.loan_id)
+    loan = await async_get_loan_or_404(request.loan_id)
     return to_loan_summary(loan)
 
 
@@ -204,7 +157,7 @@ async def search_borrower(
     token: str = Depends(verify_token),
 ) -> list[schemas.LoanSummary]:
     """Search loans by borrower name (case-insensitive partial token match)."""
-    matches = search_loans_by_borrower_name(request.name)
+    matches = await search_loans_by_borrower_name(request.name)
     if not matches:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -221,7 +174,7 @@ async def get_payment_schedule(
     token: str = Depends(verify_token),
 ) -> schemas.PaymentSchedule:
     """Generate upcoming payment schedule."""
-    loan = get_loan_or_404(request.loan_id)
+    loan = await async_get_loan_or_404(request.loan_id)
 
     # Handle paid off loans
     if loan["status"] == "paid_off" or loan["next_due_date"] is None:
@@ -317,7 +270,7 @@ async def get_escrow_breakdown(
     token: str = Depends(verify_token),
 ) -> schemas.EscrowBreakdown:
     """Retrieve escrow account breakdown and disbursement history."""
-    loan = get_loan_or_404(request.loan_id)
+    loan = await async_get_loan_or_404(request.loan_id)
 
     # Non-escrowed loans
     if not loan["escrowed"]:
@@ -390,7 +343,7 @@ async def check_hardship_eligibility(
     token: str = Depends(verify_token),
 ) -> schemas.EligibilityHint:
     """Evaluate hardship program eligibility hints."""
-    loan = get_loan_or_404(request.loan_id)
+    loan = await async_get_loan_or_404(request.loan_id)
     program = request.program
 
     # 1. Disaster Forbearance eligibility rules

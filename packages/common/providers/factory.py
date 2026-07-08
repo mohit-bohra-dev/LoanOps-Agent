@@ -28,17 +28,42 @@ from provider_contracts.tools_client import AbstractToolsClientProvider
 from provider_contracts.vector_store import AbstractVectorStoreProvider
 
 from packages.common.providers.base import ProviderConfigError
+from packages.common.providers.loan_data import AbstractLoanDataProvider
+from packages.common.providers.policy_source import AbstractPolicySourceProvider
 from packages.common.providers.session_store import AbstractSessionStoreProvider
 from packages.common.settings import Settings
 
 
 @lru_cache(maxsize=1)
 def _get_settings() -> Settings:
-    """Return a cached Settings instance â€” reads .env exactly once per process."""
+    """Return a cached Settings instance — reads .env exactly once per process."""
     return Settings()
 
 
-# â”€â”€ Chat / LLM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â
+# ── Data Providers ─────────────────────────────────────────────────────────
+@lru_cache(maxsize=1)
+def get_loan_data_provider() -> AbstractLoanDataProvider:
+    """Return the configured loan data provider."""
+    cfg = _get_settings()
+    if cfg.data.mode == "real":
+        from packages.common.providers.loan_data import RestApiLoanProvider
+        return RestApiLoanProvider(cfg.data.loan_api)
+    from packages.common.providers.loan_data import JsonFileLoanProvider
+    return JsonFileLoanProvider()
+
+
+@lru_cache(maxsize=1)
+def get_policy_source_provider() -> AbstractPolicySourceProvider:
+    """Return the configured policy source provider."""
+    cfg = _get_settings()
+    if cfg.data.mode == "real":
+        from packages.common.providers.policy_source import ConfluencePolicyProvider
+        return ConfluencePolicyProvider(cfg.data.confluence)
+    from packages.common.providers.policy_source import LocalFilePolicyProvider
+    return LocalFilePolicyProvider()
+
+
+# ── Chat / LLM ─────────────────────────────────────────────────────────────
 @lru_cache(maxsize=1)
 def get_chat_provider() -> AbstractLLMProvider:
     """Return the configured chat (LLM) provider."""
