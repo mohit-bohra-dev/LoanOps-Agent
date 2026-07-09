@@ -79,6 +79,9 @@ class ChatConfig(BaseModel):
 class QdrantConfig(BaseModel):
     url: str = "http://localhost:6333"
     collection: str = "sops"
+    # Local embedded mode (no Docker): set path to a directory or ":memory:".
+    # When set, url is ignored. Leanest no-Docker option via qdrant-client.
+    path: str | None = None
 
 
 class AISearchConfig(BaseModel):

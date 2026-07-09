@@ -49,7 +49,14 @@ from packages.common.providers.factory import (
     get_tools_client_provider,
     get_vector_store_provider,
 )
+from packages.common.settings import Settings
 from packages.safety.middleware import evaluate_outbound, sanitize_inbound
+
+
+def _agent_owns_vector_store() -> bool:
+    """False when Qdrant runs in embedded path mode — Tools API owns the lock."""
+    path = Settings().vector_store.qdrant.path
+    return not (Settings().vector_store.provider == "qdrant" and path)
 
 # ---------------------------------------------------------------------------
 # Version — read once at import time
@@ -71,7 +78,6 @@ except Exception:  # noqa: BLE001
 _PROVIDER_FACTORIES: list[tuple[str, Any]] = [
     ("chat", get_chat_provider),
     ("embedding", get_embedding_provider),
-    ("vector_store", get_vector_store_provider),
     ("pii", get_pii_provider),
     ("content_safety", get_content_safety_provider),
     ("audit_sink", get_audit_sink_provider),
@@ -81,6 +87,9 @@ _PROVIDER_FACTORIES: list[tuple[str, Any]] = [
     ("prompt_store", get_prompt_store_provider),
     ("session_store", get_session_store_provider),
 ]
+# Embedded Qdrant (path=) allows one process only — Tools API owns RAG.
+if _agent_owns_vector_store():
+    _PROVIDER_FACTORIES.insert(2, ("vector_store", get_vector_store_provider))
 
 
 # ---------------------------------------------------------------------------

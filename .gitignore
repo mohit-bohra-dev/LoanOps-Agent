@@ -27,6 +27,7 @@ apps/web_ui/dist/
 # Project outputs
 out/
 audit/
+.qdrant/
 
 # AI tool local state
 .cursor/plans/*.plan.md

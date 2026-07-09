@@ -177,6 +177,7 @@ def get_vector_store_provider() -> AbstractVectorStoreProvider:
         return QdrantVectorStoreProvider(
             url=cfg.vector_store.qdrant.url,
             collection=cfg.vector_store.qdrant.collection,
+            path=cfg.vector_store.qdrant.path,
         )
     if cfg.vector_store.provider == "ai_search":
         from provider_contracts.vector_store.azure_ai_search import (

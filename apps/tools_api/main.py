@@ -457,21 +457,19 @@ async def search_policy(
             detail=f"Failed to generate embedding: {e}",
         ) from e
 
-    # Get re-ranker provider if configured for local development
-    # Note: AI Search has built-in semantic ranking, so we only need re-ranker for Qdrant
+    # Re-ranker is opt-in (heavy: sentence-transformers). Skip by default —
+    # especially for embedded Qdrant local mode where disk/RAM is constrained.
     reranker = None
-    if settings.vector_store.provider == "qdrant":
+    if settings.vector_store.provider == "qdrant" and not settings.vector_store.qdrant.path:
         try:
             from packages.common.providers.factory import get_reranker_provider
 
             reranker = get_reranker_provider()
             logger.info("Re-ranker enabled for Qdrant vector store")
         except Exception as e:
-            # Re-ranker not available, continue without it
             logger.warning(f"Re-ranker not available: {e}")
     else:
-        # For Azure AI Search, use built-in semantic ranking
-        logger.info("Re-ranker disabled (AI Search provides built-in semantic ranking)")
+        logger.info("Re-ranker disabled (embedded Qdrant or AI Search)")
 
     # Search the vector store
     # Query a larger pool of results to allow robust in-memory filtering by state
