@@ -1,0 +1,17 @@
+[
+  {
+    "BorrowerId": 900311,
+    "LoanId": 100311,
+    "BorrowerOrdinal": 1,
+    "BorrowerFirstName": "Jamie",
+    "BorrowerLastName": "Chen",
+    "BorrowerMiddleName": "",
+    "BorrowerUnparsedName": "Jamie Chen",
+    "BorrowerMailingLocality": "Synthetic City",
+    "BorrowerMailingRegion": "TX",
+    "BorrowerMailingPostalCode": "00000",
+    "BorrowerEmailAddress": "jamie.chen@example.test",
+    "BorrowerPrimaryPhoneNumber": "5550100",
+    "ObligorFlag": true
+  }
+]

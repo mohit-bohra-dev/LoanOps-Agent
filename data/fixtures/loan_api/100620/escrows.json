@@ -1,0 +1,20 @@
+[
+  {
+    "EscrowId": 2000000,
+    "LoanId": 100620,
+    "LastEscrowAnalysisDate": "2026-06-01T00:00:00",
+    "LastEscrowAnalysisOverShortAmount": 20,
+    "InterestOnEscrowFlag": false,
+    "EscrowAdvanceBalanceAmount": 68531483.8308841,
+    "TaxContractIdentifier": "irure enim id et"
+  },
+  {
+    "EscrowId": 2000001,
+    "LoanId": 100620,
+    "LastEscrowAnalysisDate": "2026-06-01T00:00:00",
+    "LastEscrowAnalysisOverShortAmount": 20,
+    "InterestOnEscrowFlag": false,
+    "EscrowAdvanceBalanceAmount": null,
+    "TaxContractIdentifier": "dolor anim sed nostrud velit"
+  }
+]

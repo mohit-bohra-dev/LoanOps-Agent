@@ -1,0 +1,17 @@
+[
+  {
+    "BorrowerId": 900118,
+    "LoanId": 100118,
+    "BorrowerOrdinal": 1,
+    "BorrowerFirstName": "Maria",
+    "BorrowerLastName": "Santos",
+    "BorrowerMiddleName": "",
+    "BorrowerUnparsedName": "Maria Santos",
+    "BorrowerMailingLocality": "Synthetic City",
+    "BorrowerMailingRegion": "CA",
+    "BorrowerMailingPostalCode": "00000",
+    "BorrowerEmailAddress": "maria.santos@example.test",
+    "BorrowerPrimaryPhoneNumber": "5550100",
+    "ObligorFlag": true
+  }
+]

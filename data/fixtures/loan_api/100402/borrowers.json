@@ -1,0 +1,17 @@
+[
+  {
+    "BorrowerId": 900402,
+    "LoanId": 100402,
+    "BorrowerOrdinal": 1,
+    "BorrowerFirstName": "Jordan",
+    "BorrowerLastName": "Taylor",
+    "BorrowerMiddleName": "",
+    "BorrowerUnparsedName": "Jordan Taylor",
+    "BorrowerMailingLocality": "Synthetic City",
+    "BorrowerMailingRegion": "FL",
+    "BorrowerMailingPostalCode": "00000",
+    "BorrowerEmailAddress": "jordan.taylor@example.test",
+    "BorrowerPrimaryPhoneNumber": "5550100",
+    "ObligorFlag": true
+  }
+]

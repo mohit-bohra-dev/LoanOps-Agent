@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "borrower-summary.schema.json",
+  "title": "LoanServices BorrowerSummary response",
+  "type": "array",
+  "minItems": 1,
+  "items": { "$ref": "borrower-item.schema.json" }
+}

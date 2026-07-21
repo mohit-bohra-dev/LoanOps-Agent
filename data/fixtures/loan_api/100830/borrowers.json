@@ -1,0 +1,17 @@
+[
+  {
+    "BorrowerId": 900830,
+    "LoanId": 100830,
+    "BorrowerOrdinal": 1,
+    "BorrowerFirstName": "Reese",
+    "BorrowerLastName": "Morgan",
+    "BorrowerMiddleName": "",
+    "BorrowerUnparsedName": "Reese Morgan",
+    "BorrowerMailingLocality": "Synthetic City",
+    "BorrowerMailingRegion": "IL",
+    "BorrowerMailingPostalCode": "00000",
+    "BorrowerEmailAddress": "reese.morgan@example.test",
+    "BorrowerPrimaryPhoneNumber": "5550100",
+    "ObligorFlag": true
+  }
+]

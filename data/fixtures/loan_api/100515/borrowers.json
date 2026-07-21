@@ -1,0 +1,17 @@
+[
+  {
+    "BorrowerId": 900515,
+    "LoanId": 100515,
+    "BorrowerOrdinal": 1,
+    "BorrowerFirstName": "Casey",
+    "BorrowerLastName": "Adams",
+    "BorrowerMiddleName": "",
+    "BorrowerUnparsedName": "Casey Adams",
+    "BorrowerMailingLocality": "Synthetic City",
+    "BorrowerMailingRegion": "OH",
+    "BorrowerMailingPostalCode": "00000",
+    "BorrowerEmailAddress": "casey.adams@example.test",
+    "BorrowerPrimaryPhoneNumber": "5550100",
+    "ObligorFlag": true
+  }
+]

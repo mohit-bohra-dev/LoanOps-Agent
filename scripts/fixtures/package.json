@@ -1,0 +1,14 @@
+{
+  "name": "loanops-loan-fixtures",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Generate upstream-shaped Loan Services fixtures via json-schema-faker",
+  "scripts": {
+    "generate": "node generate.mjs"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.6.0",
+    "json-schema-faker": "^0.5.9"
+  }
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "BorrowerId": 900401,
+    "LoanId": 100401,
+    "BorrowerOrdinal": 1,
+    "BorrowerFirstName": "Sam",
+    "BorrowerLastName": "Patel",
+    "BorrowerMiddleName": "",
+    "BorrowerUnparsedName": "Sam Patel",
+    "BorrowerMailingLocality": "Synthetic City",
+    "BorrowerMailingRegion": "NY",
+    "BorrowerMailingPostalCode": "00000",
+    "BorrowerEmailAddress": "sam.patel@example.test",
+    "BorrowerPrimaryPhoneNumber": "5550100",
+    "ObligorFlag": true
+  }
+]

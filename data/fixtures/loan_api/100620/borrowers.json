@@ -1,0 +1,17 @@
+[
+  {
+    "BorrowerId": 900620,
+    "LoanId": 100620,
+    "BorrowerOrdinal": 1,
+    "BorrowerFirstName": "Avery",
+    "BorrowerLastName": "Brooks",
+    "BorrowerMiddleName": "",
+    "BorrowerUnparsedName": "Avery Brooks",
+    "BorrowerMailingLocality": "Synthetic City",
+    "BorrowerMailingRegion": "WA",
+    "BorrowerMailingPostalCode": "00000",
+    "BorrowerEmailAddress": "avery.brooks@example.test",
+    "BorrowerPrimaryPhoneNumber": "5550100",
+    "ObligorFlag": true
+  }
+]

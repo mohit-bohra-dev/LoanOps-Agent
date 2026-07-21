@@ -28,6 +28,7 @@ apps/web_ui/dist/
 out/
 audit/
 .qdrant/
+.demo-pids.txt
 
 # AI tool local state
 .cursor/plans/*.plan.md

@@ -20,6 +20,13 @@ class LoanSummary(BaseModel):
     delinquency_days: int
     last_payment_date: str | None
     flags: list[str]
+    current_interest_rate: float | None = None
+    monthly_pi_usd: float | None = None
+    monthly_escrow_usd: float | None = None
+    total_monthly_payment_usd: float | None = None
+    maturity_date: str | None = None
+    loan_active: bool | None = None
+    investor_name: str | None = None
 
 
 class PaymentScheduleItem(BaseModel):

@@ -1,0 +1,17 @@
+[
+  {
+    "BorrowerId": 900207,
+    "LoanId": 100207,
+    "BorrowerOrdinal": 1,
+    "BorrowerFirstName": "Morgan",
+    "BorrowerLastName": "Whitfield",
+    "BorrowerMiddleName": "",
+    "BorrowerUnparsedName": "Morgan Whitfield",
+    "BorrowerMailingLocality": "Synthetic City",
+    "BorrowerMailingRegion": "NY",
+    "BorrowerMailingPostalCode": "00000",
+    "BorrowerEmailAddress": "morgan.whitfield@example.test",
+    "BorrowerPrimaryPhoneNumber": "5550100",
+    "ObligorFlag": true
+  }
+]

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loan-record.schema.json",
+  "title": "LoanServices Loan Record",
+  "type": "object",
+  "required": [
+    "LoanId",
+    "ActiveFlag",
+    "EscrowFlag",
+    "UnpaidPrincipalBalanceAmount",
+    "NextPaymentDueDate",
+    "LastPaymentReceivedDate",
+    "CurrentInterestRate",
+    "CurrentMonthlyPaymentAmount",
+    "CurrentEscrowMonthlyPaymentAmount",
+    "CurrentTotalMonthlyPaymentAmount",
+    "DelinquentPaymentCount"
+  ],
+  "properties": {
+    "LoanId": { "type": "integer" },
+    "ActiveFlag": { "type": "boolean" },
+    "EscrowFlag": { "type": "boolean" },
+    "UnpaidPrincipalBalanceAmount": { "type": "number" },
+    "NextPaymentDueDate": { "type": ["string", "null"], "format": "date-time" },
+    "LastPaymentReceivedDate": { "type": ["string", "null"], "format": "date-time" },
+    "CurrentInterestRate": { "type": "number" },
+    "CurrentMonthlyPaymentAmount": { "type": "number" },
+    "CurrentEscrowMonthlyPaymentAmount": { "type": "number" },
+    "CurrentTotalMonthlyPaymentAmount": { "type": "number" },
+    "DelinquentPaymentCount": { "type": "integer", "minimum": 0 },
+    "EscrowBalanceAmount": { "type": "number" },
+    "LoanMaturityDate": { "type": ["string", "null"], "format": "date-time" }
+  },
+  "additionalProperties": true
+}

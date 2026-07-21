@@ -1,0 +1,17 @@
+[
+  {
+    "BorrowerId": 900721,
+    "LoanId": 100721,
+    "BorrowerOrdinal": 1,
+    "BorrowerFirstName": "Quinn",
+    "BorrowerLastName": "Harper",
+    "BorrowerMiddleName": "",
+    "BorrowerUnparsedName": "Quinn Harper",
+    "BorrowerMailingLocality": "Synthetic City",
+    "BorrowerMailingRegion": "GA",
+    "BorrowerMailingPostalCode": "00000",
+    "BorrowerEmailAddress": "quinn.harper@example.test",
+    "BorrowerPrimaryPhoneNumber": "5550100",
+    "ObligorFlag": true
+  }
+]

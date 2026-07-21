@@ -1,0 +1,34 @@
+[
+  {
+    "PaymentScheduleId": 1009100,
+    "LoanId": 100910,
+    "NextPaymentDueDate": "2024-12-01T00:00:00",
+    "PaymentDueMonth": "2024-12-01T00:00:00",
+    "TotalPaymentAmount": 0,
+    "PendingEscrowPaymentAmount": 0,
+    "InterestRate": 0.0375,
+    "MonthlyPaymentAmount": 0,
+    "MonthlyPaymentPrincipalAmount": 0,
+    "MonthlyPaymentInterestAmount": 0,
+    "MonthlyCountyTaxAmount": 0,
+    "MonthlyHazardInsuranceAmount": 0,
+    "QuotedLateChargeFeeAmount": 35,
+    "LateChargeGraceEndDate": "2024-12-01T00:00:00"
+  },
+  {
+    "PaymentScheduleId": 1009101,
+    "LoanId": 100910,
+    "NextPaymentDueDate": "2024-12-01T00:00:00",
+    "PaymentDueMonth": "2025-01-01T00:00:00",
+    "TotalPaymentAmount": 0,
+    "PendingEscrowPaymentAmount": 0,
+    "InterestRate": 0.0375,
+    "MonthlyPaymentAmount": 0,
+    "MonthlyPaymentPrincipalAmount": 0,
+    "MonthlyPaymentInterestAmount": 0,
+    "MonthlyCountyTaxAmount": 0,
+    "MonthlyHazardInsuranceAmount": 0,
+    "QuotedLateChargeFeeAmount": 35,
+    "LateChargeGraceEndDate": "2025-01-01T00:00:00"
+  }
+]

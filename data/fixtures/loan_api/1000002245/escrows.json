@@ -1,0 +1,38 @@
+[
+  {
+    "EscrowId": 2000000,
+    "LoanId": 1000002245,
+    "LastEscrowAnalysisDate": "2010-06-10T00:00:00",
+    "LastEscrowAnalysisOverShortAmount": 20,
+    "InterestOnEscrowFlag": false,
+    "EscrowAdvanceBalanceAmount": null,
+    "TaxContractIdentifier": null
+  },
+  {
+    "EscrowId": 2000001,
+    "LoanId": 1000002245,
+    "LastEscrowAnalysisDate": "2010-06-10T00:00:00",
+    "LastEscrowAnalysisOverShortAmount": 20,
+    "InterestOnEscrowFlag": false,
+    "EscrowAdvanceBalanceAmount": null,
+    "TaxContractIdentifier": "ut"
+  },
+  {
+    "EscrowId": 2000002,
+    "LoanId": 1000002245,
+    "LastEscrowAnalysisDate": "2010-06-10T00:00:00",
+    "LastEscrowAnalysisOverShortAmount": 20,
+    "InterestOnEscrowFlag": false,
+    "EscrowAdvanceBalanceAmount": null,
+    "TaxContractIdentifier": null
+  },
+  {
+    "EscrowId": 2000003,
+    "LoanId": 1000002245,
+    "LastEscrowAnalysisDate": "2010-06-10T00:00:00",
+    "LastEscrowAnalysisOverShortAmount": 20,
+    "InterestOnEscrowFlag": false,
+    "EscrowAdvanceBalanceAmount": null,
+    "TaxContractIdentifier": null
+  }
+]

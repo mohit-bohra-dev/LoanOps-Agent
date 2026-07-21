@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "escrow.schema.json",
+  "title": "LoanServices Escrows response",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "required": ["EscrowId", "LoanId", "LastEscrowAnalysisDate"],
+    "properties": {
+      "EscrowId": { "type": "integer" },
+      "LoanId": { "type": "integer" },
+      "LastEscrowAnalysisDate": { "type": ["string", "null"], "format": "date-time" },
+      "LastEscrowAnalysisOverShortAmount": { "type": ["number", "null"] },
+      "InterestOnEscrowFlag": { "type": "boolean" },
+      "EscrowAdvanceBalanceAmount": { "type": ["number", "null"] },
+      "TaxContractIdentifier": { "type": ["string", "null"] }
+    },
+    "additionalProperties": true
+  }
+}

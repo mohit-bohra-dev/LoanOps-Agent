@@ -1,0 +1,15 @@
+{
+  "LoanId": 100910,
+  "ActiveFlag": false,
+  "EscrowFlag": false,
+  "UnpaidPrincipalBalanceAmount": 0,
+  "NextPaymentDueDate": "2024-12-01T00:00:00",
+  "LastPaymentReceivedDate": "2024-11-15T00:00:00",
+  "CurrentInterestRate": 0.0375,
+  "CurrentMonthlyPaymentAmount": 0,
+  "CurrentEscrowMonthlyPaymentAmount": 0,
+  "CurrentTotalMonthlyPaymentAmount": 0,
+  "DelinquentPaymentCount": 0,
+  "EscrowBalanceAmount": 0,
+  "LoanMaturityDate": "2048-06-01T00:00:00"
+}

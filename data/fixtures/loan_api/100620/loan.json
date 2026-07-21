@@ -1,0 +1,15 @@
+{
+  "LoanId": 100620,
+  "ActiveFlag": true,
+  "EscrowFlag": true,
+  "UnpaidPrincipalBalanceAmount": 275000,
+  "NextPaymentDueDate": "2026-07-01T00:00:00",
+  "LastPaymentReceivedDate": "2026-06-01T00:00:00",
+  "CurrentInterestRate": 0.044,
+  "CurrentMonthlyPaymentAmount": 1385,
+  "CurrentEscrowMonthlyPaymentAmount": 475,
+  "CurrentTotalMonthlyPaymentAmount": 1860,
+  "DelinquentPaymentCount": 0,
+  "EscrowBalanceAmount": 1500,
+  "LoanMaturityDate": "2055-01-01T00:00:00"
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "BorrowerId": 900910,
+    "LoanId": 100910,
+    "BorrowerOrdinal": 1,
+    "BorrowerFirstName": "Drew",
+    "BorrowerLastName": "Keller",
+    "BorrowerMiddleName": "",
+    "BorrowerUnparsedName": "Drew Keller",
+    "BorrowerMailingLocality": "Synthetic City",
+    "BorrowerMailingRegion": "CO",
+    "BorrowerMailingPostalCode": "00000",
+    "BorrowerEmailAddress": "drew.keller@example.test",
+    "BorrowerPrimaryPhoneNumber": "5550100",
+    "ObligorFlag": true
+  }
+]

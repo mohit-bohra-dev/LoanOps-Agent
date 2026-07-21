@@ -1,0 +1,11 @@
+[
+  {
+    "EscrowId": 2000000,
+    "LoanId": 100515,
+    "LastEscrowAnalysisDate": "2025-11-01T00:00:00",
+    "LastEscrowAnalysisOverShortAmount": 20,
+    "InterestOnEscrowFlag": false,
+    "EscrowAdvanceBalanceAmount": null,
+    "TaxContractIdentifier": null
+  }
+]

@@ -14,8 +14,19 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class LoanApiConfig(BaseModel):
     base_url: str = ""
-    api_key: str = ""
-    timeout_seconds: int = 10
+    api_key: str = ""  # Bearer token for upstream Loan Services API
+    timeout_seconds: int = 30
+    api_version: str = "1.0"
+    summary_pdm_model: bool = False
+    # Path templates — Loan Services swagger uses PascalCase /api/Loans/...
+    get_loan_path: str = "/api/Loans/{loan_id}"
+    get_loan_summary_path: str = "/api/Loans/{loan_id}/Summary"
+    get_borrower_summary_path: str = "/api/Loans/{loan_id}/BorrowerSummary"
+    get_payment_schedules_path: str = "/api/Loans/{loan_id}/PaymentSchedules"
+    get_escrows_path: str = "/api/Loans/{loan_id}/Escrows"
+    get_delinquencies_path: str = "/api/Loans/{loan_id}/Delinquencies"
+    search_path: str = "/api/loans/search"
+    search_query_param: str = "borrowerName"
 
 
 class ConfluenceConfig(BaseModel):
@@ -53,6 +64,8 @@ class OpenAIChatConfig(BaseModel):
 class BedrockChatConfig(BaseModel):
     region: str = "us-east-1"
     model_id: str = "us.amazon.nova-pro-v1:0"
+    # Named profile from ~/.aws/credentials or SSO (e.g. "dev")
+    profile: str | None = None
     # --- Auth option A: Bedrock API key (bearer token, easiest for local dev) ---
     api_key: str | None = None
     # --- Auth option B: IAM credentials (leave None to use boto3 default chain) ---
@@ -103,6 +116,17 @@ class AOAIEmbeddingConfig(BaseModel):
     api_version: str = "2024-08-01-preview"
 
 
+class BedrockEmbeddingConfig(BaseModel):
+    region: str = "us-west-2"
+    model_id: str = "amazon.titan-embed-text-v2:0"
+    profile: str | None = None
+    dimensions: int = 1024
+    api_key: str | None = None
+    access_key_id: str | None = None
+    secret_access_key: str | None = None
+    session_token: str | None = None
+
+
 class GeminiEmbeddingConfig(BaseModel):
     """Google Gemini embedding configuration."""
     api_key: str = ""
@@ -112,9 +136,10 @@ class GeminiEmbeddingConfig(BaseModel):
 
 
 class EmbeddingConfig(BaseModel):
-    provider: Literal["local_bge", "aoai", "gemini"] = "gemini"
+    provider: Literal["local_bge", "aoai", "gemini", "bedrock"] = "gemini"
     aoai: AOAIEmbeddingConfig | None = None
     gemini: GeminiEmbeddingConfig = Field(default_factory=GeminiEmbeddingConfig)
+    bedrock: BedrockEmbeddingConfig = Field(default_factory=BedrockEmbeddingConfig)
 
 
 class PiiConfig(BaseModel):

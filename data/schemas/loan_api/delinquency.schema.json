@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "delinquency.schema.json",
+  "title": "LoanServices Delinquencies response",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["DelinquencyId", "LoanId", "DelinquencyCode"],
+    "properties": {
+      "DelinquencyId": { "type": "integer" },
+      "LoanId": { "type": "integer" },
+      "DelinquencyCode": { "type": "string" },
+      "GraceDays": { "type": "integer" },
+      "DelinquentPaymentBalanceAmount": { "type": "number" }
+    },
+    "additionalProperties": true
+  }
+}

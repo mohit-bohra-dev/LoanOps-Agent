@@ -1,0 +1,9 @@
+[
+  {
+    "DelinquencyId": 300245,
+    "LoanId": 1000002245,
+    "DelinquencyCode": "4",
+    "GraceDays": 15,
+    "DelinquentPaymentBalanceAmount": 965.88
+  }
+]

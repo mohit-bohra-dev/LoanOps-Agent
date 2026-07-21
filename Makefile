@@ -1,4 +1,4 @@
-.PHONY: install lint test ingest eval ui-install demo down
+.PHONY: install lint test ingest eval ui-install fixtures demo down
 
 install:
 	uv sync
@@ -19,6 +19,10 @@ eval:
 
 ui-install:
 	cd apps/web_ui && npm install
+
+# Windows: cd scripts/fixtures; npm install; npm run generate
+fixtures:
+	cd scripts/fixtures && npm install && npm run generate
 
 demo:
 	uv run uvicorn apps.tools_api.main:app --port 5000 &

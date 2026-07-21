@@ -1,25 +1,57 @@
-# Stop all demo services
-# This script stops all running demo services
+# Stop LoanOps Agent stack (ports 8000, 8001, 5173)
+# Usage: .\stop-demo.ps1
 
-Write-Host "Stopping all demo services..." -ForegroundColor Yellow
+$ErrorActionPreference = "Continue"
+$Root = Split-Path -Parent $MyInvocation.MyCommand.Path
+Set-Location $Root
 
-# Kill uvicorn processes
-$uvicornProcesses = Get-Process -Name "*python*" -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like "*uvicorn*" }
-foreach ($process in $uvicornProcesses) {
-    Write-Host "Stopping uvicorn process (PID: $($process.Id))..." -ForegroundColor Yellow
-    Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+function Stop-PortListeners {
+    param([int[]]$Ports)
+    foreach ($port in $Ports) {
+        $conns = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue
+        if (-not $conns) {
+            Write-Host "Port $port: nothing listening" -ForegroundColor DarkGray
+            continue
+        }
+        $procIds = $conns.OwningProcess | Select-Object -Unique
+        foreach ($procId in $procIds) {
+            if ($procId -and $procId -ne 0) {
+                $name = "(unknown)"
+                try { $name = (Get-Process -Id $procId -ErrorAction Stop).ProcessName } catch { }
+                Write-Host "Stopping PID $procId ($name) on port $port..." -ForegroundColor Yellow
+                Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
+            }
+        }
+    }
 }
 
-# Kill vite processes
-$viteProcesses = Get-Process -Name "*node*" -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like "*vite*" }
-foreach ($process in $viteProcesses) {
-    Write-Host "Stopping vite process (PID: $($process.Id))..." -ForegroundColor Yellow
-    Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+Write-Host "Stopping demo services..." -ForegroundColor Yellow
+
+# Prefer PIDs recorded by run-demo.ps1 (wrapper shells)
+$pidFile = Join-Path $Root ".demo-pids.txt"
+if (Test-Path $pidFile) {
+    Get-Content $pidFile | ForEach-Object {
+        if ($_ -match "=(?<id>\d+)$") {
+            $procId = [int]$Matches["id"]
+            Write-Host "Stopping wrapper PID $procId..." -ForegroundColor Yellow
+            Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
+        }
+    }
+    Remove-Item $pidFile -Force -ErrorAction SilentlyContinue
 }
 
-# Alternative method using taskkill
-Write-Host "Using taskkill as fallback..." -ForegroundColor Yellow
-taskkill /F /FI "WINDOWTITLE eq *uvicorn*" 2>$null
-taskkill /F /FI "WINDOWTITLE eq *vite*" 2>$null
+# Kill by listen port (actual uvicorn / vite children)
+Stop-PortListeners -Ports @(8000, 8001, 5173)
+Start-Sleep -Seconds 1
 
-Write-Host "All demo services stopped." -ForegroundColor Green
+# Confirm
+foreach ($port in @(8000, 8001, 5173)) {
+    $still = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue
+    if ($still) {
+        Write-Host "WARNING: port $port still in use" -ForegroundColor Red
+    } else {
+        Write-Host "Port $port free" -ForegroundColor Green
+    }
+}
+
+Write-Host "Done." -ForegroundColor Green

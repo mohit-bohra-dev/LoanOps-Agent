@@ -1,0 +1,17 @@
+[
+  {
+    "BorrowerId": 902245,
+    "LoanId": 1000002245,
+    "BorrowerOrdinal": 1,
+    "BorrowerFirstName": "Pat",
+    "BorrowerLastName": "Nguyen",
+    "BorrowerMiddleName": "",
+    "BorrowerUnparsedName": "Pat Nguyen",
+    "BorrowerMailingLocality": "Synthetic City",
+    "BorrowerMailingRegion": "AZ",
+    "BorrowerMailingPostalCode": "00000",
+    "BorrowerEmailAddress": "pat.nguyen@example.test",
+    "BorrowerPrimaryPhoneNumber": "5550100",
+    "ObligorFlag": true
+  }
+]

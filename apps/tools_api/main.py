@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -113,6 +112,13 @@ def to_loan_summary(loan: dict[str, Any]) -> schemas.LoanSummary:
         delinquency_days=loan["delinquency_days"],
         last_payment_date=loan.get("last_payment_date"),
         flags=loan["flags"],
+        current_interest_rate=loan.get("current_interest_rate"),
+        monthly_pi_usd=loan.get("monthly_pi_usd"),
+        monthly_escrow_usd=loan.get("monthly_escrow_usd"),
+        total_monthly_payment_usd=loan.get("total_monthly_payment_usd"),
+        maturity_date=loan.get("maturity_date"),
+        loan_active=loan.get("loan_active"),
+        investor_name=loan.get("investor_name"),
     )
 
 
@@ -121,6 +127,31 @@ async def search_loans_by_borrower_name(name: str) -> list[schemas.LoanSummary]:
     provider = get_loan_data_provider()
     matches = await provider.search_by_name(name)
     return [to_loan_summary(loan) for loan in matches]
+
+
+def to_payment_schedule(data: dict[str, Any]) -> schemas.PaymentSchedule:
+    """Convert provider payment schedule dict into response model."""
+    return schemas.PaymentSchedule(
+        loan_id=data["loan_id"],
+        schedule=[schemas.PaymentScheduleItem(**item) for item in data["schedule"]],
+    )
+
+
+def to_escrow_breakdown(data: dict[str, Any]) -> schemas.EscrowBreakdown:
+    """Convert provider escrow breakdown dict into response model."""
+    return schemas.EscrowBreakdown(
+        loan_id=data["loan_id"],
+        as_of=data["as_of"],
+        escrow_balance_usd=data["escrow_balance_usd"],
+        monthly_escrow_usd=data["monthly_escrow_usd"],
+        monthly_escrow_change_usd=data["monthly_escrow_change_usd"],
+        change_effective=data["change_effective"],
+        drivers=data["drivers"],
+        last_disbursements=[
+            schemas.DisbursementItem(**item) for item in data["last_disbursements"]
+        ],
+        next_analysis_date=data["next_analysis_date"],
+    )
 
 
 # ── Endpoints ──────────────────────────────────────────────────────────────
@@ -174,93 +205,10 @@ async def get_payment_schedule(
     token: str = Depends(verify_token),
 ) -> schemas.PaymentSchedule:
     """Generate upcoming payment schedule."""
-    loan = await async_get_loan_or_404(request.loan_id)
-
-    # Handle paid off loans
-    if loan["status"] == "paid_off" or loan["next_due_date"] is None:
-        return schemas.PaymentSchedule(loan_id=request.loan_id, schedule=[])
-
-    # Match exact example response for 100245
-    if request.loan_id == "100245":
-        return schemas.PaymentSchedule(
-            loan_id=request.loan_id,
-            schedule=[
-                schemas.PaymentScheduleItem(
-                    due_date="2026-06-01",
-                    principal=412.55,
-                    interest=1180.12,
-                    escrow=615.30,
-                    total=2207.97,
-                ),
-                schemas.PaymentScheduleItem(
-                    due_date="2026-07-01",
-                    principal=413.81,
-                    interest=1178.86,
-                    escrow=615.30,
-                    total=2207.97,
-                ),
-                schemas.PaymentScheduleItem(
-                    due_date="2026-08-01",
-                    principal=415.07,
-                    interest=1177.60,
-                    escrow=615.30,
-                    total=2207.97,
-                ),
-            ][: request.months],
-        )
-
-    # Generate schedule dynamically for other loans
-    schedule_items: list[schemas.PaymentScheduleItem] = []
-    base_date = datetime.strptime(loan["next_due_date"], "%Y-%m-%d")
-
-    balance = loan["current_balance_usd"]
-    interest_rate = 0.045  # Default 4.5% interest rate
-
-    # Estimate total P&I payment using standard amortizing mortgage formula
-    # Assuming a 30 year (360 month) remaining term for realism
-    remaining_months = 360
-    monthly_rate = interest_rate / 12
-
-    if monthly_rate > 0:
-        total_pi = (
-            balance
-            * (monthly_rate * (1 + monthly_rate) ** remaining_months)
-            / ((1 + monthly_rate) ** remaining_months - 1)
-        )
-    else:
-        total_pi = balance / remaining_months
-
-    total_pi = round(total_pi, 2)
-    escrow = 615.30 if loan["escrowed"] else 0.0
-
-    for i in range(request.months):
-        # simplified month increment
-        due_date_str = (base_date + timedelta(days=30 * i)).strftime("%Y-%m-%d")
-
-        interest = round(balance * interest_rate / 12, 2)
-        principal = round(total_pi - interest, 2)
-
-        # Ensure we don't overpay the remaining balance
-        if principal > balance:
-            principal = round(balance, 2)
-            total_pi = round(principal + interest, 2)
-
-        total = round(principal + interest + escrow, 2)
-
-        schedule_items.append(
-            schemas.PaymentScheduleItem(
-                due_date=due_date_str,
-                principal=principal,
-                interest=interest,
-                escrow=escrow,
-                total=total,
-            )
-        )
-        balance = round(balance - principal, 2)
-        if balance <= 0:
-            break
-
-    return schemas.PaymentSchedule(loan_id=request.loan_id, schedule=schedule_items)
+    await async_get_loan_or_404(request.loan_id)
+    provider = get_loan_data_provider()
+    schedule = await provider.get_payment_schedule(request.loan_id, months=request.months)
+    return to_payment_schedule(schedule)
 
 
 @app.post("/tools/get_escrow_breakdown", response_model=schemas.EscrowBreakdown)
@@ -270,70 +218,10 @@ async def get_escrow_breakdown(
     token: str = Depends(verify_token),
 ) -> schemas.EscrowBreakdown:
     """Retrieve escrow account breakdown and disbursement history."""
-    loan = await async_get_loan_or_404(request.loan_id)
-
-    # Non-escrowed loans
-    if not loan["escrowed"]:
-        return schemas.EscrowBreakdown(
-            loan_id=request.loan_id,
-            as_of="2026-04-30",
-            escrow_balance_usd=0.0,
-            monthly_escrow_usd=0.0,
-            monthly_escrow_change_usd=0.0,
-            change_effective="",
-            drivers=[],
-            last_disbursements=[],
-            next_analysis_date="",
-        )
-
-    # Match exact example response for 100245
-    if request.loan_id == "100245":
-        return schemas.EscrowBreakdown(
-            loan_id=request.loan_id,
-            as_of="2026-04-30",
-            escrow_balance_usd=1842.10,
-            monthly_escrow_usd=615.30,
-            monthly_escrow_change_usd=35.12,
-            change_effective="2026-05-01",
-            drivers=["county_tax_reassessment", "hazard_premium"],
-            last_disbursements=[
-                schemas.DisbursementItem(
-                    date="2026-03-15",
-                    type="county_property_tax",
-                    amount_usd=3120.00,
-                ),
-                schemas.DisbursementItem(
-                    date="2026-02-01",
-                    type="hazard_insurance",
-                    amount_usd=1842.00,
-                ),
-            ],
-            next_analysis_date="2027-03-01",
-        )
-
-    # Return default deterministic escrow breakdown for other escrowed loans
-    return schemas.EscrowBreakdown(
-        loan_id=request.loan_id,
-        as_of="2026-04-30",
-        escrow_balance_usd=1500.00,
-        monthly_escrow_usd=500.00,
-        monthly_escrow_change_usd=20.00,
-        change_effective="2026-05-01",
-        drivers=["county_tax_reassessment"],
-        last_disbursements=[
-            schemas.DisbursementItem(
-                date="2026-03-15",
-                type="county_property_tax",
-                amount_usd=2500.00,
-            ),
-            schemas.DisbursementItem(
-                date="2026-02-01",
-                type="hazard_insurance",
-                amount_usd=1500.00,
-            ),
-        ],
-        next_analysis_date="2027-03-01",
-    )
+    await async_get_loan_or_404(request.loan_id)
+    provider = get_loan_data_provider()
+    breakdown = await provider.get_escrow_breakdown(request.loan_id)
+    return to_escrow_breakdown(breakdown)
 
 
 @app.post("/tools/check_hardship_eligibility", response_model=schemas.EligibilityHint)

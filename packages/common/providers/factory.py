@@ -48,7 +48,14 @@ def get_loan_data_provider() -> AbstractLoanDataProvider:
     if cfg.data.mode == "real":
         from packages.common.providers.loan_data import RestApiLoanProvider
         return RestApiLoanProvider(cfg.data.loan_api)
-    from packages.common.providers.loan_data import JsonFileLoanProvider
+    from packages.common.providers.loan_data import (
+        FixtureLoanProvider,
+        JsonFileLoanProvider,
+        loan_fixtures_dir,
+    )
+
+    if loan_fixtures_dir() is not None:
+        return FixtureLoanProvider()
     return JsonFileLoanProvider()
 
 
@@ -108,6 +115,7 @@ def get_chat_provider() -> AbstractLLMProvider:
         return BedrockProvider(
             model_id=cfg.llm.bedrock.model_id,
             region=cfg.llm.bedrock.region,
+            profile=cfg.llm.bedrock.profile,
             api_key=cfg.llm.bedrock.api_key,
             access_key_id=cfg.llm.bedrock.access_key_id,
             secret_access_key=cfg.llm.bedrock.secret_access_key,
@@ -162,6 +170,19 @@ def get_embedding_provider() -> AbstractEmbeddingProvider:
         return GeminiEmbeddingProvider(
             api_key=cfg.embedding.gemini.api_key,
             model=cfg.embedding.gemini.model,
+        )
+    if cfg.embedding.provider == "bedrock":
+        from provider_contracts.embedding.bedrock import BedrockEmbeddingProvider
+
+        return BedrockEmbeddingProvider(
+            model_id=cfg.embedding.bedrock.model_id,
+            region=cfg.embedding.bedrock.region,
+            profile=cfg.embedding.bedrock.profile,
+            dimensions=cfg.embedding.bedrock.dimensions,
+            api_key=cfg.embedding.bedrock.api_key,
+            access_key_id=cfg.embedding.bedrock.access_key_id,
+            secret_access_key=cfg.embedding.bedrock.secret_access_key,
+            session_token=cfg.embedding.bedrock.session_token,
         )
     raise ProviderConfigError(f"Unknown embedding provider: {cfg.embedding.provider}")
 

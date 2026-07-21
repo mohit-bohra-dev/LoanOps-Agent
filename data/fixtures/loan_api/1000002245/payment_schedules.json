@@ -1,0 +1,50 @@
+[
+  {
+    "PaymentScheduleId": 10000022450,
+    "LoanId": 1000002245,
+    "NextPaymentDueDate": "2010-07-01T00:00:00",
+    "PaymentDueMonth": "2010-07-01T00:00:00",
+    "TotalPaymentAmount": 965.88,
+    "PendingEscrowPaymentAmount": 284.73,
+    "InterestRate": 0.03328,
+    "MonthlyPaymentAmount": 681.15,
+    "MonthlyPaymentPrincipalAmount": 238.4,
+    "MonthlyPaymentInterestAmount": 442.75,
+    "MonthlyCountyTaxAmount": 170.84,
+    "MonthlyHazardInsuranceAmount": 113.89,
+    "QuotedLateChargeFeeAmount": 35,
+    "LateChargeGraceEndDate": "2010-07-01T00:00:00"
+  },
+  {
+    "PaymentScheduleId": 10000022451,
+    "LoanId": 1000002245,
+    "NextPaymentDueDate": "2010-07-01T00:00:00",
+    "PaymentDueMonth": "2010-08-01T00:00:00",
+    "TotalPaymentAmount": 965.88,
+    "PendingEscrowPaymentAmount": 284.73,
+    "InterestRate": 0.03328,
+    "MonthlyPaymentAmount": 681.15,
+    "MonthlyPaymentPrincipalAmount": 238.4,
+    "MonthlyPaymentInterestAmount": 442.75,
+    "MonthlyCountyTaxAmount": 170.84,
+    "MonthlyHazardInsuranceAmount": 113.89,
+    "QuotedLateChargeFeeAmount": 35,
+    "LateChargeGraceEndDate": "2010-08-01T00:00:00"
+  },
+  {
+    "PaymentScheduleId": 10000022452,
+    "LoanId": 1000002245,
+    "NextPaymentDueDate": "2010-07-01T00:00:00",
+    "PaymentDueMonth": "2010-09-01T00:00:00",
+    "TotalPaymentAmount": 965.88,
+    "PendingEscrowPaymentAmount": 284.73,
+    "InterestRate": 0.03328,
+    "MonthlyPaymentAmount": 681.15,
+    "MonthlyPaymentPrincipalAmount": 238.4,
+    "MonthlyPaymentInterestAmount": 442.75,
+    "MonthlyCountyTaxAmount": 170.84,
+    "MonthlyHazardInsuranceAmount": 113.89,
+    "QuotedLateChargeFeeAmount": 35,
+    "LateChargeGraceEndDate": "2010-09-01T00:00:00"
+  }
+]
