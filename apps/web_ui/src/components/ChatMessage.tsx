@@ -1,4 +1,4 @@
-import { Bot, User, Check, AlertTriangle, ShieldAlert, FileText } from "lucide-react";
+import { Bot, User, Check, AlertTriangle, ShieldAlert, FileText, Code } from "lucide-react";
 import type { AgentTurnOutput } from "../types";
 import { AgentSteps } from "./AgentSteps";
 
@@ -107,6 +107,21 @@ export function ChatMessage({ role, text, output }: ChatMessageProps) {
                     Approve & Copy
                   </button>
                 )}
+              </div>
+
+              {/* Raw JSON Debug */}
+              <div className="mt-4 pt-3 border-t border-surface-3/50">
+                <details className="group">
+                  <summary className="cursor-pointer flex items-center gap-1.5 text-xs text-text-muted hover:text-text-primary transition-colors select-none list-none [&::-webkit-details-marker]:hidden">
+                    <Code className="h-3.5 w-3.5 group-open:text-brand-400 transition-colors" />
+                    <span className="group-open:text-brand-400 transition-colors">View Complete JSON Response</span>
+                  </summary>
+                  <div className="mt-3 overflow-x-auto rounded-md bg-surface-3 border border-surface-4 p-4">
+                    <pre className="text-[11px] text-text-secondary font-mono whitespace-pre-wrap break-all">
+                      {JSON.stringify(output, null, 2)}
+                    </pre>
+                  </div>
+                </details>
               </div>
 
             </div>

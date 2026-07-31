@@ -135,12 +135,11 @@ function AgentStepItem({ tool, index }: { tool: ToolCallItem; index: number }) {
         {expanded && (
           <div className="mt-3 space-y-2">
             <div className="rounded border border-surface-3 bg-surface-0 p-2 overflow-x-auto">
-              <span className="text-[10px] uppercase tracking-wider text-text-muted block mb-1">Arguments</span>
+              <span className="text-[10px] uppercase tracking-wider text-text-muted block mb-1">Complete JSON</span>
               <pre className="text-[11px] font-mono text-brand-200">
-                {JSON.stringify(tool.args, null, 2)}
+                {JSON.stringify(tool, null, 2)}
               </pre>
             </div>
-            {/* Note: We only have result_summary in ToolCallItem, not raw result JSON. */}
           </div>
         )}
       </div>
