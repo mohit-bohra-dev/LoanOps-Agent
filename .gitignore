@@ -30,6 +30,9 @@ audit/
 .qdrant/
 .demo-pids.txt
 
+# Confluence SOP artifacts (confidential; local cache only)
+data/sops/_confluence/
+
 # AI tool local state
 .cursor/plans/*.plan.md
 .claude/settings.local.json

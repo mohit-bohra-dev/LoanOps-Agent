@@ -1,3 +1,35 @@
+## [2026-07-24] — Independent DATA__LOAN_SOURCE / DATA__SOP_SOURCE
+
+**Session type:** Config / provider wiring
+
+**Completed:**
+- Split loan vs SOP selection: `DATA__LOAN_SOURCE`, `DATA__SOP_SOURCE`,
+  `DATA__SOP_CONFLUENCE_MODE` (cache|live).
+- Factory wires Confluence-only via `_confluence` cache or live API.
+- Deprecated `DATA__MODE` with backcompat mapping; ADR-009.
+- `.env` demo mix: mock fixtures + Confluence-only cache.
+
+**Reason:** Use ingested Confluence SOPs without synthetic local SOPs while
+keeping loan fixtures offline.
+
+---
+
+## [2026-07-21] — Live Confluence SOP ingest (Escrow + Hardship)
+
+**Session type:** Feature implementation
+
+**Completed:**
+- Implemented `ConfluencePolicyProvider` (REST v2, markitdown HTML→md, regex/presidio scrub, local artifact write).
+- Added `CompositePolicyProvider`; `DATA__MODE=real` = local dummy SOPs + Confluence (add, not replace).
+- Extended `ConfluenceConfig` with `page_ids`, `ancestor_ids`, `expand_children`, `pii_scrub`, `artifact_dir`.
+- `LocalFilePolicyProvider` skips `_`-prefixed dirs so Confluence cache is not double-ingested.
+- Gitignored `data/sops/_confluence/`; documented seed page IDs in `.env.example`.
+- Unit tests for skip/composite/scrub; ADR-008.
+
+**Reason:** Feed curated real SC-space Escrow/Hardship SOPs into RAG without committing confidential content or breaking offline `make demo`.
+
+---
+
 ## [2026-06-21] — Langfuse Telemetry Integration
 
 **Session type:** Feature implementation

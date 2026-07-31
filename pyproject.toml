@@ -17,6 +17,7 @@ dependencies = [
     "numpy<2",
     "click<8.1.8",
     "sentence-transformers==5.5.1",
+    "markitdown>=0.1.0",
 ]
 
 [dependency-groups]

@@ -85,6 +85,18 @@
 | `TOOLS_API_TOKEN` | `dev-token` | Bearer token validated by the Tools API |
 | `PROMPT_STORE__PROVIDER` | `file` | `file` / `promptflow` |
 | `PROMPT_STORE__FILE_BASE_DIR` | `./docs` | Prompt file directory |
+| `DATA__LOAN_SOURCE` | `mock` | `mock` (fixtures) / `real` (Loan Services API) |
+| `DATA__SOP_SOURCE` | `local` | `local` / `confluence` / `both` |
+| `DATA__SOP_CONFLUENCE_MODE` | `cache` | `cache` (`data/sops/_confluence`) / `live` (Confluence REST) |
+| `DATA__MODE` | — | **Deprecated.** `mock`→loan mock+sop local; `real`→loan real+sop both+live |
+| `DATA__CONFLUENCE__BASE_URL` | `""` | Confluence site (e.g. `https://pennymac.atlassian.net`) |
+| `DATA__CONFLUENCE__USERNAME` | `""` | Atlassian account email |
+| `DATA__CONFLUENCE__API_TOKEN` | `""` | Atlassian API token |
+| `DATA__CONFLUENCE__PAGE_IDS` | `[]` | Explicit page IDs to ingest |
+| `DATA__CONFLUENCE__ANCESTOR_IDS` | `[]` | Book page IDs (expand to leaf children) |
+| `DATA__CONFLUENCE__EXPAND_CHILDREN` | `true` | Expand ancestors to direct leaf children |
+| `DATA__CONFLUENCE__PII_SCRUB` | `regex` | `regex` / `presidio` / `off` |
+| `DATA__CONFLUENCE__ARTIFACT_DIR` | `data/sops/_confluence` | Local markdown cache (gitignored) |
 
 > `TOOLS_CLIENT__TOKEN` and `TOOLS_API_TOKEN` must match in local dev.
 
@@ -325,8 +337,16 @@ data/
   sops/            — 38 SOP markdown files with YAML frontmatter
                      7 subdirectories: complaints, escrow, hardship,
                      loss-mitigation, payments, payoff, state-specific
+  sops/_confluence/ — gitignored Confluence export cache
+                      (DATA__SOP_SOURCE=confluence|both + MODE=cache|live)
   golden.jsonl     — 50 Q&A items (5 refusal, 10 escalate, 35 happy-path)
 ```
+
+SOP selection (`DATA__SOP_SOURCE`): `local` | `confluence` | `both`.
+Confluence mode (`DATA__SOP_CONFLUENCE_MODE`): `cache` reads
+`data/sops/_confluence/`; `live` fetches Confluence REST and refreshes cache.
+Demo mix: `DATA__LOAN_SOURCE=mock` + `DATA__SOP_SOURCE=confluence` +
+`DATA__SOP_CONFLUENCE_MODE=cache`.
 
 ---
 
@@ -385,11 +405,12 @@ Proxy: Vite dev server proxies `/api` → Agent API `:8000`, `/tools` → Tools 
 
 ## 18. Current focus
 
-**Next up:** Step 8 — Eval harness (`packages/eval/run.py`). Implement `python -m packages.eval.run`, metrics (faithfulness, citation_coverage, refusal_correctness, p95_latency_ms), and CI gate.
+**Loan fixtures + Confluence-only SOPs:** set
+`DATA__LOAN_SOURCE=mock`, `DATA__SOP_SOURCE=confluence`,
+`DATA__SOP_CONFLUENCE_MODE=cache`, then re-ingest + restart demo.
+Live Confluence refresh: `DATA__SOP_CONFLUENCE_MODE=live` + `make ingest`.
 
-**Remaining steps:**
-- Step 8 — Eval harness (pending)
-- Step 10 — IaC + CI (Bicep modules empty, workflow files scaffolded)
+**Remaining leftovers:**
 - Step 1.5 leftover — CI grep gate for concrete imports
 
 ---

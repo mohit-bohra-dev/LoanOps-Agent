@@ -35,6 +35,9 @@
 - [x] Chunker: ~600 tokens, 80 overlap, markdown header-aware
 - [x] `python -m packages.rag.ingest data/sops` ingests all SOPs
 - [x] Nearest-neighbour test: 10 known queries return correct chunk
+- [x] `ConfluencePolicyProvider` live ingest (Escrow + Hardship seeds)
+- [x] `CompositePolicyProvider` — local dummy + Confluence when `DATA__MODE=real`
+- [x] Gitignored local markdown artifacts under `data/sops/_confluence/`
 
 ## Step 4 — Tools API
 

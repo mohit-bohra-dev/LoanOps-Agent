@@ -1,11 +1,11 @@
 # Graph Report - LoanOps-Agent  (2026-07-24)
 
 ## Corpus Check
-- 278 files · ~103,514 words
+- 278 files · ~103,579 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 3291 nodes · 6317 edges · 461 communities (240 shown, 221 thin omitted)
+- 3291 nodes · 6320 edges · 462 communities (241 shown, 221 thin omitted)
 - Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 589 edges (avg confidence: 0.51)
 - Token cost: 0 input · 0 output
 
@@ -190,6 +190,7 @@
 - Community 186
 - Community 187
 - Community 191
+- LoanId
 - Community 194
 - Community 197
 - Community 200
@@ -422,11 +423,11 @@
 ## Import Cycles
 - None detected.
 
-## Communities (461 total, 221 thin omitted)
+## Communities (462 total, 221 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.23
-Nodes (12): str, packages/safety/, Convenience wrapper for the safety middleware.     Obtains providers from facto, SafetyPipeline, EvaluationResult, Result of outbound content safety evaluation., Unit test for sanitize_inbound with mock providers., Unit test for evaluate_outbound with mock providers. (+4 more)
+Cohesion: 0.22
+Nodes (14): packages/safety/, Convenience wrapper for the safety middleware.     Obtains providers from facto, SafetyPipeline, EvaluationResult, BaseModel, Result of inbound PII anonymization., Result of outbound content safety evaluation., SanitizeResult (+6 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.06
@@ -442,15 +443,15 @@ Nodes (26): AISearchConfig, AOAIChatConfig, AOAIEmbeddingConfig, AuditConfig, Be
 
 ### Community 4 - "Community 4"
 Cohesion: 0.03
-Nodes (95): Ad(), add(), an(), Bd(), br(), bs(), bx, Cd() (+87 more)
+Nodes (88): Ad(), add(), an(), Bd(), block(), Bn(), br(), break() (+80 more)
 
 ### Community 6 - "Community 6"
 Cohesion: 0.12
 Nodes (17): devDependencies, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh, @types/node, @types/react, typescript-eslint (+9 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.07
-Nodes (54): ae(), be(), bo(), dc(), de(), Di(), Do(), E (+46 more)
+Cohesion: 0.11
+Nodes (37): ae(), dc(), Di(), Do(), fa(), ga(), Go(), ha() (+29 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.08
@@ -497,8 +498,8 @@ Cohesion: 0.10
 Nodes (20): compilerOptions, allowImportingTsExtensions, erasableSyntaxOnly, lib, module, moduleDetection, moduleResolution, noEmit (+12 more)
 
 ### Community 19 - "Community 19"
-Cohesion: 0.09
-Nodes (31): Bn(), cn(), dn(), en(), fn(), Gr(), hl(), hn() (+23 more)
+Cohesion: 0.13
+Nodes (17): code(), else(), elseIf(), _elseNode(), _endBlockNode(), endFor(), endFunc(), endIf() (+9 more)
 
 ### Community 20 - "Community 20"
 Cohesion: 0.07
@@ -509,8 +510,8 @@ Cohesion: 0.12
 Nodes (14): str, classify_intent(), Classify a rep prompt into an intent.      Returns a tuple of ``(intent_type,, Tests for the pure-function intent router., A normal servicing question should classify as ANSWER., Rate quote queries should be refused., Requests for financial advice should be refused., CFPB complaint mentions should escalate. (+6 more)
 
 ### Community 23 - "Community 23"
-Cohesion: 0.05
-Nodes (57): a(), assign(), b, block(), _blockNode(), break(), c(), code() (+49 more)
+Cohesion: 0.06
+Nodes (44): a(), assign(), b, _blockNode(), bo(), c(), const(), d (+36 more)
 
 ### Community 24 - "Community 24"
 Cohesion: 0.06
@@ -569,8 +570,8 @@ Cohesion: 0.12
 Nodes (14): mock_chat_provider(), mock_prompt_store(), mock_tools_client(), MockLLMProvider, MockPromptStoreProvider, MockToolsClientProvider, Pytest configuration for agent_core tests., Return a MockPromptStoreProvider with a canned system prompt. (+6 more)
 
 ### Community 42 - "Community 42"
-Cohesion: 0.07
-Nodes (18): dr(), Fr(), iu(), ka(), Lb, ma(), ol(), Qw() (+10 more)
+Cohesion: 0.06
+Nodes (45): At(), bi(), cr(), dt(), ee(), en(), er(), et() (+37 more)
 
 ### Community 43 - "Community 43"
 Cohesion: 0.12
@@ -613,8 +614,8 @@ Cohesion: 0.15
 Nodes (13): dependencies, lucide-react, react, react-dom, redoc, tailwindcss, @tailwindcss/vite, lucide-react (+5 more)
 
 ### Community 69 - "Community 69"
-Cohesion: 0.06
-Nodes (71): aa(), ac(), Af, ao(), As(), At(), bc(), bi() (+63 more)
+Cohesion: 0.08
+Nodes (52): ac(), Af, ao(), As(), bc(), bt(), ca(), ci() (+44 more)
 
 ### Community 70 - "Community 70"
 Cohesion: 0.11
@@ -641,8 +642,8 @@ Cohesion: 0.06
 Nodes (5): bl(), il(), kl(), vl(), xl()
 
 ### Community 78 - "Community 78"
-Cohesion: 0.08
-Nodes (17): Ei(), fe(), getValue(), gt(), i, ir(), leave(), Lt() (+9 more)
+Cohesion: 0.05
+Nodes (49): be(), Cg(), de(), Ei(), el(), Example(), fe(), fl() (+41 more)
 
 ### Community 79 - "Community 79"
 Cohesion: 0.22
@@ -657,8 +658,8 @@ Cohesion: 0.17
 Nodes (13): get_escrow_breakdown(), get_loan_or_404(), Any, Convert provider payment schedule dict into response model., Convert provider escrow breakdown dict into response model., Retrieve escrow account breakdown and disbursement history., Retrieve loan from the database or raise 404., to_escrow_breakdown() (+5 more)
 
 ### Community 82 - "Community 82"
-Cohesion: 0.08
-Nodes (24): activateOneOf(), constructor(), fc(), gc(), hasType(), hc(), hi(), ia() (+16 more)
+Cohesion: 0.06
+Nodes (26): aa(), activateOneOf(), constructor(), dr(), fc(), gc(), hasType(), hc() (+18 more)
 
 ### Community 83 - "Community 83"
 Cohesion: 0.11
@@ -679,6 +680,10 @@ Nodes (8): _get(), main(), _mask_token(), _preview_body(), _print_section(), Asy
 ### Community 88 - "Community 88"
 Cohesion: 0.12
 Nodes (16): 1. Identify Memory Strategy Effectiveness, 2. Find Conversations Where Memory Prevented Escalation, 3. Context Overlap & Redundancy, 4. Memory Impact on Tool Usage, Compliance Note, Conversation Memory Graph Models, Core Entities, Graph Schema Extensions for Graphify (+8 more)
+
+### Community 89 - "Community 89"
+Cohesion: 0.18
+Nodes (9): bx, By, df(), fw(), hi(), Jv, ly(), op() (+1 more)
 
 ### Community 90 - "Community 90"
 Cohesion: 0.13
@@ -978,7 +983,7 @@ Nodes (13): App.1 Golden Q&A seed (10 items), App.2 Agent output JSON schema, Ap
 
 ### Community 173 - "Community 173"
 Cohesion: 0.22
-Nodes (10): AuditSinkProvider, ContentSafetyProvider, PiiProvider, evaluate_outbound(), AuditSinkProvider, ContentSafetyProvider, PiiProvider, PII tokenise inbound prompt. Write PII audit event.      Instead of destructiv (+2 more)
+Nodes (11): AuditSinkProvider, ContentSafetyProvider, PiiProvider, str, evaluate_outbound(), AuditSinkProvider, ContentSafetyProvider, PiiProvider (+3 more)
 
 ### Community 181 - "Community 181"
 Cohesion: 0.12
@@ -993,12 +998,12 @@ Cohesion: 0.26
 Nodes (11): Session: 1af0e50b-fbd0-4d5e-ae9f-4c90748840c9, Session: 23820353-b84e-4ce8-b4e4-a0ecab9462d1, Session: sess-99, Turn 1 — user, Turn 2 — assistant, Turn 3 — user, Turn 4 — assistant, Turn 5 — user (+3 more)
 
 ### Community 197 - "Community 197"
-Cohesion: 0.10
-Nodes (25): Any, str, Unit tests for PiiTokenizer., Multiple PERSON spans get distinct numbered tokens., Text with no PII spans passes through unchanged., Detokenize reverses tokenize., detokenize_dict resolves tokens in tool call arguments., detokenize_dict handles nested dicts. (+17 more)
+Cohesion: 0.16
+Nodes (13): Any, str, detokenize_dict resolves tokens in tool call arguments., detokenize_dict handles nested dicts., Empty token map returns text unchanged., detokenize handles tokens without brackets (e.g. PERSON_1)., test_detokenize_dict_nested(), test_detokenize_dict_resolves_string_values() (+5 more)
 
 ### Community 207 - "Community 207"
-Cohesion: 0.38
-Nodes (6): PiiSpan, BaseModel, Represents a redacted PII entity in text., Result of inbound PII anonymization., SanitizeResult, PII tokenizer — reversible token replacement for PII spans.
+Cohesion: 0.18
+Nodes (15): PiiSpan, Represents a redacted PII entity in text., Unit tests for PiiTokenizer., Multiple PERSON spans get distinct numbered tokens., Text with no PII spans passes through unchanged., Detokenize reverses tokenize., Single PERSON span is replaced with [PERSON_1]., test_detokenize_roundtrip() (+7 more)
 
 ### Community 236 - "14. Delivery Phasing & Milestones"
 Cohesion: 0.67
@@ -1066,9 +1071,9 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `run_agent_turn()` connect `Community 96` to `Community 2`, `Community 9`, `Community 11`, `Community 14`, `Community 50`, `Community 21`?**
   _High betweenness centrality (0.012) - this node is a cross-community bridge._
-- **Why does `r` connect `Community 69` to `Community 128`, `Community 4`, `Community 5`, `Community 7`, `Community 10`, `Community 42`, `Community 76`, `Community 78`, `Community 82`, `Community 19`, `Community 22`, `Community 23`?**
+- **Why does `r` connect `Community 69` to `Community 128`, `Community 4`, `Community 5`, `Community 7`, `Community 42`, `Community 10`, `Community 76`, `Community 78`, `Community 82`, `Community 19`, `Community 22`, `Community 23`, `Community 89`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._
-- **Why does `i` connect `Community 78` to `Community 128`, `Community 4`, `Community 69`, `Community 7`, `Community 42`, `Community 10`, `Community 76`, `Community 111`, `Community 82`, `Community 19`, `Community 115`, `Community 22`, `Community 23`?**
+- **Why does `i` connect `Community 78` to `Community 128`, `Community 4`, `Community 69`, `Community 7`, `Community 42`, `Community 10`, `Community 76`, `Community 111`, `Community 82`, `Community 19`, `Community 115`, `Community 22`, `Community 23`, `Community 89`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **Are the 87 inferred relationships involving `r` (e.g. with `a()` and `aa()`) actually correct?**
   _`r` has 87 INFERRED edges - model-reasoned connections that need verification._

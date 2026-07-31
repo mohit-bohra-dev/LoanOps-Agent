@@ -123,9 +123,15 @@ def to_loan_summary(loan: dict[str, Any]) -> schemas.LoanSummary:
 
 
 async def search_loans_by_borrower_name(name: str) -> list[schemas.LoanSummary]:
-    """Search loan records by borrower name."""
+    """Search loan records by borrower name (mock/fixtures only)."""
     provider = get_loan_data_provider()
-    matches = await provider.search_by_name(name)
+    try:
+        matches = await provider.search_by_name(name)
+    except NotImplementedError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail=str(exc),
+        ) from exc
     return [to_loan_summary(loan) for loan in matches]
 
 
@@ -187,7 +193,7 @@ async def search_borrower(
     request: SearchBorrowerRequest,
     token: str = Depends(verify_token),
 ) -> list[schemas.LoanSummary]:
-    """Search loans by borrower name (case-insensitive partial token match)."""
+    """Search loans by borrower name (fixtures/mock only; not on real Loan API)."""
     matches = await search_loans_by_borrower_name(request.name)
     if not matches:
         raise HTTPException(

@@ -6,9 +6,9 @@ outside this module.
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal, Self
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -25,8 +25,8 @@ class LoanApiConfig(BaseModel):
     get_payment_schedules_path: str = "/api/Loans/{loan_id}/PaymentSchedules"
     get_escrows_path: str = "/api/Loans/{loan_id}/Escrows"
     get_delinquencies_path: str = "/api/Loans/{loan_id}/Delinquencies"
-    search_path: str = "/api/loans/search"
-    search_query_param: str = "borrowerName"
+    search_path: str = "/api/loans/search"  # unused — real API has no name search
+    search_query_param: str = "borrowerName"  # unused — real API has no name search
 
 
 class ConfluenceConfig(BaseModel):
@@ -34,12 +34,56 @@ class ConfluenceConfig(BaseModel):
     api_token: str = ""
     username: str = ""
     space_keys: list[str] = []
+    # Curated ingest allowlist (SC space Escrow + Hardship seeds)
+    page_ids: list[str] = Field(default_factory=list)
+    ancestor_ids: list[str] = Field(default_factory=list)
+    expand_children: bool = True
+    pii_scrub: Literal["regex", "presidio", "off"] = "regex"
+    artifact_dir: str = "data/sops/_confluence"
 
 
 class DataConfig(BaseModel):
-    mode: Literal["mock", "real"] = "mock"
+    """Loan + SOP source selection.
+
+    Prefer independent switches:
+      DATA__LOAN_SOURCE=mock|real
+      DATA__SOP_SOURCE=local|confluence|both
+      DATA__SOP_CONFLUENCE_MODE=cache|live
+
+    Deprecated: DATA__MODE=mock|real (maps loan_source; real → sop both+live).
+    """
+
+    # Deprecated unified switch — prefer loan_source + sop_source.
+    mode: Literal["mock", "real"] | None = None
+    loan_source: Literal["mock", "real"] = "mock"
+    sop_source: Literal["local", "confluence", "both"] = "local"
+    # cache = data/sops/_confluence only (offline); live = Confluence REST API
+    sop_confluence_mode: Literal["cache", "live"] = "cache"
     loan_api: LoanApiConfig = Field(default_factory=LoanApiConfig)
     confluence: ConfluenceConfig = Field(default_factory=ConfluenceConfig)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _apply_legacy_mode(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        mode = data.get("mode")
+        if mode is None:
+            return data
+        if data.get("loan_source") is None:
+            data["loan_source"] = mode
+        if data.get("sop_source") is None:
+            data["sop_source"] = "both" if mode == "real" else "local"
+        if mode == "real" and data.get("sop_confluence_mode") is None:
+            data["sop_confluence_mode"] = "live"
+        return data
+
+    @model_validator(mode="after")
+    def _legacy_mode_mirror(self) -> Self:
+        # Keep mode populated for older callers that still read data.mode.
+        if self.mode is None:
+            object.__setattr__(self, "mode", self.loan_source)
+        return self
 
 
 class OllamaChatConfig(BaseModel):

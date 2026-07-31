@@ -326,45 +326,14 @@ async def test_json_file_provider_payment_schedule_for_100245() -> None:
 
 
 @pytest.mark.asyncio
-async def test_rest_api_provider_search_by_name(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_rest_api_provider_search_by_name_unsupported() -> None:
     config = LoanApiConfig(
-        base_url="http://loanservicesapi-plaisse-dev.pnmac.com",
+        base_url="https://loanservicesapi-plaisse-dev.pnmac.com",
         api_key="test-token",
-        search_path="/api/loans/search",
-        search_query_param="borrowerName",
     )
     provider = RestApiLoanProvider(config)
-
-    async def fake_request(
-        method: str,
-        path: str,
-        *,
-        params: dict[str, str] | None = None,
-    ) -> Any:
-        assert method == "GET"
-        assert path == "/api/loans/search"
-        assert params == {"borrowerName": "Alex"}
-        return {
-            "results": [
-                {
-                    "loanId": "100245",
-                    "borrowerFirstName": "Alex",
-                    "borrowerLastName": "Rivera",
-                    "propertyState": "CA",
-                    "loanStatus": "active",
-                    "productType": "Conventional 30yr fixed",
-                    "hasEscrow": True,
-                    "currentBalance": 324188.42,
-                    "daysDelinquent": 0,
-                    "loanFlags": [],
-                }
-            ]
-        }
-
-    monkeypatch.setattr(provider, "_request", fake_request)
-    loans = await provider.search_by_name("Alex")
-    assert len(loans) == 1
-    assert loans[0]["loan_id"] == "100245"
+    with pytest.raises(NotImplementedError, match="not available"):
+        await provider.search_by_name("Alex")
 
 
 def test_rest_api_provider_requires_token() -> None:

@@ -43,7 +43,11 @@ _SERVICING_TOOLS = [
     ),
     ToolDefinition(
         name="search_borrower",
-        description="Search for loans by borrower name. Returns matching loan IDs and basic info.",
+        description=(
+            "Search for loans by borrower name. Available only with local mock "
+            "fixtures — not supported on the real Loan Services API. Prefer "
+            "lookup_loan with loan_id when the loan number is known."
+        ),
         parameters={
             "type": "object",
             "properties": {

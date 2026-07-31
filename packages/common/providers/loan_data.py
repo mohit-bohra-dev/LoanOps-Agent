@@ -792,10 +792,10 @@ class RestApiLoanProvider(AbstractLoanDataProvider):
 
     def __init__(self, config: LoanApiConfig) -> None:
         if not config.base_url:
-            raise ValueError("DATA__LOAN_API__BASE_URL is required when DATA__MODE=real")
+            raise ValueError("DATA__LOAN_API__BASE_URL is required when DATA__LOAN_SOURCE=real")
         if not config.api_key:
             raise ValueError(
-                "DATA__LOAN_API__API_KEY is required when DATA__MODE=real "
+                "DATA__LOAN_API__API_KEY is required when DATA__LOAN_SOURCE=real "
                 "(paste your upstream Bearer token)"
             )
         self._config = config
@@ -972,26 +972,8 @@ class RestApiLoanProvider(AbstractLoanDataProvider):
         return _normalize_escrow_breakdown(clean_loan_id, summary, escrows)
 
     async def search_by_name(self, name: str) -> list[dict[str, Any]]:
-        query = name.strip()
-        if not query:
-            return []
-
-        params = {self._config.search_query_param: query}
-        path = self._config.search_path
-        request_params: dict[str, str] | None = params
-        if "{" in path:
-            path = path.format(name=query, borrower_name=query, borrowerName=query)
-            request_params = None
-
-        try:
-            payload = await self._request("GET", path, params=request_params)
-        except httpx.HTTPStatusError as exc:
-            logger.error("Loan API search_by_name failed for %r: %s", query, exc)
-            raise
-        except httpx.HTTPError as exc:
-            logger.error("Loan API transport error during search for %r: %s", query, exc)
-            raise
-
-        if payload is None:
-            return []
-        return _normalize_search_results(payload)[:10]
+        # PennyMac Loan Services API is loan-id keyed only (no borrower-name search).
+        raise NotImplementedError(
+            "Borrower name search is not available on the Loan Services API. "
+            "Use lookup_loan with a loan_id instead."
+        )

@@ -119,3 +119,55 @@ a premium dark-mode design system.
 **Reasoning:** Native tool calling pushes the structured output constraint down to the provider API, eliminating parse errors. Splitting the agent loop into two passes (Pass 1: Tool generation -> Execute tools -> Pass 2: Final answer) allows the LLM to ground its draft reply in actual tool execution results.
 
 **Status:** Accepted.
+
+---
+
+## ADR-008 — Live Confluence SOP ingest (composite, gitignored artifacts)
+
+**Decision:** When `DATA__MODE=real`, policy source is a
+`CompositePolicyProvider` of local dummy SOPs + `ConfluencePolicyProvider`.
+Curated Escrow/Hardship pages are fetched via Confluence REST v2, converted
+with Microsoft `markitdown`, PII-scrubbed (`regex` default), written to
+`data/sops/_confluence/` (gitignored), and embedded into local Qdrant.
+
+**Context:** Real Servicing Policies & Procedures (SC space) must feed RAG
+without replacing the offline demo corpus and without committing confidential
+internal docs.
+
+**Alternatives:** Export-only markdown commit; query-time Confluence fetch;
+`DATA__MODE=real` replacing local SOPs entirely.
+
+**Reasoning:** Ingest-time live fetch matches existing provider scaffold;
+composite preserves `make demo` offline; gitignored artifacts keep
+confidential content out of git while remaining inspectable locally.
+
+**New env vars:** `DATA__CONFLUENCE__PAGE_IDS`,
+`DATA__CONFLUENCE__ANCESTOR_IDS`, `DATA__CONFLUENCE__EXPAND_CHILDREN`,
+`DATA__CONFLUENCE__PII_SCRUB`, `DATA__CONFLUENCE__ARTIFACT_DIR`
+(plus existing base_url/username/api_token/space_keys).
+
+**Status:** Accepted.
+
+---
+
+## ADR-009 — Independent loan vs SOP source switches
+
+**Decision:** Split `DATA__MODE` into:
+- `DATA__LOAN_SOURCE` = `mock` | `real`
+- `DATA__SOP_SOURCE` = `local` | `confluence` | `both`
+- `DATA__SOP_CONFLUENCE_MODE` = `cache` | `live`
+
+`DATA__MODE` remains as a deprecated backcompat alias
+(`mock` → loan mock + sop local; `real` → loan real + sop both + live).
+
+**Context:** Need mock loan fixtures with Confluence-only SOPs (no synthetic
+local corpus), and the reverse combinations during integration.
+
+**Alternatives:** Keep single `DATA__MODE`; add only a boolean
+`DATA__USE_CONFLUENCE`.
+
+**Reasoning:** Orthogonal axes match how demos actually run; cache mode
+reuses `data/sops/_confluence/` offline without Confluence API credentials
+at chat time.
+
+**Status:** Accepted.

@@ -43,10 +43,11 @@ def _get_settings() -> Settings:
 # ── Data Providers ─────────────────────────────────────────────────────────
 @lru_cache(maxsize=1)
 def get_loan_data_provider() -> AbstractLoanDataProvider:
-    """Return the configured loan data provider."""
+    """Return the configured loan data provider (DATA__LOAN_SOURCE)."""
     cfg = _get_settings()
-    if cfg.data.mode == "real":
+    if cfg.data.loan_source == "real":
         from packages.common.providers.loan_data import RestApiLoanProvider
+
         return RestApiLoanProvider(cfg.data.loan_api)
     from packages.common.providers.loan_data import (
         FixtureLoanProvider,
@@ -59,15 +60,42 @@ def get_loan_data_provider() -> AbstractLoanDataProvider:
     return JsonFileLoanProvider()
 
 
+def _confluence_policy_provider(
+    cfg: Settings,
+) -> AbstractPolicySourceProvider:
+    """Build Confluence SOP source from DATA__SOP_CONFLUENCE_MODE."""
+    from packages.common.providers.policy_source import (
+        ConfluencePolicyProvider,
+        LocalFilePolicyProvider,
+    )
+
+    if cfg.data.sop_confluence_mode == "live":
+        return ConfluencePolicyProvider(cfg.data.confluence)
+    # Offline cache written by a prior live ingest
+    return LocalFilePolicyProvider(sops_dir=cfg.data.confluence.artifact_dir)
+
+
 @lru_cache(maxsize=1)
 def get_policy_source_provider() -> AbstractPolicySourceProvider:
-    """Return the configured policy source provider."""
+    """Return the configured policy source provider (DATA__SOP_SOURCE).
+
+    local      → synthetic data/sops (excludes _confluence)
+    confluence → Confluence only (cache or live per DATA__SOP_CONFLUENCE_MODE)
+    both       → local + Confluence
+    """
     cfg = _get_settings()
-    if cfg.data.mode == "real":
-        from packages.common.providers.policy_source import ConfluencePolicyProvider
-        return ConfluencePolicyProvider(cfg.data.confluence)
-    from packages.common.providers.policy_source import LocalFilePolicyProvider
-    return LocalFilePolicyProvider()
+    from packages.common.providers.policy_source import (
+        CompositePolicyProvider,
+        LocalFilePolicyProvider,
+    )
+
+    local = LocalFilePolicyProvider()
+    if cfg.data.sop_source == "local":
+        return local
+    confluence = _confluence_policy_provider(cfg)
+    if cfg.data.sop_source == "confluence":
+        return confluence
+    return CompositePolicyProvider([local, confluence])
 
 
 # ── Chat / LLM ─────────────────────────────────────────────────────────────

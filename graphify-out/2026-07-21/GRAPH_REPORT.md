@@ -1,16 +1,16 @@
-# Graph Report - LoanOps-Agent  (2026-07-24)
+# Graph Report - LoanOps-Agent  (2026-07-16)
 
 ## Corpus Check
-- 278 files · ~103,514 words
+- 213 files · ~94,644 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 3291 nodes · 6317 edges · 461 communities (240 shown, 221 thin omitted)
-- Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 589 edges (avg confidence: 0.51)
+- 3245 nodes · 6200 edges · 498 communities (252 shown, 246 thin omitted)
+- Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 591 edges (avg confidence: 0.51)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d3d710f0`
+- Built from commit: `660794ed`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -177,8 +177,8 @@
 - Community 171
 - Community 172
 - Community 173
-- Ff
-- .constructor
+- Community 174
+- Community 175
 - Community 176
 - Community 177
 - Community 178
@@ -189,14 +189,23 @@
 - Community 185
 - Community 186
 - Community 187
+- Community 189
 - Community 191
+- Community 192
+- Community 193
 - Community 194
+- Community 195
 - Community 197
 - Community 200
 - Community 201
 - Community 207
+- Community 210
+- Community 219
 - servicing-agent
+- uy
+- Nm
 - 14. Delivery Phasing & Milestones
+- test_no_direct_env_access
 - eslint
 - ax
 - AbstractSessionStoreProvider
@@ -212,9 +221,19 @@
 - int
 - str
 - Aggregate health of all 10 providers; 503 on any failure.
+- Aggregate health of all 10 providers; 503 on any failure.
+- Return the current API version.
+- Return the current API version.
 - Handle a chat turn and stream the result as SSE.      The agent output is comput
 - Handle a chat turn and stream the result as SSE.      The agent output is comp
 - # TODO: Step 7 — PII redact prompt before storing in audit
+- Snapshot which concrete provider is bound for each category.      Returns a di
+- Snapshot which concrete provider is bound for each category.      Returns a di
+- Snapshot which concrete provider is bound for each category.      Returns a di
+- Snapshot which concrete provider is bound for each category.      Returns a di
+- Retrieve the chat memory for a given session, showing which turns are active/ina
+- Retrieve the chat memory for a given session, showing which turns are active/ina
+- Retrieve the chat memory for a given session, showing which turns are active/ina
 - Application lifespan: flush audit sink on shutdown.
 - Health status of a single provider.
 - Aggregated health response for all providers.
@@ -226,13 +245,30 @@
 - MagicMock
 - bool
 - str
+- Retrieve loan from the database or raise 404.
+- Retrieve loan from the database or raise 404.
+- List all available tools.
 - Convert a raw loan record into the LoanSummary response model.
+- List all available tools.
+- Retrieve basic details about a loan.
+- Retrieve basic details about a loan.
 - Return True when a case-insensitive borrower name match is found.
 - Search loan records by borrower name and return up to 10 matches.
 - List all available tools.
+- Retrieve basic details about a loan.
+- Search loans by borrower name (case-insensitive partial token match).
+- Generate upcoming payment schedule.
+- Generate upcoming payment schedule.
+- Retrieve escrow account breakdown and disbursement history.
+- Retrieve escrow account breakdown and disbursement history.
 - Load the synthetic loans database from loans.json.
 - Retrieve escrow account breakdown and disbursement history.
 - Evaluate hardship program eligibility hints.
+- Evaluate hardship program eligibility hints.
+- Evaluate hardship program eligibility hints.
+- Integrate with RAG providers to query policies.
+- Integrate with RAG providers to query policies.
+- Integrate with RAG providers to query policies.
 - Integrate with RAG providers to query policies.
 - Verify that the Bearer token matches the configured TOOLS_API_TOKEN.
 - Verify escrow breakdown for loan 100245.
@@ -288,6 +324,7 @@
 - str
 - Return the configured vector store provider.
 - Return the configured embedding provider.
+- Return the configured content safety provider.
 - Return the configured audit sink provider.
 - Return the configured telemetry provider.
 - Return the configured prompt store provider.
@@ -408,6 +445,8 @@
 10. `S` - 55 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `run_test()` --indirect_call--> `client()`  [INFERRED]
+  scripts/probe_loan_api.py → apps/tools_api/tests/test_tools_api.py
 - `LookupLoanRequest` --uses--> `Settings`  [INFERRED]
   apps/tools_api/main.py → packages/common/settings.py
 - `GetPaymentScheduleRequest` --uses--> `Settings`  [INFERRED]
@@ -416,73 +455,75 @@
   apps/tools_api/main.py → packages/common/settings.py
 - `CheckHardshipEligibilityRequest` --uses--> `Settings`  [INFERRED]
   apps/tools_api/main.py → packages/common/settings.py
-- `SearchPolicyRequest` --uses--> `Settings`  [INFERRED]
-  apps/tools_api/main.py → packages/common/settings.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (461 total, 221 thin omitted)
+## Communities (498 total, 246 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.23
-Nodes (12): str, packages/safety/, Convenience wrapper for the safety middleware.     Obtains providers from facto, SafetyPipeline, EvaluationResult, Result of outbound content safety evaluation., Unit test for sanitize_inbound with mock providers., Unit test for evaluate_outbound with mock providers. (+4 more)
+Cohesion: 0.22
+Nodes (15): str, packages/safety/, Convenience wrapper for the safety middleware.     Obtains providers from facto, SafetyPipeline, EvaluationResult, BaseModel, Result of inbound PII anonymization., Result of outbound content safety evaluation. (+7 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.06
 Nodes (65): date, MonkeyPatch, AbstractLoanDataProvider, _apply_delinquencies(), _as_dict_list(), _build_mock_escrow_breakdown(), _build_mock_payment_schedule(), _derive_delinquency_days() (+57 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.05
-Nodes (47): Agent runner — orchestrates a single agent turn.  Flow: 1. Load the system promp, AgentTurnOutput, Any, str, PromptStoreProvider, str, packages/agent_core/, Agent runner — orchestrates a single agent turn.  Flow: 1. Load the system pr (+39 more)
+Cohesion: 0.08
+Nodes (33): AgentTurnOutput, Any, str, packages/agent_core/, AgentParseError, _fix_citations(), parse_agent_output(), AgentTurnOutput (+25 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.13
-Nodes (26): AISearchConfig, AOAIChatConfig, AOAIEmbeddingConfig, AuditConfig, BedrockChatConfig, BedrockEmbeddingConfig, ChatConfig, EmbeddingConfig (+18 more)
+Cohesion: 0.12
+Nodes (28): AISearchConfig, AOAIChatConfig, AOAIEmbeddingConfig, AuditConfig, BedrockChatConfig, BedrockEmbeddingConfig, ChatConfig, ConfluenceConfig (+20 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.03
-Nodes (95): Ad(), add(), an(), Bd(), br(), bs(), bx, Cd() (+87 more)
+Nodes (93): activateOneOf(), Ad(), add(), At(), Bd(), be(), block(), br() (+85 more)
+
+### Community 5 - "Community 5"
+Cohesion: 0.08
+Nodes (46): ac(), As(), bc(), ca(), cr(), dt(), ec(), eo() (+38 more)
 
 ### Community 6 - "Community 6"
 Cohesion: 0.12
 Nodes (17): devDependencies, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh, @types/node, @types/react, typescript-eslint (+9 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.07
-Nodes (54): ae(), be(), bo(), dc(), de(), Di(), Do(), E (+46 more)
+Cohesion: 0.27
+Nodes (10): lookup_loan(), LookupLoanRequest, Convert a raw loan record into the LoanSummary response model., Search loan records by borrower name., Retrieve basic details about a loan., Search loans by borrower name (case-insensitive partial token match)., search_borrower(), search_loans_by_borrower_name() (+2 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.08
-Nodes (33): AbstractEmbeddingProvider, AbstractVectorStoreProvider, Any, int, str, Path, str, get_embedding_provider() (+25 more)
+Cohesion: 0.11
+Nodes (22): Any, int, str, Chunk, MarkdownChunker, Any, Markdown chunker for RAG pipeline., Split a large section into smaller chunks. (+14 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.11
-Nodes (28): chat(), _get_bound_providers(), health(), lifespan(), Any, Servicing Agent API — FastAPI on :8000.  Endpoints:     POST /chat   — stream, Application lifespan: warm up providers on startup, flush audit sink on shutdown, Aggregate health of all 10 providers; 503 on any failure. (+20 more)
+Cohesion: 0.14
+Nodes (20): chat(), health(), Any, Aggregate health of all 10 providers; 503 on any failure., Handle a chat turn and stream the result as SSE.      The agent output is comp, AuditRecord, ChatMemoryResponse, ChatRequest (+12 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.07
-Nodes (13): Ba(), Dg(), fg(), hg(), Iw, Lg(), Mg(), Nw (+5 more)
+Cohesion: 0.05
+Nodes (69): EvalItemResult, float, Metric computation functions for the eval harness.  All functions are pure — the, Pydantic models for the eval harness data pipeline.  These models flow through:, Eval gate thresholds — do not lower without explicit approval.  These match Sect, AgentTurnOutput, CitationItem, DisbursementItem (+61 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.05
-Nodes (73): GoldenItem, MockToolsClientProvider, Path, float, str, Pydantic models for the eval harness data pipeline.  These models flow through:, Eval gate thresholds — do not lower without explicit approval.  These match Sect, EvalItemResult (+65 more)
+Cohesion: 0.08
+Nodes (41): GoldenItem, MockToolsClientProvider, Path, float, str, GoldenItem, Single golden Q&A item loaded from ``data/golden.jsonl``., _build_golden_file() (+33 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.07
-Nodes (44): AbstractAuditSinkProvider, AbstractContentSafetyProvider, AbstractLLMProvider, AbstractPiiProvider, AbstractPromptStoreProvider, AbstractRerankerProvider, AbstractSecretsProvider, AbstractTelemetryProvider (+36 more)
+Cohesion: 0.04
+Nodes (80): AbstractAuditSinkProvider, AbstractContentSafetyProvider, AbstractEmbeddingProvider, AbstractLLMProvider, AbstractPiiProvider, AbstractPromptStoreProvider, AbstractRerankerProvider, AbstractSecretsProvider (+72 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.04
 Nodes (44): additionalProperties, format, type, minLength, type, type, minLength, type (+36 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.13
-Nodes (21): MockLLMProvider, MockPromptStoreProvider, MockToolsClientProvider, MockLLMProvider, MockPromptStoreProvider, MockToolsClientProvider, Tests for the system prompt loader., Loading a raw prompt (no fenced block) should return it as-is. (+13 more)
+Cohesion: 0.07
+Nodes (41): AgentTurnOutput, ChatProvider, LLMMessage, PromptStoreProvider, str, ToolsClientProvider, PromptStoreProvider, str (+33 more)
 
 ### Community 15 - "Community 15"
-Cohesion: 0.15
-Nodes (12): Verify that endpoints reject missing or invalid tokens., Verify listing tools works with valid token., Verify details can be retrieved for a valid loan ID., Verify 404 is returned for nonexistent loan ID., Verify search borrower endpoint returns valid results., Verify 404 is returned for nonexistent borrower name., test_auth_required(), test_list_tools() (+4 more)
+Cohesion: 0.14
+Nodes (13): client(), Verify that endpoints reject missing or invalid tokens., Verify listing tools works with valid token., Verify details can be retrieved for a valid loan ID., Verify 404 is returned for nonexistent loan ID., Verify search borrower endpoint returns valid results., Verify 404 is returned for nonexistent borrower name., test_auth_required() (+5 more)
 
 ### Community 16 - "Community 16"
 Cohesion: 0.09
@@ -497,20 +538,24 @@ Cohesion: 0.10
 Nodes (20): compilerOptions, allowImportingTsExtensions, erasableSyntaxOnly, lib, module, moduleDetection, moduleResolution, noEmit (+12 more)
 
 ### Community 19 - "Community 19"
-Cohesion: 0.09
-Nodes (31): Bn(), cn(), dn(), en(), fn(), Gr(), hl(), hn() (+23 more)
+Cohesion: 0.10
+Nodes (18): CitationItem, bool, EvalItemResult, float, str, EscalationItem, compute_citation_coverage(), Fraction of non-refusal/non-escalation items that have correct citations. (+10 more)
 
 ### Community 20 - "Community 20"
 Cohesion: 0.07
 Nodes (31): type, type, $id, type, items, additionalProperties, properties, required (+23 more)
 
 ### Community 21 - "Community 21"
-Cohesion: 0.12
-Nodes (14): str, classify_intent(), Classify a rep prompt into an intent.      Returns a tuple of ``(intent_type,, Tests for the pure-function intent router., A normal servicing question should classify as ANSWER., Rate quote queries should be refused., Requests for financial advice should be refused., CFPB complaint mentions should escalate. (+6 more)
+Cohesion: 0.08
+Nodes (23): Agent runner — orchestrates a single agent turn.  Flow: 1. Load the system promp, str, Agent runner — orchestrates a single agent turn.  Flow: 1. Load the system pr, Agent core — intent router, prompt loader, output parser, and agent runner.  T, classify_intent(), IntentType, Intent router — a pure function that classifies a rep's prompt into an intent., The three possible intents for an agent turn. (+15 more)
+
+### Community 22 - "Community 22"
+Cohesion: 0.14
+Nodes (17): App(), AgentStepItem(), AgentSteps(), AgentStepsProps, BorrowerContextPane(), ChatMessage(), ChatMessageProps, ChatPane() (+9 more)
 
 ### Community 23 - "Community 23"
-Cohesion: 0.05
-Nodes (57): a(), assign(), b, block(), _blockNode(), break(), c(), code() (+49 more)
+Cohesion: 0.06
+Nodes (32): assign(), b, c(), d, ed(), ee(), f, fc() (+24 more)
 
 ### Community 24 - "Community 24"
 Cohesion: 0.06
@@ -518,15 +563,15 @@ Nodes (31): type, type, type, type, type, type, type, type (+23 more)
 
 ### Community 26 - "Community 26"
 Cohesion: 0.09
-Nodes (29): @faker-js/faker, json-schema-faker, addMonths(), applyRecordOverrides(), applySummaryOverrides(), buildBorrower(), buildSchedules(), configureRandomness() (+21 more)
+Nodes (26): @faker-js/faker, json-schema-faker, addMonths(), applyRecordOverrides(), applySummaryOverrides(), buildBorrower(), buildSchedules(), __dirname (+18 more)
 
 ### Community 27 - "Community 27"
-Cohesion: 0.19
-Nodes (9): MockPromptStoreProvider, PromptStoreProvider, provider(), MockPromptStoreProvider, PromptStoreProvider, Contract tests for the prompt store provider., Every PromptStoreProvider implementation must pass these tests., TestPromptStoreProviderContract (+1 more)
+Cohesion: 0.46
+Nodes (4): PromptStoreProvider, PromptStoreProvider, Every PromptStoreProvider implementation must pass these tests., TestPromptStoreProviderContract
 
 ### Community 28 - "Community 28"
-Cohesion: 0.19
-Nodes (9): MockToolsClientProvider, ToolsClientProvider, provider(), MockToolsClientProvider, ToolsClientProvider, Contract tests for the tools client provider., Every ToolsClientProvider implementation must pass these tests., TestToolsClientProviderContract (+1 more)
+Cohesion: 0.46
+Nodes (4): ToolsClientProvider, ToolsClientProvider, Every ToolsClientProvider implementation must pass these tests., TestToolsClientProviderContract
 
 ### Community 29 - "Community 29"
 Cohesion: 0.23
@@ -549,28 +594,28 @@ Cohesion: 0.26
 Nodes (7): ContentSafetyProvider, Content safety provider protocol — re-exports from provider_contracts., provider(), ContentSafetyProvider, Contract tests for the content safety provider., Every ContentSafetyProvider implementation must pass these tests., TestContentSafetyProviderContract
 
 ### Community 34 - "Community 34"
-Cohesion: 0.40
-Nodes (4): Integration test for RuleBasedContentSafetyProvider.     Verifies that blocklis, Test that MockContentSafetyProvider returns a predictable result., test_mock_content_safety(), test_rule_based_content_safety()
+Cohesion: 0.18
+Nodes (8): In-memory / mock providers for unit tests.  All mock implementations are re-ex, Integration test for RuleBasedContentSafetyProvider.     Verifies that blocklis, Test that MockContentSafetyProvider returns a predictable result., test_mock_content_safety(), test_rule_based_content_safety(), Test that MockPiiProvider correctly redacts based on its internal mock logic., test_mock_pii_redaction(), In-memory / mock providers for unit tests.  All mock implementations are re-expo
 
 ### Community 35 - "Community 35"
 Cohesion: 0.07
 Nodes (26): 1. Settings, 2. Loan Data Provider, 3. Policy Source Provider, 4. .env Files, 5. Quick-Switch Convenience (PowerShell), Architecture: The Toggle, Automated, File Summary (+18 more)
 
 ### Community 36 - "Community 36"
-Cohesion: 0.10
-Nodes (33): async_get_loan_or_404(), check_hardship_eligibility(), CheckHardshipEligibilityRequest, get_payment_schedule(), GetEscrowBreakdownRequest, GetPaymentScheduleRequest, list_tools(), lookup_loan() (+25 more)
+Cohesion: 0.11
+Nodes (29): async_get_loan_or_404(), check_hardship_eligibility(), CheckHardshipEligibilityRequest, get_escrow_breakdown(), get_loan_or_404(), get_payment_schedule(), GetEscrowBreakdownRequest, GetPaymentScheduleRequest (+21 more)
 
 ### Community 40 - "Community 40"
 Cohesion: 0.21
 Nodes (8): str, AbstractSessionStoreProvider, Protocol for conversation session storage., Create a new conversation session., Retrieve a session by ID, returning None if expired or not found., Append a new turn to an existing session., Delete a session entirely., Protocol
 
 ### Community 41 - "Community 41"
-Cohesion: 0.12
-Nodes (14): mock_chat_provider(), mock_prompt_store(), mock_tools_client(), MockLLMProvider, MockPromptStoreProvider, MockToolsClientProvider, Pytest configuration for agent_core tests., Return a MockPromptStoreProvider with a canned system prompt. (+6 more)
+Cohesion: 0.18
+Nodes (10): mock_chat_provider(), mock_prompt_store(), mock_tools_client(), MockLLMProvider, MockPromptStoreProvider, MockToolsClientProvider, Pytest configuration for agent_core tests., Return a MockPromptStoreProvider with a canned system prompt. (+2 more)
 
 ### Community 42 - "Community 42"
 Cohesion: 0.07
-Nodes (18): dr(), Fr(), iu(), ka(), Lb, ma(), ol(), Qw() (+10 more)
+Nodes (31): a(), _blockNode(), code(), const(), constructor(), _def(), else(), elseIf() (+23 more)
 
 ### Community 43 - "Community 43"
 Cohesion: 0.12
@@ -584,17 +629,13 @@ Nodes (7): MockSecretsProvider, provider(), Contract tests for the secrets provi
 Cohesion: 0.14
 Nodes (13): dependencies, @slidev/cli, @slidev/theme-default, @slidev/theme-seriph, name, private, scripts, build (+5 more)
 
-### Community 50 - "Community 50"
-Cohesion: 0.07
-Nodes (38): CitationItem, EvalItemResult, float, bool, EvalItemResult, float, str, EscalationItem (+30 more)
-
 ### Community 59 - "Community 59"
 Cohesion: 0.08
 Nodes (23): 10. PII patterns (Presidio), 11. Common one-liners, 12. Module layout (scaffold status), 13. Data directory, 14. Docker dependencies (local dev), 15. Commit conventions, 16. Web UI components (`apps/web_ui/`), 17. CI / CD (`.github/workflows/`) (+15 more)
 
 ### Community 61 - "Community 61"
-Cohesion: 0.17
-Nodes (11): [2026-05-28] — Step 7: Safety layer implemented, [2026-05-31] — Tooling: Graphify knowledge graph, [2026-06-08] — Fix mypy test monkeypatch signatures, [2026-06-09] — Fix Safety Middleware Showstopper, [2026-06-09] — Graphify-first rule added to all agent instructions, [2026-06-10] — Conversational Memory Feature, [2026-06-18] — Bedrock API Key Auth & PII Stub Fixes, [2026-06-18] — Fix EscrowBalance Field Collision (+3 more)
+Cohesion: 0.20
+Nodes (9): [2026-05-28] — Step 7: Safety layer implemented, [2026-05-31] — Tooling: Graphify knowledge graph, [2026-06-08] — Fix mypy test monkeypatch signatures, [2026-06-09] — Fix Safety Middleware Showstopper, [2026-06-09] — Graphify-first rule added to all agent instructions, [2026-06-10] — Conversational Memory Feature, [2026-06-18] — Bedrock API Key Auth & PII Stub Fixes, [2026-06-18] — Fix EscrowBalance Field Collision (+1 more)
 
 ### Community 62 - "Community 62"
 Cohesion: 0.33
@@ -613,8 +654,8 @@ Cohesion: 0.15
 Nodes (13): dependencies, lucide-react, react, react-dom, redoc, tailwindcss, @tailwindcss/vite, lucide-react (+5 more)
 
 ### Community 69 - "Community 69"
-Cohesion: 0.06
-Nodes (71): aa(), ac(), Af, ao(), As(), At(), bc(), bi() (+63 more)
+Cohesion: 0.08
+Nodes (53): ae(), ao(), bo(), ci(), co(), dc(), Di(), Do() (+45 more)
 
 ### Community 70 - "Community 70"
 Cohesion: 0.11
@@ -622,27 +663,35 @@ Nodes (23): type, type, null, string, format, type, format, type (+15 more)
 
 ### Community 71 - "Community 71"
 Cohesion: 0.14
-Nodes (17): App(), AgentStepItem(), AgentSteps(), AgentStepsProps, BorrowerContextPane(), ChatMessage(), ChatMessageProps, ChatPane() (+9 more)
+Nodes (13): App.1 Golden Q&A seed (10 items), App.2 Agent output JSON schema, App.3 Tool function signatures and example responses, App.5 Open call-outs (please confirm before STEP 5), Appendix, `check_hardship_eligibility(loan_id: str, program: str) -> EligibilityHint`, `get_escrow_breakdown(loan_id: str) -> EscrowBreakdown`, `get_payment_schedule(loan_id: str, months: int = 3) -> PaymentSchedule` (+5 more)
 
 ### Community 72 - "Community 72"
-Cohesion: 0.08
-Nodes (40): get_chat_memory(), Retrieve the chat memory for a given session, showing which turns are active/ina, _make_mock_session_store(), mock_session_store_factory(), Any, Tests for the chat memory endpoint., Test getting memory for a non-existent session., Create a mock session store provider. (+32 more)
+Cohesion: 0.22
+Nodes (15): LLMMessage, build_history_messages(), LLMMessage, Memory strategy — builds history context for the LLM., Build history messages from a session using a sliding window strategy.      St, Tests for the memory strategy., test_build_history_messages_budget(), test_build_history_messages_empty() (+7 more)
 
 ### Community 73 - "Community 73"
 Cohesion: 0.26
 Nodes (7): PiiProvider, provider(), PiiProvider, Contract tests for the PII provider., Every PiiProvider implementation must pass these tests., TestPiiProviderContract, PII provider protocol — re-exports from provider_contracts.
 
 ### Community 74 - "Community 74"
-Cohesion: 0.20
-Nodes (13): DisbursementItem, LoanSummary, PaymentScheduleItem, PolicyChunks, PolicyResultItem, BaseModel, Record of a tool call made during agent execution., A single payment period in a schedule. (+5 more)
+Cohesion: 0.50
+Nodes (5): _make_mock_provider(), mock_all_factories(), Create a MagicMock that looks like a provider instance., Patch all 10 provider factory functions with mock providers.      Also patches, MagicMock
+
+### Community 75 - "Community 75"
+Cohesion: 0.07
+Nodes (16): an(), bs(), Cs(), Ds(), Es(), Fs(), Is(), ks() (+8 more)
+
+### Community 76 - "Community 76"
+Cohesion: 0.23
+Nodes (5): al(), el(), fl(), ul(), yl()
 
 ### Community 77 - "Community 77"
-Cohesion: 0.06
-Nodes (5): bl(), il(), kl(), vl(), xl()
+Cohesion: 0.10
+Nodes (3): bl(), ol(), rl()
 
 ### Community 78 - "Community 78"
 Cohesion: 0.08
-Nodes (17): Ei(), fe(), getValue(), gt(), i, ir(), leave(), Lt() (+9 more)
+Nodes (36): Af, Bn(), bt(), Cg(), dn(), en(), fn(), Gr() (+28 more)
 
 ### Community 79 - "Community 79"
 Cohesion: 0.22
@@ -652,77 +701,73 @@ Nodes (8): name, private, type, version, dependencies, name, private, scripts
 Cohesion: 0.33
 Nodes (6): scripts, build, dev, lint, postinstall, preview
 
-### Community 81 - "Community 81"
-Cohesion: 0.17
-Nodes (13): get_escrow_breakdown(), get_loan_or_404(), Any, Convert provider payment schedule dict into response model., Convert provider escrow breakdown dict into response model., Retrieve escrow account breakdown and disbursement history., Retrieve loan from the database or raise 404., to_escrow_breakdown() (+5 more)
-
 ### Community 82 - "Community 82"
-Cohesion: 0.08
-Nodes (24): activateOneOf(), constructor(), fc(), gc(), hasType(), hc(), hi(), ia() (+16 more)
+Cohesion: 0.07
+Nodes (22): By, cn(), Da(), dr(), Ea(), Fr(), getValue(), ka() (+14 more)
 
 ### Community 83 - "Community 83"
 Cohesion: 0.11
 Nodes (18): CurrentEscrowMonthlyPaymentAmount, CurrentInterestRate, CurrentMonthlyPaymentAmount, CurrentTotalMonthlyPaymentAmount, DelinquentPaymentCount, EscrowFlag, LastPaymentReceivedDate, LoanId (+10 more)
 
 ### Community 84 - "Community 84"
-Cohesion: 0.15
-Nodes (13): Agenda, Eval gate is sacred, Guardrails (compliance story), Knowledge pipeline (RAG), Live demo — what to watch, Loan data — mock vs real, LoanOps Agent, One turn — request flow (+5 more)
+Cohesion: 0.25
+Nodes (7): Hybrid Architecture, Let's see it in action, LoanOps Agent, Strict Evaluation Gate, Thank You, The Problem, The Solution
 
 ### Community 85 - "Community 85"
 Cohesion: 0.12
 Nodes (17): type, type, type, type, type, type, type, properties (+9 more)
 
 ### Community 86 - "Community 86"
-Cohesion: 0.39
-Nodes (8): _get(), main(), _mask_token(), _preview_body(), _print_section(), AsyncClient, Test the upstream Loan Services API using configured paths only.  Does NOT bru, run_test()
+Cohesion: 0.26
+Nodes (11): _agent_owns_vector_store(), False when Qdrant runs in embedded path mode — Tools API owns the lock., BaseSettings, Settings, _get(), main(), _mask_token(), _preview_body() (+3 more)
 
 ### Community 88 - "Community 88"
 Cohesion: 0.12
 Nodes (16): 1. Identify Memory Strategy Effectiveness, 2. Find Conversations Where Memory Prevented Escalation, 3. Context Overlap & Redundancy, 4. Memory Impact on Tool Usage, Compliance Note, Conversation Memory Graph Models, Core Entities, Graph Schema Extensions for Graphify (+8 more)
+
+### Community 89 - "Community 89"
+Cohesion: 0.18
+Nodes (15): _make_mock_session_store(), mock_session_store_factory(), Any, Tests for the chat memory endpoint., Test getting memory for a non-existent session., Create a mock session store provider., Patch the session store factory function., Test successful retrieval of chat memory. (+7 more)
 
 ### Community 90 - "Community 90"
 Cohesion: 0.13
 Nodes (14): 10. Escalation — Fraud, 1. Happy Path — Escrow Query, 2. Happy Path — Payment Schedule, 3. Happy Path — Escrow Status (simple), 4. Happy Path — Hardship Eligibility, 5. Refusal — Rate Quote (out of scope), 6. Refusal — Financial Advice (out of scope), 7. Escalation — CFPB Complaint (+6 more)
 
 ### Community 91 - "Community 91"
-Cohesion: 0.20
-Nodes (10): 1. The 30-second pitch, 2. System at a glance (C4 container view), 3. Request flow (one turn), 4. The load-bearing idea: Provider Abstraction, 5. Knowledge pipeline (RAG ingest), 6. Data modes — mock vs real, 7. Responsible-AI controls (the compliance story), 8. Live demo runbook (+2 more)
-
-### Community 92 - "Community 92"
-Cohesion: 0.22
-Nodes (10): Tests for independent loan / SOP source selection., test_defaults_are_mock_local_cache(), test_explicit_confluence_only_overrides_legacy(), test_explicit_loan_and_sop_without_mode(), test_legacy_mode_mock_maps_to_local(), test_legacy_mode_real_maps_to_both_live(), DataConfig, Any (+2 more)
+Cohesion: 0.08
+Nodes (25): aa(), bx, df(), Ei(), fw(), hasType(), hi(), i (+17 more)
 
 ### Community 93 - "Community 93"
 Cohesion: 0.15
 Nodes (12): Broken Components, Conclusion, Critical Issues, Design Excellence, Documentation Drift, Executive Summary, Fundamental Demo Limitations, LoanOps Agent Servicing Agent - Project Analysis (+4 more)
 
 ### Community 94 - "Community 94"
-Cohesion: 0.17
-Nodes (12): A.10 Top risks and mitigations, A.1 Business problem, A.2 Users, A.3 In-scope and out-of-scope, A.4 Success metrics, A.5 Hybrid architecture, A.6.1 Provider Abstraction Pattern, A.6 Tech stack (+4 more)
+Cohesion: 0.29
+Nodes (3): ay, Kv, qv
 
-### Community 96 - "Community 96"
-Cohesion: 0.14
-Nodes (17): AgentTurnOutput, ChatProvider, LLMMessage, PromptStoreProvider, str, ToolsClientProvider, _execute_tools(), AgentTurnOutput (+9 more)
+### Community 95 - "Community 95"
+Cohesion: 0.21
+Nodes (4): il(), kl(), nl(), xl()
 
 ### Community 97 - "Community 97"
 Cohesion: 0.17
 Nodes (11): 1. Conversation Session Service, 2. Memory Context Provider, 3. Memory Strategy Interface, Architecture, Conversation Memory Extension Plan, Core Components, Current Architecture (Stateless), Extended Architecture (+3 more)
+
+### Community 99 - "Community 99"
+Cohesion: 0.05
+Nodes (8): ap, Ba(), ev, Ff, Lf, ll(), Nw, Qf
 
 ### Community 100 - "Community 100"
 Cohesion: 0.18
 Nodes (10): 15. RACI Matrix, 16. Risks & Mitigations, 18. Glossary, 1. Executive Summary, 2. Problem Statement, 3. Product Vision & Goals, Goals, Product Requirements Document â€” Servicing Agent ("Helix") (+2 more)
 
 ### Community 102 - "Community 102"
-Cohesion: 0.07
-Nodes (28): 10. Tools API, 11.1 Metrics & Thresholds, 11.2 CI Gate, 11. Eval Harness, 12.1 Local Dev (`make demo`), 12.2 Azure Production (target â€” IaC not yet implemented), 12. Deployment Topology, 13. Responsible AI Controls (+20 more)
+Cohesion: 0.10
+Nodes (21): 10. Tools API, 11.1 Metrics & Thresholds, 11.2 CI Gate, 11. Eval Harness, 12.1 Local Dev (`make demo`), 12.2 Azure Production (target â€” IaC not yet implemented), 12. Deployment Topology, 13. Responsible AI Controls (+13 more)
 
 ### Community 103 - "Community 103"
 Cohesion: 0.13
 Nodes (15): type, properties, type, type, type, type, InterestRate, LoanId (+7 more)
-
-### Community 104 - "Community 104"
-Cohesion: 0.07
-Nodes (37): client(), _confluence_policy_provider(), get_policy_source_provider(), Build Confluence SOP source from DATA__SOP_CONFLUENCE_MODE., Return the configured policy source provider (DATA__SOP_SOURCE).      local, AbstractPolicySourceProvider, _category_for(), CompositePolicyProvider (+29 more)
 
 ### Community 106 - "Community 106"
 Cohesion: 0.22
@@ -737,16 +782,12 @@ Cohesion: 0.17
 Nodes (12): CurrentEscrowMonthlyPaymentAmount, CurrentInterestRate, CurrentMonthlyPaymentAmount, CurrentTotalMonthlyPaymentAmount, DelinquentPaymentCount, EscrowFlag, LastPaymentReceivedDate, LoanId (+4 more)
 
 ### Community 109 - "Community 109"
-Cohesion: 0.31
-Nodes (9): _agent_owns_vector_store(), False when Qdrant runs in embedded path mode — Tools API owns the lock., BaseSettings, Settings, main(), print_props(), One-off: inspect swagger schemas for loan endpoints. Safe to delete., resolve_ref() (+1 more)
+Cohesion: 0.60
+Nodes (5): main(), print_props(), One-off: inspect swagger schemas for loan endpoints. Safe to delete., resolve_ref(), schema_ref()
 
 ### Community 110 - "Community 110"
 Cohesion: 0.22
 Nodes (11): null, string, format, type, format, type, format, type (+3 more)
-
-### Community 111 - "Community 111"
-Cohesion: 0.23
-Nodes (3): th, ui(), Ze()
 
 ### Community 112 - "Community 112"
 Cohesion: 0.25
@@ -757,12 +798,12 @@ Cohesion: 0.25
 Nodes (7): Decision Outcomes, Evaluation Factors, Financial, Hardship, Hardship Evaluation Criteria, NPV Test, Property
 
 ### Community 114 - "Community 114"
-Cohesion: 0.20
-Nodes (10): ADR-001 â€” Orchestration: Microsoft Agent Framework, ADR-002 â€” Local LLM: Ollama + Llama 3.1 8B, ADR-003 â€” Rep UI: Streamlit, ADR-004 â€” Provider Abstraction Pattern, ADR-005 â€” Unified Agent Rules: AGENTS.md, ADR-006 â€” Rep UI: React with TypeScript, ADR-007 — Native Tool Calling, ADR-008 — Live Confluence SOP ingest (composite, gitignored artifacts) (+2 more)
+Cohesion: 0.15
+Nodes (9): ADR-001 â€” Orchestration: Microsoft Agent Framework, ADR-002 â€” Local LLM: Ollama + Llama 3.1 8B, ADR-003 â€” Rep UI: Streamlit, ADR-004 â€” Provider Abstraction Pattern, ADR-005 â€” Unified Agent Rules: AGENTS.md, ADR-006 â€” Rep UI: React with TypeScript, ADR-007 — Native Tool Calling, Servicing Agent â€” Architecture Decision Records (+1 more)
 
 ### Community 115 - "Community 115"
-Cohesion: 0.06
-Nodes (7): al(), cl(), dl(), ml(), pl(), ul(), yl()
+Cohesion: 0.09
+Nodes (3): cl(), dl(), pl()
 
 ### Community 116 - "Community 116"
 Cohesion: 0.29
@@ -807,14 +848,6 @@ Nodes (6): Accepted Payment Methods, ACH (Automated Clearing House), Check by Ma
 ### Community 126 - "Community 126"
 Cohesion: 0.29
 Nodes (6): Late Payment Handling, Overview, Partial Payments, Payment Application Order, Payment Confirmation, Payment Processing
-
-### Community 127 - "Community 127"
-Cohesion: 0.25
-Nodes (8): App.4.1 Base types (`packages/common/providers/base.py`), App.4.2 Example Protocol (`packages/common/providers/chat.py`), App.4.3 Settings (`packages/common/settings.py`) - excerpt, App.4.4 Factory (`packages/common/providers/factory.py`) - excerpt, App.4.5 Env-var binding table, App.4.6 Contract-test sketch (`packages/common/providers/contract_tests/test_chat.py`), App.4.7 CI gate (encodes "no concrete imports outside providers/"), App.4 Provider abstraction reference
-
-### Community 128 - "Community 128"
-Cohesion: 0.05
-Nodes (20): ay, dh(), Im, Iv(), iy, Kv, mv, Nb() (+12 more)
 
 ### Community 129 - "Community 129"
 Cohesion: 0.33
@@ -945,8 +978,8 @@ Cohesion: 0.40
 Nodes (5): 13.1 Metrics & Thresholds, 13.2 Eval Harness, 13.3 Sacred Rule, 13.4 CI Workflows, 13. Evaluation & Quality Gates
 
 ### Community 161 - "Community 161"
-Cohesion: 0.33
-Nodes (5): cu(), Ou(), uu(), wu(), xu()
+Cohesion: 0.67
+Nodes (3): Verify that the Bearer token matches the configured TOOLS_API_TOKEN., verify_token(), HTTPAuthorizationCredentials
 
 ### Community 162 - "Community 162"
 Cohesion: 0.40
@@ -968,25 +1001,45 @@ Nodes (4): 8.1 Module Layout, 8.2 Tech Stack, 8.3 Architecture Diagram, 8. Syste
 Cohesion: 0.50
 Nodes (4): 9.1 Provider Catalogue, 9.2 Pattern Rules, 9.3 CI Enforcement, 9. Provider Abstraction Pattern
 
+### Community 167 - "Community 167"
+Cohesion: 0.50
+Nodes (4): 3.1 Provider Catalogue, 3.2 Pattern Rules, 3.3 Dependency Graph (what imports what), 3. Provider Abstraction Pattern
+
 ### Community 168 - "Community 168"
 Cohesion: 0.67
 Nodes (3): 5.1 In Scope (v1), 5.2 Out of Scope (v1), 5. Scope
 
 ### Community 169 - "Community 169"
-Cohesion: 0.14
-Nodes (13): App.1 Golden Q&A seed (10 items), App.2 Agent output JSON schema, App.3 Tool function signatures and example responses, App.5 Open call-outs (please confirm before STEP 5), Appendix, `check_hardship_eligibility(loan_id: str, program: str) -> EligibilityHint`, `get_escrow_breakdown(loan_id: str) -> EscrowBreakdown`, `get_payment_schedule(loan_id: str, months: int = 3) -> PaymentSchedule` (+5 more)
+Cohesion: 0.17
+Nodes (12): A.10 Top risks and mitigations, A.1 Business problem, A.2 Users, A.3 In-scope and out-of-scope, A.4 Success metrics, A.5 Hybrid architecture, A.6.1 Provider Abstraction Pattern, A.6 Tech stack (+4 more)
+
+### Community 171 - "Community 171"
+Cohesion: 0.12
+Nodes (7): Fu, gc(), hc(), Mu(), pf, tp, yc()
+
+### Community 172 - "Community 172"
+Cohesion: 0.24
+Nodes (10): get_chat_memory(), Retrieve the chat memory for a given session, showing which turns are active/ina, ChatMemoryResponse, ConversationSession, int, str, estimate_tokens(), export_memory_markdown() (+2 more)
 
 ### Community 173 - "Community 173"
 Cohesion: 0.22
 Nodes (10): AuditSinkProvider, ContentSafetyProvider, PiiProvider, evaluate_outbound(), AuditSinkProvider, ContentSafetyProvider, PiiProvider, PII tokenise inbound prompt. Write PII audit event.      Instead of destructiv (+2 more)
 
+### Community 174 - "Community 174"
+Cohesion: 0.67
+Nodes (3): 14.1 `ci.yml` â€” On every PR, 14.2 `eval-gate.yml` â€” On PR + nightly, 14. CI / CD
+
 ### Community 181 - "Community 181"
-Cohesion: 0.12
-Nodes (32): _get_app(), _make_agent_output(), _make_mock_provider(), mock_all_factories(), AgentTurnOutput, Any, Tests for the Agent API (apps/agent_api).  All provider dependencies are mocke, Import the app fresh (after patches are applied). (+24 more)
+Cohesion: 0.18
+Nodes (24): _get_app(), _make_agent_output(), AgentTurnOutput, Any, Tests for the Agent API (apps/agent_api).  All provider dependencies are mocke, Import the app fresh (after patches are applied)., When all factories succeed, /health returns 200 with all providers ok., When one factory raises, /health returns 503. (+16 more)
 
 ### Community 191 - "Community 191"
 Cohesion: 0.19
 Nodes (8): AuditSinkProvider, MockAuditSinkProvider, Audit sink provider protocol — re-exports from provider_contracts., provider(), AuditSinkProvider, Contract tests for the audit sink provider., Every AuditSinkProvider implementation must pass these tests., TestAuditSinkProviderContract
+
+### Community 193 - "Community 193"
+Cohesion: 0.33
+Nodes (6): Im, Nb(), nx(), Rb, tx(), Zv()
 
 ### Community 194 - "Community 194"
 Cohesion: 0.26
@@ -997,8 +1050,24 @@ Cohesion: 0.10
 Nodes (25): Any, str, Unit tests for PiiTokenizer., Multiple PERSON spans get distinct numbered tokens., Text with no PII spans passes through unchanged., Detokenize reverses tokenize., detokenize_dict resolves tokens in tool call arguments., detokenize_dict handles nested dicts. (+17 more)
 
 ### Community 207 - "Community 207"
-Cohesion: 0.38
-Nodes (6): PiiSpan, BaseModel, Represents a redacted PII entity in text., Result of inbound PII anonymization., SanitizeResult, PII tokenizer — reversible token replacement for PII spans.
+Cohesion: 0.50
+Nodes (3): PiiSpan, Represents a redacted PII entity in text., PII tokenizer — reversible token replacement for PII spans.
+
+### Community 210 - "Community 210"
+Cohesion: 0.25
+Nodes (8): App.4.1 Base types (`packages/common/providers/base.py`), App.4.2 Example Protocol (`packages/common/providers/chat.py`), App.4.3 Settings (`packages/common/settings.py`) - excerpt, App.4.4 Factory (`packages/common/providers/factory.py`) - excerpt, App.4.5 Env-var binding table, App.4.6 Contract-test sketch (`packages/common/providers/contract_tests/test_chat.py`), App.4.7 CI gate (encodes "no concrete imports outside providers/"), App.4 Provider abstraction reference
+
+### Community 219 - "Community 219"
+Cohesion: 0.33
+Nodes (5): cu(), Ou(), uu(), wu(), xu()
+
+### Community 233 - "uy"
+Cohesion: 0.33
+Nodes (4): dh(), Iv(), nv(), Rv()
+
+### Community 234 - "Nm"
+Cohesion: 0.31
+Nodes (8): Dg(), fg(), hg(), Lg(), Mg(), Og(), Tg(), xg()
 
 ### Community 236 - "14. Delivery Phasing & Milestones"
 Cohesion: 0.67
@@ -1016,6 +1085,14 @@ Nodes (9): required, LoanId, NextPaymentDueDate, MonthlyPaymentInterestAmount, M
 Cohesion: 0.25
 Nodes (7): $id, items, $ref, minItems, $schema, title, type
 
+### Community 263 - "Snapshot which concrete provider is bound for each category.      Returns a di"
+Cohesion: 0.29
+Nodes (5): MockPromptStoreProvider, provider(), MockPromptStoreProvider, Contract tests for the prompt store provider., Prompt store provider protocol — re-exports from provider_contracts.
+
+### Community 266 - "Retrieve the chat memory for a given session, showing which turns are active/ina"
+Cohesion: 0.29
+Nodes (5): MockToolsClientProvider, provider(), MockToolsClientProvider, Contract tests for the tools client provider., Tools client provider protocol — re-exports from provider_contracts.
+
 ### Community 285 - "Convert a raw loan record into the LoanSummary response model."
 Cohesion: 0.33
 Nodes (5): additionalProperties, $id, $schema, title, type
@@ -1023,6 +1100,14 @@ Nodes (5): additionalProperties, $id, $schema, title, type
 ### Community 291 - "List all available tools."
 Cohesion: 0.33
 Nodes (5): additionalProperties, $id, $schema, title, type
+
+### Community 292 - "Retrieve basic details about a loan."
+Cohesion: 0.40
+Nodes (3): bi(), ui(), Ze()
+
+### Community 293 - "Search loans by borrower name (case-insensitive partial token match)."
+Cohesion: 0.50
+Nodes (4): dy(), fy(), Os(), uy
 
 ### Community 299 - "Retrieve escrow account breakdown and disbursement history."
 Cohesion: 0.40
@@ -1057,18 +1142,18 @@ Cohesion: 0.67
 Nodes (3): format, type, PaymentDueMonth
 
 ## Knowledge Gaps
-- **870 isolated node(s):** `name`, `private`, `dev`, `build`, `lint` (+865 more)
+- **850 isolated node(s):** `name`, `private`, `dev`, `build`, `lint` (+845 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **221 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **246 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `run_agent_turn()` connect `Community 96` to `Community 2`, `Community 9`, `Community 11`, `Community 14`, `Community 50`, `Community 21`?**
-  _High betweenness centrality (0.012) - this node is a cross-community bridge._
-- **Why does `r` connect `Community 69` to `Community 128`, `Community 4`, `Community 5`, `Community 7`, `Community 10`, `Community 42`, `Community 76`, `Community 78`, `Community 82`, `Community 19`, `Community 22`, `Community 23`?**
+- **Why does `run_agent_turn()` connect `Community 14` to `Community 2`, `Community 10`, `Community 12`, `Community 21`?**
+  _High betweenness centrality (0.009) - this node is a cross-community bridge._
+- **Why does `r` connect `Community 78` to `Community 192`, `Community 99`, `Community 4`, `Community 5`, `Community 69`, `uy`, `Community 42`, `Community 75`, `Community 76`, `Community 82`, `Community 23`, `Community 91`, `Community 94`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._
-- **Why does `i` connect `Community 78` to `Community 128`, `Community 4`, `Community 69`, `Community 7`, `Community 42`, `Community 10`, `Community 76`, `Community 111`, `Community 82`, `Community 19`, `Community 115`, `Community 22`, `Community 23`?**
+- **Why does `i` connect `Community 91` to `Community 99`, `Community 4`, `Community 5`, `Community 69`, `Community 201`, `Community 42`, `Nm`, `uy`, `Community 76`, `Community 78`, `Community 111`, `Community 82`, `Community 23`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **Are the 87 inferred relationships involving `r` (e.g. with `a()` and `aa()`) actually correct?**
   _`r` has 87 INFERRED edges - model-reasoned connections that need verification._
