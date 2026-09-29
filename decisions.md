@@ -195,7 +195,7 @@ key allow-lists tools.
 | SQL | `packages/db` (one driver) | Second pool/driver |
 | Orchestrator | `agent_core` | Gateway keyword chat; wiki LangGraph concierge |
 | Chat UI | `apps/web_ui` | Gateway HTML/embed chat |
-| HTTP | One FastAPI app | Gateway Express; separate `tools_api` after fixture |
+| HTTP | One FastAPI app (`agent_api`) | Gateway Express; **`apps/tools_api` removed** |
 | Session | Postgres behind session-store ABC | Memory only as test double |
 | Auth | API keys (agents) + Auth0 (humans) | Extra config files / tools-API bearer |
 

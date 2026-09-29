@@ -127,8 +127,8 @@ This fragmented information landscape drives up **Average Handle Time (AHT)** an
 
 | ID | Requirement |
 |----|-------------|
-| FR-1.1 | The agent SHALL call `lookup_loan(loan_id)` to retrieve borrower context (name, state, status, balance, escrow flag, delinquency, flags) |
-| FR-1.2 | The agent SHALL call `get_payment_schedule(loan_id, months)` to retrieve upcoming payment breakdowns |
+| FR-1.1 | The agent SHALL call live SSE OpenAPI tools (`search_sse_apis` / `call_sse_api`, e.g. `getLoan` / `getLoanSummary`) to retrieve borrower / loan context |
+| FR-1.2 | The agent SHALL call live payment-schedule operations (e.g. `getPaymentSchedules`) via `call_sse_api` for upcoming payment breakdowns |
 | FR-1.3 | The agent SHALL call `get_escrow_breakdown(loan_id)` to retrieve escrow balance, change drivers, and disbursement history |
 | FR-1.4 | The agent SHALL call `check_hardship_eligibility(loan_id, program)` to return non-binding eligibility hints with reasoning factors |
 | FR-1.5 | All tool calls SHALL be read-only; no mutating actions are permitted in v1 |
@@ -222,7 +222,7 @@ This fragmented information landscape drives up **Average Handle Time (AHT)** an
 | Requirement | Details |
 |-------------|---------|
 | No PII in code/commits | All loan data is synthetic |
-| Bearer token auth | Tools API protected via `TOOLS_API_TOKEN` |
+| Bearer / Auth0 | Live SSE APIs use `SSE__API_KEY` bearer; Agent MCP may use product API keys |
 | Secrets management | `.env` (local) / AWS Secrets Manager + IAM Roles (AWS) |
 | No keys in code | `.env.example` only; `.env` is gitignored |
 | Content delimiters | Retrieved content is delimited; system prompt treats it as untrusted data |
@@ -264,16 +264,16 @@ This fragmented information landscape drives up **Average Handle Time (AHT)** an
 ```
 LoanOps Agent_Demos/
   apps/
-    agent_api/          # FastAPI :8000 â€” /chat (SSE), /health, /version
-    tools_api/          # FastAPI :8001 â€” 5 mock servicing endpoints
+    agent_api/          # FastAPI :8000 — /chat, /health, /mcp/tools
     web_ui/             # React + TypeScript rep UI (Vite)
   packages/
-    agent_core/         # Microsoft Agent Framework agent, prompt loader, intent router
+    agent_core/         # Agent + multi-turn SSE tool loop
+    sse/                # OpenAPI catalog + live invoke (replaces tools_api)
     rag/                # Chunker, ingest CLI, retrieval
     safety/             # PII redaction + content-safety middleware
     eval/               # Ragas + custom metrics, golden runner, CI gate
     common/
-      settings.py       # Pydantic Settings â€” single source of env truth
+      settings.py       # Pydantic Settings — single source of env truth
       schemas.py        # Shared Pydantic models
       providers/        # Provider Abstraction layer (load-bearing)
   data/
@@ -325,12 +325,10 @@ flowchart LR
         SafetyMiddleware["Safety Middleware"]
     end
 
-    subgraph tools ["Tools API (:8001)"]
-        LookupLoan["lookup_loan"]
-        PaySchedule["get_payment_schedule"]
-        EscrowBreak["get_escrow_breakdown"]
-        HardshipCheck["check_hardship_eligibility"]
-        PolicySearch["search_policy"]
+    subgraph tools ["SSE tools (packages/sse in Agent)"]
+        SearchSse["search_sse_apis"]
+        CallSse["call_sse_api"]
+        SearchDocs["search_docs"]
     end
 
     subgraph providers ["Provider Layer"]
@@ -461,15 +459,16 @@ A CI grep gate ensures:
 | `/health` | GET | Aggregated provider health (10 providers); 503 on failure |
 | `/version` | GET | Application version |
 
-### 11.2 Tools API (`apps/tools_api` â€” port 8001)
+### 11.2 Live SSE tools (`packages/sse` via Agent MCP — tools_api removed)
 
-| Endpoint | Method | Auth | Description |
-|----------|--------|------|-------------|
-| `/lookup_loan` | GET | Bearer | Loan summary |
-| `/get_payment_schedule` | GET | Bearer | Next N payment breakdowns |
-| `/get_escrow_breakdown` | GET | Bearer | Escrow balance, drivers, disbursements |
-| `/check_hardship_eligibility` | GET | Bearer | Non-binding eligibility hint |
-| `/search_policy` | POST | Bearer | RAG-powered policy search |
+| Tool | Description |
+|------|-------------|
+| `search_sse_apis` | Keyword search over configured OpenAPI catalogs |
+| `list_sse_apis` | List operations (optional app filter) |
+| `call_sse_api` | Invoke live REST by `operation_id` or method+path |
+| `search_docs` | Indexed SOP / docs search |
+
+Configure with `SSE__SWAGGER_LINKS` + `SSE__API_KEY`. There is **no** `:8001` Tools API.
 
 ### 11.3 Agent Output Schema (`AgentTurnOutput`)
 
@@ -478,10 +477,10 @@ A CI grep gate ensures:
   "answer": "<rep-facing draft reply with [n] citation markers>",
   "citations": [
     {"id": 1, "source": "policy:...", "snippet": "..."},
-    {"id": 2, "source": "tool:...", "snippet": "..."}
+    {"id": 2, "source": "tool:call_sse_api", "snippet": "..."}
   ],
   "tool_calls": [
-    {"name": "lookup_loan", "args": {"loan_id": "..."}, "result_summary": "..."}
+    {"name": "call_sse_api", "args": {"operation_id": "getLoanSummary", "path_params": {"loan_id": "..."}}, "result_summary": "..."}
   ],
   "requires_human_approval": true,
   "confidence": 0.92,
@@ -491,10 +490,10 @@ A CI grep gate ensures:
 ```
 
 - `requires_human_approval`: always `true` in v1
-- `confidence`: 0.0â€“1.0 (model self-rated grounding strength)
+- `confidence`: 0.0–1.0 (model self-rated grounding strength)
 - `refusal`: string or null
 - `escalation`: `{category, reason}` or null
-- Allowed tool names: `lookup_loan`, `get_payment_schedule`, `get_escrow_breakdown`, `check_hardship_eligibility`, `search_policy`
+- Allowed tool names (system): `search_sse_apis`, `list_sse_apis`, `call_sse_api`, `search_docs`
 - Escalation categories: `safety`, `complaint_or_regulatory`, `legal_status`, `fraud`, `identity`
 
 ### 11.4 Audit Record Schema
@@ -603,7 +602,7 @@ Mandatory supervisor sampling on 10% of rep-approved replies.
 | 1.5 | Provider contracts | `mypy --strict packages/common` clean; contract tests green; CI grep gate passes |
 | 2 | Synthetic data | `python -m packages.eval.validate_data` reports 0 errors |
 | 3 | RAG pipeline | Nearest-neighbour returns correct chunk for 10 known queries |
-| 4 | Tools API | `pytest apps/tools_api/tests` green; OpenAPI at `/docs` |
+| 4 | SSE modular tools | `packages/sse` + `/mcp/tools`; live `call_sse_api` (tools_api removed) |
 | 5 | Agent core | Unit tests cover happy/refuse/escalate against InMemory providers |
 | 6 | Agent API | 5 sample prompts return valid JSON; `/health` lists 10 providers |
 | 7 | Safety layer | SSN/DOB/account redaction verified; harmful content blocked |

@@ -39,11 +39,11 @@
 - [x] `CompositePolicyProvider` — local dummy + Confluence when `DATA__MODE=real`
 - [x] Gitignored local markdown artifacts under `data/sops/_confluence/`
 
-## Step 4 — Tools API
+## Step 4 — Tools API → retired
 
-- [x] FastAPI :8001, 5 endpoints, Bearer auth
-- [x] Pydantic v2 response models matching Appendix signatures
-- [x] `pytest apps/tools_api/tests` green; `/docs` available
+- [x] Originally: FastAPI :8001 mock servicing endpoints
+- [x] **Removed `apps/tools_api`** — answers via `packages/sse` + `/mcp/tools` (ADR-010)
+- [x] Web UI borrower lookup rewired to MCP `call_sse_api`
 
 ## Step 5 — Agent core
 

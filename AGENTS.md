@@ -108,7 +108,7 @@ import a concrete provider class directly.
 | InMemory providers (tests) | `packages/common/providers/testing.py` |
 | Contract tests | `packages/common/providers/contract_tests/` |
 | Shared Pydantic models | `packages/common/schemas.py` |
-| Servicing tool endpoints | `apps/tools_api/` |
+| Live SSE OpenAPI tools | `packages/sse/` + `/mcp/tools` |
 | Agent API (`/chat`, `/health`) | `apps/agent_api/` |
 | RAG ingest CLI | `packages/rag/ingest.py` |
 | Safety middleware | `packages/safety/` |
@@ -122,8 +122,7 @@ import a concrete provider class directly.
 
 ```
 apps/
-  agent_api/    FastAPI :8000  /chat (SSE), /health, /version
-  tools_api/    FastAPI :8001  5 mock servicing endpoints
+  agent_api/    FastAPI :8000  /chat (SSE), /health, /mcp/tools
   web_ui/       React + TypeScript rep UI (Vite)
 
 packages/

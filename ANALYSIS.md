@@ -23,9 +23,9 @@ This project is a well-structured architecture scaffold for an AI-powered mortga
 
 ### Fundamental Demo Limitations
 
-- **Hardcoded Mock Data**: Core servicing API (`apps/tools_api/main.py`) uses hardcoded values for specific loan IDs rather than real servicing system integration
-- **Synthetic Calculations**: Payment schedules and escrow breakdowns use simplified formulas instead of real mortgage calculations
-- **Incomplete Implementation**: Step 8 (Eval harness) and Step 10 (IaC/CI) remain partially implemented
+- **Live SSE OpenAPI:** Loan facts via `packages/sse` + Agent MCP (`call_sse_api`). Mock `apps/tools_api` removed (ADR-010).
+- **Synthetic fixtures:** Older demo docs may still reference `data/loans.json` / mock tool names; Path A uses live Loan Services when `SSE__API_KEY` is set
+- **Incomplete Implementation:** Step 8 (Eval harness) and Step 10 (IaC/CI) remain partially implemented
 
 ### Broken Components
 

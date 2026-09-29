@@ -18,9 +18,12 @@ make lint test
 # 4. Ingest synthetic SOPs
 make ingest
 
-# 5. Run full demo (tools_api + agent_api + web_ui)
+# 5. Run demo (agent_api :8000 + web_ui :5173)
 make demo
 ```
+
+Live loan answers use SSE OpenAPI (`packages/sse` via `call_sse_api`). There is
+**no** `apps/tools_api` — that mock HTTP service was removed (ADR-010).
 
 ## AI / agent context
 
@@ -36,11 +39,14 @@ Setup and commands: **`GRAPHIFY_SETUP.md`**.
 ```
 LoanOps Agent_Demos/
   apps/
-    agent_api/      FastAPI /chat, /health, streaming, audit log
-    tools_api/      FastAPI 5 mock servicing endpoints
+    agent_api/      FastAPI /chat, /health, /mcp/tools, streaming, audit log
     web_ui/         React + TypeScript rep UI
   packages/
-    agent_core/     Microsoft Agent Framework agent + router
+    agent_core/     Agent + multi-turn SSE tool loop
+    sse/            OpenAPI catalog search + live API invoke
+    db/             Optional read-only SQL (dev role)
+    docs/           Docs search over vector store
+    wiki/           Wiki specialist stubs
     rag/            Ingest, chunk, embed
     safety/         PII redaction + content safety
     eval/           Ragas + custom metrics + CI gate

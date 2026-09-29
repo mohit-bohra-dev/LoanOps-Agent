@@ -1,63 +1,52 @@
-# Demo queries — Loan 100245
+# Demo queries — live Loan Services (Path A)
 
 Config assumed:
 
 ```
-DATA__LOAN_SOURCE=mock
-DATA__SOP_SOURCE=confluence
-DATA__SOP_CONFLUENCE_MODE=cache
+TOOLS_CLIENT__PROVIDER=modular
+AGENT_ROLE=system
+SSE__USE_FIXTURE=false
+SSE__FIXTURE_PATH=data/sse-loanservices-catalog.json
+SSE__API_BASE_URL=https://loanservicesapi-plaisse-dev.pnmac.com
+SSE__API_KEY=<dev Auth0 bearer>
+SSE__SWAGGER_LINKS=[{"id":"loanservices","label":"LoanServices","url":"https://loanservicesapi-plaisse-dev.pnmac.com/swagger/1.0/swagger.json"}]
 ```
 
-Loan 100245 fixture facts (for checking answers):
-
-| Field | Value |
-|-------|-------|
-| Borrower | Alex Rivera |
-| State | CA |
-| Status | active, 0 days delinquent |
-| UPB | $324,188.42 |
-| Total monthly payment | $2,207.97 (P&I $1,592.67 + escrow $615.30) |
-| Escrow balance | $1,500.00 |
-| Escrow change | +$20.00 effective 2026-06-01 |
-| Escrow drivers | county_tax ($369.18), hazard_insurance ($246.12) |
-| Last / next analysis | 2026-05-01 / 2027-05-01 |
-| Late charge fee | $35.00, grace end 2026-06-01 |
+Use a real loan id known in Loan Services (example: `1000002245`).
 
 ---
 
-## 1. Account snapshot (tool only)
+## 1. Loan summary (SSE)
 
-> Borrower on the line about loan 100245 — pull the account and tell me where the payment stands.
+> Show me the loan summary for 1000002245
 
-Expect: `lookup_loan`. Citation `tool:lookup_loan`.
+Expect: `search_sse_apis` → `call_sse_api` (`getLoanSummary`). Citation `tool:call_sse_api`.
+Live URL: `…/api/Loans/1000002245/Summary` status 200.
 
-## 2. Payment breakdown (tool only)
+## 2. Payment schedules (SSE)
 
-> For loan 100245, what are the next three payments and how much of each is escrow?
+> What are the payment schedules for loan 1000002245?
 
-Expect: `get_payment_schedule`. Citation `tool:get_payment_schedule`.
+Expect: `search_sse_apis` → `call_sse_api` (`getPaymentSchedules`). Citation `tool:call_sse_api`.
 
-## 3. Escrow increase + annual analysis policy (POLICY)
+## 3. Escrow (SSE)
 
-> Loan 100245 escrow payment went up — why, and what does annual analysis policy say we tell the borrower?
+> Get escrow details for loan 1000002245
 
-Expect: `get_escrow_breakdown` + `search_policy`. Policy hit: Annual Analysis
-(`DP17-ESC054.v35`). Answer should name +$20.00, effective 2026-06-01, drivers
-county tax and hazard insurance.
+Expect: `call_sse_api` for `getEscrows` (after search).
 
-## 4. Escrow surplus handling (POLICY)
+## 4. Borrower summary (SSE)
 
-> Loan 100245 has extra funds sitting in escrow after the review — what does our overage policy say we do, and what do I tell Alex?
+> What's the borrower summary for loan 1000002245?
 
-Expect: `search_policy` (Overages, possibly Annual Analysis) + optional
-`get_escrow_breakdown`. Policy citation required.
+Expect: `getBorrowerSummary` via `call_sse_api`.
 
-## 5. Hardship options + loss mitigation policy (POLICY)
+---
 
-> Loan 100245 is current but the borrower says income dropped and they may miss next month — check the account and walk me through the repayment plan options per policy.
+## Not used
 
-Expect: `lookup_loan` or `check_hardship_eligibility` + `search_policy`.
-Policy hits: Loss Mitigation — Repayment Plans / Loss Mitigation SOP.
+- `apps/tools_api` / `lookup_loan` / `get_payment_schedule` — **removed**
+- SQL `get_customer_servicing_summary` — not on `system` role
 
 ---
 
@@ -65,15 +54,10 @@ Policy hits: Loss Mitigation — Repayment Plans / Loss Mitigation SOP.
 
 ```powershell
 $body = @{
-  message    = "Loan 100245 escrow payment went up — why, and what does annual analysis policy say we tell the borrower?"
-  session_id = "demo-100245"
+  message    = "Show me the loan summary for 1000002245"
+  session_id = "demo-sse"
   rep_id     = "rep-demo"
 } | ConvertTo-Json
-Invoke-WebRequest -Uri "http://localhost:8000/chat" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 300 | Select-Object -ExpandProperty Content
+Invoke-WebRequest -Method Post -Uri "http://127.0.0.1:8000/chat" `
+  -ContentType "application/json" -Body $body
 ```
-
-Notes:
-
-- Borrower-name search is mock-only; real Loan Services API is loan-id keyed,
-  so keep demo prompts anchored on `100245`.
-- Policy corpus is the cached Confluence export only — no synthetic SOPs.

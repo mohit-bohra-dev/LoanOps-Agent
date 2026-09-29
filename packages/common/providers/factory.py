@@ -410,22 +410,17 @@ def get_tools_client_provider() -> AbstractToolsClientProvider:
         except Exception:  # noqa: BLE001
             docs = None
 
-        # No tools_api — answers come from SSE OpenAPI (+ docs / optional SQL).
+        # Answers come from SSE OpenAPI (+ docs / optional SQL). No tools_api.
         return ModularToolsClient(
             sse=sse,
             db=db,
             docs=docs,
-            http_fallback=None,
             role=cfg.agent_role,
         )
-    if cfg.tools_client.provider in ("http", "http_mtls"):
-        from provider_contracts.tools_client.http import HttpToolsClientProvider
-
-        return HttpToolsClientProvider(
-            base_url=cfg.tools_client.base_url,
-            token=cfg.tools_client.token,
-        )
-    raise ProviderConfigError(f"Unknown tools client provider: {cfg.tools_client.provider}")
+    raise ProviderConfigError(
+        f"Unknown tools client provider: {cfg.tools_client.provider} "
+        "(only 'modular' is supported; apps/tools_api was removed)"
+    )
 
 
 # â”€â”€ Prompt Store â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”

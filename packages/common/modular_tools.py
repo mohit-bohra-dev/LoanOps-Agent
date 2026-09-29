@@ -1,8 +1,7 @@
-"""In-process tools client — routes SSE/docs/db/wiki + optional HTTP fallback."""
+"""In-process tools client — routes SSE/docs/db/wiki (no tools_api)."""
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
@@ -35,7 +34,6 @@ class ModularToolsClient(AbstractToolsClientProvider):
         sse: OpenApiCatalogService,
         db: SqlServerClient,
         docs: DocsService | None = None,
-        http_fallback: AbstractToolsClientProvider | None = None,
         cache: Any | None = None,
         scopes: list[str] | None = None,
         role: str = "system",
@@ -44,7 +42,6 @@ class ModularToolsClient(AbstractToolsClientProvider):
         self._sse = sse
         self._db = db
         self._docs = docs
-        self._http = http_fallback
         self._cache = cache
         self._docs_root = docs_root or Path("data/sops")
         self._allowed = (
@@ -62,14 +59,7 @@ class ModularToolsClient(AbstractToolsClientProvider):
         return ToolResult(tool_name=name, success=False, error=error)
 
     async def list_tools(self) -> list[str]:
-        names = [n for n in _LOCAL_TOOLS if n in self._allowed]
-        if self._http is not None:
-            try:
-                remote = await self._http.list_tools()
-                names.extend(n for n in remote if n in self._allowed and n not in names)
-            except Exception:  # noqa: BLE001 — tools_api optional when modular
-                pass
-        return names
+        return [n for n in _LOCAL_TOOLS if n in self._allowed]
 
     async def call(self, tool: ToolCall) -> ToolResult:
         name = tool.tool_name
@@ -109,8 +99,6 @@ class ModularToolsClient(AbstractToolsClientProvider):
             if name.startswith("wiki_"):
                 text = await dispatch_wiki_tool(name, args)
                 return self._ok(name, text)
-            if self._http is not None:
-                return await self._http.call(tool)
             return self._err(name, f"No handler for {name}")
         except Exception as exc:  # noqa: BLE001
             return self._err(name, str(exc))

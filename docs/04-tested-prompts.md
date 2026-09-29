@@ -24,7 +24,7 @@
 Loan 100245 escrow jumped $35 in May — draft a reply.
 ```
 
-**Expected behavior:** Calls `lookup_loan`, `get_escrow_breakdown`, `search_policy`. Returns JSON with answer, citations, tool_calls.
+**Expected behavior:** Calls `search_sse_apis` then `call_sse_api` (e.g. escrow / loan summary ops). Returns JSON with answer, citations, tool_calls.
 
 **Raw output:**
 ```json
@@ -62,7 +62,7 @@ Confirm next 3 scheduled payments for 100245.
 Is this 100245 loan escrowed?
 ```
 
-**Expected behavior:** Calls `lookup_loan(loan_id="100245")`. Returns answer with escrow status.
+**Expected behavior:** Calls `search_sse_apis` / `call_sse_api` for loan summary. Returns answer with live loan status.
 
 > [!WARNING]
 > This prompt previously triggered a gemma4 vision hallucination ("The provided image is too blurry...") because the word "this" was interpreted as a reference to an attached image. Fixed by adding a text-only preamble to the system prompt.

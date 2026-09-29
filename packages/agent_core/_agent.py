@@ -31,13 +31,14 @@ from packages.safety.tokenizer import PiiTokenizer
 _SYSTEM_PROMPT_NAME = "agent.system"
 _MAX_RETRIES = 1
 
-# Answers come from SSE OpenAPI catalog (+ docs). No tools_api / mock loan endpoints.
+# Answers come from SSE OpenAPI catalog (+ docs). No tools_api / SQL loan fixtures.
 _SSE_ANSWER_TOOLS = [
     ToolDefinition(
         name="search_sse_apis",
         description=(
-            "Search across all configured SSE app OpenAPI catalogs by keywords "
-            "(loan, payment, escrow, customer, etc.). Prefer this first, then call_sse_api."
+            "Search SSE OpenAPI catalogs by keywords. Use for loan summary, payment "
+            "schedules, escrow, borrower, delinquency — prefer this first, then call_sse_api. "
+            "Do not answer loan facts without calling an API."
         ),
         parameters={
             "type": "object",
@@ -66,8 +67,9 @@ _SSE_ANSWER_TOOLS = [
     ToolDefinition(
         name="call_sse_api",
         description=(
-            "Invoke an SSE REST API by operation_id from search/list, "
-            "or method+path. Returns JSON for the answer."
+            "Invoke an SSE REST API by operation_id from search/list "
+            "(e.g. getLoanSummary, getPaymentSchedules), or method+path + path_params. "
+            "Required for live loan data."
         ),
         parameters={
             "type": "object",
@@ -83,7 +85,7 @@ _SSE_ANSWER_TOOLS = [
     ),
     ToolDefinition(
         name="search_docs",
-        description="Search indexed documentation (SOPs / wiki narratives).",
+        description="Search indexed documentation (SOPs / wiki narratives). Not for live loan numbers.",
         parameters={
             "type": "object",
             "properties": {
@@ -91,15 +93,6 @@ _SSE_ANSWER_TOOLS = [
                 "top_k": {"type": "integer"},
             },
             "required": ["query"],
-        },
-    ),
-    ToolDefinition(
-        name="get_customer_servicing_summary",
-        description="Fixed read-only SQL servicing summary for a customer_id (SSE data pillar).",
-        parameters={
-            "type": "object",
-            "properties": {"customer_id": {"type": "string"}},
-            "required": ["customer_id"],
         },
     ),
 ]
@@ -230,8 +223,10 @@ async def run_agent_turn(
         for item in new_tools:
             tool_results_text += f"[{item.name}]: {item.result_summary}\n"
         tool_results_text += (
-            "\nNow provide your final valid JSON response matching "
-            "the OUTPUT CONTRACT, or call any additional tools (e.g. call_sse_api) to fetch the actual data."
+            "\nIf you still need live data, call call_sse_api (or search_sse_apis first). "
+            "Otherwise respond with ONLY the OUTPUT CONTRACT JSON: required fields "
+            "`answer` (prose summary for the rep, not raw API JSON) and `confidence`. "
+            "Do not put API payload at the root."
         )
 
         messages.append(

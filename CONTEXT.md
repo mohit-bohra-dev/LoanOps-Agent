@@ -35,11 +35,10 @@
 | `packages/safety/middleware.py` | `sanitize_inbound` + `evaluate_outbound` + `SafetyPipeline` |
 | `packages/safety/models.py` | `SanitizeResult`, `EvaluationResult`, `PiiSpan` |
 | `packages/eval/validate_data.py` | Validates loans, SOPs, golden.jsonl |
-| `apps/tools_api/main.py` | 5 mock servicing endpoints, Bearer auth |
-| `apps/tools_api/tests/test_tools_api.py` | Unit tests for Tools API |
-| `apps/agent_api/main.py` | Agent API: `/chat` (SSE), `/health`, `/version` |
+| `apps/agent_api/main.py` | Agent API: `/chat` (SSE), `/health`, `/mcp/tools` |
 | `apps/agent_api/models.py` | Agent API request/response models |
 | `apps/agent_api/tests/test_agent_api.py` | Unit tests for Agent API |
+| `packages/sse/` | OpenAPI catalog + live `call_sse_api` (replaces tools_api) |
 | `apps/web_ui/` | React + TypeScript rep UI (Vite + Tailwind v4) |
 | `.github/workflows/ci.yml` | CI: lint + mypy + unit tests on PR |
 | `.github/workflows/eval-gate.yml` | Eval gate: nightly + PR eval runner |
@@ -79,10 +78,12 @@
 | `AUDIT__JSONL_DIR` | `./audit` | JSONL output directory |
 | `SECRETS__PROVIDER` | `env` | `env` / `keyvault` |
 | `TELEMETRY__PROVIDER` | `console` | `console` / `appinsights` |
-| `TOOLS_CLIENT__PROVIDER` | `http` | `http` / `http_mtls` |
-| `TOOLS_CLIENT__BASE_URL` | `http://localhost:8001` | Tools API base URL (client side) |
-| `TOOLS_CLIENT__TOKEN` | `dev-token` | Bearer token sent by the client |
-| `TOOLS_API_TOKEN` | `dev-token` | Bearer token validated by the Tools API |
+| `TOOLS_CLIENT__PROVIDER` | `modular` | Only `modular` (SSE + docs; tools_api removed) |
+| `AGENT_ROLE` | `system` | Role allow-list for tools (`system`/`care_rep`/`dev`/…) |
+| `SSE__USE_FIXTURE` | `true` | Local OpenAPI fixture vs live swagger |
+| `SSE__API_BASE_URL` | (see `.env.example`) | Default SSE host allow-list base |
+| `SSE__API_KEY` | `""` | Bearer for live Loan Services / SSE apps |
+| `SSE__SWAGGER_LINKS` | `[]` | JSON list of `{id,label,url}` swagger sources |
 | `PROMPT_STORE__PROVIDER` | `file` | `file` / `promptflow` |
 | `PROMPT_STORE__FILE_BASE_DIR` | `./docs` | Prompt file directory |
 | `DATA__LOAN_SOURCE` | `mock` | `mock` (fixtures) / `real` (Loan Services API) |
@@ -98,7 +99,7 @@
 | `DATA__CONFLUENCE__PII_SCRUB` | `regex` | `regex` / `presidio` / `off` |
 | `DATA__CONFLUENCE__ARTIFACT_DIR` | `data/sops/_confluence` | Local markdown cache (gitignored) |
 
-> `TOOLS_CLIENT__TOKEN` and `TOOLS_API_TOKEN` must match in local dev.
+> Loan answers: `search_sse_apis` → `call_sse_api` (live OpenAPI). No `apps/tools_api`.
 
 ---
 
@@ -141,36 +142,28 @@ packages/common/providers/testing.py → re-exports all 10 InMemory mocks
 | Agent API | `:8000` | `POST /chat` (SSE) | **done — Step 6** |
 | | | `GET /health` | **done** |
 | | | `GET /version` | **done** |
+| | | `GET /mcp/tools`, `POST /mcp/tools/call` | **done** |
 | | | `GET /openapi.json` | **exposed** |
-| Tools API | `:8001` | `POST /tools/lookup_loan` | **done — Step 4** |
-| | | `POST /tools/get_payment_schedule` | **done** |
-| | | `POST /tools/get_escrow_breakdown` | **done** |
-| | | `POST /tools/check_hardship_eligibility` | **done** |
-| | | `POST /tools/search_policy` | **done** |
-| | | `GET /tools` (list) | **done** |
-| | | `GET /openapi.json` | **exposed** |
-| Web UI | Vite dev | proxied via Vite | **done — Step 9** |
+| Web UI | Vite `:5173` | `/api` → Agent `:8000` | **done — Step 9** |
+| | | Borrower pane uses MCP `call_sse_api` | **done** |
 | | | `/docs/` | **Redoc Portal** |
-| Qdrant | `:6333` | `:6333` (gRPC) | Docker | external |
-| Ollama | `:11434` | `:11434` (HTTP) | Docker | external |
+| Qdrant | `:6333` or embedded path | vector store | external / local |
+| Ollama | `:11434` | optional local LLM | external |
 
 ---
 
-## 5. Tools API endpoints (live — `apps/tools_api/main.py`)
+## 5. Live SSE tools (replaces tools_api)
 
-All endpoints require `Authorization: Bearer <TOOLS_API_TOKEN>` header.
+Agent / MCP tools (role `system`):
 
-| # | Method | Path | Request body key fields | Returns |
-|---|--------|------|------------------------|---------|
-| 1 | `POST` | `/tools/lookup_loan` | `loan_id` | `LoanSummary` |
-| 2 | `POST` | `/tools/get_payment_schedule` | `loan_id`, `months?` (default 12) | `PaymentSchedule` |
-| 3 | `POST` | `/tools/get_escrow_breakdown` | `loan_id` | `EscrowBreakdown` |
-| 4 | `POST` | `/tools/check_hardship_eligibility` | `loan_id`, `program` | `EligibilityHint` |
-| 5 | `POST` | `/tools/search_policy` | `query`, `state?`, `k?` (default 3) | `PolicyChunks` |
-| — | `GET` | `/tools` | — | `list[str]` (tool names) |
+| Tool | Purpose |
+|------|---------|
+| `search_sse_apis` | Keyword search over OpenAPI catalogs |
+| `list_sse_apis` | List operations (optional app filter) |
+| `call_sse_api` | Invoke live REST by `operation_id` or method+path |
+| `search_docs` | SOP / docs vector search |
 
-Each tool is also aliased at `/{tool_name}` for direct calls. All are **read-only** (no mutations in v1).
-Schema models live in `packages/common/schemas.py`.
+Configure sources with `SSE__SWAGGER_LINKS` + `SSE__API_KEY`. Catalog fallback: `SSE__FIXTURE_PATH`.
 
 ---
 
@@ -199,7 +192,7 @@ Every agent turn produces a JSON object matching `AgentTurnOutput` in `packages/
     {"id": 1, "source": "policy:escrow/annual-analysis.md#sec-2", "snippet": "..."}
   ],
   "tool_calls": [
-    {"name": "lookup_loan", "args": {"loan_id": "100245"}, "result_summary": "..."}
+    {"name": "call_sse_api", "args": {"operation_id": "getLoanSummary", "path_params": {"loan_id": "1000002245"}}, "result_summary": "..."}
   ],
   "requires_human_approval": true,
   "confidence": 0.92,
@@ -213,7 +206,7 @@ Every agent turn produces a JSON object matching `AgentTurnOutput` in `packages/
 - `refusal` is a string or null; set when refusing out-of-scope requests
 - `escalation` is `{category, reason}` or null; `category` ∈ `safety | complaint_or_regulatory | legal_status | fraud | identity`
 - Every factual claim must have a `policy:` or `tool:` source prefix in `citations`
-- Allowed `tool_calls.name` values: `lookup_loan`, `get_payment_schedule`, `get_escrow_breakdown`, `check_hardship_eligibility`, `search_policy`
+- Allowed `tool_calls.name` values (system role): `search_sse_apis`, `list_sse_apis`, `call_sse_api`, `search_docs`
 
 ---
 
@@ -237,7 +230,7 @@ make test        # pytest (all tests)
 make ingest      # python -m packages.rag.ingest data/sops
 make eval        # python -m packages.eval.run --golden data/golden.jsonl --report out/eval.json
 make ui-install  # npm install in apps/web_ui
-make demo        # Tools API :8001 + Agent API :8000 + Vite dev
+make demo        # Agent API :8000 + Vite :5173
 make down        # kill background processes
 ```
 
@@ -267,8 +260,8 @@ uv run pytest
 # Run a single test file
 uv run pytest packages/common/providers/contract_tests/test_embedding.py -v
 
-# Run Tools API tests only
-uv run pytest apps/tools_api/tests/ -v
+# Run SSE modular + scopes tests
+uv run pytest packages/common/tests packages/sse/tests -v
 
 # Run Agent API tests only
 uv run pytest apps/agent_api/tests/ -v
@@ -294,10 +287,7 @@ uv run python -m packages.rag.ingest data/sops
 # Validate synthetic data
 uv run python -m packages.eval.validate_data
 
-# Start Tools API locally
-uv run uvicorn apps.tools_api.main:app --port 8001 --reload
-
-# Start Agent API locally
+# Start Agent API locally (sole backend — no tools_api)
 uv run uvicorn apps.agent_api.main:app --port 8000 --reload
 
 # Check no concrete provider imports leak
@@ -313,15 +303,14 @@ rg -n "os\.environ|os\.getenv" --include="*.py" . | rg -v "settings\.py|tests/"
 
 ```
 apps/
-  agent_api/     [DONE — Step 6]  FastAPI :8000  /chat (SSE), /health, /version
-  tools_api/     [DONE — Step 4]  FastAPI :8001  5 endpoints, Bearer auth, unit tests
+  agent_api/     [DONE — Step 6]  FastAPI :8000  /chat, /health, /mcp/tools
   web_ui/        [DONE — Step 9]  React + TypeScript + Vite + Tailwind v4
-                                  Components: BorrowerContextPane, ChatMessage, ChatPane
+                                  Borrower pane → MCP call_sse_api (no tools_api)
 
 packages/
-  agent_core/    [DONE — Step 5]  MS Agent Framework agent, intent router,
-                                  output parser, prompt loader
-  common/        [DONE]           Settings, schemas (full), 10 provider Protocols
+  sse/           [DONE]           OpenAPI catalog + live invoke (Path A)
+  agent_core/    [DONE — Step 5]  Multi-turn tool loop + intent router
+  common/        [DONE]           Settings, schemas, providers, modular tools
   rag/           [DONE]           Chunker, ingest CLI, retrieval
   safety/        [DONE — Step 7]  PII + content-safety middleware, SafetyPipeline
   eval/          [PARTIAL]        validate_data done; eval runner + golden runner pending (Step 8)
@@ -388,7 +377,7 @@ Subject ≤ 50 chars, body explains "why" not "what". Use scope for affected are
 | `App` | `src/App.tsx` | Root component, two-pane layout |
 
 Stack: React 18 + TypeScript + Vite + Tailwind CSS v4.
-Proxy: Vite dev server proxies `/api` → Agent API `:8000`, `/tools` → Tools API `:8001`.
+Proxy: Vite proxies `/api` → Agent API `:8000` only (tools_api removed).
 
 ---
 

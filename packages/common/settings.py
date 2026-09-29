@@ -219,12 +219,9 @@ class TelemetryConfig(BaseModel):
 
 
 class ToolsClientConfig(BaseModel):
-    """Tools routing. ``modular`` = SSE catalog + docs (+ optional SQL). No tools_api."""
+    """Tools routing. ``modular`` = SSE OpenAPI catalog + docs (+ optional SQL)."""
 
-    provider: Literal["modular", "http", "http_mtls"] = "modular"
-    # Only used when provider is http / http_mtls (legacy). Unused for modular.
-    base_url: str = ""
-    token: str = ""
+    provider: Literal["modular"] = "modular"
 
 
 class PromptStoreConfig(BaseModel):
@@ -286,7 +283,6 @@ class Settings(BaseSettings):
     )
 
     data: DataConfig = Field(default_factory=DataConfig)
-    tools_api_token: str = Field(default="dev-token", validation_alias="TOOLS_API_TOKEN")
     llm: ChatConfig = Field(default_factory=ChatConfig)
     embedding: EmbeddingConfig = Field(default_factory=EmbeddingConfig)
     vector_store: VectorStoreConfig = Field(default_factory=VectorStoreConfig)

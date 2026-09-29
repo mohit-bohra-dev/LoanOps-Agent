@@ -151,6 +151,28 @@ keeping loan fixtures offline.
 
 ---
 
+## [2026-09-29] — Docs sync: tools_api retired
+
+Updated ARCHITECTURE, PRD, ANALYSIS, CONTEXT, demo/query docs, and STEP 4 in
+`docs/01-servicing-agent-prompts.md` to match SSE-only runtime (ADR-010).
+
+---
+
+## [2026-09-29] — Remove tools_api; SSE-only answer path
+
+**Session type:** Cleanup / architecture follow-through (ADR-010)
+
+**Completed:**
+- Deleted `apps/tools_api` (mock HTTP :8001)
+- `TOOLS_CLIENT__PROVIDER=modular` only; dropped `TOOLS_API_TOKEN` / http tools client
+- Removed helix `lookup_loan` scopes; system/care_rep = SSE + docs
+- Web UI: Vite `/tools` proxy gone; `lookupLoan` → Agent MCP `call_sse_api`
+- Docs: README, AGENTS, CONTEXT, RETIRE_STANDALONE, decisions ADR-010 note
+
+**Next:** Optional commit/push; more `SSE__SWAGGER_LINKS` apps.
+
+---
+
 ## [2026-05-31] — Tooling: Graphify knowledge graph
 
 **Session type:** Tooling / developer experience

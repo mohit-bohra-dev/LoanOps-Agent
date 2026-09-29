@@ -4,7 +4,7 @@ import type { LoanSummary } from "../types";
 import { lookupLoan } from "../lib/api";
 
 export function BorrowerContextPane({ onLoanLoaded }: { onLoanLoaded?: (id: string) => void }) {
-  const [loanId, setLoanId] = useState("100245");
+  const [loanId, setLoanId] = useState("1000002245");
   const [loan, setLoan] = useState<LoanSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

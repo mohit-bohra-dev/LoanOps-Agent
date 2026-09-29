@@ -13,14 +13,6 @@ WIKI_TOOL_NAMES = (
     "wiki_resolve_package",
     "wiki_read_page",
 )
-HELIX_READ_TOOLS = (
-    "lookup_loan",
-    "search_borrower",
-    "get_payment_schedule",
-    "get_escrow_breakdown",
-    "check_hardship_eligibility",
-    "search_policy",
-)
 
 SCOPE_TOOLS: dict[str, frozenset[str]] = {
     "sse.read": frozenset(SSE_TOOL_NAMES),
@@ -32,12 +24,11 @@ SCOPE_TOOLS: dict[str, frozenset[str]] = {
     "wiki.jira": frozenset({"wiki_get_jira_ticket"}),
     "wiki.packages": frozenset({"wiki_resolve_package"}),
     "wiki.screen": frozenset({"wiki_read_page"}),
-    "helix.read": frozenset(HELIX_READ_TOOLS),
-    "helix.draft": frozenset(HELIX_READ_TOOLS),
 }
 
 ROLE_SCOPES: dict[str, frozenset[str]] = {
-    "system": frozenset({"sse.read", "docs.search", "db.read"}),
+    # Default agent path: live SSE OpenAPI + docs only (no SQL fixture summaries).
+    "system": frozenset({"sse.read", "docs.search"}),
     "dev": frozenset(
         {
             "sse.read",
@@ -52,7 +43,7 @@ ROLE_SCOPES: dict[str, frozenset[str]] = {
         }
     ),
     "pm": frozenset({"sse.read", "docs.search", "wiki.jira"}),
-    "care_rep": frozenset({"sse.read", "docs.search", "db.read"}),
+    "care_rep": frozenset({"sse.read", "docs.search"}),
     "customer": frozenset({"sse.read"}),
 }
 

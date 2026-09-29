@@ -127,7 +127,7 @@ flowchart LR
     Core --> Chat["ChatProvider"]
     Core --> VS["VectorStore"]
     Core --> Tools["ToolsClient"]
-    Tools --> TAP["Tools API :8001"]
+    Tools --> TAP["Agent MCP / packages.sse"]
     TAP --> Loan["Loan data<br/>mock | real"]
     VS --> Q["Qdrant SOPs"]
     Chat --> LLM["Bedrock / Gemini / Ollama"]
@@ -157,7 +157,7 @@ sequenceDiagram
     A->>C: prompt + history
     C->>V: search_policy
     V-->>C: policy chunks
-    C->>T: lookup_loan / escrow
+    C->>T: call_sse_api / escrow
     T-->>C: loan facts
     C->>L: chat + context
     L-->>C: JSON draft
@@ -248,7 +248,7 @@ layout: two-cols
 
 ```mermaid
 flowchart TB
-    T["Tools API :8001"] --> M{"DATA__MODE"}
+    T["Agent MCP / packages.sse"] --> M{"DATA__MODE"}
     M -->|mock| J["loans.json + fixtures"]
     M -->|real| API["Loan Services API"]
 ```
@@ -262,7 +262,7 @@ flowchart TB
 - No real borrower traffic
 
 **Same tool surface**
-- `lookup_loan`
+- `call_sse_api`
 - `get_escrow_breakdown`
 - `get_payment_schedule`
 - `check_hardship_eligibility`
@@ -350,7 +350,7 @@ layout: default
 
 ```powershell
 make demo
-# UI :5173 · Agent :8000 · Tools :8001
+# UI :5173 · Agent :8000 (SSE tools in-process)
 
 curl http://localhost:8000/health
 ```

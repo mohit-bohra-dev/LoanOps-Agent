@@ -36,9 +36,9 @@ Parity when:
 **Skipped for now.** Local only:
 
 ```text
-make demo   # or uvicorn apps.agent_api.main:app
-# SSE__USE_FIXTURE=true, SQL_SERVER__FIXTURE_MODE=true
-# TOOLS_CLIENT__PROVIDER=modular
+make demo   # or uvicorn apps.agent_api.main:app + npm run dev in apps/web_ui
+# TOOLS_CLIENT__PROVIDER=modular (only supported provider)
+# SSE__USE_FIXTURE=false + SSE__API_KEY for live Loan Services
 ```
 
 Reuse wiki tofu path later; not this phase.

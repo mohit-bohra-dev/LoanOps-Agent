@@ -50,6 +50,22 @@ function AgentStepItem({ tool, index }: { tool: ToolCallItem; index: number }) {
   let iconColor = "text-brand-400";
 
   switch (tool.name) {
+    case "search_sse_apis":
+    case "list_sse_apis":
+      label = "Searched SSE API catalog";
+      Icon = Search;
+      iconColor = "text-blue-400";
+      break;
+    case "call_sse_api":
+      label = "Called live SSE API";
+      Icon = Wrench;
+      iconColor = "text-brand-400";
+      break;
+    case "search_docs":
+      label = "Searched documentation";
+      Icon = FileText;
+      iconColor = "text-purple-400";
+      break;
     case "lookup_loan":
       label = "Looked up loan details";
       Icon = Search;

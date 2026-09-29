@@ -390,11 +390,11 @@ LoanOps Agent_Demos/
   .gitignore
   .pre-commit-config.yaml
   apps/
-    agent_api/         # FastAPI: /chat, /health, streaming, audit log
-    tools_api/         # FastAPI: 5 mock servicing endpoints
-    web_ui/            # Streamlit rep UI
+    agent_api/         # FastAPI: /chat, /health, /mcp/tools, streaming, audit log
+    web_ui/            # React + TypeScript rep UI (Vite)
   packages/
-    agent_core/        # Microsoft Agent Framework agent, prompt loader, router (consumer of providers)
+    agent_core/        # Agent + multi-turn SSE tool loop
+    sse/               # OpenAPI catalog + live call_sse_api (tools_api removed)
     rag/               # ingest, chunk, embed (consumer of EmbeddingProvider + VectorStoreProvider)
     safety/            # consumer of PiiProvider + ContentSafetyProvider
     eval/              # Ragas + custom metrics, golden runner, CI entrypoint
@@ -479,19 +479,17 @@ STEP 3 - RAG pipeline (`packages/rag`)
 - Provider contract tests must still pass after the real impls land.
 - Accept: nearest-neighbour returns correct chunk for 10 known queries (test in `packages/rag/tests`), exercised once against Qdrant and once against an AI Search emulator or recorded fixture.
 
-STEP 4 - Tools API (`apps/tools_api`)
-- FastAPI on :8001. 5 endpoints matching Appendix signatures.
-- Bearer token auth (token in env `TOOLS_API_TOKEN`).
-- All data sourced from `data/loans.json` + deterministic rules.
-- `check_hardship_eligibility` returns a "hint" with reasoning, never a binding decision.
-- Pydantic v2 response models match the schemas in the Appendix exactly.
-- Accept: `pytest apps/tools_api/tests` green; OpenAPI at `/docs`.
+STEP 4 - Tools API → **RETIRED (ADR-010, 2026-09-29)**
+- `apps/tools_api` deleted. Do not recreate.
+- Live loan data: `packages/sse` + `TOOLS_CLIENT__PROVIDER=modular` (`search_sse_apis` → `call_sse_api`).
+- Configure `SSE__SWAGGER_LINKS` + `SSE__API_KEY` (Auth0 bearer matching API env).
+- Accept: Agent `/mcp/tools` lists SSE tools; chat NL query returns live Loan Services data.
 
 STEP 5 - Agent core (`packages/agent_core`)
-- Microsoft Agent Framework agent. System prompt loaded via `get_prompt_store_provider()` from `docs/01-servicing-agent-prompts.md` Section B (parse the fenced block).
+- Agent with multi-turn tool loop. System prompt loaded via `get_prompt_store_provider()` from `docs/01-servicing-agent-prompts.md` Section B (parse the fenced block).
 - Implement the concrete providers introduced in STEP 1.5 that agent_core depends on:
-    - `ChatProvider`: `AzureOpenAIChatProvider` and `OllamaChatProvider`. The Protocol exposes `chat(messages, tools, model_hint, deterministic, max_tokens)`; the `model_hint` is an enum (`FAST`, `ACCURATE`) which the provider maps to a concrete deployment (e.g. `gpt-4o-mini` vs `gpt-4o` on AOAI, 8B vs 70B on Ollama).
-    - `ToolsClientProvider`: `HttpToolsClientProvider` calls `apps/tools_api` over HTTP; mTLS variant in cloud.
+    - `ChatProvider`: `AzureOpenAIChatProvider` and `OllamaChatProvider` (also Bedrock via provider_contracts). The Protocol exposes `chat(messages, tools, model_hint, deterministic, max_tokens)`; the `model_hint` is an enum (`FAST`, `ACCURATE`) which the provider maps to a concrete deployment.
+    - `ToolsClientProvider`: **`ModularToolsClient`** (in-process SSE/docs) — not HTTP to tools_api.
     - `PromptStoreProvider`: `FilePromptStoreProvider` (reads from `docs/`) and `PromptFlowPromptStoreProvider` (versioned prompts in Prompt Flow / MLflow registry).
 - Router: a pure function in agent_core that maps intent classification to `model_hint`; never imports a concrete LLM class.
 - Output parser enforces the JSON contract from Section B; retry once on schema failure; refuse on second failure.
@@ -531,7 +529,7 @@ STEP 9 - Streamlit rep UI (`apps/web_ui`)
 - Two-pane layout: borrower context (loan picker, last call notes mock) | conversation.
 - Show drafted answer, citations as clickable links to `data/sops/...`, tool-call trace, confidence, "Approve & copy" button, "Escalate" button.
 - Reads from `apps/agent_api`.
-- Accept: `make demo` brings up tools_api + agent_api + web_ui via `uvicorn` + `streamlit` (or docker-compose); end-to-end query works.
+- Accept: `make demo` brings up agent_api + web_ui; end-to-end SSE query works (no tools_api).
 
 STEP 10 - IaC + CI (`infra/bicep`, `.github/workflows`)
 - Bicep modules: resource group, AOAI, AI Search, AKS (1 sys + 1 user nodepool), Key Vault, Managed Identity, App Insights, Log Analytics, Private Endpoints for AOAI and AI Search, App Service for UI.

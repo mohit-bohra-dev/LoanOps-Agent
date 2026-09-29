@@ -4,6 +4,12 @@
 > **Source of truth:** [`docs/01-servicing-agent-prompts.md`](docs/01-servicing-agent-prompts.md) Â§A.
 > **ADRs:** [`decisions.md`](decisions.md).
 
+> **2026-09-29 (ADR-010):** `apps/tools_api` (:8001) **removed**. Loan answers use
+> live SSE OpenAPI via `packages/sse` (`search_sse_apis` → `call_sse_api`) on Agent
+> API `:8000` (`/chat`, `/mcp/tools`). UI borrower lookup uses the same MCP path.
+> Sections below that still describe Agent MCP / packages.sse are **historical** — ignore for runtime.
+
+
 ---
 
 ## 1. System Overview
@@ -41,7 +47,7 @@ changes â€” only environment-variable swaps.
 â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
                                    â”‚ HTTP
 â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                      Tools API  (FastAPI :8001)                      â”‚
+â”‚                      SSE tools in-process (packages/sse — was Agent MCP / packages.sse)                      â”‚
 â”‚  Bearer auth â”‚ 5 read-only endpoints â”‚ data/loans.json backing      â”‚
 â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
@@ -54,7 +60,7 @@ changes â€” only environment-variable swaps.
 LoanOps Agent_Demos/
 â”œâ”€â”€ apps/
 â”‚   â”œâ”€â”€ agent_api/        # FastAPI :8000  â€” /chat (SSE), /health, /version
-â”‚   â”œâ”€â”€ tools_api/        # FastAPI :8001  â€” 5 mock servicing endpoints
+â”‚   â”œâ”€â”€ sse/               # OpenAPI catalog + live call_sse_api (tools_api removed)
 â”‚   â””â”€â”€ web_ui/           # React + TypeScript rep UI (Vite)
 â”‚
 â”œâ”€â”€ packages/
@@ -236,7 +242,7 @@ sequenceDiagram
     participant Agent as Agent Core
     participant LLM as ChatProvider
     participant RAG as VectorStore + Embedding
-    participant Tools as Tools API :8001
+    participant Tools as ModularToolsClient / packages.sse
     participant Audit as AuditSinkProvider
 
     Rep->>API: POST /chat { loan_id, message }
@@ -246,7 +252,7 @@ sequenceDiagram
     Agent->>RAG: search_policy(query, state, k)
     RAG-->>Agent: PolicyChunks
 
-    Agent->>Tools: lookup_loan / get_escrow / etc.
+    Agent->>Tools: search_sse_apis / call_sse_api
     Tools-->>Agent: Tool results
 
     Agent->>LLM: chat(messages + tools + retrieved)
@@ -402,7 +408,7 @@ python -m packages.eval.run --golden data/golden.jsonl --report out/eval.json
 
 ```
 â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚ React UI   â”‚â”€â”€â”€â–¸â”‚ Agent API :8000   â”‚â”€â”€â”€â–¸â”‚ Tools API :8001   â”‚
+â”‚ React UI   â”‚â”€â”€â”€â–¸â”‚ Agent API :8000   â”‚â”€â”€â”€â–¸â”‚ Agent MCP / packages.sse   â”‚
 â”‚ (Vite :5173)â”‚    â”‚ (uvicorn)         â”‚    â”‚ (uvicorn)         â”‚
 â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
                          â”‚

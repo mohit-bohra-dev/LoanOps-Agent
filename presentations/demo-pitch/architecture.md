@@ -45,7 +45,7 @@ flowchart TB
         Audit["AuditSinkProvider"]
     end
 
-    ToolsAPI["Tools API — FastAPI :8001<br/>read-only servicing endpoints"]
+    ToolsAPI["Modular SSE tools (packages/sse) in Agent :8000"]
 
     subgraph Backends["Pluggable backends"]
         LLM["🧠 LLM<br/>Bedrock · Gemini · OpenAI · Ollama"]
@@ -83,7 +83,7 @@ sequenceDiagram
     participant Safety as Safety Middleware
     participant Agent as Agent Core
     participant RAG as Vector + Embedding
-    participant Tools as Tools API :8001
+    participant Tools as packages/sse via Agent
     participant LLM as ChatProvider
     participant Audit as Audit Sink
 
@@ -91,7 +91,7 @@ sequenceDiagram
     API->>Agent: prompt + history
     Agent->>RAG: search_policy(query, state, k)
     RAG-->>Agent: top-k policy chunks
-    Agent->>Tools: lookup_loan / escrow / schedule
+    Agent->>Tools: search_sse_apis / call_sse_api
     Tools-->>Agent: loan facts (read-only)
     Agent->>LLM: chat(prompt + chunks + tool results)
     LLM-->>Agent: draft (JSON contract)
@@ -166,7 +166,7 @@ states maps back to one of these chunks as a `policy:` citation."*
 
 ```mermaid
 flowchart TB
-    Tools["Tools API :8001"]
+    Tools["packages/sse via Agent"]
     Tools --> Mode{"DATA__MODE"}
     Mode -->|mock| MJSON["data/loans.json<br/>+ fixtures/ (synthetic)"]
     Mode -->|real| RAPI["Loan Services API<br/>/api/Loans/{id}/Summary · Escrows · ..."]
@@ -199,7 +199,7 @@ cites — a licensed human decides."*
 
 ```powershell
 # 1. Start the stack (local, zero cloud creds)
-make demo            # Agent API :8000 + Tools API :8001 + UI :5173
+make demo            # Agent API :8000 + packages/sse via Agent + UI :5173
 
 # 2. Health check — proves every provider is wired
 curl http://localhost:8000/health
