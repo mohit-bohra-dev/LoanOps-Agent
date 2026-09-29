@@ -1,3 +1,20 @@
+## [2026-09-29] — ADR-010 One modular Python product
+
+**Session type:** Architecture / module scaffold
+
+**Completed:**
+- ADR-010: Python-only backend, provider_contracts, duplicate keep/remove table.
+- provider_contracts: `BedrockEmbeddingProvider`, session_store ABC + memory/mock/postgres.
+- LoanOps modules: `packages/sse`, `packages/db`, `packages/docs`, `packages/wiki`.
+- ModularToolsClient + scopes; Agent API `/mcp/tools`, `/mcp/keys`.
+- Settings: `SSE__*`, `SQL_SERVER__*`, session postgres, vector pgvector, tools=modular.
+- Docs: `docs/RETIRE_STANDALONE.md`. SQL driver = aioodbc + ODBC 18.
+- Embedding: local bge-small; AWS Titan embed v2 1024-dim.
+
+**Reason:** Single product for users/agents querying SSE APIs + docs; retire Node gateway and standalone wiki after parity.
+
+---
+
 ## [2026-07-24] — Independent DATA__LOAN_SOURCE / DATA__SOP_SOURCE
 
 **Session type:** Config / provider wiring

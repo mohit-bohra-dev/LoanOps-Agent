@@ -1,0 +1,110 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Loan Services API",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://loanservicesapi-plaisse-dev.pnmac.com"
+    }
+  ],
+  "paths": {
+    "/api/Loans/{loan_id}": {
+      "get": {
+        "operationId": "getLoan",
+        "summary": "Get loan by loan id",
+        "tags": ["loans"],
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "ok" } }
+      }
+    },
+    "/api/Loans/{loan_id}/Summary": {
+      "get": {
+        "operationId": "getLoanSummary",
+        "summary": "Get loan summary",
+        "tags": ["loans", "summary"],
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "ok" } }
+      }
+    },
+    "/api/Loans/{loan_id}/BorrowerSummary": {
+      "get": {
+        "operationId": "getBorrowerSummary",
+        "summary": "Get borrower summary for loan",
+        "tags": ["borrowers"],
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "ok" } }
+      }
+    },
+    "/api/Loans/{loan_id}/PaymentSchedules": {
+      "get": {
+        "operationId": "getPaymentSchedules",
+        "summary": "Get payment schedules for loan",
+        "tags": ["payments"],
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "ok" } }
+      }
+    },
+    "/api/Loans/{loan_id}/Escrows": {
+      "get": {
+        "operationId": "getEscrows",
+        "summary": "Get escrow breakdown for loan",
+        "tags": ["escrow"],
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "ok" } }
+      }
+    },
+    "/api/Loans/{loan_id}/Delinquencies": {
+      "get": {
+        "operationId": "getDelinquencies",
+        "summary": "Get delinquency info for loan",
+        "tags": ["delinquency"],
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  }
+}

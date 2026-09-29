@@ -25,8 +25,7 @@ fixtures:
 	cd scripts/fixtures && npm install && npm run generate
 
 demo:
-	uv run uvicorn apps.tools_api.main:app --port 5000 &
-	uv run uvicorn apps.agent_api.main:app --port 5001 &
+	uv run uvicorn apps.agent_api.main:app --host 127.0.0.1 --port 8000 &
 	cd apps/web_ui && npm run dev
 
 down:

@@ -100,3 +100,18 @@
 - [x] Wire Langfuse into `LoanOps-Agent` settings and factory
 - [x] Push eval metrics to Langfuse dashboard from `run_eval`
 - [x] Provide `docker-compose.langfuse.yml` for self-hosted instance
+
+## Step 13 — One modular Python product (ADR-010)
+
+- [x] ADR-010 + keep/remove duplicate list
+- [x] `provider_contracts`: Bedrock embeddings + Postgres session store
+- [x] Embedding choice: local `bge-small` / AWS Titan v2 1024-dim
+- [x] SQL prerequisite: `aioodbc` + ODBC Driver 18 documented
+- [x] `packages/sse` OpenAPI catalog, invoke, API keys, fixture
+- [x] `packages/db` fixed + read-only SQL
+- [x] `packages/docs` unified doc search service
+- [x] `packages/wiki` specialist stubs (full port pending)
+- [x] Modular tools client + scopes; MCP routes on Agent API
+- [ ] Live SSE swagger verification
+- [ ] Full wiki specialist port
+- [ ] ~~AWS image cutover~~ **deferred — local testing only for now**

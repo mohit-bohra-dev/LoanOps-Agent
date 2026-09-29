@@ -51,6 +51,7 @@ from packages.common.providers.factory import (
 )
 from packages.common.settings import Settings
 from packages.safety.middleware import evaluate_outbound, sanitize_inbound
+from apps.agent_api.mcp_routes import router as mcp_router
 
 
 def _agent_owns_vector_store() -> bool:
@@ -141,6 +142,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(mcp_router)
 
 
 # ---------------------------------------------------------------------------

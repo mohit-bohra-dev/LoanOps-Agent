@@ -171,3 +171,40 @@ reuses `data/sops/_confluence/` offline without Confluence API credentials
 at chat time.
 
 **Status:** Accepted.
+
+---
+
+## ADR-010 — One modular Python product
+
+**Decision:** LoanOps-Agent is the single product backend. Language is
+**Python 3.11 only**. Shared vendor contracts live in `provider_contracts`
+(imported editable, not copied). React `apps/web_ui` stays TypeScript (UI only).
+
+Node SSE gateway and standalone plaisse-wiki are **sources to port, then retire**.
+Modules: `packages/sse`, `packages/db`, `packages/docs`, `packages/wiki`, existing
+`agent_core` / safety / eval. One FastAPI front door (`/chat`, MCP). Role or API
+key allow-lists tools.
+
+**Duplicates — keep one:**
+
+| Job | Keep | Remove / do not port |
+|-----|------|----------------------|
+| Providers | `provider_contracts` | Grow local Protocols; wiki Titan/Redis stacks |
+| Vector DB | pgvector via ABC | Qdrant at product runtime; wiki API-endpoint index |
+| Call SSE API | `packages/sse` | Wiki `src/tools/api` |
+| SQL | `packages/db` (one driver) | Second pool/driver |
+| Orchestrator | `agent_core` | Gateway keyword chat; wiki LangGraph concierge |
+| Chat UI | `apps/web_ui` | Gateway HTML/embed chat |
+| HTTP | One FastAPI app | Gateway Express; separate `tools_api` after fixture |
+| Session | Postgres behind session-store ABC | Memory only as test double |
+| Auth | API keys (agents) + Auth0 (humans) | Extra config files / tools-API bearer |
+
+**Keep (not duplicates):** wiki doc-write, GitLab, Jira, commit watch, package/screen;
+Helix SOP eval, PII middleware, approve/escalate.
+
+**Embedding:** local `bge-small-en-v1.5`; AWS `amazon.titan-embed-text-v2:0` (1024-dim).
+Reindex both corpora when model changes. Deploy reuses wiki AWS path (Python image).
+
+**SQL prerequisite:** `aioodbc` + Microsoft ODBC Driver 18 for SQL Server.
+
+**Status:** Accepted.

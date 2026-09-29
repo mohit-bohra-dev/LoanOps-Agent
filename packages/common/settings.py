@@ -149,9 +149,11 @@ class AISearchConfig(BaseModel):
 
 
 class VectorStoreConfig(BaseModel):
-    provider: Literal["qdrant", "ai_search"] = "qdrant"
+    provider: Literal["qdrant", "ai_search", "pgvector"] = "qdrant"
     qdrant: QdrantConfig = Field(default_factory=QdrantConfig)
     ai_search: AISearchConfig | None = None
+    pgvector_dsn: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/loanops"
+    pgvector_dimensions: int = 384
 
 
 class AOAIEmbeddingConfig(BaseModel):
@@ -217,9 +219,12 @@ class TelemetryConfig(BaseModel):
 
 
 class ToolsClientConfig(BaseModel):
-    provider: Literal["http", "http_mtls"] = "http"
-    base_url: str = "http://localhost:8001"
-    token: str = "dev-token"
+    """Tools routing. ``modular`` = SSE catalog + docs (+ optional SQL). No tools_api."""
+
+    provider: Literal["modular", "http", "http_mtls"] = "modular"
+    # Only used when provider is http / http_mtls (legacy). Unused for modular.
+    base_url: str = ""
+    token: str = ""
 
 
 class PromptStoreConfig(BaseModel):
@@ -228,9 +233,43 @@ class PromptStoreConfig(BaseModel):
 
 
 class SessionStoreConfig(BaseModel):
-    provider: Literal["memory"] = "memory"
+    provider: Literal["memory", "postgres"] = "memory"
     ttl_minutes: int = 60
     max_turns: int = 50
+    postgres_dsn: str = "postgresql://postgres:postgres@localhost:5432/loanops"
+
+
+class SwaggerLinkConfig(BaseModel):
+    """One SSE app OpenAPI source (10+ apps = 10+ links)."""
+
+    id: str
+    label: str
+    url: str
+
+
+class SseConfig(BaseModel):
+    """SSE OpenAPI gateway (packages.sse) — sole live data path for answers."""
+
+    api_base_url: str = "https://corecomponentsapi.dev.pennymac.plaisse.com"
+    api_key: str = ""
+    use_fixture: bool = True
+    fixture_path: str = ""
+    # Prefer named links for many apps:
+    # SSE__SWAGGER_LINKS=[{"id":"pennedocs","label":"PennEDocs","url":"https://.../swagger.json"},...]
+    swagger_links: list[SwaggerLinkConfig] = Field(default_factory=list)
+    # Shorthand: list of swagger URLs only (ids derived from hostname)
+    swagger_urls: list[str] = Field(default_factory=list)
+
+
+class SqlServerConfig(BaseModel):
+    """SQL Server for packages.db — requires ODBC Driver 18 + aioodbc when live."""
+
+    fixture_mode: bool = True
+    server: str = ""
+    database: str = ""
+    user: str = ""
+    password: str = ""
+    driver: str = "ODBC Driver 18 for SQL Server"
 
 
 class RerankerConfig(BaseModel):
@@ -260,3 +299,6 @@ class Settings(BaseSettings):
     prompt_store: PromptStoreConfig = Field(default_factory=PromptStoreConfig)
     session_store: SessionStoreConfig = Field(default_factory=SessionStoreConfig)
     reranker: RerankerConfig = Field(default_factory=RerankerConfig)
+    sse: SseConfig = Field(default_factory=SseConfig)
+    sql_server: SqlServerConfig = Field(default_factory=SqlServerConfig)
+    agent_role: str = Field(default="system", validation_alias="AGENT_ROLE")

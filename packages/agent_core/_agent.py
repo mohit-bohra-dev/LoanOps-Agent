@@ -31,86 +31,86 @@ from packages.safety.tokenizer import PiiTokenizer
 _SYSTEM_PROMPT_NAME = "agent.system"
 _MAX_RETRIES = 1
 
-_SERVICING_TOOLS = [
+# Answers come from SSE OpenAPI catalog (+ docs). No tools_api / mock loan endpoints.
+_SSE_ANSWER_TOOLS = [
     ToolDefinition(
-        name="lookup_loan",
-        description="Retrieve basic details about a loan.",
-        parameters={
-            "type": "object",
-            "properties": {"loan_id": {"type": "string"}},
-            "required": ["loan_id"],
-        },
-    ),
-    ToolDefinition(
-        name="search_borrower",
+        name="search_sse_apis",
         description=(
-            "Search for loans by borrower name. Available only with local mock "
-            "fixtures — not supported on the real Loan Services API. Prefer "
-            "lookup_loan with loan_id when the loan number is known."
+            "Search across all configured SSE app OpenAPI catalogs by keywords "
+            "(loan, payment, escrow, customer, etc.). Prefer this first, then call_sse_api."
         ),
         parameters={
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "Borrower first or last name (partial match)",
-                }
-            },
-            "required": ["name"],
-        },
-    ),
-    ToolDefinition(
-        name="get_payment_schedule",
-        description="Get upcoming payment schedule details.",
-        parameters={
-            "type": "object",
-            "properties": {
-                "loan_id": {"type": "string"},
-                "months": {"type": "integer"},
-            },
-            "required": ["loan_id"],
-        },
-    ),
-    ToolDefinition(
-        name="get_escrow_breakdown",
-        description="Get escrow account breakdown and disbursement history.",
-        parameters={
-            "type": "object",
-            "properties": {"loan_id": {"type": "string"}},
-            "required": ["loan_id"],
-        },
-    ),
-    ToolDefinition(
-        name="check_hardship_eligibility",
-        description="Get non-binding hardship program eligibility hint.",
-        parameters={
-            "type": "object",
-            "properties": {
-                "loan_id": {"type": "string"},
-                "program": {
-                    "type": "string",
-                    "description": "The specific program to check.",
-                    "enum": ["disaster_forbearance", "covid_forbearance", "repayment_plan"]
-                },
-            },
-            "required": ["loan_id", "program"],
-        },
-    ),
-    ToolDefinition(
-        name="search_policy",
-        description="Search policy documents. Always use this for policy, rules, "
-        "state law, or SOPs.",
-        parameters={
-            "type": "object",
-            "properties": {
                 "query": {"type": "string"},
-                "state": {"type": "string"},
-                "k": {"type": "integer"},
+                "limit": {"type": "integer"},
             },
             "required": ["query"],
         },
     ),
+    ToolDefinition(
+        name="list_sse_apis",
+        description=(
+            "List discovered SSE REST operations from all swagger sources "
+            "(10+ apps when configured). Optional source_label filters one app."
+        ),
+        parameters={
+            "type": "object",
+            "properties": {
+                "source_label": {"type": "string"},
+                "limit": {"type": "integer"},
+                "refresh": {"type": "boolean"},
+            },
+        },
+    ),
+    ToolDefinition(
+        name="call_sse_api",
+        description=(
+            "Invoke an SSE REST API by operation_id from search/list, "
+            "or method+path. Returns JSON for the answer."
+        ),
+        parameters={
+            "type": "object",
+            "properties": {
+                "operation_id": {"type": "string"},
+                "method": {"type": "string"},
+                "path": {"type": "string"},
+                "path_params": {"type": "object"},
+                "query": {"type": "object"},
+                "body": {},
+            },
+        },
+    ),
+    ToolDefinition(
+        name="search_docs",
+        description="Search indexed documentation (SOPs / wiki narratives).",
+        parameters={
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "top_k": {"type": "integer"},
+            },
+            "required": ["query"],
+        },
+    ),
+    ToolDefinition(
+        name="get_customer_servicing_summary",
+        description="Fixed read-only SQL servicing summary for a customer_id (SSE data pillar).",
+        parameters={
+            "type": "object",
+            "properties": {"customer_id": {"type": "string"}},
+            "required": ["customer_id"],
+        },
+    ),
 ]
+
+
+def _tools_for_client(tools_client: ToolsClientProvider) -> list[ToolDefinition]:
+    """Expose only tools allowed by the modular client's scope (SSE-first)."""
+    allowed = getattr(tools_client, "allowed_tools", None)
+    if not allowed:
+        return list(_SSE_ANSWER_TOOLS)
+    return [t for t in _SSE_ANSWER_TOOLS if t.name in allowed]
 
 
 async def _execute_tools(
@@ -203,31 +203,35 @@ async def run_agent_turn(
         LLMMessage(role="user", content=prompt),
     ]
 
-    # Step 4: First Pass (Tool Calling)
-    response = await chat_provider.chat(
-        messages,
-        temperature=0.0,
-        max_tokens=2048,
-        json_mode=True,
-        tools=_SERVICING_TOOLS,
-    )
-
+    # Step 4: Multi-turn tool execution loop (e.g. search -> call -> answer)
+    tools_def = _tools_for_client(tools_client)
     recorded_tools: list[ToolCallItem] = []
+    max_tool_rounds = 3
 
-    # If the model requested tools, execute them and do a Second Pass
-    if response.tool_calls:
-        recorded_tools = await _execute_tools(
-            response.tool_calls, tools_client, pii_token_map=pii_token_map
+    for round_idx in range(max_tool_rounds):
+        # Allow tools until the final round
+        response = await chat_provider.chat(
+            messages,
+            temperature=0.0,
+            max_tokens=2048,
+            json_mode=True,
+            tools=tools_def if round_idx < max_tool_rounds - 1 else None,
         )
 
-        # Append tool results as a system/user context update
+        if not response.tool_calls:
+            break
+
+        new_tools = await _execute_tools(
+            response.tool_calls, tools_client, pii_token_map=pii_token_map
+        )
+        recorded_tools.extend(new_tools)
+
         tool_results_text = "Here are the results from the tools you requested:\n"
-        for item in recorded_tools:
+        for item in new_tools:
             tool_results_text += f"[{item.name}]: {item.result_summary}\n"
         tool_results_text += (
             "\nNow provide your final valid JSON response matching "
-            "the OUTPUT CONTRACT. Ensure your `answer` field contains "
-            "a drafted prose reply for the rep as a string, not raw JSON."
+            "the OUTPUT CONTRACT, or call any additional tools (e.g. call_sse_api) to fetch the actual data."
         )
 
         messages.append(
@@ -236,13 +240,6 @@ async def run_agent_turn(
             )
         )
         messages.append(LLMMessage(role="user", content=tool_results_text))
-
-        response = await chat_provider.chat(
-            messages,
-            temperature=0.0,
-            max_tokens=2048,
-            json_mode=True,
-        )
 
     # Step 5: Parse the final JSON output with retry logic
     last_error: str | None = None
