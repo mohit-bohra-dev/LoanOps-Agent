@@ -175,6 +175,7 @@ class BedrockEmbeddingConfig(BaseModel):
 
 class GeminiEmbeddingConfig(BaseModel):
     """Google Gemini embedding configuration."""
+
     api_key: str = ""
     model: str = "gemini-embedding-2"
     # api_key: str = Field(alias="GEMINI_API_KEY")
@@ -274,6 +275,16 @@ class RerankerConfig(BaseModel):
     model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 
 
+class McpConfig(BaseModel):
+    """Streamable HTTP MCP listener. Empty auth_token rejects every MCP call."""
+
+    host: str = "127.0.0.1"
+    port: int = 8001
+    auth_token: str = ""
+    role: str = "system"
+    path: str = "/mcp"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -297,4 +308,5 @@ class Settings(BaseSettings):
     reranker: RerankerConfig = Field(default_factory=RerankerConfig)
     sse: SseConfig = Field(default_factory=SseConfig)
     sql_server: SqlServerConfig = Field(default_factory=SqlServerConfig)
+    mcp: McpConfig = Field(default_factory=McpConfig)
     agent_role: str = Field(default="system", validation_alias="AGENT_ROLE")

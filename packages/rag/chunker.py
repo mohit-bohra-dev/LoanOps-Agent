@@ -47,10 +47,21 @@ class MarkdownChunker:
 
             # If this section alone exceeds target, we need to split it further
             if len(section_words) > self.target_tokens:
-                # Split the section into smaller chunks
+                # Overlap wider than the window cannot slide forward. Keep the section whole.
+                if self.overlap_tokens >= self.target_tokens:
+                    chunk_id = self._generate_chunk_id(section, current_metadata)
+                    chunks.append(
+                        Chunk(
+                            chunk_id=chunk_id,
+                            content=section,
+                            metadata=current_metadata.copy(),
+                        )
+                    )
+                    current_chunk_words = []
+                    continue
                 sub_chunks = self._split_large_section(section_words, current_metadata)
                 chunks.extend(sub_chunks)
-                current_chunk_words = []  # Reset after processing
+                current_chunk_words = []
                 continue
 
             # Check if adding this section would exceed the target
@@ -133,13 +144,19 @@ class MarkdownChunker:
             if end_position == len(words):
                 break
 
-            # Move position with overlap
-            position = end_position - self.overlap_tokens
+            # Overlap must not move the window backward (overlap >= target loops forever).
+            next_position = end_position - self.overlap_tokens
+            if next_position <= position:
+                next_position = end_position
+            position = next_position
             if position >= len(words):
                 break
 
-            # Ensure we don't create a chunk that's too small at the end
-            if len(words) - position <= self.overlap_tokens:
+            # Drop a tiny tail only when overlap is smaller than the step just taken.
+            if (
+                self.overlap_tokens < self.target_tokens
+                and len(words) - position <= self.overlap_tokens
+            ):
                 break
 
         return chunks

@@ -1,3 +1,17 @@
+## [2026-09-30] — ADR-011 Streamable HTTP MCP server
+
+**Session type:** MCP phase 1
+
+**Completed:**
+- ADR-011. Settings `MCP__HOST`, `MCP__PORT`, `MCP__AUTH_TOKEN`, `MCP__ROLE`, `MCP__PATH`.
+- `packages/mcp_server`: FastMCP Streamable HTTP, bearer required, scope + GET-only `call_sse_api`, audit `mcp.tool.call`.
+- Tools still execute through `ModularToolsClient`. Agent `/chat` path unchanged.
+- Chunker no longer loops when overlap is wider than the target window.
+
+**Reason:** Remote MCP clients need the protocol. The existing `/mcp/tools` routes stay a custom JSON API.
+
+---
+
 ## [2026-09-29] — ADR-010 One modular Python product
 
 **Session type:** Architecture / module scaffold

@@ -11,8 +11,10 @@ from provider_contracts.tools_client._base import AbstractToolsClientProvider
 from packages.common.scopes import tools_for_role, tools_for_scopes
 from packages.db.client import SqlServerClient
 from packages.docs.service import DocsService
+from packages.sse.catalog import find_operation
 from packages.sse.loader import OpenApiCatalogService
 from packages.sse.tools import SSE_TOOL_NAMES, dispatch_sse_tool
+from packages.sse.types import ApiOperation
 from packages.wiki.tools import WIKI_TOOL_NAMES, dispatch_wiki_tool
 
 _LOCAL_TOOLS = (
@@ -60,6 +62,22 @@ class ModularToolsClient(AbstractToolsClientProvider):
 
     async def list_tools(self) -> list[str]:
         return [n for n in _LOCAL_TOOLS if n in self._allowed]
+
+    async def find_sse_operation(
+        self,
+        *,
+        operation_id: str | None = None,
+        method: str | None = None,
+        path: str | None = None,
+    ) -> ApiOperation | None:
+        """Look up a catalog operation. Does not call the API."""
+        catalog = await self._sse.load()
+        return find_operation(
+            catalog.operations,
+            operation_id=operation_id,
+            method=method,
+            path=path,
+        )
 
     async def call(self, tool: ToolCall) -> ToolResult:
         name = tool.tool_name

@@ -25,6 +25,17 @@ make demo
 Live loan answers use SSE OpenAPI (`packages/sse` via `call_sse_api`). There is
 **no** `apps/tools_api` — that mock HTTP service was removed (ADR-010).
 
+The chat agent still calls tools in-process. A separate Model Context Protocol
+listener (ADR-011) speaks Streamable HTTP for other clients. It does not replace
+`/chat` or the custom `/mcp/tools` JSON routes.
+
+```powershell
+# Bearer is required. Empty MCP__AUTH_TOKEN rejects every MCP call.
+$env:MCP__AUTH_TOKEN = "<set-a-token>"
+python -m packages.mcp_server
+# listens on 127.0.0.1:8001/mcp
+```
+
 ## AI / agent context
 
 Read **`AGENTS.md`** before generating or reviewing code.
@@ -43,6 +54,7 @@ LoanOps Agent_Demos/
     web_ui/         React + TypeScript rep UI
   packages/
     agent_core/     Agent + multi-turn SSE tool loop
+    mcp_server/     Streamable HTTP MCP listener (not the /mcp/tools JSON API)
     sse/            OpenAPI catalog search + live API invoke
     db/             Optional read-only SQL (dev role)
     docs/           Docs search over vector store

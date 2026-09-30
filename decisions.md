@@ -208,3 +208,34 @@ Reindex both corpora when model changes. Deploy reuses wiki AWS path (Python ima
 **SQL prerequisite:** `aioodbc` + Microsoft ODBC Driver 18 for SQL Server.
 
 **Status:** Accepted.
+
+---
+
+## ADR-011 — MCP server is a separate Streamable HTTP listener
+
+**Decision:** Expose the four agent tools (`search_sse_apis`, `list_sse_apis`,
+`call_sse_api`, `search_docs`) through a real Model Context Protocol server
+using the official Python `mcp` SDK (FastMCP) and Streamable HTTP. The
+listener binds `MCP__HOST` / `MCP__PORT` (default `127.0.0.1:8001`) at
+`MCP__PATH` (default `/mcp`). It is a second process so it does not capture
+the Agent API routes `/mcp/tools`, `/mcp/tools/call`, and `/mcp/keys`. Those
+routes stay a custom JSON API. The chat agent keeps calling
+`ModularToolsClient` in-process until a later client flag.
+
+**Context:** ADR-010 keeps one FastAPI front door for chat. Remote MCP clients
+(Cursor, Gemini) need the protocol, not that JSON wrapper. A mount of `/mcp`
+on the Agent API would collide with `/mcp/tools`.
+
+**Alternatives:** Hand-rolled JSON-RPC on the Agent API; stdio only; treat
+`/mcp/tools` as MCP.
+
+**Reasoning:** The SDK implements initialize, tools/list, and tools/call.
+Execution stays in `ModularToolsClient` and `invoke_sse_api`. Auth is a
+required bearer (`MCP__AUTH_TOKEN`); an empty token rejects every call.
+`MCP__ROLE` selects the existing scope allow-list. `call_sse_api` on this
+server is GET-only. Optional `x-loanops-user` and `x-loanops-tenant` are
+audit fields only. Downstream SSE calls still use `SSE__API_KEY`.
+
+**Settings:** `MCP__HOST`, `MCP__PORT`, `MCP__AUTH_TOKEN`, `MCP__ROLE`, `MCP__PATH`.
+
+**Status:** Accepted.
