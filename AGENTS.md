@@ -108,11 +108,12 @@ import a concrete provider class directly.
 | InMemory providers (tests) | `packages/common/providers/testing.py` |
 | Contract tests | `packages/common/providers/contract_tests/` |
 | Shared Pydantic models | `packages/common/schemas.py` |
-| Live SSE OpenAPI tools | `packages/sse/` + `/mcp/tools` |
-| Agent API (`/chat`, `/health`) | `apps/agent_api/` |
-| RAG ingest CLI | `packages/rag/ingest.py` |
-| Safety middleware | `packages/safety/` |
-| Eval runner + metrics | `packages/eval/` |
+| Live SSE OpenAPI tools | `projects/LoanOps.Sse/packages/sse/` + `/mcp/tools` |
+| Tools client factories | `projects/LoanOps.Tools/packages/tools/` |
+| Agent API (`/chat`, `/health`) | `projects/LoanOps.AgentApi/apps/agent_api/` |
+| RAG ingest CLI | `projects/LoanOps.Rag/packages/rag/ingest.py` |
+| Safety middleware | `projects/LoanOps.Safety/packages/safety/` |
+| Eval runner + metrics | `projects/LoanOps.Eval/packages/eval/` |
 | Golden Q&A set | `data/golden.jsonl` |
 | Synthetic SOPs | `data/sops/` |
 | Synthetic loans | `data/loans.json` |
@@ -120,17 +121,28 @@ import a concrete provider class directly.
 
 ## Module layout
 
+uv workspace: root `pyproject.toml` = solution; each `projects/LoanOps.X/` =
+one `loanops-*` project. Import paths unchanged (`packages.*`, `apps.agent_api`).
+
 ```
 apps/
-  agent_api/    FastAPI :8000  /chat (SSE), /health, /mcp/tools
-  web_ui/       React + TypeScript rep UI (Vite)
+  web_ui/                 React + TypeScript rep UI (Vite) — npm, not uv
 
-packages/
-  agent_core/   Microsoft Agent Framework agent, prompt loader, intent router
-  rag/          Chunker, ingest CLI, retrieval
-  safety/       PII + content-safety middleware
-  eval/         Ragas + custom metrics, golden runner, CI gate
-  common/       Settings, schemas, Provider layer
+projects/
+  LoanOps.Common/         settings, schemas, provider factories
+  LoanOps.Safety/         PII + content-safety middleware
+  LoanOps.Db/             read-only SQL client
+  LoanOps.Wiki/           wiki tool stubs
+  LoanOps.Rag/            chunker, ingest CLI
+  LoanOps.Docs/           docs vector search
+  LoanOps.Sse/            OpenAPI catalog + live invoke
+  LoanOps.CapabilityKg/   RDF capability catalog
+  LoanOps.Eakg/           enterprise capability KG
+  LoanOps.Tools/          ModularToolsClient + MCP client factories
+  LoanOps.AgentCore/      MS Agent Framework turn loop
+  LoanOps.McpServer/      Streamable HTTP MCP :8001
+  LoanOps.Eval/           golden runner + metrics
+  LoanOps.AgentApi/       FastAPI :8000 /chat, /health, /mcp/tools
 ```
 
 ## Approval required before
@@ -163,10 +175,11 @@ Execute a single numbered build step from the project brief.
 
 Verify the Provider Abstraction invariants hold across the codebase:
 
-1. `grep -R "from packages.common.providers.*import.*Provider" apps/ packages/agent_core packages/rag packages/safety packages/eval` — must return zero matches for concrete classes.
-2. `grep -RnE "os\.environ|os\.getenv" --include="*.py" .` excluding `settings.py` and `tests/` — must be empty.
-3. Run `pytest packages/common/providers/contract_tests` — all green.
-4. Run `mypy --strict packages/common` — no errors.
+1. `rg "from packages.common.providers.*import.*Provider" projects` — must return zero matches for concrete classes outside `LoanOps.Common/packages/common/providers/`.
+2. `rg -nE "os\.environ|os\.getenv" --glob "*.py" projects` excluding `settings.py` and `tests/` — must be empty.
+3. Run `pytest projects/LoanOps.Common/packages/common/providers/contract_tests` — all green.
+4. Run `mypy --strict projects/LoanOps.Common` — no errors.
+5. Run `uv run python scripts/check_project_refs.py` — ProjectReference gate green.
 
 ## After each session
 

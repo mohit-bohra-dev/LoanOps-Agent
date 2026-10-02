@@ -51,7 +51,7 @@ sequenceDiagram
   participant Agent as run_agent_turn
   participant MCP as MCP :8001/mcp
   participant Mod as ModularToolsClient
-  participant SSE as packages/sse
+  participant SSE as packages/sse (LoanOps.Sse)
   participant Host as Loan Services REST
 
   Rep->>API: POST /api/chat → POST /chat
@@ -89,7 +89,7 @@ sequenceDiagram
 `TOOLS_CLIENT__PROVIDER=modular`. Same as F1 through step 5; **no MCP hop**.
 
 ```text
-run_agent_turn → ModularToolsClient.call → packages/sse | packages/docs
+run_agent_turn → packages.tools.ModularToolsClient.call → packages/sse | packages/docs
 ```
 
 Use for local single-process demo / rollback when `:8001` is down.

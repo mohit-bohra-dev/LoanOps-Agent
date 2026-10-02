@@ -34,6 +34,7 @@ Use these instead of treating every open checkbox as equal priority.
 
 ### Hygiene
 
+- [x] Split into csproj-style uv workspace (`projects/LoanOps.*`, ADR-020) — 2026-10-02
 - Decide / cleanup board: [`docs/DECIDE_AND_CLEANUP.md`](docs/DECIDE_AND_CLEANUP.md)
 - Committed vs local EAKG: [`docs/EAKG_COMMITTED_VS_LOCAL.md`](docs/EAKG_COMMITTED_VS_LOCAL.md)
 - Phase tracker: [`docs/PHASE_STATUS.md`](docs/PHASE_STATUS.md)

@@ -1,3 +1,22 @@
+## [2026-10-02] — uv workspace split (ADR-020)
+
+**Session type:** Architecture / refactor
+
+**Completed:**
+- Broke import cycles: `LoanOps.Tools` owns modular/MCP tools factories;
+  EAKG `capability_block` injected into SSE search (no sse→eakg import).
+- Moved packages into `projects/LoanOps.X/` with per-project `pyproject.toml`.
+- Root becomes uv workspace solution; hatchling `force-include` keeps
+  `packages.*` / `apps.agent_api` imports.
+- `scripts/check_project_refs.py` + pytest + pre-commit ProjectReference gate.
+- Docs: ADR-020, AGENTS/CONTEXT/ARCHITECTURE layout.
+- Verify: `uv sync`; pytest **200 passed** (1 pre-existing Qdrant fail);
+  MCP `getLoanSummary` 200; `/health` 200.
+
+**Reason:** csproj-style project boundaries with explicit loanops-* refs.
+
+---
+
 ## [2026-09-30] — Phase 9 semantic capability retrieval
 
 **Session type:** Feature

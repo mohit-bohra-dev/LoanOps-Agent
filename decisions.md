@@ -459,3 +459,25 @@ belong to GitLab CI / Task Scheduler.
 
 **Status:** Accepted (plan approved 2026-10-02).
 
+---
+
+## ADR-020 — uv workspace projects (csproj-style)
+
+**Decision:** Split the monorepo into a uv workspace. Root `pyproject.toml`
+is the solution (`[tool.uv.workspace] members = ["projects/*"]`). Each
+`projects/LoanOps.X/pyproject.toml` is one project (`loanops-*`) with
+third-party deps + `{ workspace = true }` project references. Import paths
+stay `packages.*` / `apps.agent_api` via hatchling `force-include` and
+implicit namespace packages (no `packages/__init__.py`).
+
+**Composition layer:** `LoanOps.Tools` owns `ModularToolsClient`,
+`McpToolsClient`, and tools-client factories so Common does not depend on
+SSE/docs/db/wiki. EAKG capability search is injected into SSE search via
+`capability_block` (breaks sse ↔ eakg ↔ capability_kg cycle).
+
+**Enforcement:** `scripts/check_project_refs.py` fails if a non-test import
+targets a package whose `loanops-*` dist is not declared (ProjectReference
+gate). Wired into pytest + pre-commit.
+
+**Status:** Accepted 2026-10-02.
+

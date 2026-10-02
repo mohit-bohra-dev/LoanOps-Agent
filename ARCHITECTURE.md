@@ -27,40 +27,41 @@ Live loan facts come from SSE REST APIs (OpenAPI/swagger + `httpx`), with servic
 
 ```text
 LoanOps-Agent/
+  pyproject.toml          uv workspace solution (members = projects/*)
   apps/
-    agent_api/          FastAPI :8000 — /chat (SSE), /health, /mcp/*
-    web_ui/             React + Vite + Tailwind care-rep UI
-  packages/
-    agent_core/         Intent router, prompt load, tool loop, output parse
-    sse/                OpenAPI catalog, search, HTTP invoke, API-key store
-    docs/               Docs vector search (namespace "docs")
-    rag/                Markdown chunker + SOP ingest CLI (collection "sops")
-    db/                 Read-only SQL Server client (fixture by default)
-    wiki/               Wiki tool names; handlers are stubs
-    safety/             Inbound PII tokenize, outbound content-safety
-    eval/               Golden-set runner and threshold gate
-    common/             Settings, schemas, provider factories, scopes
-      providers/        Protocols + factories (concrete impls live in provider_contracts)
-  provider_contracts/   Sibling repo (editable path dep) — LLM, embeddings, Qdrant, Presidio, audit, telemetry
-  data/
-    sops/               Synthetic SOP markdown
-    golden.jsonl        Eval prompts
-    sse-fixture-openapi.json   Written at tools-client boot when SSE fixture mode is on
-    fixtures/loan_api/  Legacy loan JSON fixtures (not the agent answer path)
-  graphify-out/         Offline code/doc graph (not runtime)
-  infra/terraform/      AWS IaC (not on the local chat path)
-  docs/                 Prompts, ADRs, phase status (not architecture — see ARCHITECTURE.md)
+    web_ui/               React + Vite + Tailwind care-rep UI (npm)
+  projects/               one LoanOps.X = one loanops-* dist (csproj-style)
+    LoanOps.AgentApi/apps/agent_api/   FastAPI :8000 — /chat, /health, /mcp/*
+    LoanOps.AgentCore/packages/agent_core/
+    LoanOps.Tools/packages/tools/      Modular + MCP tools client factories
+    LoanOps.McpServer/packages/mcp_server/
+    LoanOps.Sse/packages/sse/
+    LoanOps.Docs/packages/docs/
+    LoanOps.Rag/packages/rag/
+    LoanOps.Db/packages/db/
+    LoanOps.Wiki/packages/wiki/
+    LoanOps.Safety/packages/safety/
+    LoanOps.Eval/packages/eval/
+    LoanOps.Common/packages/common/    Settings, schemas, provider factories
+    LoanOps.CapabilityKg/packages/capability_kg/
+    LoanOps.Eakg/packages/eakg/
+  provider_contracts/     Sibling repo (editable path dep)
+  data/                   SOPs, golden, EAKG fixtures (repo root)
+  graphify-out/           Offline code/doc graph (not runtime)
+  infra/terraform/        AWS IaC
+  docs/                   Prompts, phase status
 ```
 
 | Directory | Role |
 |---|---|
-| `apps/agent_api` | HTTP front door for chat, health, and the custom tool HTTP API |
+| `projects/LoanOps.AgentApi` | HTTP front door for chat, health, tool HTTP API |
 | `apps/web_ui` | Chat transcript, session memory viewer, borrower sidebar |
-| `packages/agent_core` | One turn: classify, prompt, LLM, tools, JSON contract |
-| `packages/sse` | Real HTTP calls to configured SSE hosts |
-| `packages/common` | Env loading and provider selection |
-| `packages/safety` | PII and content safety around the chat turn |
-| `packages/eval` | Offline golden runner; not in the request path |
+| `projects/LoanOps.AgentCore` | One turn: classify, prompt, LLM, tools, JSON contract |
+| `projects/LoanOps.Tools` | Tools composition; injects EAKG into SSE search |
+| `projects/LoanOps.Sse` | Real HTTP calls to configured SSE hosts |
+| `projects/LoanOps.Common` | Env loading and provider selection |
+| `projects/LoanOps.Safety` | PII and content safety around the chat turn |
+| `projects/LoanOps.Eval` | Offline golden runner; not in the request path |
 | `graphify-out` | Static graph of this repo for agents and humans |
 
 ---

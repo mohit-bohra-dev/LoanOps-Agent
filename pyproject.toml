@@ -1,28 +1,28 @@
 [project]
 name = "servicing-agent"
 version = "0.1.0"
-description = "Servicing Agent for Internal Care Reps"
+description = "Servicing Agent for Internal Care Reps — uv workspace solution"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
 dependencies = [
-    "provider-contracts[ollama,openai,gemini,qdrant,bge,presidio,structlog,bedrock,langfuse,pgvector,redis]",
-    "fastapi==0.133.0",
-    "uvicorn[standard]==0.47.0",
-    "pydantic==2.14.0a1",
-    "pydantic-settings==2.14.1",
-    "agent-framework<1.6.0",
+    "loanops-common",
+    "loanops-safety",
+    "loanops-db",
+    "loanops-wiki",
+    "loanops-rag",
+    "loanops-docs",
+    "loanops-sse",
+    "loanops-capability-kg",
+    "loanops-eakg",
+    "loanops-tools",
+    "loanops-agent-core",
+    "loanops-mcp-server",
+    "loanops-eval",
+    "loanops-agent-api",
     "spacy<4",
-    "ragas==0.4.3",
     "opentelemetry-sdk==1.42.1",
-    "numpy<2",
     "click<8.1.8",
     "sentence-transformers==5.5.1",
-    "markitdown>=0.1.0",
-    "httpx>=0.27.0",
-    "aioodbc>=0.5.0",
-    "mcp>=1.27.1",
-    "rdflib>=7.0.0",
-    "pyyaml>=6.0",
 ]
 
 [dependency-groups]
@@ -37,6 +37,7 @@ dev = [
 [tool.ruff]
 target-version = "py311"
 line-length = 99
+src = ["projects"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
@@ -44,20 +45,67 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 [tool.mypy]
 strict = true
 python_version = "3.12"
-mypy_path = "."
+mypy_path = [
+    "projects/LoanOps.Common",
+    "projects/LoanOps.Safety",
+    "projects/LoanOps.Db",
+    "projects/LoanOps.Wiki",
+    "projects/LoanOps.Rag",
+    "projects/LoanOps.Docs",
+    "projects/LoanOps.Sse",
+    "projects/LoanOps.CapabilityKg",
+    "projects/LoanOps.Eakg",
+    "projects/LoanOps.Tools",
+    "projects/LoanOps.AgentCore",
+    "projects/LoanOps.McpServer",
+    "projects/LoanOps.Eval",
+    "projects/LoanOps.AgentApi",
+]
 explicit_package_bases = true
 namespace_packages = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-pythonpath = "."
+testpaths = ["projects"]
+pythonpath = [
+    "projects/LoanOps.Common",
+    "projects/LoanOps.Safety",
+    "projects/LoanOps.Db",
+    "projects/LoanOps.Wiki",
+    "projects/LoanOps.Rag",
+    "projects/LoanOps.Docs",
+    "projects/LoanOps.Sse",
+    "projects/LoanOps.CapabilityKg",
+    "projects/LoanOps.Eakg",
+    "projects/LoanOps.Tools",
+    "projects/LoanOps.AgentCore",
+    "projects/LoanOps.McpServer",
+    "projects/LoanOps.Eval",
+    "projects/LoanOps.AgentApi",
+    ".",
+]
+addopts = ["--import-mode=importlib"]
 markers = ["integration: requires live external services"]
-
-[tool.uv.sources]
-provider-contracts = { path = "../provider_contracts", editable = true }
 
 [tool.uv]
 prerelease = "allow"
 
 [tool.uv.workspace]
-members = []
+members = ["projects/*"]
+
+[tool.uv.sources]
+provider-contracts = { path = "../provider_contracts", editable = true }
+loanops-common = { workspace = true }
+loanops-safety = { workspace = true }
+loanops-db = { workspace = true }
+loanops-wiki = { workspace = true }
+loanops-rag = { workspace = true }
+loanops-docs = { workspace = true }
+loanops-sse = { workspace = true }
+loanops-capability-kg = { workspace = true }
+loanops-eakg = { workspace = true }
+loanops-tools = { workspace = true }
+loanops-agent-core = { workspace = true }
+loanops-mcp-server = { workspace = true }
+loanops-eval = { workspace = true }
+loanops-agent-api = { workspace = true }

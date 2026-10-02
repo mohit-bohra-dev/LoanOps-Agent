@@ -13,6 +13,25 @@ resolution-markers = [
 [options]
 prerelease-mode = "allow"
 
+[manifest]
+members = [
+    "loanops-agent-api",
+    "loanops-agent-core",
+    "loanops-capability-kg",
+    "loanops-common",
+    "loanops-db",
+    "loanops-docs",
+    "loanops-eakg",
+    "loanops-eval",
+    "loanops-mcp-server",
+    "loanops-rag",
+    "loanops-safety",
+    "loanops-sse",
+    "loanops-tools",
+    "loanops-wiki",
+    "servicing-agent",
+]
+
 [[package]]
 name = "agent-framework"
 version = "1.0.0b251120"
@@ -1551,6 +1570,240 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/37/33/8a745436944947575b584231750a41417de1a38cf6a2e9251d1065651c09/librt-0.11.0-cp312-cp312-win_amd64.whl", hash = "sha256:75672f0bc524ede266287d532d7923dbce94c7514ad07627bac3d0c6d92cc4d9", size = 119831, upload-time = "2026-05-10T18:16:09.174Z" },
     { url = "https://files.pythonhosted.org/packages/59/67/a6739ac96e28b7855808bdb0370e250606104a859750d209e5a0716fe7ab/librt-0.11.0-cp312-cp312-win_arm64.whl", hash = "sha256:2f10cf143e4a9bb0f4f5af568a00df94a2d69ef41c2579584454bb0fe5cc642c", size = 103470, upload-time = "2026-05-10T18:16:10.369Z" },
 ]
+
+[[package]]
+name = "loanops-agent-api"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.AgentApi" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "loanops-agent-core" },
+    { name = "loanops-common" },
+    { name = "loanops-safety" },
+    { name = "loanops-sse" },
+    { name = "loanops-tools" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = "==0.133.0" },
+    { name = "loanops-agent-core", editable = "projects/LoanOps.AgentCore" },
+    { name = "loanops-common", editable = "projects/LoanOps.Common" },
+    { name = "loanops-safety", editable = "projects/LoanOps.Safety" },
+    { name = "loanops-sse", editable = "projects/LoanOps.Sse" },
+    { name = "loanops-tools", editable = "projects/LoanOps.Tools" },
+    { name = "uvicorn", extras = ["standard"], specifier = "==0.47.0" },
+]
+
+[[package]]
+name = "loanops-agent-core"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.AgentCore" }
+dependencies = [
+    { name = "agent-framework" },
+    { name = "loanops-common" },
+    { name = "loanops-safety" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "agent-framework", specifier = "<1.6.0" },
+    { name = "loanops-common", editable = "projects/LoanOps.Common" },
+    { name = "loanops-safety", editable = "projects/LoanOps.Safety" },
+]
+
+[[package]]
+name = "loanops-capability-kg"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.CapabilityKg" }
+dependencies = [
+    { name = "loanops-common" },
+    { name = "loanops-sse" },
+    { name = "rdflib" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "loanops-common", editable = "projects/LoanOps.Common" },
+    { name = "loanops-sse", editable = "projects/LoanOps.Sse" },
+    { name = "rdflib", specifier = ">=7.0.0" },
+]
+
+[[package]]
+name = "loanops-common"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.Common" }
+dependencies = [
+    { name = "httpx" },
+    { name = "provider-contracts", extra = ["bedrock", "bge", "gemini", "langfuse", "ollama", "openai", "pgvector", "presidio", "qdrant", "redis", "structlog"] },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.27.0" },
+    { name = "provider-contracts", extras = ["ollama", "openai", "gemini", "qdrant", "bge", "presidio", "structlog", "bedrock", "langfuse", "pgvector", "redis"], editable = "../provider_contracts" },
+    { name = "pydantic", specifier = "==2.14.0a1" },
+    { name = "pydantic-settings", specifier = "==2.14.1" },
+]
+
+[[package]]
+name = "loanops-db"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.Db" }
+dependencies = [
+    { name = "aioodbc" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "aioodbc", specifier = ">=0.5.0" }]
+
+[[package]]
+name = "loanops-docs"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.Docs" }
+dependencies = [
+    { name = "loanops-rag" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "loanops-rag", editable = "projects/LoanOps.Rag" }]
+
+[[package]]
+name = "loanops-eakg"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.Eakg" }
+dependencies = [
+    { name = "loanops-capability-kg" },
+    { name = "loanops-common" },
+    { name = "pyyaml" },
+    { name = "rdflib" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "loanops-capability-kg", editable = "projects/LoanOps.CapabilityKg" },
+    { name = "loanops-common", editable = "projects/LoanOps.Common" },
+    { name = "pyyaml", specifier = ">=6.0" },
+    { name = "rdflib", specifier = ">=7.0.0" },
+]
+
+[[package]]
+name = "loanops-eval"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.Eval" }
+dependencies = [
+    { name = "loanops-agent-core" },
+    { name = "loanops-common" },
+    { name = "loanops-tools" },
+    { name = "numpy" },
+    { name = "ragas" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "loanops-agent-core", editable = "projects/LoanOps.AgentCore" },
+    { name = "loanops-common", editable = "projects/LoanOps.Common" },
+    { name = "loanops-tools", editable = "projects/LoanOps.Tools" },
+    { name = "numpy", specifier = "<2" },
+    { name = "ragas", specifier = "==0.4.3" },
+]
+
+[[package]]
+name = "loanops-mcp-server"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.McpServer" }
+dependencies = [
+    { name = "loanops-capability-kg" },
+    { name = "loanops-common" },
+    { name = "loanops-eakg" },
+    { name = "loanops-tools" },
+    { name = "mcp" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "loanops-capability-kg", editable = "projects/LoanOps.CapabilityKg" },
+    { name = "loanops-common", editable = "projects/LoanOps.Common" },
+    { name = "loanops-eakg", editable = "projects/LoanOps.Eakg" },
+    { name = "loanops-tools", editable = "projects/LoanOps.Tools" },
+    { name = "mcp", specifier = ">=1.27.1" },
+    { name = "uvicorn", extras = ["standard"], specifier = "==0.47.0" },
+]
+
+[[package]]
+name = "loanops-rag"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.Rag" }
+dependencies = [
+    { name = "loanops-common" },
+    { name = "markitdown" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "loanops-common", editable = "projects/LoanOps.Common" },
+    { name = "markitdown", specifier = ">=0.1.0" },
+]
+
+[[package]]
+name = "loanops-safety"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.Safety" }
+dependencies = [
+    { name = "loanops-common" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "loanops-common", editable = "projects/LoanOps.Common" }]
+
+[[package]]
+name = "loanops-sse"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.Sse" }
+dependencies = [
+    { name = "httpx" },
+    { name = "loanops-common" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.27.0" },
+    { name = "loanops-common", editable = "projects/LoanOps.Common" },
+]
+
+[[package]]
+name = "loanops-tools"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.Tools" }
+dependencies = [
+    { name = "loanops-common" },
+    { name = "loanops-db" },
+    { name = "loanops-docs" },
+    { name = "loanops-eakg" },
+    { name = "loanops-sse" },
+    { name = "loanops-wiki" },
+    { name = "mcp" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "loanops-common", editable = "projects/LoanOps.Common" },
+    { name = "loanops-db", editable = "projects/LoanOps.Db" },
+    { name = "loanops-docs", editable = "projects/LoanOps.Docs" },
+    { name = "loanops-eakg", editable = "projects/LoanOps.Eakg" },
+    { name = "loanops-sse", editable = "projects/LoanOps.Sse" },
+    { name = "loanops-wiki", editable = "projects/LoanOps.Wiki" },
+    { name = "mcp", specifier = ">=1.27.1" },
+]
+
+[[package]]
+name = "loanops-wiki"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.Wiki" }
 
 [[package]]
 name = "magika"
@@ -3552,24 +3805,24 @@ name = "servicing-agent"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "agent-framework" },
-    { name = "aioodbc" },
     { name = "click" },
-    { name = "fastapi" },
-    { name = "httpx" },
-    { name = "markitdown" },
-    { name = "mcp" },
-    { name = "numpy" },
+    { name = "loanops-agent-api" },
+    { name = "loanops-agent-core" },
+    { name = "loanops-capability-kg" },
+    { name = "loanops-common" },
+    { name = "loanops-db" },
+    { name = "loanops-docs" },
+    { name = "loanops-eakg" },
+    { name = "loanops-eval" },
+    { name = "loanops-mcp-server" },
+    { name = "loanops-rag" },
+    { name = "loanops-safety" },
+    { name = "loanops-sse" },
+    { name = "loanops-tools" },
+    { name = "loanops-wiki" },
     { name = "opentelemetry-sdk" },
-    { name = "provider-contracts", extra = ["bedrock", "bge", "gemini", "langfuse", "ollama", "openai", "pgvector", "presidio", "qdrant", "redis", "structlog"] },
-    { name = "pydantic" },
-    { name = "pydantic-settings" },
-    { name = "pyyaml" },
-    { name = "ragas" },
-    { name = "rdflib" },
     { name = "sentence-transformers" },
     { name = "spacy" },
-    { name = "uvicorn", extra = ["standard"] },
 ]
 
 [package.dev-dependencies]
@@ -3583,24 +3836,24 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "agent-framework", specifier = "<1.6.0" },
-    { name = "aioodbc", specifier = ">=0.5.0" },
     { name = "click", specifier = "<8.1.8" },
-    { name = "fastapi", specifier = "==0.133.0" },
-    { name = "httpx", specifier = ">=0.27.0" },
-    { name = "markitdown", specifier = ">=0.1.0" },
-    { name = "mcp", specifier = ">=1.27.1" },
-    { name = "numpy", specifier = "<2" },
+    { name = "loanops-agent-api", editable = "projects/LoanOps.AgentApi" },
+    { name = "loanops-agent-core", editable = "projects/LoanOps.AgentCore" },
+    { name = "loanops-capability-kg", editable = "projects/LoanOps.CapabilityKg" },
+    { name = "loanops-common", editable = "projects/LoanOps.Common" },
+    { name = "loanops-db", editable = "projects/LoanOps.Db" },
+    { name = "loanops-docs", editable = "projects/LoanOps.Docs" },
+    { name = "loanops-eakg", editable = "projects/LoanOps.Eakg" },
+    { name = "loanops-eval", editable = "projects/LoanOps.Eval" },
+    { name = "loanops-mcp-server", editable = "projects/LoanOps.McpServer" },
+    { name = "loanops-rag", editable = "projects/LoanOps.Rag" },
+    { name = "loanops-safety", editable = "projects/LoanOps.Safety" },
+    { name = "loanops-sse", editable = "projects/LoanOps.Sse" },
+    { name = "loanops-tools", editable = "projects/LoanOps.Tools" },
+    { name = "loanops-wiki", editable = "projects/LoanOps.Wiki" },
     { name = "opentelemetry-sdk", specifier = "==1.42.1" },
-    { name = "provider-contracts", extras = ["ollama", "openai", "gemini", "qdrant", "bge", "presidio", "structlog", "bedrock", "langfuse", "pgvector", "redis"], editable = "../provider_contracts" },
-    { name = "pydantic", specifier = "==2.14.0a1" },
-    { name = "pydantic-settings", specifier = "==2.14.1" },
-    { name = "pyyaml", specifier = ">=6.0" },
-    { name = "ragas", specifier = "==0.4.3" },
-    { name = "rdflib", specifier = ">=7.0.0" },
     { name = "sentence-transformers", specifier = "==5.5.1" },
     { name = "spacy", specifier = "<4" },
-    { name = "uvicorn", extras = ["standard"], specifier = "==0.47.0" },
 ]
 
 [package.metadata.requires-dev]

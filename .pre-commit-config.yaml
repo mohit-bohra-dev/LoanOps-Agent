@@ -17,7 +17,13 @@ repos:
   - repo: local
     hooks:
       - id: mypy
-        name: mypy strict packages
-        entry: uv run mypy --strict packages
+        name: mypy strict workspace projects
+        entry: uv run mypy --strict projects
         language: system
         pass_filenames: false
+      - id: project-refs
+        name: check loanops ProjectReferences
+        entry: uv run python scripts/check_project_refs.py
+        language: system
+        pass_filenames: false
+        files: ^(projects/|scripts/check_project_refs\.py|pyproject\.toml)$

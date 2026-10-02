@@ -17,7 +17,7 @@
 | `decisions.md` | Architecture Decision Records |
 | `logs.md` | Dated session log |
 | `Makefile` | `install`, `lint`, `test`, `ingest`, `eval`, `demo`, `down` |
-| `check_imports.py` | Script to verify no concrete provider imports leak |
+| `scripts/check_project_refs.py` | ProjectReference gate (loanops-* deps vs imports) |
 | `docs/01-servicing-agent-prompts.md` | Full project brief (source of truth) |
 | `docs/PRD.md` | Product requirements document |
 | `docs/Init-Project.ps1` | Project initialisation script (PowerShell) |
@@ -332,19 +332,28 @@ rg -n "os\.environ|os\.getenv" --include="*.py" . | rg -v "settings\.py|tests/"
 
 ## 12. Module layout (scaffold status)
 
+uv workspace under `projects/LoanOps.*` (import paths still `packages.*` /
+`apps.agent_api`). See ADR-020.
+
 ```
 apps/
-  agent_api/     [DONE — Step 6]  FastAPI :8000  /chat, /health, /mcp/tools
   web_ui/        [DONE — Step 9]  React + TypeScript + Vite + Tailwind v4
-                                  Borrower pane → MCP call_sse_api (no tools_api)
 
-packages/
-  sse/           [DONE]           OpenAPI catalog + live invoke (Path A)
-  agent_core/    [DONE — Step 5]  Multi-turn tool loop + intent router
-  common/        [DONE]           Settings, schemas, providers, modular tools
-  rag/           [DONE]           Chunker, ingest CLI, retrieval
-  safety/        [DONE — Step 7]  PII + content-safety middleware, SafetyPipeline
-  eval/          [PARTIAL]        validate_data done; eval runner + golden runner pending (Step 8)
+projects/
+  LoanOps.AgentApi/   [DONE — Step 6] FastAPI :8000
+  LoanOps.AgentCore/  [DONE — Step 5] Multi-turn tool loop
+  LoanOps.Tools/      [DONE]          Modular + MCP tools factories
+  LoanOps.McpServer/  [DONE]          Streamable HTTP MCP :8001
+  LoanOps.Sse/        [DONE]          OpenAPI catalog + live invoke
+  LoanOps.Common/     [DONE]          Settings, schemas, providers
+  LoanOps.Rag/        [DONE]          Chunker, ingest CLI
+  LoanOps.Docs/       [DONE]          Docs vector search
+  LoanOps.Db/         [DONE]          Read-only SQL
+  LoanOps.Wiki/       [DONE]          Wiki stubs
+  LoanOps.Safety/     [DONE — Step 7] PII + content-safety
+  LoanOps.CapabilityKg/ [DONE]        RDF capability catalog
+  LoanOps.Eakg/       [DONE]          Enterprise capability KG
+  LoanOps.Eval/       [PARTIAL]       validate_data done; Step 8 pending
 ```
 
 ---

@@ -1,0 +1,24 @@
+[project]
+name = "loanops-common"
+version = "0.1.0"
+description = "LoanOps settings, schemas, scopes, provider factories"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "provider-contracts[ollama,openai,gemini,qdrant,bge,presidio,structlog,bedrock,langfuse,pgvector,redis]",
+    "pydantic==2.14.0a1",
+    "pydantic-settings==2.14.1",
+    "httpx>=0.27.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["packages/common"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"packages/common" = "packages/common"
+
+[tool.uv.sources]
+provider-contracts = { path = "../../../provider_contracts", editable = true }
