@@ -287,6 +287,10 @@ class McpConfig(BaseModel):
     auth_token: str = ""
     role: str = "system"
     path: str = "/mcp"
+    # Optional principal forwarded to SSE as x-loanops-* (audit + outbound headers).
+    # Not a substitute for OBO; SSE__API_KEY remains the service bearer.
+    principal_user: str = ""
+    principal_tenant: str = ""
 
 
 class CapabilityKgConfig(BaseModel):
@@ -298,6 +302,24 @@ class CapabilityKgConfig(BaseModel):
     approved_only: bool = False
     # Phase 9: cosine over embeddings.json; ignored unless enabled=true
     semantic: bool = False
+
+
+class EakgConfig(BaseModel):
+    """Enterprise Application Knowledge Graph (ADR-015..019). Multi-repo shards."""
+
+    workspace_dir: str = ".eakg-workspace"
+    registry_path: str = "data/eakg/registry/repositories.yaml"
+    shard_dir: str = "data/eakg"
+    gitlab_host: str = "gitlab.pnmac.com"
+    openapi_mode: Literal["static", "hybrid", "live"] = "hybrid"
+    live_spec_token: str = ""
+    confidence_threshold: float = 0.85
+    auto_approve_structural: bool = True
+    nightly_hour: int = 2
+    review_stale_days: int = 14
+    taac_config_path: str = ""
+    # Synthetic / redacted TAAC fixture for local/CI (never commit real secrets)
+    taac_fixture_path: str = "data/eakg/fixtures/taac-client-config.redacted.json"
 
 
 class Settings(BaseSettings):
@@ -325,4 +347,5 @@ class Settings(BaseSettings):
     sql_server: SqlServerConfig = Field(default_factory=SqlServerConfig)
     mcp: McpConfig = Field(default_factory=McpConfig)
     capability_kg: CapabilityKgConfig = Field(default_factory=CapabilityKgConfig)
+    eakg: EakgConfig = Field(default_factory=EakgConfig)
     agent_role: str = Field(default="system", validation_alias="AGENT_ROLE")

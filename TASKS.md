@@ -1,6 +1,6 @@
 # Servicing Agent — Task Tracker
 
-> **Current focus:** Step 15 — RDF Capability KG (ADR-014) → next: semantic retrieval / governance
+> **Current focus:** EAKG ops schedule + Phase 8 principal slice + MCP 11/12/14 docs; run Cursor/Gemini validation evidence next
 
 ---
 
@@ -136,3 +136,17 @@
 - [ ] Graphify offline enrichment
 - [ ] Human review workflow UI
 - [ ] ARD (phase 14)
+
+## Step 16 — Enterprise Application Knowledge Graph (ADR-015..019)
+
+- [x] Registry + TAAC + sharded store + .NET extractor + detectors + MCP query tools
+- [x] Real pilot onboard (escrow/fees/loanservices via glab)
+- [x] Pilot review gate: approve high-value edges; reject noisy `callsOperation` (`review --pilot`)
+- [x] Fix extractor method window → `GetLoanSummary` extracted; ranked query smoke
+- [x] `search_sse_apis` merges EAKG shards when `CAPABILITY_KG__ENABLED` + `data/eakg/repos` present
+- [x] Index schedule ops: `docs/EAKG_INDEX_SCHEDULE.md`, `ci/eakg.gitlab-ci.yml`, `scripts/eakg/*`
+- [x] Swagger export ask + extractor upgrade design + registry onboard guide (point 5 docs)
+- [ ] Static analyzer upgrade (deferred — see `docs/EAKG_EXTRACTOR_UPGRADE.md`)
+- [ ] Live repo #4+ when URL chosen (`docs/EAKG_ONBOARD_REPO.md`)
+- [ ] Record Cursor / Gemini validation evidence (checklists ready)
+

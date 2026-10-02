@@ -33,6 +33,17 @@ audit/
 # Confluence SOP artifacts (confidential; local cache only)
 data/sops/_confluence/
 
+# EAKG workspace (cloned enterprise repos) + generated shards with possible secrets
+.eakg-workspace/
+data/eakg/repos/
+data/eakg/enterprise/
+data/eakg/catalog/
+data/eakg/proposals/
+data/eakg/decisions/
+# keep registry + redacted fixtures
+!data/eakg/registry/
+!data/eakg/fixtures/
+
 # AI tool local state
 .cursor/plans/*.plan.md
 .claude/settings.local.json

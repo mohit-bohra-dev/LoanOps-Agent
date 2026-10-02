@@ -426,7 +426,12 @@ def build_mcp_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClientPr
             "(same bearer the mcp_server listener expects)"
         )
     url = mcp_endpoint_url(host=cfg.mcp.host, port=cfg.mcp.port, path=cfg.mcp.path)
-    session = StreamableHttpMcpSession(url=url, auth_token=cfg.mcp.auth_token)
+    session = StreamableHttpMcpSession(
+        url=url,
+        auth_token=cfg.mcp.auth_token,
+        user=cfg.mcp.principal_user or None,
+        tenant=cfg.mcp.principal_tenant or None,
+    )
     return McpToolsClient(session=session, role=role)
 
 

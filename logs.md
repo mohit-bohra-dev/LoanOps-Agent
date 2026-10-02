@@ -274,3 +274,56 @@ Updated ARCHITECTURE, PRD, ANALYSIS, CONTEXT, demo/query docs, and STEP 4 in
 - Tests: redaction + blocking pass against both provider configs
 
 **Next:** Step 8 — Eval harness. FastAPI :8000, `POST /chat` (SSE), `GET /health`, `GET /version`.
+
+## [2026-10-02] - Enterprise Application Knowledge Graph (EAKG) pilot
+
+**Session type:** Feature
+
+**Completed:**
+- ADR-015..019 (ontology v2+provenance, registry, sharded store, static .NET extract, EAKG__* settings).
+- `packages/eakg/` pipeline: registry, TAAC ingest, .NET extractor, hybrid OpenAPI, 8 detectors, semantic proposals, review CLI, sync repo/nightly/audit.
+- Seed registry for escrow/fees/loanservices; redacted TAAC fixture.
+- MCP tools: `search_capabilities`, `explain_capability`, `find_providers`, `impact_of_change`.
+- Tests: 10/10 green on synthetic fixtures proving pilot cross-app edges + repo #4 registry-only onboard.
+
+**Reason:** Scalable multi-repo capability graph with evidence; LLM proposes semantics only.
+
+
+## [2026-10-02] - Real pilot KG via glab
+
+**Session type:** Ops
+
+**Completed:**
+- `packages/eakg/gitops.py` now uses **glab only** for access (`api projects`), clone (`repo clone`), remote HEAD (`api branches`).
+- Cloned Escrow/Fees/LoanServices into `.eakg-workspace/` (glab/SSH).
+- Ingested live TAAC via `glab api` → enterprise applications.ttl (744 triples).
+- Extracted real shards: escrow 482 ops, fees 236 ops, loanservices 174 ops.
+- Cross-app: 243 relationships (0 dropped); approved catalog 250 triples.
+
+**Reason:** User required glab for all GitLab access; finish pilot graph build.
+
+## [2026-10-02] - EAKG point 1: review + GetLoanSummary + SSE shards
+
+**Session type:** Feature
+
+**Completed:**
+- `review --pilot`: approved 141 high-value edges; rejected 69 noisy `callsOperation`; republished `catalog/approved.ttl` (1523 triples).
+- Re-extracted loanservices (174→229 ops) after 1200-char Http*→method window; `GetLoanSummary` now in graph.
+- Query ranking fix (camelCase tokens; reject short oid substring); CLI `query search|find|explain|impact`.
+- `search_sse_apis` uses `catalog_from_shards` when CAPABILITY_KG enabled + EAKG repos present.
+- Tests: 10/10 `packages/eakg/tests` green.
+
+**Reason:** Point-1 pilot cleanup so agent discovery sees real ops + curated cross-app edges.
+
+## [2026-10-02] - EAKG points 3–5 + Phase 8 slice
+
+**Session type:** Ops + Feature + Docs
+
+**Completed:**
+- Point 3: `docs/EAKG_INDEX_SCHEDULE.md`, `ci/eakg.gitlab-ci.yml`, `scripts/eakg/` (sync-repo/nightly/audit, refresh-taac, install-scheduled-tasks).
+- Point 4: Phase 8 — principal headers on `call_sse_api`; EAKG tools via `execute_tool` scopes+audit; `approved_only` → approved.ttl. Checklists `MCP_CURSOR_VALIDATION.md`, `MCP_GEMINI_VALIDATION.md`; ARD draft `ARD_RESOURCE_CHOICE.md`.
+- Point 5: `EAKG_SWAGGER_EXPORT.md`, `EAKG_EXTRACTOR_UPGRADE.md` (deferred), `EAKG_ONBOARD_REPO.md` (registry #N).
+- Tests: mcp_server + eakg + mcp factory green.
+
+**Reason:** Schedule ops, harden MCP principal/EAKG gates, and leave analyzer/live repo#4 as explicit later work.
+

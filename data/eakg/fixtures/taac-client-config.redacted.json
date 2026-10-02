@@ -1,0 +1,30 @@
+{
+  "Title": "Synthetic Servicing Enterprise",
+  "AuthenticationProvider": "Auth0",
+  "Auth0": {
+    "Domain": "auth.example.invalid",
+    "Api": { "Identifier": "https://example.invalid" }
+  },
+  "FeatureManagement": {
+    "EscrowManagerApiEnabled": "true",
+    "FeeApiEnabled": "true",
+    "LoanServicesEnabled": "true"
+  },
+  "ServiceUrls": {
+    "EscrowManagerApiUrl": "https://escrowapi.example.invalid",
+    "FeesApiUrl": "https://feesapi.example.invalid",
+    "LoanServicesUrl": "https://loanservicesapi.example.invalid",
+    "AppServicesUrl": "https://appservices.example.invalid",
+    "LafaApiUrl": "https://lafaapi.example.invalid"
+  },
+  "ConnectionStrings": {
+    "LoanServicesContext": "Server=sql.example.invalid;Database=LoanServicing;Integrated Security=True;",
+    "FeeDataContext": "Server=sql.example.invalid;Database=Fee;Integrated Security=True;",
+    "EscrowConnectionString": "Server=sql.example.invalid;Database=Escrow;Integrated Security=True;"
+  },
+  "AWS": {
+    "SQS": {
+      "MainQueueName": "SVTMessages-dev"
+    }
+  }
+}

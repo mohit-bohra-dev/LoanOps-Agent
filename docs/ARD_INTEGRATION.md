@@ -2,6 +2,8 @@
 
 **Status:** Not implemented. Master phase 14.
 
+Resource-choice decision draft: [`ARD_RESOURCE_CHOICE.md`](ARD_RESOURCE_CHOICE.md).
+
 ## Role
 
 ARD (Agent Resource Discovery) answers:

@@ -22,6 +22,7 @@ dependencies = [
     "aioodbc>=0.5.0",
     "mcp>=1.27.1",
     "rdflib>=7.0.0",
+    "pyyaml>=6.0",
 ]
 
 [dependency-groups]

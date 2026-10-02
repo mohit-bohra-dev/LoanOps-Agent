@@ -8,14 +8,15 @@
 | Tool scope | `packages/common/scopes.py` + `MCP__ROLE` |
 | Read-only SSE on MCP | GET-only `call_sse_api`, body rejected |
 | Host allow-list | `invoke_sse_api` / `assert_allowed_url` |
-| Audit | `mcp.tool.call` via audit sink |
-| Optional headers | `x-loanops-user`, `x-loanops-tenant` (audit only today) |
+| Audit | `mcp.tool.call` via audit sink (SSE + EAKG tools) |
+| Principal headers | `x-loanops-user` / `x-loanops-tenant` from request or `MCP__PRINCIPAL_USER` / `MCP__PRINCIPAL_TENANT`; injected into `call_sse_api` outbound headers |
+| EAKG `approved_only` | When `CAPABILITY_KG__APPROVED_ONLY=true`, EAKG MCP tools read `catalog/approved.ttl` only |
+| Optional headers | `x-loanops-user`, `x-loanops-tenant` (audit + outbound) |
 
 ## Not yet
 
-- End-user identity propagation into enterprise API (still process `SSE__API_KEY`)
+- End-user OBO into enterprise API (still process `SSE__API_KEY` as service bearer)
 - Capability-level `requiresPermission` enforcement at MCP edge
-- `approved_only` gate on MCP tool list
 - mTLS / OAuth for remote MCP
 
 ## Rules

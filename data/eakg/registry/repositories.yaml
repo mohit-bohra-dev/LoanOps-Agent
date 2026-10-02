@@ -1,0 +1,62 @@
+repositories:
+- repository_id: escrow
+  application: Escrow Manager
+  application_id: escrow
+  git_url: https://gitlab.pnmac.com/servicing/plaisse/applications/escrow.git
+  default_branch: main
+  gitlab_project_id: 16513
+  team: servicing/plaisse/applications
+  owner: servicing/plaisse/applications
+  technology: dotnet-aspnetcore
+  last_indexed_commit: c2cb28f3204bb5a6fabe2eff23ec06d9a8d95130
+  last_indexed_at: '2026-10-02T11:27:28+00:00'
+  index_status: indexed
+  access_status: ok
+  visibility: private
+  deployables:
+  - Escrow.Api
+  - Escrow.Web
+  - Escrow.Batch
+  detector_versions: {}
+  shard_path: repos/escrow
+  api_project_path: src/Escrow.Api
+- repository_id: fees
+  application: Fees
+  application_id: fees
+  git_url: https://gitlab.pnmac.com/servicing/plaisse/applications/fees/Fees.git
+  default_branch: main
+  gitlab_project_id: 15921
+  team: servicing/plaisse/applications/fees
+  owner: servicing/plaisse/applications/fees
+  technology: dotnet-aspnetcore
+  last_indexed_commit: a3973072d1cf26be6546a2bc232889f42b7686a5
+  last_indexed_at: '2026-10-02T11:27:34+00:00'
+  index_status: indexed
+  access_status: ok
+  visibility: internal
+  deployables:
+  - Fees.WebApi
+  - Fees.Web
+  - Fees.BatchApi
+  detector_versions: {}
+  shard_path: repos/fees
+  api_project_path: src/Fees.WebApi
+- repository_id: loanservices
+  application: Loan Services
+  application_id: loanservices
+  git_url: https://gitlab.pnmac.com/servicing/plaisse/applications/LoanServices.git
+  default_branch: main
+  gitlab_project_id: 14857
+  team: servicing/plaisse/applications
+  owner: servicing/plaisse/applications
+  technology: dotnet-aspnetcore
+  last_indexed_commit: 58a41de72619fa1075c9231b9504fb248568a854
+  last_indexed_at: '2026-10-02T11:48:19+00:00'
+  index_status: indexed
+  access_status: ok
+  visibility: internal
+  deployables:
+  - LoanServices.WebApi
+  detector_versions: {}
+  shard_path: repos/loanservices
+  api_project_path: src/LoanServices.WebApi

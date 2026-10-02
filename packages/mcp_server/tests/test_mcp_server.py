@@ -152,6 +152,42 @@ async def test_call_sse_api_get_reaches_client() -> None:
     assert payload["tool_name"] == "call_sse_api"
 
 
+@pytest.mark.asyncio
+async def test_call_sse_api_injects_principal_headers() -> None:
+    client = FakeClient(method="get")
+    text = await execute_tool(
+        name="call_sse_api",
+        arguments={"operation_id": "getLoanSummary"},
+        authorization="Bearer secret-token",
+        user="rep-42",
+        tenant="pnmac",
+        settings=_settings(),
+        client=client,
+        audit=None,
+    )
+    assert text == "ok"
+    headers = client.calls[0].parameters.get("headers") or {}
+    assert headers["x-loanops-user"] == "rep-42"
+    assert headers["x-loanops-tenant"] == "pnmac"
+
+
+@pytest.mark.asyncio
+async def test_customer_role_denied_eakg_tool() -> None:
+    client = FakeClient()
+    with pytest.raises(PolicyError):
+        await execute_tool(
+            name="search_capabilities",
+            arguments={"query": "payment"},
+            authorization="Bearer secret-token",
+            user=None,
+            tenant=None,
+            settings=_settings("customer"),
+            client=client,
+            audit=FakeAudit(),
+        )
+    assert client.calls == []
+
+
 def test_streamable_http_requires_bearer() -> None:
     app = create_app(
         Settings(mcp=McpConfig(auth_token="secret-token", role="system", host="127.0.0.1"))

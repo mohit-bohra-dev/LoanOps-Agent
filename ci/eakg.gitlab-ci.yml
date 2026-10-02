@@ -1,0 +1,60 @@
+# Optional include for EAKG sync jobs
+# Usage (in this repo or an ops project):
+#   include:
+#     - local: ci/eakg.gitlab-ci.yml
+# Set CI/CD variables: EAKG_REPO_ID (for merge job), UV_CACHE_DIR optional.
+# Runner must have glab auth to gitlab.pnmac.com and network to clone registered repos.
+
+stages:
+  - eakg
+
+.eakg_base:
+  stage: eakg
+  image: python:3.11-bookworm
+  before_script:
+    - pip install uv
+    - uv sync --frozen
+    # Install glab if missing (Debian)
+    - |
+      if ! command -v glab >/dev/null 2>&1; then
+        curl -sL "https://raw.githubusercontent.com/profclems/glab/trunk/scripts/install.sh" | bash || true
+      fi
+  variables:
+    EAKG__WORKSPACE_DIR: ".eakg-workspace"
+    EAKG__REGISTRY_PATH: "data/eakg/registry/repositories.yaml"
+    EAKG__SHARD_DIR: "data/eakg"
+    EAKG__GITLAB_HOST: "gitlab.pnmac.com"
+
+eakg:sync-repo:
+  extends: .eakg_base
+  script:
+    - test -n "$EAKG_REPO_ID"
+    - uv run python -m packages.eakg sync repo --id "$EAKG_REPO_ID"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $EAKG_REPO_ID
+      when: on_success
+    - when: never
+  artifacts:
+    paths:
+      - data/eakg/repos/
+      - data/eakg/enterprise/
+    expire_in: 7 days
+
+eakg:nightly:
+  extends: .eakg_base
+  script:
+    - uv run python -m packages.eakg sync nightly
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $EAKG_JOB == "nightly"
+  artifacts:
+    paths:
+      - data/eakg/
+    expire_in: 14 days
+
+eakg:audit:
+  extends: .eakg_base
+  script:
+    - uv run python -m packages.eakg sync audit
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $EAKG_JOB == "audit"
+  allow_failure: true

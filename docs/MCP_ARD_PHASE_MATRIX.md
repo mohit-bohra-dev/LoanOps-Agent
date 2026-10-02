@@ -25,13 +25,13 @@ Layer boundaries (do not mix):
 | 5 | Streamable HTTP | **Done** | FastMCP on `:8001` |
 | 6 | MCP client abstraction | **Done** | ADR-013 `McpToolsClient` |
 | 7 | Agent behind MCP | **Done** (flag) | `TOOLS_CLIENT__PROVIDER=mcp`; default still `modular` |
-| 8 | Auth / authz / audit harden | **Partial** | Bearer + scopes + GET guard + audit; no full principal→API identity |
+| 8 | Auth / authz / audit harden | **Partial** | Bearer + scopes + GET + audit; principal headers; EAKG `approved_only`; no OBO yet |
 | 9 | Semantic capability retrieval | **Done** (v1) | Cosine over embeddings.json + SPARQL filters; `CAPABILITY_KG__SEMANTIC` |
 | 10 | Graphify offline enrichment | **Todo** | Enrich RDF from LoanOps code graph; not runtime |
-| 11 | Validate Cursor | **Todo** | Same remote MCP endpoint |
-| 12 | Validate Gemini | **Todo** | Same remote MCP endpoint |
-| 13 | Capability governance / human review | **Partial model** | ReviewStatus in ontology; UI/workflow later |
-| 14 | ARD integration | **Todo** | Explicitly after MCP + catalog stable |
+| 11 | Validate Cursor | **Todo** | Checklist [`MCP_CURSOR_VALIDATION.md`](MCP_CURSOR_VALIDATION.md); evidence TBD |
+| 12 | Validate Gemini | **Todo** | Checklist [`MCP_GEMINI_VALIDATION.md`](MCP_GEMINI_VALIDATION.md); evidence TBD |
+| 13 | Capability governance / human review | **Partial model** | ReviewStatus + EAKG review CLI; UI later |
+| 14 | ARD integration | **Todo** | Decision draft [`ARD_RESOURCE_CHOICE.md`](ARD_RESOURCE_CHOICE.md); after 11–12 green |
 
 ---
 

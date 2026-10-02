@@ -3017,6 +3017,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pyparsing"
+version = "3.3.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e4/11/b213bebff182584360cb8d17c72c1677fec5c5c228de439e63bcf8ab1c8f/pyparsing-3.3.3.tar.gz", hash = "sha256:928ae7e20211f3b6f3915a72f06a0cfd29ab9d24279dd6346b6b1a7146397d36", size = 1050487, upload-time = "2026-09-20T20:59:05.609Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/38/bb/d215ee7c73b61497b28a5503f9f53523f294fcc936762b7caf90e0c1c2b5/pyparsing-3.3.3-py3-none-any.whl", hash = "sha256:ece8c00a69cf01b45d0b1dedabb469c90d8caf996d4fda40f147627a122849a4", size = 126420, upload-time = "2026-09-20T20:59:04.025Z" },
+]
+
+[[package]]
 name = "pyreadline3"
 version = "3.5.6"
 source = { registry = "https://pypi.org/simple" }
@@ -3183,6 +3192,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/d2/bc/3234517692ac0ffae1ec2ec940992e4057844c49ee6c51c07ce385bb98f1/ragas-0.4.3.tar.gz", hash = "sha256:1eb1f61dbc8613ad014fdb8d630cbe9a1caec1ea01664a106993cb756128c001", size = 44029626, upload-time = "2026-01-13T17:48:01.043Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4d/e0/1fecd22c93d3ed66453cbbdefd05528331af4d33b2b76a370d751231912c/ragas-0.4.3-py3-none-any.whl", hash = "sha256:ef1d75f674c294e9a6e7d8e9ad261b6bf4697dad1c9cbd1a756ba7a6b4849a38", size = 466452, upload-time = "2026-01-13T17:47:59.2Z" },
+]
+
+[[package]]
+name = "rdflib"
+version = "7.6.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyparsing" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/98/f5/18bb77b7af9526add0c727a3b2048959847dc5fb030913e2918bf384fec3/rdflib-7.6.0.tar.gz", hash = "sha256:6c831288d5e4a5a7ece85d0ccde9877d512a3d0f02d7c06455d00d6d0ea379df", size = 4943826, upload-time = "2026-02-13T07:15:55.938Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/10/c2/6604a71269e0c1bd75656d5a001432d16f2cc5b8c057140ec797155c295e/rdflib-7.6.0-py3-none-any.whl", hash = "sha256:30c0a3ebf4c0e09215f066be7246794b6492e054e782d7ac2a34c9f70a15e0dd", size = 615416, upload-time = "2026-02-13T07:15:46.487Z" },
 ]
 
 [[package]]
@@ -3543,7 +3564,9 @@ dependencies = [
     { name = "provider-contracts", extra = ["bedrock", "bge", "gemini", "langfuse", "ollama", "openai", "pgvector", "presidio", "qdrant", "redis", "structlog"] },
     { name = "pydantic" },
     { name = "pydantic-settings" },
+    { name = "pyyaml" },
     { name = "ragas" },
+    { name = "rdflib" },
     { name = "sentence-transformers" },
     { name = "spacy" },
     { name = "uvicorn", extra = ["standard"] },
@@ -3572,7 +3595,9 @@ requires-dist = [
     { name = "provider-contracts", extras = ["ollama", "openai", "gemini", "qdrant", "bge", "presidio", "structlog", "bedrock", "langfuse", "pgvector", "redis"], editable = "../provider_contracts" },
     { name = "pydantic", specifier = "==2.14.0a1" },
     { name = "pydantic-settings", specifier = "==2.14.1" },
+    { name = "pyyaml", specifier = ">=6.0" },
     { name = "ragas", specifier = "==0.4.3" },
+    { name = "rdflib", specifier = ">=7.0.0" },
     { name = "sentence-transformers", specifier = "==5.5.1" },
     { name = "spacy", specifier = "<4" },
     { name = "uvicorn", extras = ["standard"], specifier = "==0.47.0" },

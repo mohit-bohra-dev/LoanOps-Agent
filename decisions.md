@@ -337,3 +337,104 @@ Remote SPARQL store can replace the file later behind the same facade.
 `CAPABILITY_KG__SEMANTIC` (Phase 9 cosine sidecar).
 
 **Status:** Accepted.
+
+---
+
+## ADR-015 — Enterprise ontology v2 with provenance
+
+**Decision:** Extend the capability ontology (ADR-014) with Enterprise,
+Repository, Deployable, ApiSurface, CodeUnit, DataStore, EventTopic,
+SdkPackage, AuthProvider, CrossAppRelationship, Evidence, and Proposal
+classes. Model cross-application edges as first-class nodes that must carry
+at least one Evidence node (repositoryId, commitSha, filePath, line range,
+detectorId, confidence). Structural facts come from extractors; LLM writes
+only Proposal overlays.
+
+**Context:** Pilot of Escrow, Fees, and LoanServices showed repeatable
+platform idioms for cross-app calls, but relationships without provenance
+cannot answer impact questions safely.
+
+**Alternatives:** Bare predicate edges without Evidence; LLM-extracted graph;
+Neo4j property graph from day one.
+
+**Reasoning:** First-class relationship nodes keep confidence and review
+status attachable. Evidence requirement matches the project citation rule.
+LLM proposals stay human-gated (ADR-014 ReviewStatus).
+
+**Status:** Accepted (plan approved 2026-10-02).
+
+---
+
+## ADR-016 — Repository Registry as onboarding entry point
+
+**Decision:** All enterprise repositories are registered in
+`data/eakg/registry/repositories.yaml` via `packages.eakg.registry`.
+Repository IDs and GitLab project IDs are data, never hard-coded in
+extractor or detector logic. Adding repository N requires a registry entry
+plus optional technology extractor if the stack is new.
+
+**Context:** Enterprise has 10+ apps; pilot starts with three. Architecture
+must not be redesigned per repo.
+
+**Alternatives:** Hard-code pilot repos; discover via GitLab group crawl only.
+
+**Reasoning:** Explicit registry gives ownership, access status, index
+status, and shard paths. GitLab group crawl can seed candidates later.
+
+**Status:** Accepted (plan approved 2026-10-02).
+
+---
+
+## ADR-017 — Sharded RDFLib store for multi-repo EAKG
+
+**Decision:** Persist one Turtle shard per repository under
+`data/eakg/repos/<repositoryId>/` plus enterprise and cross_app graphs.
+Merge via lazily loaded `ConjunctiveGraph` behind `CapabilityCatalog`.
+Migrate to Neo4j/remote SPARQL only if merged triples exceed ~5M or p95
+query latency exceeds 500 ms.
+
+**Context:** Single in-process Turtle file does not scale past ~10–20 repos.
+Full rebuild of all repos on one change is too expensive.
+
+**Alternatives:** One monolith Turtle; Postgres graph tables; Neo4j now.
+
+**Reasoning:** Shards preserve ADR-014 local-first and enable incremental
+re-index. Facade hides the storage layout from MCP.
+
+**Status:** Accepted (plan approved 2026-10-02).
+
+---
+
+## ADR-018 — Static .NET extraction: regex primary, tree-sitter optional
+
+**Decision:** Extract ASP.NET Core API/source/authz graphs with a deterministic
+regex/AST-lite extractor in `packages.eakg.extractors.dotnet`. Optional
+tree-sitter-c-sharp may be added later when Windows wheels are reliable;
+it is not required for the pilot. No LLM in structural extraction.
+
+**Context:** Controllers use attribute routes, composed String.Format paths,
+and T4 partials. Live OpenAPI is often 401/404 without tokens.
+
+**Alternatives:** tree-sitter-only; Roslyn CLI; live swagger only.
+
+**Reasoning:** Regex covers verified pilot idioms with line-accurate evidence.
+Hybrid OpenAPI enriches when a token exists (EAKG__OPENAPI_MODE).
+
+**Status:** Accepted (plan approved 2026-10-02).
+
+---
+
+## ADR-019 — EAKG settings namespace and index schedule
+
+**Decision:** All enterprise KG config uses `EAKG__*` nested settings
+(`workspace_dir`, `registry_path`, `shard_dir`, `gitlab_host`,
+`openapi_mode`, `live_spec_token`, `confidence_threshold`,
+`auto_approve_structural`, `nightly_hour`, `review_stale_days`). Indexing
+runs as three external triggers (per-merge `sync repo`, nightly
+`sync nightly`, weekly `sync audit`) — no in-process scheduler daemon.
+
+**Context:** AGENTS.md requires settings.py as the only env reader; clocks
+belong to GitLab CI / Task Scheduler.
+
+**Status:** Accepted (plan approved 2026-10-02).
+

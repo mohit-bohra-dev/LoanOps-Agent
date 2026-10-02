@@ -21,22 +21,23 @@ Graph source for Phase 2: OpenAPI fixture `data/sse-loanservices-catalog.json` o
 
 | Phase | Name | Done | Still open |
 |---|---|---|---|
-| 8 | Auth / authz / audit | Bearer `MCP__AUTH_TOKEN`, scopes, GET-only `call_sse_api`, `mcp.tool.call` audit | Principal → enterprise API identity; enforce `requiresPermission` + `approved_only` on MCP edge |
-| 13 | Governance | `hasReviewStatus` in ontology (`discovered` seed) | Human review workflow / UI; publish gate |
+| 8 | Auth / authz / audit | Bearer, scopes, GET-only, audit; principal headers on `call_sse_api`; EAKG tools via scopes + `approved_only` → `catalog/approved.ttl` | Full OBO (still `SSE__API_KEY` service bearer); `requiresPermission` at invoke edge |
+| 13 | Governance | `hasReviewStatus` in ontology; EAKG `review --pilot` + approved catalog | Human review workflow / UI |
 
 ## Pending
 
 | Phase | Name | Notes |
 |---|---|---|
 | 10 | Graphify offline enrichment | Enrich RDF from LoanOps code graph; not runtime |
-| 11 | Validate Cursor | Same Streamable HTTP endpoint |
-| 12 | Validate Gemini | Same endpoint; no client-specific server code |
-| 14 | ARD | Which MCP resource to connect to; after 11–12 |
+| 11 | Validate Cursor | Todo — checklist [`MCP_CURSOR_VALIDATION.md`](MCP_CURSOR_VALIDATION.md); evidence TBD |
+| 12 | Validate Gemini | Todo — checklist [`MCP_GEMINI_VALIDATION.md`](MCP_GEMINI_VALIDATION.md); evidence TBD |
+| 14 | ARD | Pending — decision draft [`ARD_RESOURCE_CHOICE.md`](ARD_RESOURCE_CHOICE.md); after 11–12 green |
 
 ## Recently completed
 
 | Phase | Name | Notes |
 |---|---|---|
+| EAKG | Multi-repo enterprise KG | `packages/eakg/` ADR-015..019; real pilot shards; review --pilot; SSE shard merge |
 | 9 | Semantic capability retrieval | `CAPABILITY_KG__SEMANTIC`; see `PHASE_9_SEMANTIC_RETRIEVAL.md` |
 
 ## Preserve (do not replace)

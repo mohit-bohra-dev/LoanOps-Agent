@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework><AssemblyName>PNMAC.LoanServices.WebApi</AssemblyName></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="PNMAC.AppServices.AppAuth.AspNetCore" Version="6.6.0.2" />
+  </ItemGroup>
+</Project>

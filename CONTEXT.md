@@ -83,11 +83,24 @@
 | `MCP__HOST` / `MCP__PORT` / `MCP__PATH` | `127.0.0.1` / `8001` / `/mcp` | MCP listener bind + path |
 | `MCP__AUTH_TOKEN` | `""` | Bearer for MCP; empty rejects; required when provider=`mcp` |
 | `MCP__ROLE` | `system` | Scope allow-list on MCP server (align with `AGENT_ROLE`) |
+| `MCP__PRINCIPAL_USER` | `""` | Optional; `x-loanops-user` on `call_sse_api` |
+| `MCP__PRINCIPAL_TENANT` | `""` | Optional; `x-loanops-tenant` on `call_sse_api` |
 | `CAPABILITY_KG__ENABLED` | `false` | When true, `search_sse_apis` also queries RDF capabilities |
 | `CAPABILITY_KG__TTL_PATH` | `data/capability_kg/capabilities.ttl` | Turtle graph path |
 | `CAPABILITY_KG__NAMESPACE` | `https://loanops.local/ontology/` | RDF namespace |
 | `CAPABILITY_KG__APPROVED_ONLY` | `false` | Filter to approved/published review status |
 | `CAPABILITY_KG__SEMANTIC` | `false` | Phase 9: cosine rank via embeddings.json (needs ENABLED) |
+| `EAKG__WORKSPACE_DIR` | `.eakg-workspace` | Cloned enterprise repos (gitignored) |
+| `EAKG__REGISTRY_PATH` | `data/eakg/registry/repositories.yaml` | Repository Registry |
+| `EAKG__SHARD_DIR` | `data/eakg` | Sharded Turtle/JSON store root |
+| `EAKG__GITLAB_HOST` | `gitlab.pnmac.com` | glab/SSH host for onboarding |
+| `EAKG__OPENAPI_MODE` | `hybrid` | `static` \| `hybrid` \| `live` OpenAPI enrichment |
+| `EAKG__LIVE_SPEC_TOKEN` | `""` | Bearer for live swagger fetch |
+| `EAKG__CONFIDENCE_THRESHOLD` | `0.85` | Review queue threshold |
+| `EAKG__AUTO_APPROVE_STRUCTURAL` | `true` | Auto-approve confidence-1.0 edges |
+| `EAKG__NIGHTLY_HOUR` | `2` | Documented nightly hour (external cron) |
+| `EAKG__REVIEW_STALE_DAYS` | `14` | Weekly audit stale-proposal age |
+| `EAKG__TAAC_FIXTURE_PATH` | `data/eakg/fixtures/taac-client-config.redacted.json` | Redacted TAAC for CI |
 | `SSE__USE_FIXTURE` | `true` | Local OpenAPI fixture vs live swagger |
 | `SSE__API_BASE_URL` | (see `.env.example`) | Default SSE host allow-list base |
 | `SSE__API_KEY` | `""` | Bearer for live Loan Services / SSE apps |
@@ -170,8 +183,15 @@ Agent / MCP tools (role `system`):
 | `list_sse_apis` | List operations (optional app filter) |
 | `call_sse_api` | Invoke live REST by `operation_id` or method+path |
 | `search_docs` | SOP / docs vector search |
+| `search_capabilities` | EAKG capability keyword search (provenance) |
+| `explain_capability` | Capability → API → code → authz + evidence |
+| `find_providers` | Which app/API provides a capability |
+| `impact_of_change` | Incoming cross-app edges for an API/app |
 
 Configure sources with `SSE__SWAGGER_LINKS` + `SSE__API_KEY`. Catalog fallback: `SSE__FIXTURE_PATH`.
+
+Enterprise multi-repo graph: `python -m packages.eakg onboard --id fees --local-path ...` then
+`python -m packages.eakg cross-app`. Schedule: `python -m packages.eakg sync repo|nightly|audit`.
 
 ---
 

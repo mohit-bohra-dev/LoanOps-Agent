@@ -4,6 +4,12 @@ from __future__ import annotations
 
 # Keep constants inline — avoid importing docs/sse packages (heavy providers).
 SSE_TOOL_NAMES = ("search_sse_apis", "list_sse_apis", "call_sse_api")
+EAKG_TOOL_NAMES = (
+    "search_capabilities",
+    "explain_capability",
+    "find_providers",
+    "impact_of_change",
+)
 DB_TOOL_NAMES = ("get_customer_servicing_summary", "run_read_only_sql")
 DOCS_TOOL_NAMES = ("search_docs", "index_docs")
 WIKI_TOOL_NAMES = (
@@ -16,6 +22,7 @@ WIKI_TOOL_NAMES = (
 
 SCOPE_TOOLS: dict[str, frozenset[str]] = {
     "sse.read": frozenset(SSE_TOOL_NAMES),
+    "eakg.read": frozenset(EAKG_TOOL_NAMES),
     "docs.search": frozenset({"search_docs"}),
     "docs.index": frozenset({"index_docs"}),
     "db.read": frozenset(DB_TOOL_NAMES),
@@ -27,11 +34,12 @@ SCOPE_TOOLS: dict[str, frozenset[str]] = {
 }
 
 ROLE_SCOPES: dict[str, frozenset[str]] = {
-    # Default agent path: live SSE OpenAPI + docs only (no SQL fixture summaries).
-    "system": frozenset({"sse.read", "docs.search"}),
+    # Default agent path: live SSE OpenAPI + docs + enterprise capability graph queries.
+    "system": frozenset({"sse.read", "docs.search", "eakg.read"}),
     "dev": frozenset(
         {
             "sse.read",
+            "eakg.read",
             "docs.search",
             "docs.index",
             "db.read",
@@ -42,8 +50,8 @@ ROLE_SCOPES: dict[str, frozenset[str]] = {
             "wiki.screen",
         }
     ),
-    "pm": frozenset({"sse.read", "docs.search", "wiki.jira"}),
-    "care_rep": frozenset({"sse.read", "docs.search"}),
+    "pm": frozenset({"sse.read", "docs.search", "wiki.jira", "eakg.read"}),
+    "care_rep": frozenset({"sse.read", "docs.search", "eakg.read"}),
     "customer": frozenset({"sse.read"}),
 }
 

@@ -38,18 +38,15 @@ async def handle_search_sse_apis(
 
 
 async def _capability_search_block(query: str, *, limit: int) -> str | None:
-    """Optional RDF capability hits. Keyword OpenAPI search remains the fallback."""
+    """Optional RDF capability hits. Prefer EAKG shards; fall back to single TTL."""
     from pathlib import Path
 
     from packages.common.settings import Settings
 
-    cfg = Settings().capability_kg
+    settings = Settings()
+    cfg = settings.capability_kg
     if not cfg.enabled:
         return None
-    path = Path(cfg.ttl_path)
-    if not path.is_file():
-        return None
-    from packages.capability_kg.catalog import CapabilityCatalog
 
     embed_query = None
     if cfg.semantic:
@@ -62,19 +59,42 @@ async def _capability_search_block(query: str, *, limit: int) -> str | None:
 
         embed_query = _embed
 
-    caps = CapabilityCatalog.from_ttl(
-        path,
-        namespace=cfg.namespace,
-        approved_only=cfg.approved_only,
-        semantic=cfg.semantic,
-        embed_query=embed_query,
-    )
+    shards = Path(settings.eakg.shard_dir)
+    repos = shards / "repos"
+    use_shards = repos.is_dir() and any(p.is_dir() for p in repos.iterdir())
+
+    if use_shards:
+        from packages.eakg.merge import catalog_from_shards
+
+        caps = catalog_from_shards(
+            shards,
+            namespace=cfg.namespace,
+            approved_only=cfg.approved_only,
+            semantic=cfg.semantic,
+            embed_query=embed_query,
+        )
+        label = "Capabilities (EAKG):"
+    else:
+        path = Path(cfg.ttl_path)
+        if not path.is_file():
+            return None
+        from packages.capability_kg.catalog import CapabilityCatalog
+
+        caps = CapabilityCatalog.from_ttl(
+            path,
+            namespace=cfg.namespace,
+            approved_only=cfg.approved_only,
+            semantic=cfg.semantic,
+            embed_query=embed_query,
+        )
+        label = "Capabilities (RDF):"
+
     records = await caps.search_capabilities(query, limit=limit)
     if not records:
         records = await caps.find_capabilities_for_intent(query, limit=limit)
     if not records:
         return None
-    lines = ["Capabilities (RDF):"]
+    lines = [label]
     lines.extend(r.summary_line() for r in records)
     return "\n".join(lines)
 
