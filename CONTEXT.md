@@ -14,6 +14,7 @@
 | `TASKS.md` | Active build steps with checkboxes |
 | `ARCHITECTURE.md` | **Only** architecture doc (living) |
 | `docs/FLOWS.md` | Every application / ops flow (F1–F25) |
+| `docs/THREE_QUERY_FLOWS.md` | UI modular vs UI+MCP vs Cursor (3 paths) |
 | `decisions.md` | Architecture Decision Records |
 | `logs.md` | Dated session log |
 | `Makefile` | `install`, `lint`, `test`, `ingest`, `eval`, `demo`, `down` |

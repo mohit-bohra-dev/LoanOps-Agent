@@ -187,6 +187,82 @@ async def test_customer_role_denied_eakg_tool() -> None:
     assert client.calls == []
 
 
+@pytest.mark.asyncio
+async def test_capability_bind_sets_operation_id(monkeypatch: pytest.MonkeyPatch) -> None:
+    from packages.capability_kg.catalog import CapabilityRecord
+
+    class _Cat:
+        def get_capability(self, capability_id: str) -> CapabilityRecord | None:
+            if capability_id != "get_loan_summary":
+                return None
+            return CapabilityRecord(
+                id="get_loan_summary",
+                description=None,
+                operation_id="getLoanSummary",
+                read_only=True,
+                review_status="discovered",
+                permission="loan.read",
+            )
+
+    monkeypatch.setattr(
+        "packages.mcp_server.server.catalog_from_settings",
+        lambda _s: _Cat(),
+    )
+    client = FakeClient(method="get")
+    text = await execute_tool(
+        name="call_sse_api",
+        arguments={"capability_id": "get_loan_summary", "path_params": {"loan_id": "1"}},
+        authorization="Bearer secret-token",
+        user=None,
+        tenant=None,
+        settings=_settings(),
+        client=client,
+        audit=None,
+    )
+    assert text == "ok"
+    assert client.calls[0].parameters.get("operation_id") == "getLoanSummary"
+
+@pytest.mark.asyncio
+async def test_enforce_permissions_blocks_missing_perm(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from packages.capability_kg.catalog import CapabilityRecord
+    from packages.common.settings import CapabilityKgConfig
+
+    class _Cat:
+        def get_capability(self, capability_id: str) -> CapabilityRecord | None:
+            return CapabilityRecord(
+                id="secret_cap",
+                description=None,
+                operation_id="getLoanSummary",
+                read_only=True,
+                review_status="discovered",
+                permission="ViewLoanPayments",
+            )
+
+    monkeypatch.setattr(
+        "packages.mcp_server.server.catalog_from_settings",
+        lambda _s: _Cat(),
+    )
+    settings = Settings(
+        mcp=McpConfig(auth_token="secret-token", role="system"),
+        capability_kg=CapabilityKgConfig(enforce_permissions=True),
+    )
+    client = FakeClient(method="get")
+    with pytest.raises(PolicyError, match="Permission"):
+        await execute_tool(
+            name="call_sse_api",
+            arguments={"capability_id": "secret_cap"},
+            authorization="Bearer secret-token",
+            user=None,
+            tenant=None,
+            settings=settings,
+            client=client,
+            audit=None,
+        )
+    assert client.calls == []
+
+
 def test_streamable_http_requires_bearer() -> None:
     app = create_app(
         Settings(mcp=McpConfig(auth_token="secret-token", role="system", host="127.0.0.1"))

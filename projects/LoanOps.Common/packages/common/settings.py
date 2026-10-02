@@ -303,6 +303,12 @@ class CapabilityKgConfig(BaseModel):
     approved_only: bool = False
     # Phase 9: cosine over embeddings.json; ignored unless enabled=true
     semantic: bool = False
+    # Gap 1: require capability_id on call_sse_api (False = legacy operation_id demos)
+    require_capability_bind: bool = False
+    # Gap 2: enforce capability requiresPermission at MCP (flag-gated; default off).
+    enforce_permissions: bool = False
+    # Empty → role defaults from mcp_server.capability_authz (system/dev read set).
+    allowed_permissions: list[str] = []
 
 
 class EakgConfig(BaseModel):

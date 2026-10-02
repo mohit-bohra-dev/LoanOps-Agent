@@ -566,3 +566,15 @@ Updated ARCHITECTURE, PRD, ANALYSIS, CONTEXT, demo/query docs, and STEP 4 in
 
 **Reason:** User: Create every flow possible for this Application in md file.
 
+
+## [2026-10-02] - Gap 1+2: capability bind + requiresPermission at MCP
+
+**Session type:** Feature (MCP policy)
+
+**Completed:**
+- Subagents: `capability_bind.py` + `capability_authz.py` + unit tests.
+- Wired `execute_tool` / `call_sse_api(capability_id=…)` in `packages/mcp_server/server.py`.
+- Settings: `CAPABILITY_KG__REQUIRE_CAPABILITY_BIND`, `ENFORCE_PERMISSIONS`, `ALLOWED_PERMISSIONS` (defaults off).
+- Docs: `MCP_SECURITY.md`, `.env.example`. Tests: 24 MCP suite green.
+
+**Reason:** User: Work on gaps 1 and 2 in subagents.

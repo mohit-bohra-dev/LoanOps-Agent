@@ -19,6 +19,15 @@ from packages.common.providers import AuditEvent, ToolCall, ToolResult
 from packages.common.providers.factory import get_audit_sink_provider
 from packages.common.scopes import EAKG_TOOL_NAMES, tools_for_role
 from packages.common.settings import Settings
+from packages.mcp_server.capability_authz import (
+    allowed_permissions_for_role,
+    assert_capability_permission,
+)
+from packages.mcp_server.capability_bind import (
+    apply_capability_bind,
+    catalog_from_settings,
+    resolve_binding,
+)
 from packages.mcp_server.policy import (
     AuthError,
     PolicyError,
@@ -209,6 +218,34 @@ async def execute_tool(
             return full
 
         if name == "call_sse_api":
+            # Gap 1: capability_id → catalog operation_id (flag / when id present).
+            catalog = catalog_from_settings(settings)
+            has_capability_id = bool(str(call_args.get("capability_id") or "").strip())
+            if settings.capability_kg.require_capability_bind or has_capability_id:
+                if catalog is None:
+                    raise PolicyError("capability catalog unavailable for bind")
+                call_args = apply_capability_bind(
+                    call_args,
+                    catalog,
+                    require_bind=settings.capability_kg.require_capability_bind,
+                )
+
+            # Gap 2: requiresPermission from bound capability (flag-gated).
+            required_perm: str | None = None
+            cid = str(call_args.get("capability_id") or "").strip()
+            if cid and catalog is not None:
+                binding = resolve_binding(catalog, capability_id=cid)
+                if binding is not None:
+                    required_perm = binding.permission
+            assert_capability_permission(
+                required=required_perm,
+                allowed=allowed_permissions_for_role(
+                    settings.mcp.role,
+                    settings.capability_kg.allowed_permissions,
+                ),
+                enforce=settings.capability_kg.enforce_permissions,
+            )
+
             method_arg = call_args.get("method")
             method_text = str(method_arg) if method_arg is not None else None
             if body_present(call_args.get("body")):
@@ -348,12 +385,14 @@ def create_app(cfg: Settings | None = None) -> Starlette:
     @mcp.tool(
         name="call_sse_api",
         description=(
-            "Invoke a GET SSE REST operation by operation_id or method+path. "
-            "Non-GET methods and bodies are rejected."
+            "Invoke a GET SSE REST operation. Prefer capability_id from "
+            "search_capabilities (binds operation_id). Else operation_id or "
+            "method+path. Non-GET methods and bodies are rejected."
         ),
         annotations=_READ_ONLY,
     )
     async def call_sse_api(
+        capability_id: str | None = None,
         operation_id: str | None = None,
         method: str | None = None,
         path: str | None = None,
@@ -362,6 +401,7 @@ def create_app(cfg: Settings | None = None) -> Starlette:
         body: dict[str, Any] | None = None,
     ) -> str:
         args = {
+            "capability_id": capability_id,
             "operation_id": operation_id,
             "method": method,
             "path": path,
