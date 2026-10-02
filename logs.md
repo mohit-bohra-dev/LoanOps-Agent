@@ -1,3 +1,61 @@
+## [2026-09-30] — Phase 9 semantic capability retrieval
+
+**Session type:** Feature
+
+**Completed:**
+- `CAPABILITY_KG__SEMANTIC` (default false).
+- `packages/capability_kg/embed_index.py` — JSON sidecar + cosine.
+- `CapabilityCatalog.search_capabilities` semantic blend; keyword fallback.
+- `build.py --embed` optional (live embedder).
+- Tests: stub embedder ranks `payment history` → `get_payment_schedules`.
+
+**Reason:** Natural-language intent beyond SPARQL CONTAINS without new MCP tools or Qdrant.
+
+---
+
+## [2026-09-30] — Phase status file + Phase 9 plan
+
+**Session type:** Docs
+
+**Completed:**
+- `docs/PHASE_STATUS.md` — done / partial / pending phases.
+- `docs/PHASE_9_SEMANTIC_RETRIEVAL.md` — hybrid embed + SPARQL plan (not implemented).
+
+**Reason:** Persist phase tracker and lock Phase 9 design before coding.
+
+---
+
+## [2026-09-30] — ADR-014 RDF Capability KG + Phase 1 baseline refresh
+
+**Session type:** MCP + Capability KG (Phases 1–3)
+
+**Completed:**
+- Phase 1: refreshed `docs/MCP_BASELINE.md` (live/MCP hop HTTP 200); `docs/MCP_ARD_PHASE_MATRIX.md`.
+- ADR-014: RDFLib + Turtle + SPARQL; settings `CAPABILITY_KG__*`.
+- `packages/capability_kg`: OpenAPI extract, SPARQL helpers, `CapabilityCatalog`, build CLI.
+- Seed `data/capability_kg/capabilities.ttl` from Loan Services catalog.
+- `search_sse_apis` optional RDF block when enabled (keyword OpenAPI fallback).
+- Docs: CAPABILITY_*, MCP_IMPLEMENTATION/SECURITY/CLIENT_INTEGRATION, ARD_INTEGRATION.
+
+**Reason:** Evolve toward enterprise capability platform without replacing SSE execution or Graphify.
+
+---
+
+## [2026-09-30] — ADR-013 Agent MCP client flag
+
+**Session type:** MCP phase 4 (Architecture Phase 4)
+
+**Completed:**
+- ADR-013. `TOOLS_CLIENT__PROVIDER=modular|mcp` (default modular).
+- `packages/common/mcp_tools_client.py`: Streamable HTTP session → LoanOps MCP listener.
+- Factory builds MCP client from existing `MCP__*` settings; empty token raises.
+- Tests: fake session + agent turn tool hop via `McpToolsClient`.
+- Sidebar `/mcp/tools` and server-side execution still in-process `ModularToolsClient`.
+
+**Reason:** Insert MCP hop for agent tool calls with factory rollback. Live compare / eval still blocked by SSO + SSE 401 baseline gaps.
+
+---
+
 ## [2026-09-30] — ADR-011 Streamable HTTP MCP server
 
 **Session type:** MCP phase 1

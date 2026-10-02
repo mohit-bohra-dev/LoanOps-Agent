@@ -23,10 +23,60 @@ async def handle_search_sse_apis(
 ) -> str:
     catalog = await service.load()
     limit = min(int(args.get("limit") or 15), 50)
-    hits = search_operations(catalog.operations, str(args.get("query") or ""), limit)
-    if not hits:
+    query = str(args.get("query") or "")
+
+    kg_block = await _capability_search_block(query, limit=limit)
+    hits = search_operations(catalog.operations, query, limit)
+    if not hits and not kg_block:
         return "No matching SSE API operations."
-    return "\n".join(summarize_operation(op) for op in hits)
+    parts: list[str] = []
+    if kg_block:
+        parts.append(kg_block)
+    if hits:
+        parts.append("OpenAPI operations:\n" + "\n".join(summarize_operation(op) for op in hits))
+    return "\n\n".join(parts)
+
+
+async def _capability_search_block(query: str, *, limit: int) -> str | None:
+    """Optional RDF capability hits. Keyword OpenAPI search remains the fallback."""
+    from pathlib import Path
+
+    from packages.common.settings import Settings
+
+    cfg = Settings().capability_kg
+    if not cfg.enabled:
+        return None
+    path = Path(cfg.ttl_path)
+    if not path.is_file():
+        return None
+    from packages.capability_kg.catalog import CapabilityCatalog
+
+    embed_query = None
+    if cfg.semantic:
+
+        async def _embed(text: str) -> list[float]:
+            from packages.common.providers.factory import get_embedding_provider
+
+            result = await get_embedding_provider().embed(text)
+            return list(result.vector)
+
+        embed_query = _embed
+
+    caps = CapabilityCatalog.from_ttl(
+        path,
+        namespace=cfg.namespace,
+        approved_only=cfg.approved_only,
+        semantic=cfg.semantic,
+        embed_query=embed_query,
+    )
+    records = await caps.search_capabilities(query, limit=limit)
+    if not records:
+        records = await caps.find_capabilities_for_intent(query, limit=limit)
+    if not records:
+        return None
+    lines = ["Capabilities (RDF):"]
+    lines.extend(r.summary_line() for r in records)
+    return "\n".join(lines)
 
 
 async def handle_list_sse_apis(

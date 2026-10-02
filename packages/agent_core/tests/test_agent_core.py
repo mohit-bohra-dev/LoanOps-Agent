@@ -437,3 +437,71 @@ class TestAgentRunner:
         assert result.refusal is not None
         assert "could not produce a valid response" in result.refusal
         assert result.confidence == 0.0
+
+
+@pytest.mark.asyncio
+async def test_agent_turn_via_mcp_tools_client(
+    mock_chat_provider: MockLLMProvider,
+    mock_prompt_store: MockPromptStoreProvider,
+) -> None:
+    """Phase 4: agent executes tools through McpToolsClient (fake session, no network)."""
+    from packages.common.mcp_tools_client import McpToolsClient
+    from packages.common.providers import ToolCallRequest
+
+    class _FakeSession:
+        def __init__(self) -> None:
+            self.calls: list[tuple[str, dict[str, Any]]] = []
+
+        async def list_tool_names(self) -> list[str]:
+            return ["search_sse_apis", "list_sse_apis", "call_sse_api", "search_docs"]
+
+        async def call_tool(self, name: str, arguments: dict[str, Any]) -> tuple[bool, str]:
+            self.calls.append((name, arguments))
+            return True, "op:getLoanSummary"
+
+    session = _FakeSession()
+    tools_client = McpToolsClient(session=session, role="system")
+    call_count = 0
+
+    async def tool_then_answer(
+        self: MockLLMProvider,
+        messages: list[LLMMessage],
+        *,
+        temperature: float = 0.7,
+        max_tokens: int = 2048,
+        json_mode: bool = False,
+        **kwargs: Any,
+    ) -> LLMResponse:
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            return LLMResponse(
+                content="",
+                model="mock",
+                tool_calls=[
+                    ToolCallRequest(name="search_sse_apis", arguments={"query": "loan summary"}),
+                ],
+            )
+        return LLMResponse(
+            content=build_valid_json_output(
+                answer="Loan summary found via MCP hop.",
+                confidence=0.9,
+                citations=[{"id": 1, "source": "tool:search_sse_apis", "snippet": "getLoanSummary"}],
+            ),
+            model="mock",
+        )
+
+    mock_chat_provider.chat = MethodType(tool_then_answer, mock_chat_provider)  # type: ignore[method-assign]
+
+    result = await run_agent_turn(
+        prompt="Loan 100245 status — draft a reply.",
+        chat_provider=mock_chat_provider,
+        tools_client=tools_client,
+        prompt_store=mock_prompt_store,
+    )
+
+    assert result.answer == "Loan summary found via MCP hop."
+    assert len(result.tool_calls) == 1
+    assert result.tool_calls[0].name == "search_sse_apis"
+    assert "getLoanSummary" in result.tool_calls[0].result_summary
+    assert session.calls == [("search_sse_apis", {"query": "loan summary"})]

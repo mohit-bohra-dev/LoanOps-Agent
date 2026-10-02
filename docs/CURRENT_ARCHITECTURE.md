@@ -10,13 +10,21 @@ No application code was changed for this analysis. Secret values are omitted. En
 
 ## 1. Executive Summary
 
-LoanOps on `vdd` is an internal copilot for mortgage-servicing care reps. A React chat UI talks to a FastAPI Agent API. The API runs one agent turn per message: keyword intent gate, then a Microsoft-style tool loop over a pluggable LLM (`provider_contracts` chat provider, default Bedrock). The model may call a small fixed tool list. Those calls stay in-process inside `ModularToolsClient`. Live loan facts come from SSE REST APIs discovered from OpenAPI/swagger and invoked with `httpx`. Policy text comes from a separate docs vector search. The UI sidebar can also call one SSE operation directly, skipping the LLM.
+LoanOps on `vdd` is an internal copilot for mortgage-servicing care reps. A React chat UI talks to a FastAPI Agent API. The API runs one agent turn per message: keyword intent gate, then a Microsoft-style tool loop over a pluggable LLM (`provider_contracts` chat provider, default Bedrock). The model may call a small fixed tool list. Those calls stay in-process inside `ModularToolsClient` by default
+(`TOOLS_CLIENT__PROVIDER=modular`). Set `TOOLS_CLIENT__PROVIDER=mcp` to hop
+through the Streamable HTTP MCP listener on `:8001` (ADR-013); the server still
+delegates to `ModularToolsClient`. Live loan facts come from SSE REST APIs
+discovered from OpenAPI/swagger and invoked with `httpx`. Policy text comes from
+a separate docs vector search. The UI sidebar can also call one SSE operation
+directly, skipping the LLM.
 
-There is an HTTP surface named `/mcp/tools`, but it is not the Model Context Protocol. There is no FastMCP server, no MCP client, no stdio transport, and no streamable-HTTP MCP session. `/mcp/tools` is a JSON wrapper around the same in-process tools client the agent already uses. The agent does not go through that HTTP layer.
+There is a real MCP listener at `packages/mcp_server` (ADR-011). The Agent API
+surface named `/mcp/tools` is still a custom JSON wrapper, not the protocol.
+The agent uses MCP only when `TOOLS_CLIENT__PROVIDER=mcp`.
 
 `apps/tools_api` is gone. The answer path is SSE OpenAPI plus optional docs search. A legacy `RestApiLoanProvider` and `DATA__LOAN_API__*` settings still exist for a probe script and tests. The agent turn does not call them.
 
-Graphify is a developer knowledge graph of this repository. It is not loaded at request time and does not select tools or represent the enterprise APIs.
+Graphify is a developer knowledge graph of **this** repository only (ADR-012). It is not loaded at request time and does not select tools. SSE / enterprise API discovery will use a **separate** knowledge graph built from SSE app source (and OpenAPI / process data), not `graphify-out/`.
 
 ---
 
@@ -397,15 +405,38 @@ Local vs dev: same `Settings` class. Fixture flags (`SSE__USE_FIXTURE`, `SQL_SER
 
 ---
 
-## 10. Graphify
+## 10. Graphify (LoanOps only)
 
 Graphify analyzes **this repository**: Python, TypeScript, and markdown under LoanOps-Agent. Nodes are code and doc symbols from AST extraction plus inferred semantic edges. Relationships are imports, references, and inferred links. Output is `graphify-out/graph.json`, `graph.html`, and `GRAPH_REPORT.md`, with dated snapshots under `graphify-out/YYYY-MM-DD/`.
 
-LoanOps does not import Graphify at runtime. It does not choose tools, retrieve APIs, or sit in `/chat`. Cursor rules tell coding agents to query it before grepping. That is a development aid.
+LoanOps does not import Graphify at runtime. It does not choose tools, retrieve APIs, or sit in `/chat`. Cursor rules tell coding agents to query it before grepping. That is a development aid for **LoanOps code**, not for SSE enterprise APIs (ADR-012).
 
-It does not represent SSE OpenAPI operations or enterprise APIs. The API catalog is `OpenApiCatalogService`. Those two graphs should stay separate. A future API capability catalog must not be stored as Graphify nodes.
+**Do not** put SSE apps, OpenAPI operations, or servicing process edges into `graphify-out/`. Those belong in the **RDF Capability Knowledge Graph** (ADR-012 / ADR-014). Live invocation remains `OpenApiCatalogService` + `invoke_sse_api` / MCP.
 
-The checked-in graph is stale relative to HEAD (`d3d710f0` vs `8235e90`). The CLI in this environment did not run.
+The checked-in LoanOps graph may be stale relative to HEAD; treat code as authoritative for LoanOps structure.
+
+---
+
+## 10b. RDF Capability Knowledge Graph (ADR-012 / ADR-014)
+
+**Implemented (v1):** offline OpenAPI → RDFLib Turtle + SPARQL; `CapabilityCatalog` facade. See [`CAPABILITY_KNOWLEDGE_GRAPH.md`](CAPABILITY_KNOWLEDGE_GRAPH.md), [`CAPABILITY_ONTOLOGY.md`](CAPABILITY_ONTOLOGY.md), [`MCP_ARD_PHASE_MATRIX.md`](MCP_ARD_PHASE_MATRIX.md).
+
+```text
+OpenAPI catalog (offline build)
+        ↓
+RDF Capability Graph (RDFLib / Turtle)
+        ↓ CapabilityCatalog (search / get / by domain|permission|app|intent)
+ordered candidate capabilities → operation_id
+        ↓
+MCP (execute) → ModularToolsClient → invoke_sse_api
+```
+
+- **Not Graphify.** Not the Qdrant `docs` / `sops` namespaces. Not ARD.
+- Keyword `search_operations` remains the fallback when the catalog/KG is disabled.
+- Semantic retrieval (embed + SPARQL constraints) is a later phase.
+- Source-code / Graphify enrichment is offline and later.
+
+Today default agent discovery can still use keyword search; enable KG via `CAPABILITY_KG__ENABLED`.
 
 ---
 
@@ -759,12 +790,12 @@ Move `index_docs` only if a role needs it. Then `db.read` tools. Wiki stubs stay
 
 ### Phase 6
 
-Capability discovery beyond keyword `search_sse_apis`. Still one generic `call_sse_api`, not hundreds of generated tools, unless tool-selection eval says the model cannot pick `operation_id`.
+Capability discovery beyond keyword `search_sse_apis`: build / query the **SSE API knowledge graph** (ADR-012) from SSE app source + OpenAPI + process edges; materialize a bounded capability catalog for MCP. Still prefer a small tool surface (catalog + `call_sse_api`), not one MCP tool per OpenAPI operation, unless eval requires otherwise.
 
-- Files: `packages/sse/catalog.py` or a new catalog module. Not Graphify. Not `DocsService`.
-- Dependencies: Phase 4 stable.
-- Tests: search ranking fixtures in `packages/sse/tests`.
-- Rollback: keep keyword search as the only discovery tool.
+- Files: new SSE KG package or module; `packages/sse/catalog.py` as OpenAPI feed; discovery tools. **Not** LoanOps `graphify-out/`. **Not** `DocsService`.
+- Dependencies: MCP client path stable (Phase 4); access to SSE app source and swagger.
+- Tests: graph build fixtures; semantic + process-order discovery; search ranking.
+- Rollback: keep keyword `search_sse_apis` as the only discovery tool.
 
 ### Phase 7
 
@@ -822,9 +853,9 @@ Per-operation tools, semantic catalog, user-token propagation, write operations.
 
 ## 25. Final Recommendation
 
-1. Current architecture: React UI → FastAPI `/chat` → in-process agent loop → four tools → `ModularToolsClient` → SSE `httpx` client and docs vector search. `/mcp/*` is a JSON helper for the sidebar and external callers, not Model Context Protocol. Graphify is offline and unrelated to API discovery.
-2. Insertion point: between `_execute_tools` and `ModularToolsClient`. The MCP server delegates to the existing handlers. `invoke_sse_api` stays the only SSE HTTP client.
-3. Preserve: Chat UI `/chat` contract, SSE client and `SSE__*` config, docs search, safety and intent gate on the API, eval thresholds, Graphify, legacy loan provider (leave it unused).
-4. Modify: tool execution inside the agent (client), a new server module, scope enforcement on the public tool door, and a read-only guard before `call_sse_api`. Keep `apps/agent_api/mcp_routes.py` as an adapter so the sidebar does not break.
-5. First milestone: MCP server with the four current tools, one read (`getLoanSummary`) through the existing client, agent still in-process until that server matches today's `ToolResult`. Then switch `_execute_tools` behind a factory flag.
-6. Risks to handle before that switch: unauthenticated `/mcp/tools/call`, unrestricted HTTP methods, PII in tool results, truncated errors, latency versus the eval gate, and fixture mode masking which catalog is live.
+1. Current architecture: React UI → FastAPI `/chat` → in-process agent loop → four tools → `ModularToolsClient` → SSE `httpx` client and docs vector search. Protocol MCP listener is `packages/mcp_server` (ADR-011). Custom `/mcp/tools` remains a JSON helper. LoanOps Graphify is offline and LoanOps-only (ADR-012).
+2. Insertion point: between `_execute_tools` and `ModularToolsClient` for execution. API **discovery** later inserts an SSE API knowledge graph + capability catalog **above** MCP tool choice, not inside Graphify.
+3. Preserve: Chat UI `/chat` contract, SSE client and `SSE__*` config, docs search, safety and intent gate on the API, eval thresholds, LoanOps Graphify (as code graph only), legacy loan provider (leave it unused).
+4. Modify: agent tool client (MCP flag), then SSE KG / capability discovery; read-only guard already on MCP `call_sse_api`.
+5. First implementation milestones: MCP server (ADR-011), agent MCP client flag (ADR-013), RDF capability KG + catalog (ADR-014). Next: semantic retrieval, auth harden, Cursor/Gemini validate, governance UI, ARD.
+6. Risks: auth/SSO for live chat compare, mixing LoanOps Graphify with capability RDF, dumping full graph to the LLM, latency vs eval gate.

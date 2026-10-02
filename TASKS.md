@@ -1,6 +1,6 @@
 # Servicing Agent — Task Tracker
 
-> **Current focus:** Step 12 — Observability & Eval Dashboard
+> **Current focus:** Step 15 — RDF Capability KG (ADR-014) → next: semantic retrieval / governance
 
 ---
 
@@ -115,3 +115,24 @@
 - [ ] Live SSE swagger verification
 - [ ] Full wiki specialist port
 - [ ] ~~AWS image cutover~~ **deferred — local testing only for now**
+
+## Step 14 — Agent MCP client (ADR-013 / Architecture Phase 4)
+
+- [x] ADR-013: `TOOLS_CLIENT__PROVIDER=modular|mcp`
+- [x] `McpToolsClient` + Streamable HTTP session → `packages.mcp_server`
+- [x] Factory wiring; empty `MCP__AUTH_TOKEN` refuses `mcp` provider
+- [x] Unit tests: fake session + agent turn via MCP client
+- [x] Live MCP hop smoke (`getLoanSummary` 200) — SSO chat compare still optional
+- [ ] Eval golden with MCP hop — after Bedrock SSO green for full `/chat`
+
+## Step 15 — RDF Capability Knowledge Graph (ADR-014)
+
+- [x] Phase 1 baseline refresh + `docs/MCP_ARD_PHASE_MATRIX.md`
+- [x] RDFLib + Turtle + SPARQL (`packages/capability_kg`)
+- [x] OpenAPI extract → `data/capability_kg/capabilities.ttl`
+- [x] `CapabilityCatalog` facade
+- [x] Optional `search_sse_apis` KG block when `CAPABILITY_KG__ENABLED=true`
+- [x] Semantic retrieval (embed + SPARQL constraints) — `docs/PHASE_9_SEMANTIC_RETRIEVAL.md`
+- [ ] Graphify offline enrichment
+- [ ] Human review workflow UI
+- [ ] ARD (phase 14)

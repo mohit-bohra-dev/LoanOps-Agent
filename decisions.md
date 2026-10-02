@@ -239,3 +239,101 @@ audit fields only. Downstream SSE calls still use `SSE__API_KEY`.
 **Settings:** `MCP__HOST`, `MCP__PORT`, `MCP__AUTH_TOKEN`, `MCP__ROLE`, `MCP__PATH`.
 
 **Status:** Accepted.
+
+---
+
+## ADR-012 — SSE API knowledge graph is separate from LoanOps Graphify
+
+**Decision:** Build a **SSE / enterprise API knowledge graph** from SSE application
+**source code** (and OpenAPI / process metadata), for agent API discovery. Keep
+**Graphify** scoped to the **LoanOps-Agent repository** only (developer code
+graph). Do not store SSE operations, apps, or process edges in
+`graphify-out/`.
+
+**Context:** ADR-011 delivers MCP execution. Keyword `search_sse_apis` over an
+OpenAPI catalog does not encode prerequisites or call order across many SSE
+apps. Product direction follows the DeepLearning.AI / SAP pattern in
+[Knowledge Graphs for AI Agent API Discovery](https://www.deeplearning.ai/courses/knowledge-graphs-for-ai-agent-api-discovery):
+specs (and here also **source**) → graph → semantic retrieval → process edges →
+small ordered API set → agent execute.
+
+**Layer split:**
+
+```text
+LoanOps Graphify          → this repo's code/docs (dev aid only)
+SSE API knowledge graph   → SSE apps, endpoints, process order (discovery)
+Capability catalog        → callable MCP-facing capabilities (materialized from graph / OpenAPI)
+MCP server                → execute capabilities via ModularToolsClient / invoke_sse_api
+RAG (docs)                → policy text, not API selection
+ARD (later)               → which MCP resource to connect to
+```
+
+**Alternatives:** Put SSE APIs into LoanOps Graphify; capability catalog only
+with no graph; runtime graph walk instead of MCP.
+
+**Reasoning:** Execution stays on MCP + existing HTTP clients. Discovery needs
+relationships (process, prereqs) that a flat OpenAPI list lacks. Mixing SSE
+enterprise nodes into LoanOps Graphify would poison both jobs. Offline graph
+build from SSE **source** can enrich OpenAPI-only extraction; capability
+records exposed to the agent should remain a bounded catalog, not the full
+graph dump.
+
+**Status:** Accepted. RDF implementation is ADR-014 (`packages/capability_kg`); not Graphify.
+
+---
+
+## ADR-013 — Agent tools via MCP client flag
+
+**Decision:** Add `TOOLS_CLIENT__PROVIDER=mcp` so `run_agent_turn` /
+`_execute_tools` call the Streamable HTTP MCP listener (`packages.mcp_server`)
+instead of in-process `ModularToolsClient`. Default stays `modular`. Rollback is
+setting the provider back to `modular`. The MCP server keeps using
+`ModularToolsClient` / `invoke_sse_api` as the only SSE execution path.
+
+**Context:** ADR-011 shipped the protocol server; chat still called tools
+in-process. Architecture Phase 4 inserts the MCP hop for the agent only.
+Sidebar custom `/mcp/tools` stays on the in-process client.
+
+**Alternatives:** Always-on MCP with no flag; mount MCP on Agent API;
+stdio-only client.
+
+**Reasoning:** Factory flag preserves local-first `make demo` without a second
+process. Same tool names and `ToolResult` shape. Client reuses `MCP__HOST` /
+`MCP__PORT` / `MCP__PATH` / `MCP__AUTH_TOKEN`. Empty `MCP__AUTH_TOKEN` refuses
+client construction. Align `AGENT_ROLE` with `MCP__ROLE` so scope allow-lists
+match.
+
+**Settings:** `TOOLS_CLIENT__PROVIDER` = `modular` | `mcp` (no new env keys
+beyond the existing `MCP__*` listener block).
+
+**Status:** Accepted.
+
+---
+
+## ADR-014 — Capability knowledge graph uses RDFLib + SPARQL
+
+**Decision:** Represent enterprise capabilities as an RDF graph using **RDFLib**,
+persisted as Turtle for the prototype, queried with **SPARQL** behind a
+`CapabilityCatalog` facade. Namespace is configurable
+(`CAPABILITY_KG__NAMESPACE`). Do not use LoanOps Graphify, Neo4j, or NetworkX
+as the capability registry. Do not dump the full graph to the LLM.
+
+**Context:** ADR-012 separated SSE/enterprise discovery from Graphify. The
+master architecture requires a semantic capability model (permissions, domains,
+API mappings, review status) that keyword OpenAPI search cannot express.
+MCP (ADR-011/013) already executes tools; discovery needs a capability layer.
+
+**Alternatives:** Plain JSON graph; put capabilities in Graphify; one MCP tool
+per OpenAPI operation; remote triple store only.
+
+**Reasoning:** RDFLib keeps local-first `make demo` (file Turtle, no infra).
+SPARQL supports exact constraints (readOnly, permission) while a later phase
+adds semantic retrieval. Catalog API hides RDF from agent/MCP. ReviewStatus
+enables human-in-the-loop without requiring manual creation of every capability.
+Remote SPARQL store can replace the file later behind the same facade.
+
+**Settings:** `CAPABILITY_KG__ENABLED`, `CAPABILITY_KG__NAMESPACE`,
+`CAPABILITY_KG__TTL_PATH`, `CAPABILITY_KG__APPROVED_ONLY`,
+`CAPABILITY_KG__SEMANTIC` (Phase 9 cosine sidecar).
+
+**Status:** Accepted.

@@ -220,9 +220,13 @@ class TelemetryConfig(BaseModel):
 
 
 class ToolsClientConfig(BaseModel):
-    """Tools routing. ``modular`` = SSE OpenAPI catalog + docs (+ optional SQL)."""
+    """Tools routing.
 
-    provider: Literal["modular"] = "modular"
+    ``modular`` = in-process SSE OpenAPI catalog + docs (+ optional SQL).
+    ``mcp`` = Streamable HTTP client to ``packages.mcp_server`` (ADR-013).
+    """
+
+    provider: Literal["modular", "mcp"] = "modular"
 
 
 class PromptStoreConfig(BaseModel):
@@ -285,6 +289,17 @@ class McpConfig(BaseModel):
     path: str = "/mcp"
 
 
+class CapabilityKgConfig(BaseModel):
+    """RDF capability knowledge graph (ADR-014). Offline Turtle + SPARQL."""
+
+    enabled: bool = False
+    namespace: str = "https://loanops.local/ontology/"
+    ttl_path: str = "data/capability_kg/capabilities.ttl"
+    approved_only: bool = False
+    # Phase 9: cosine over embeddings.json; ignored unless enabled=true
+    semantic: bool = False
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -309,4 +324,5 @@ class Settings(BaseSettings):
     sse: SseConfig = Field(default_factory=SseConfig)
     sql_server: SqlServerConfig = Field(default_factory=SqlServerConfig)
     mcp: McpConfig = Field(default_factory=McpConfig)
+    capability_kg: CapabilityKgConfig = Field(default_factory=CapabilityKgConfig)
     agent_role: str = Field(default="system", validation_alias="AGENT_ROLE")

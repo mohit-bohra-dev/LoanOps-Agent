@@ -412,15 +412,35 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
     )
 
 
+def build_mcp_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClientProvider:
+    """Build the agent-side MCP tools client. Requires a running mcp_server process."""
+    from packages.common.mcp_tools_client import (
+        McpToolsClient,
+        StreamableHttpMcpSession,
+        mcp_endpoint_url,
+    )
+
+    if not cfg.mcp.auth_token:
+        raise ProviderConfigError(
+            "TOOLS_CLIENT__PROVIDER=mcp requires MCP__AUTH_TOKEN "
+            "(same bearer the mcp_server listener expects)"
+        )
+    url = mcp_endpoint_url(host=cfg.mcp.host, port=cfg.mcp.port, path=cfg.mcp.path)
+    session = StreamableHttpMcpSession(url=url, auth_token=cfg.mcp.auth_token)
+    return McpToolsClient(session=session, role=role)
+
+
 @lru_cache(maxsize=1)
 def get_tools_client_provider() -> AbstractToolsClientProvider:
     """Return the configured tools client provider."""
     cfg = _get_settings()
     if cfg.tools_client.provider == "modular":
         return build_modular_tools_client(cfg, role=cfg.agent_role)
+    if cfg.tools_client.provider == "mcp":
+        return build_mcp_tools_client(cfg, role=cfg.agent_role)
     raise ProviderConfigError(
         f"Unknown tools client provider: {cfg.tools_client.provider} "
-        "(only 'modular' is supported; apps/tools_api was removed)"
+        "(supported: 'modular', 'mcp')"
     )
 
 

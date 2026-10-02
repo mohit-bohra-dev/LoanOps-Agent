@@ -1,0 +1,142 @@
+@prefix loanops: <https://loanops.local/ontology/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+loanops:cap_get_borrower_summary a loanops:Capability ;
+    rdfs:label "get_borrower_summary" ;
+    rdfs:comment "Get borrower summary for loan" ;
+    loanops:exposedBy loanops:mcp_loanops ;
+    loanops:hasDomain loanops:domain_loan_servicing ;
+    loanops:hasReviewStatus "discovered" ;
+    loanops:implementedBy loanops:op_getBorrowerSummary ;
+    loanops:intent "Get borrower summary for loan" ;
+    loanops:readOnly true ;
+    loanops:requiresPermission loanops:perm_loan_read ;
+    loanops:source "openapi" ;
+    loanops:version "0.1" .
+
+loanops:cap_get_delinquencies a loanops:Capability ;
+    rdfs:label "get_delinquencies" ;
+    rdfs:comment "Get delinquency info for loan" ;
+    loanops:exposedBy loanops:mcp_loanops ;
+    loanops:hasDomain loanops:domain_loan_servicing ;
+    loanops:hasReviewStatus "discovered" ;
+    loanops:implementedBy loanops:op_getDelinquencies ;
+    loanops:intent "Get delinquency info for loan" ;
+    loanops:readOnly true ;
+    loanops:requiresPermission loanops:perm_loan_read ;
+    loanops:source "openapi" ;
+    loanops:version "0.1" .
+
+loanops:cap_get_escrows a loanops:Capability ;
+    rdfs:label "get_escrows" ;
+    rdfs:comment "Get escrow breakdown for loan" ;
+    loanops:exposedBy loanops:mcp_loanops ;
+    loanops:hasDomain loanops:domain_loan_servicing ;
+    loanops:hasReviewStatus "discovered" ;
+    loanops:implementedBy loanops:op_getEscrows ;
+    loanops:intent "Get escrow breakdown for loan" ;
+    loanops:readOnly true ;
+    loanops:requiresPermission loanops:perm_loan_read ;
+    loanops:source "openapi" ;
+    loanops:version "0.1" .
+
+loanops:cap_get_loan a loanops:Capability ;
+    rdfs:label "get_loan" ;
+    rdfs:comment "Get loan by loan id" ;
+    loanops:exposedBy loanops:mcp_loanops ;
+    loanops:hasDomain loanops:domain_loan_servicing ;
+    loanops:hasReviewStatus "discovered" ;
+    loanops:implementedBy loanops:op_getLoan ;
+    loanops:intent "Get loan by loan id" ;
+    loanops:readOnly true ;
+    loanops:requiresPermission loanops:perm_loan_read ;
+    loanops:source "openapi" ;
+    loanops:version "0.1" .
+
+loanops:cap_get_loan_summary a loanops:Capability ;
+    rdfs:label "get_loan_summary" ;
+    rdfs:comment "Get loan summary" ;
+    loanops:exposedBy loanops:mcp_loanops ;
+    loanops:hasDomain loanops:domain_loan_servicing ;
+    loanops:hasReviewStatus "discovered" ;
+    loanops:implementedBy loanops:op_getLoanSummary ;
+    loanops:intent "Get loan summary" ;
+    loanops:readOnly true ;
+    loanops:requiresPermission loanops:perm_loan_read ;
+    loanops:source "openapi" ;
+    loanops:version "0.1" .
+
+loanops:cap_get_payment_schedules a loanops:Capability ;
+    rdfs:label "get_payment_schedules" ;
+    rdfs:comment "Get payment schedules for loan" ;
+    loanops:exposedBy loanops:mcp_loanops ;
+    loanops:hasDomain loanops:domain_loan_servicing ;
+    loanops:hasReviewStatus "discovered" ;
+    loanops:implementedBy loanops:op_getPaymentSchedules ;
+    loanops:intent "Get payment schedules for loan" ;
+    loanops:readOnly true ;
+    loanops:requiresPermission loanops:perm_loan_read ;
+    loanops:source "openapi" ;
+    loanops:version "0.1" .
+
+loanops:op_getBorrowerSummary a loanops:APIOperation ;
+    rdfs:label "getBorrowerSummary" ;
+    rdfs:comment "Get borrower summary for loan" ;
+    loanops:belongsToApp loanops:app_loanservices ;
+    loanops:httpMethod "GET" ;
+    loanops:httpPath "/api/Loans/{loan_id}/BorrowerSummary" ;
+    loanops:operationId "getBorrowerSummary" .
+
+loanops:op_getDelinquencies a loanops:APIOperation ;
+    rdfs:label "getDelinquencies" ;
+    rdfs:comment "Get delinquency info for loan" ;
+    loanops:belongsToApp loanops:app_loanservices ;
+    loanops:httpMethod "GET" ;
+    loanops:httpPath "/api/Loans/{loan_id}/Delinquencies" ;
+    loanops:operationId "getDelinquencies" .
+
+loanops:op_getEscrows a loanops:APIOperation ;
+    rdfs:label "getEscrows" ;
+    rdfs:comment "Get escrow breakdown for loan" ;
+    loanops:belongsToApp loanops:app_loanservices ;
+    loanops:httpMethod "GET" ;
+    loanops:httpPath "/api/Loans/{loan_id}/Escrows" ;
+    loanops:operationId "getEscrows" .
+
+loanops:op_getLoan a loanops:APIOperation ;
+    rdfs:label "getLoan" ;
+    rdfs:comment "Get loan by loan id" ;
+    loanops:belongsToApp loanops:app_loanservices ;
+    loanops:httpMethod "GET" ;
+    loanops:httpPath "/api/Loans/{loan_id}" ;
+    loanops:operationId "getLoan" .
+
+loanops:op_getLoanSummary a loanops:APIOperation ;
+    rdfs:label "getLoanSummary" ;
+    rdfs:comment "Get loan summary" ;
+    loanops:belongsToApp loanops:app_loanservices ;
+    loanops:httpMethod "GET" ;
+    loanops:httpPath "/api/Loans/{loan_id}/Summary" ;
+    loanops:operationId "getLoanSummary" .
+
+loanops:op_getPaymentSchedules a loanops:APIOperation ;
+    rdfs:label "getPaymentSchedules" ;
+    rdfs:comment "Get payment schedules for loan" ;
+    loanops:belongsToApp loanops:app_loanservices ;
+    loanops:httpMethod "GET" ;
+    loanops:httpPath "/api/Loans/{loan_id}/PaymentSchedules" ;
+    loanops:operationId "getPaymentSchedules" .
+
+loanops:app_loanservices a loanops:Application ;
+    rdfs:label "LoanServices" .
+
+loanops:domain_loan_servicing a loanops:BusinessDomain ;
+    rdfs:label "Loan Servicing" .
+
+loanops:mcp_loanops a loanops:MCPServer ;
+    rdfs:label "loanops" .
+
+loanops:perm_loan_read a loanops:Permission ;
+    rdfs:label "loan.read" .
+

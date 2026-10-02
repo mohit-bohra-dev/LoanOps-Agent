@@ -78,8 +78,16 @@
 | `AUDIT__JSONL_DIR` | `./audit` | JSONL output directory |
 | `SECRETS__PROVIDER` | `env` | `env` / `keyvault` |
 | `TELEMETRY__PROVIDER` | `console` | `console` / `appinsights` |
-| `TOOLS_CLIENT__PROVIDER` | `modular` | Only `modular` (SSE + docs; tools_api removed) |
+| `TOOLS_CLIENT__PROVIDER` | `modular` | `modular` (in-process) / `mcp` (Streamable HTTP → `:8001`, ADR-013) |
 | `AGENT_ROLE` | `system` | Role allow-list for tools (`system`/`care_rep`/`dev`/…) |
+| `MCP__HOST` / `MCP__PORT` / `MCP__PATH` | `127.0.0.1` / `8001` / `/mcp` | MCP listener bind + path |
+| `MCP__AUTH_TOKEN` | `""` | Bearer for MCP; empty rejects; required when provider=`mcp` |
+| `MCP__ROLE` | `system` | Scope allow-list on MCP server (align with `AGENT_ROLE`) |
+| `CAPABILITY_KG__ENABLED` | `false` | When true, `search_sse_apis` also queries RDF capabilities |
+| `CAPABILITY_KG__TTL_PATH` | `data/capability_kg/capabilities.ttl` | Turtle graph path |
+| `CAPABILITY_KG__NAMESPACE` | `https://loanops.local/ontology/` | RDF namespace |
+| `CAPABILITY_KG__APPROVED_ONLY` | `false` | Filter to approved/published review status |
+| `CAPABILITY_KG__SEMANTIC` | `false` | Phase 9: cosine rank via embeddings.json (needs ENABLED) |
 | `SSE__USE_FIXTURE` | `true` | Local OpenAPI fixture vs live swagger |
 | `SSE__API_BASE_URL` | (see `.env.example`) | Default SSE host allow-list base |
 | `SSE__API_KEY` | `""` | Bearer for live Loan Services / SSE apps |
