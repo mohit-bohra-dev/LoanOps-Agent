@@ -426,8 +426,8 @@ LoanOps Agent_Demos/
     scripts/           # azd hooks
   docs/
     01-servicing-agent-prompts.md   # already exists, do not overwrite
-    02-architecture.md              # generate from Section A
     03-eval-strategy.md             # generate from Section A.4 + packages/eval
+  ARCHITECTURE.md                   # living architecture (single file)
   .github/workflows/
     ci.yml             # lint + test
     eval-gate.yml      # nightly + on PR; runs packages/eval against golden.jsonl
@@ -556,7 +556,7 @@ FORBIDDEN ACTIONS
   the cause, not the threshold. If the threshold is genuinely wrong,
   stop and ask.
 - Do not edit `docs/01-servicing-agent-prompts.md`. Generate sibling
-  docs (`02-architecture.md`, `03-eval-strategy.md`) instead.
+  docs (`ARCHITECTURE.md`, `03-eval-strategy.md`) instead.
 - Do not skip steps. Each step's acceptance criteria is a gate.
 - Do not import concrete provider classes outside `packages/common/providers/`. CI grep gate enforces this.
 - Do not read environment variables outside `packages/common/settings.py`. All config flows through `Settings`.

@@ -327,3 +327,223 @@ Updated ARCHITECTURE, PRD, ANALYSIS, CONTEXT, demo/query docs, and STEP 4 in
 
 **Reason:** Schedule ops, harden MCP principal/EAKG gates, and leave analyzer/live repo#4 as explicit later work.
 
+## [2026-10-02] - Mold agent as MCP consumer
+
+**Session type:** Docs / ADR
+
+**Completed:**
+- ADR-013 product-shape note: `/chat` = first-party MCP consumer; `modular` = demo/rollback only.
+- `docs/MCP_CLIENT_INTEGRATION.md` + `PHASE_STATUS` preserve + `TASKS` focus updated.
+
+**Reason:** User rejected D1-B as standalone chat path; want agent molded as MCP client same as Cursor/Gemini.
+
+## [2026-10-02] - Cleanup C1–C6
+
+**Session type:** Hygiene
+
+**Completed:**
+- C1: deleted `graphify-out/2026-10-02/`; gitignore `graphify-out/20*/`
+- C2: verified only `data/eakg/registry` + `fixtures` tracked; shards/workspace ignored
+- C3–C6: TASKS backlog buckets; PHASE_STATUS north star refresh; `docs/EAKG_COMMITTED_VS_LOCAL.md`
+
+**Reason:** Decide/clean before next MCP-platform work.
+
+## [2026-10-02] - Decide/Cleanup board doc
+
+**Session type:** Docs
+
+**Completed:**
+- `docs/DECIDE_AND_CLEANUP.md` — all D1–D10 and C1–C6 with plain-English meaning + status.
+- Linked from TASKS + PHASE_STATUS.
+
+**Reason:** User asked for one place explaining D/C items and status.
+
+## [2026-10-02] - D2: CAPABILITY_KG enabled by default
+
+**Session type:** Config
+
+**Completed:**
+- `CapabilityKgConfig.enabled` default `True`; `.env.example` / CONTEXT / DECIDE board updated.
+- Still toggle anytime: `CAPABILITY_KG__ENABLED=false`.
+
+**Reason:** User chose D2=true with env override.
+
+## [2026-10-02] - D4: EAKG is source of truth
+
+**Session type:** Decision
+
+**Completed:**
+- Locked D4 on decide board; ADR-014 amendment; `EAKG_COMMITTED_VS_LOCAL` marks shards as truth, single TTL as fallback only.
+
+**Reason:** User: treat EAKG as truth.
+
+## [2026-10-02] - D4: remove single-TTL discovery fallback
+
+**Session type:** Cleanup
+
+**Completed:**
+- `search_sse_apis` EAKG-only; deleted `data/capability_kg/capabilities.ttl`; README in place.
+- Tests + decide board / ADR / CONTEXT updated.
+
+**Reason:** User: delete fallback.
+
+## [2026-10-02] - Stack layer decisions board
+
+**Session type:** Docs / ADR
+
+**Completed:**
+- `docs/STACK_LAYER_DECISIONS.md` — full layer matrix with today vs target.
+- ADR-018 amended: Roslyn primary, regex interim; D5 + extractor upgrade doc aligned.
+
+**Reason:** User supplied stack recommendation table (Roslyn/OpenAPI/RDF/MCP primary).
+
+## [2026-10-02] - D5 Roslyn extractor upgrade
+
+**Session type:** Feature
+
+**Completed:**
+- `tools/eakg-dotnet-extract` Roslyn syntax-tree CLI; Python `extractors/roslyn.py`.
+- `EAKG__EXTRACTOR=auto|roslyn|regex` (default auto); regex fallback.
+- Tests + ADR-018 / D5 / stack docs updated.
+
+**Reason:** D5 upgrade — Roslyn primary for controller ops.
+
+## [2026-10-02] - D6 freeze at three pilot repos
+
+**Session type:** Decision
+
+**Completed:** Locked D6 — Escrow/Fees/LoanServices enough; no repo #4 for now.
+
+**Reason:** User: 3 enough for now.
+
+## [2026-10-02] - D7 OBO target; M2M from SubservicingClient
+
+**Session type:** Decision
+
+**Completed:**
+- Locked D7 = OBO direction.
+- Clarified: SubservicingClient Auth0 M2M (`IJwtRetriever` / client_credentials) is usable as **service** Bearer for SSE (same class as `SSE__API_KEY`), not true end-user OBO. User session tokens in that app are a separate path for later OBO.
+
+**Reason:** User chose OBO and asked about subservicingclient M2M.
+
+## [2026-10-02] - D7 simplest auth for now
+
+**Session type:** Decision
+
+**Completed:**
+- Re-locked D7: keep `SSE__API_KEY` + `x-loanops-user`/`x-loanops-tenant`. No M2M provider, login, OBO, or RBAC this phase.
+- Deferred ladder: M2M → user OBO → RBAC later.
+- Updated `docs/DECIDE_AND_CLEANUP.md`, `TASKS.md`.
+
+**Reason:** User: keep simplest for now; improve later (probably RBAC).
+
+## [2026-10-02] - D8 both CLI and Web UI
+
+**Session type:** Decision
+
+**Completed:**
+- Locked D8 = **both**: CLI (`review --pilot`) now; Web UI in scope (same review model).
+- Updated `docs/DECIDE_AND_CLEANUP.md`, `TASKS.md`, `STACK_LAYER_DECISIONS.md`, `MCP_ARD_PHASE_MATRIX.md`.
+
+**Reason:** User: d8 both.
+
+## [2026-10-02] - D9 push deferred
+
+**Session type:** Decision
+
+**Completed:**
+- D9 = not yet. Test everything first; push `vdd` when green.
+- Updated `docs/DECIDE_AND_CLEANUP.md`, `TASKS.md`.
+
+**Reason:** User: D9 not yet, will test everything then.
+
+## [2026-10-02] - D10 local first; cloud later
+
+**Session type:** Decision
+
+**Completed:**
+- Locked D10: re-index everything local (manual / Task Scheduler). Cloud GitLab CI schedules only after local tested.
+- All D rows decided (D9 deferred). Updated `docs/DECIDE_AND_CLEANUP.md`, `TASKS.md`, `docs/EAKG_INDEX_SCHEDULE.md`.
+
+**Reason:** User: D10 everything local; once tested on cloud.
+
+## [2026-10-02] - D10 manual only (no schedulers)
+
+**Session type:** Decision
+
+**Completed:**
+- Tightened D10: manual CLI only. No Windows Task Scheduler, no cloud GitLab schedules.
+- Updated `docs/DECIDE_AND_CLEANUP.md`, `TASKS.md`, `docs/EAKG_INDEX_SCHEDULE.md`.
+
+**Reason:** User: no local task scheduler; manual only for everything.
+
+## [2026-10-02] - D7 Subservicing M2M as SSE bearer
+
+**Session type:** Decision
+
+**Completed:**
+- D7: `SSE__API_KEY` = SubservicingClient Auth0 M2M (shared audience `https://pennymac`) so one token reaches all Plaisse APIs.
+- Still paste/process-wide; no auto-fetch / OBO / RBAC yet.
+- Updated `docs/DECIDE_AND_CLEANUP.md`, `TASKS.md`, `.env.example`, `docs/MCP_SECURITY.md`.
+
+**Reason:** User: use subservices M2M; it can access all.
+
+## [2026-10-02] - Minted Subservicing M2M into SSE__API_KEY
+
+**Session type:** Ops / wiring
+
+**Completed:**
+- Minted Auth0 M2M (`client_credentials`, audience `https://pennymac`) from SubservicingClient user-secrets.
+- Wrote `SSE__API_KEY` in local `.env`. Probe Loan Services Summary → HTTP 200.
+- Added `scripts/auth/refresh-sse-m2m.ps1` for manual re-mint. Updated `.env.example`.
+
+**Reason:** User: You do it.
+
+## [2026-10-02] - Demo path up: MCP + M2M live Summary
+
+**Session type:** Ops / validation
+
+**Completed:**
+- Restarted `packages.mcp_server` `:8001` + Agent API `:8000` with fresh M2M `SSE__API_KEY`.
+- MCP hop `list_tools` OK (8 tools incl. EAKG).
+- MCP hop `call_sse_api` `getLoanSummary` loan `1000002245` → **HTTP 200**.
+- Agent `/health` → 200.
+- Marked product demo path done in `TASKS.md`.
+
+**Reason:** User: Go ahead.
+
+## [2026-10-02] - Cursor MCP validation (Phase 11)
+
+**Session type:** Validation
+
+**Completed:**
+- Wired `loanops` into `~/.cursor/mcp.json` → Cursor namespace `user-loanops`.
+- Fixed `packages/mcp_server/policy.py` `_READ_ONLY_TOOLS` to include EAKG tools (were listed but denied).
+- Cursor MCP smokes: P1–P6 + N2 via `user-loanops`; N1 via Streamable HTTP bad bearer.
+- Evidence: `docs/MCP_CURSOR_VALIDATION.md`. Updated `PHASE_STATUS.md`, `TASKS.md`.
+- MCP tests: 7 passed.
+
+**Reason:** User: Test on cursor.
+
+## [2026-10-02] - Single ARCHITECTURE.md; delete duplicates
+
+**Session type:** Docs cleanup
+
+**Completed:**
+- Consolidated architecture into root `ARCHITECTURE.md` (from `docs/CURRENT_ARCHITECTURE.md` + north-star refresh).
+- Deleted `docs/CURRENT_ARCHITECTURE.md`, `Cursor_LoanOps_vdd_Architecture_Analysis.md`.
+- Retargeted refs in AGENTS, CONTEXT, README, PRD, MCP_BASELINE, prompts brief.
+- Kept `presentations/demo-pitch/architecture.md` as slide one-pager → points at `ARCHITECTURE.md`.
+
+**Reason:** User: Create one file for Architecture delete others.
+
+## [2026-10-02] - docs/FLOWS.md all application flows
+
+**Session type:** Docs
+
+**Completed:**
+- Added `docs/FLOWS.md` — flows F1–F25 (chat MCP/modular, intent, safety, UI sidebar, MCP protocol, SSE, EAKG, ops).
+- Linked from `ARCHITECTURE.md`, `CONTEXT.md`.
+
+**Reason:** User: Create every flow possible for this Application in md file.
+

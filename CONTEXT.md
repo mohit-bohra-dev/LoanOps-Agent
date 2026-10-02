@@ -12,7 +12,8 @@
 | `AGENTS.md` | Full agent instructions, rules, tech stack |
 | `CONTEXT.md` | This file — quick ref |
 | `TASKS.md` | Active build steps with checkboxes |
-| `ARCHITECTURE.md` | Detailed architecture documentation |
+| `ARCHITECTURE.md` | **Only** architecture doc (living) |
+| `docs/FLOWS.md` | Every application / ops flow (F1–F25) |
 | `decisions.md` | Architecture Decision Records |
 | `logs.md` | Dated session log |
 | `Makefile` | `install`, `lint`, `test`, `ingest`, `eval`, `demo`, `down` |
@@ -85,11 +86,12 @@
 | `MCP__ROLE` | `system` | Scope allow-list on MCP server (align with `AGENT_ROLE`) |
 | `MCP__PRINCIPAL_USER` | `""` | Optional; `x-loanops-user` on `call_sse_api` |
 | `MCP__PRINCIPAL_TENANT` | `""` | Optional; `x-loanops-tenant` on `call_sse_api` |
-| `CAPABILITY_KG__ENABLED` | `false` | When true, `search_sse_apis` also queries RDF capabilities |
-| `CAPABILITY_KG__TTL_PATH` | `data/capability_kg/capabilities.ttl` | Turtle graph path |
+| `CAPABILITY_KG__ENABLED` | `true` | When true, `search_sse_apis` queries EAKG shards; set `false` to disable |
+| `CAPABILITY_KG__TTL_PATH` | `data/capability_kg/capabilities.ttl` | Deprecated for discovery; build CLI only |
 | `CAPABILITY_KG__NAMESPACE` | `https://loanops.local/ontology/` | RDF namespace |
 | `CAPABILITY_KG__APPROVED_ONLY` | `false` | Filter to approved/published review status |
 | `CAPABILITY_KG__SEMANTIC` | `false` | Phase 9: cosine rank via embeddings.json (needs ENABLED) |
+| — | — | Discovery = EAKG only: `docs/EAKG_COMMITTED_VS_LOCAL.md` |
 | `EAKG__WORKSPACE_DIR` | `.eakg-workspace` | Cloned enterprise repos (gitignored) |
 | `EAKG__REGISTRY_PATH` | `data/eakg/registry/repositories.yaml` | Repository Registry |
 | `EAKG__SHARD_DIR` | `data/eakg` | Sharded Turtle/JSON store root |
@@ -101,6 +103,7 @@
 | `EAKG__NIGHTLY_HOUR` | `2` | Documented nightly hour (external cron) |
 | `EAKG__REVIEW_STALE_DAYS` | `14` | Weekly audit stale-proposal age |
 | `EAKG__TAAC_FIXTURE_PATH` | `data/eakg/fixtures/taac-client-config.redacted.json` | Redacted TAAC for CI |
+| `EAKG__EXTRACTOR` | `auto` | `auto`\|`roslyn`\|`regex` — Roslyn primary (D5) |
 | `SSE__USE_FIXTURE` | `true` | Local OpenAPI fixture vs live swagger |
 | `SSE__API_BASE_URL` | (see `.env.example`) | Default SSE host allow-list base |
 | `SSE__API_KEY` | `""` | Bearer for live Loan Services / SSE apps |

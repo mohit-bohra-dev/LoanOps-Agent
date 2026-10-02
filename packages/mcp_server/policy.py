@@ -5,7 +5,19 @@ from __future__ import annotations
 import secrets
 from typing import Any
 
-_READ_ONLY_TOOLS = frozenset({"search_sse_apis", "list_sse_apis", "search_docs", "call_sse_api"})
+# Must include every read tool the MCP server exposes (SSE + docs + EAKG).
+_READ_ONLY_TOOLS = frozenset(
+    {
+        "search_sse_apis",
+        "list_sse_apis",
+        "search_docs",
+        "call_sse_api",
+        "search_capabilities",
+        "explain_capability",
+        "find_providers",
+        "impact_of_change",
+    }
+)
 
 
 class AuthError(Exception):

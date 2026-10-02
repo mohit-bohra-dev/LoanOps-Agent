@@ -15,7 +15,7 @@
 
 ## Not yet
 
-- End-user OBO into enterprise API (still process `SSE__API_KEY` as service bearer)
+- End-user OBO into enterprise API (still process `SSE__API_KEY` = Subservicing Auth0 **M2M** service bearer; D7)
 - Capability-level `requiresPermission` enforcement at MCP edge
 - mTLS / OAuth for remote MCP
 

@@ -1,5 +1,7 @@
 # EAKG index schedule (ops)
 
+**D10 (2026-10-02):** **Manual only.** No Windows Task Scheduler, no live GitLab CI schedules. Run CLI by hand when you need a refresh. Scripts below are optional reference for a later opt-in.
+
 Three tiers call the same CLI. Do not re-clone everything nightly.
 
 | Tier | Cadence | Command | LLM |

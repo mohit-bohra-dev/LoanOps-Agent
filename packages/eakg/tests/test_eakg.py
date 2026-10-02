@@ -64,11 +64,35 @@ def test_extract_loanservices_proxy_and_ops() -> None:
         application_id="loanservices",
         commit_sha="def",
         api_project_path="src/LoanServices.WebApi",
+        extractor="regex",
     )
     assert any(p.class_name == "EscrowApiProxy" for p in details["proxies"])  # type: ignore[index]
     actions = {o.action for o in details["operations"]}  # type: ignore[index]
     assert "GetLoanSummary" in actions
     assert "GetPaymentSchedules" in actions
+
+
+def test_extract_loanservices_roslyn_ops() -> None:
+    pytest.importorskip("subprocess")
+    from packages.eakg.extractors.roslyn import roslyn_tool_available
+
+    if not roslyn_tool_available():
+        pytest.skip("dotnet SDK / roslyn tool not available")
+    _, details = extract_repo(
+        FIX / "loanservices",
+        repository_id="loanservices",
+        application_id="loanservices",
+        commit_sha="def",
+        api_project_path="src/LoanServices.WebApi",
+        extractor="roslyn",
+    )
+    assert details.get("extractor") == "dotnet_roslyn"
+    actions = {o.action for o in details["operations"]}  # type: ignore[index]
+    assert "GetLoanSummary" in actions
+    assert "GetPaymentSchedules" in actions
+    ops = details["operations"]
+    assert isinstance(ops, list) and ops
+    assert ops[0].evidence[0].detector_id == "dotnet_roslyn"  # type: ignore[index]
 
 
 def test_extract_escrow_authorize() -> None:

@@ -176,19 +176,21 @@ async def test_search_sse_apis_includes_capabilities(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     from packages.common import settings as settings_mod
-    from packages.common.settings import CapabilityKgConfig, Settings
+    from packages.common.settings import CapabilityKgConfig, EakgConfig, Settings
     from packages.sse.fixture import FIXTURE_OPENAPI
     from packages.sse.loader import OpenApiCatalogService
     from packages.sse.tools import handle_search_sse_apis
 
     graph = build_graph_from_openapi_dict(MINI_OPENAPI, source_label="LoanServices")
-    ttl = save_graph(graph, tmp_path / "capabilities.ttl")
+    shard_root = tmp_path / "eakg"
+    save_graph(graph, shard_root / "repos" / "loanservices" / "graph.ttl")
 
     base = Settings()
 
     def _settings() -> Settings:
         return Settings(
-            capability_kg=CapabilityKgConfig(enabled=True, ttl_path=str(ttl)),
+            capability_kg=CapabilityKgConfig(enabled=True),
+            eakg=EakgConfig(shard_dir=str(shard_root)),
             sse=base.sse,
             mcp=base.mcp,
             tools_client=base.tools_client,
@@ -204,6 +206,6 @@ async def test_search_sse_apis_includes_capabilities(
         fixture_path=str(fixture),
     )
     text = await handle_search_sse_apis(svc, {"query": "loan summary", "limit": 5})
-    assert "Capabilities (RDF):" in text
+    assert "Capabilities (EAKG):" in text
     assert "get_loan_summary" in text
     assert "OpenAPI operations:" in text

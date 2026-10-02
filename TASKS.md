@@ -1,6 +1,42 @@
 # Servicing Agent — Task Tracker
 
-> **Current focus:** EAKG ops schedule + Phase 8 principal slice + MCP 11/12/14 docs; run Cursor/Gemini validation evidence next
+> **Current focus:** Agent as first-party MCP consumer (`TOOLS_CLIENT__PROVIDER=mcp`); EAKG feeds MCP tools; Cursor/Gemini = same endpoint
+
+## Backlog buckets (C6)
+
+Use these instead of treating every open checkbox as equal priority.
+
+### Now (MCP platform)
+
+- [x] Record Cursor validation evidence — `docs/MCP_CURSOR_VALIDATION.md` (2026-10-02)
+- [ ] Record Gemini validation evidence — `docs/MCP_GEMINI_VALIDATION.md`
+- [x] Product demo path: `TOOLS_CLIENT__PROVIDER=mcp` + MCP up + EAKG shards present — MCP hop `getLoanSummary` **200** with Subservicing M2M (2026-10-02)
+- [ ] Eval golden with MCP hop — after Bedrock SSO green for full `/chat`
+
+### Next (EAKG feed)
+
+- [ ] Manual EAKG sync only — **D10:** no Task Scheduler, no cloud schedule — `docs/EAKG_INDEX_SCHEDULE.md`
+- [ ] Live SSE swagger verification / team `swagger tofile` ask — `docs/EAKG_SWAGGER_EXPORT.md`
+
+### Later / parked
+
+- [ ] **D9** push `vdd` to GitLab — **not yet**; after full test pass
+- [x] **Roslyn .NET extractor** cutover (D5) — `tools/eakg-dotnet-extract`, `EAKG__EXTRACTOR=auto`
+- [x] Repo #4+ — **D6 freeze at 3** (Escrow/Fees/LoanServices); guide when unfrozen: `docs/EAKG_ONBOARD_REPO.md`
+- [ ] Static analyzer extras: tree-sitter / CodeQL (Phase 2)
+- [ ] Graphify offline enrichment into RDF (Phase 10)
+- [ ] Human review workflow UI — **D8:** both CLI + Web UI (CLI live; UI still to build)
+- [ ] ARD implement (Phase 14) — after 11–12; draft `docs/ARD_RESOURCE_CHOICE.md`
+- [ ] Full OBO / RBAC / `requiresPermission` at MCP invoke — **D7:** `SSE__API_KEY` = Subservicing Auth0 M2M (all APIs); later auto-fetch → user OBO → RBAC
+- [ ] Full wiki specialist port
+- [ ] CI grep gate: no concrete imports outside providers/
+- [ ] ~~AWS image cutover~~ **deferred — local testing only**
+
+### Hygiene
+
+- Decide / cleanup board: [`docs/DECIDE_AND_CLEANUP.md`](docs/DECIDE_AND_CLEANUP.md)
+- Committed vs local EAKG: [`docs/EAKG_COMMITTED_VS_LOCAL.md`](docs/EAKG_COMMITTED_VS_LOCAL.md)
+- Phase tracker: [`docs/PHASE_STATUS.md`](docs/PHASE_STATUS.md)
 
 ---
 
@@ -18,7 +54,7 @@
 - [x] Implement Protocol + InMemory impl for all 10 provider categories
 - [x] `packages/common/providers/factory.py` — 10 factory functions, lru_cache
 - [x] `packages/common/providers/contract_tests/` — one test module per Protocol
-- [ ] CI grep gate: no concrete imports outside providers/
+- [ ] CI grep gate: no concrete imports outside providers/ → **Later / parked**
 - [x] Accept: `mypy --strict packages/common` clean; contract tests green
 
 ## Step 2 — Synthetic data
@@ -112,8 +148,8 @@
 - [x] `packages/docs` unified doc search service
 - [x] `packages/wiki` specialist stubs (full port pending)
 - [x] Modular tools client + scopes; MCP routes on Agent API
-- [ ] Live SSE swagger verification
-- [ ] Full wiki specialist port
+- [ ] Live SSE swagger verification → see **Backlog buckets → Next**
+- [ ] Full wiki specialist port → see **Later / parked**
 - [ ] ~~AWS image cutover~~ **deferred — local testing only for now**
 
 ## Step 14 — Agent MCP client (ADR-013 / Architecture Phase 4)
@@ -123,7 +159,7 @@
 - [x] Factory wiring; empty `MCP__AUTH_TOKEN` refuses `mcp` provider
 - [x] Unit tests: fake session + agent turn via MCP client
 - [x] Live MCP hop smoke (`getLoanSummary` 200) — SSO chat compare still optional
-- [ ] Eval golden with MCP hop — after Bedrock SSO green for full `/chat`
+- [ ] Eval golden with MCP hop → see **Backlog buckets → Now**
 
 ## Step 15 — RDF Capability Knowledge Graph (ADR-014)
 
@@ -133,9 +169,9 @@
 - [x] `CapabilityCatalog` facade
 - [x] Optional `search_sse_apis` KG block when `CAPABILITY_KG__ENABLED=true`
 - [x] Semantic retrieval (embed + SPARQL constraints) — `docs/PHASE_9_SEMANTIC_RETRIEVAL.md`
-- [ ] Graphify offline enrichment
-- [ ] Human review workflow UI
-- [ ] ARD (phase 14)
+- [ ] Graphify offline enrichment → **Later / parked**
+- [ ] Human review workflow UI → **Later / parked**
+- [ ] ARD (phase 14) → **Later / parked**
 
 ## Step 16 — Enterprise Application Knowledge Graph (ADR-015..019)
 
@@ -146,7 +182,6 @@
 - [x] `search_sse_apis` merges EAKG shards when `CAPABILITY_KG__ENABLED` + `data/eakg/repos` present
 - [x] Index schedule ops: `docs/EAKG_INDEX_SCHEDULE.md`, `ci/eakg.gitlab-ci.yml`, `scripts/eakg/*`
 - [x] Swagger export ask + extractor upgrade design + registry onboard guide (point 5 docs)
-- [ ] Static analyzer upgrade (deferred — see `docs/EAKG_EXTRACTOR_UPGRADE.md`)
-- [ ] Live repo #4+ when URL chosen (`docs/EAKG_ONBOARD_REPO.md`)
-- [ ] Record Cursor / Gemini validation evidence (checklists ready)
+- [x] Cleanup C1–C6 (gitignore dated graphify backups; committed-vs-local doc; backlog buckets)
+- [ ] Static analyzer / repo #4 / validation evidence → see **Backlog buckets**
 

@@ -38,7 +38,7 @@ async def handle_search_sse_apis(
 
 
 async def _capability_search_block(query: str, *, limit: int) -> str | None:
-    """Optional RDF capability hits. Prefer EAKG shards; fall back to single TTL."""
+    """EAKG shard hits only (D4). No ADR-014 single-TTL fallback."""
     from pathlib import Path
 
     from packages.common.settings import Settings
@@ -46,6 +46,11 @@ async def _capability_search_block(query: str, *, limit: int) -> str | None:
     settings = Settings()
     cfg = settings.capability_kg
     if not cfg.enabled:
+        return None
+
+    shards = Path(settings.eakg.shard_dir)
+    repos = shards / "repos"
+    if not repos.is_dir() or not any(p.is_dir() for p in repos.iterdir()):
         return None
 
     embed_query = None
@@ -59,42 +64,21 @@ async def _capability_search_block(query: str, *, limit: int) -> str | None:
 
         embed_query = _embed
 
-    shards = Path(settings.eakg.shard_dir)
-    repos = shards / "repos"
-    use_shards = repos.is_dir() and any(p.is_dir() for p in repos.iterdir())
+    from packages.eakg.merge import catalog_from_shards
 
-    if use_shards:
-        from packages.eakg.merge import catalog_from_shards
-
-        caps = catalog_from_shards(
-            shards,
-            namespace=cfg.namespace,
-            approved_only=cfg.approved_only,
-            semantic=cfg.semantic,
-            embed_query=embed_query,
-        )
-        label = "Capabilities (EAKG):"
-    else:
-        path = Path(cfg.ttl_path)
-        if not path.is_file():
-            return None
-        from packages.capability_kg.catalog import CapabilityCatalog
-
-        caps = CapabilityCatalog.from_ttl(
-            path,
-            namespace=cfg.namespace,
-            approved_only=cfg.approved_only,
-            semantic=cfg.semantic,
-            embed_query=embed_query,
-        )
-        label = "Capabilities (RDF):"
-
+    caps = catalog_from_shards(
+        shards,
+        namespace=cfg.namespace,
+        approved_only=cfg.approved_only,
+        semantic=cfg.semantic,
+        embed_query=embed_query,
+    )
     records = await caps.search_capabilities(query, limit=limit)
     if not records:
         records = await caps.find_capabilities_for_intent(query, limit=limit)
     if not records:
         return None
-    lines = [label]
+    lines = ["Capabilities (EAKG):"]
     lines.extend(r.summary_line() for r in records)
     return "\n".join(lines)
 

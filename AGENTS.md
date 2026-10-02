@@ -173,4 +173,4 @@ Verify the Provider Abstraction invariants hold across the codebase:
 1. Mark completed items in `TASKS.md` (`- [ ]` → `- [x]`)
 2. Append a dated entry to `logs.md`
 3. Update `decisions.md` for any new ADR
-4. Update `docs/02-architecture.md` or `docs/03-eval-strategy.md` if relevant
+4. Update `ARCHITECTURE.md` or `docs/03-eval-strategy.md` if relevant

@@ -306,6 +306,16 @@ match.
 **Settings:** `TOOLS_CLIENT__PROVIDER` = `modular` | `mcp` (no new env keys
 beyond the existing `MCP__*` listener block).
 
+**Product shape (2026-10-02):** The servicing agent `/chat` path is a
+**first-party MCP consumer**, not a parallel tools stack. Target runtime for
+product demos and multi-client parity is `TOOLS_CLIENT__PROVIDER=mcp` against
+the same Streamable HTTP endpoint Cursor/Gemini use. `modular` remains the
+default for local-first `make demo` (single process) and as rollback — not as
+a long-term alternate product architecture. Capability discovery for the agent
+should flow through MCP tools (`search_sse_apis` / EAKG tools), not a second
+in-process graph client beside MCP. **EAKG shards are the only enterprise
+discovery source** (D4); ADR-014 single TTL is not used for product search.
+
 **Status:** Accepted.
 
 ---
@@ -337,6 +347,11 @@ Remote SPARQL store can replace the file later behind the same facade.
 `CAPABILITY_KG__SEMANTIC` (Phase 9 cosine sidecar).
 
 **Status:** Accepted.
+
+**Amendment (2026-10-02 / D4):** **EAKG is the only product discovery source.**
+`search_sse_apis` reads `data/eakg` shards only (no single-TTL fallback).
+`CAPABILITY_KG__TTL_PATH` / `packages.capability_kg.build` remain for offline
+experiments; they do not feed agent/MCP search.
 
 ---
 
@@ -405,22 +420,28 @@ re-index. Facade hides the storage layout from MCP.
 
 ---
 
-## ADR-018 — Static .NET extraction: regex primary, tree-sitter optional
+## ADR-018 — Static .NET extraction: Roslyn primary, regex fallback
 
-**Decision:** Extract ASP.NET Core API/source/authz graphs with a deterministic
-regex/AST-lite extractor in `packages.eakg.extractors.dotnet`. Optional
-tree-sitter-c-sharp may be added later when Windows wheels are reliable;
-it is not required for the pilot. No LLM in structural extraction.
+**Decision (amended 2026-10-02 D5 upgrade):** **Roslyn** syntax-tree extraction is
+the primary controller/operation extractor (`tools/eakg-dotnet-extract`, detector
+`dotnet_roslyn`). Selected via `EAKG__EXTRACTOR=auto|roslyn|regex` (default
+`auto`: try Roslyn, fall back to regex). Packages, appsettings topics,
+connection strings, proxies, and String.Format routes remain in the Python
+regex module. Tree-sitter and CodeQL are **Phase 2**. No LLM in structural
+extraction.
 
-**Context:** Controllers use attribute routes, composed String.Format paths,
-and T4 partials. Live OpenAPI is often 401/404 without tokens.
+**Context:** Controllers use attribute routes and many attributes before the
+method; regex window heuristics miss actions (e.g. GetLoanSummary). Stack board
+chose Roslyn; `dotnet` SDK 8+ is available on the pilot workstation.
 
-**Alternatives:** tree-sitter-only; Roslyn CLI; live swagger only.
+**Alternatives:** tree-sitter-only; regex forever; full project compilation /
+semantic model (heavier restores).
 
-**Reasoning:** Regex covers verified pilot idioms with line-accurate evidence.
-Hybrid OpenAPI enriches when a token exists (EAKG__OPENAPI_MODE).
+**Reasoning:** Syntax trees bind Http* attributes to the correct
+MethodDeclaration without NuGet restore of app projects. Hybrid OpenAPI still
+enriches when a token exists (`EAKG__OPENAPI_MODE`).
 
-**Status:** Accepted (plan approved 2026-10-02).
+**Status:** Accepted; D5 Roslyn upgrade shipped 2026-10-02.
 
 ---
 

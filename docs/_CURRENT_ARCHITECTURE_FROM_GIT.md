@@ -33,7 +33,7 @@ Graphify is a developer knowledge graph of **this** repository only (ADR-012). I
 ```text
 LoanOps-Agent/
   apps/
-    agent_api/          FastAPI :8000 — /chat (SSE), /health, /mcp/*
+    agent_api/          FastAPI :8000 ΓÇö /chat (SSE), /health, /mcp/*
     web_ui/             React + Vite + Tailwind care-rep UI
   packages/
     agent_core/         Intent router, prompt load, tool loop, output parse
@@ -46,7 +46,7 @@ LoanOps-Agent/
     eval/               Golden-set runner and threshold gate
     common/             Settings, schemas, provider factories, scopes
       providers/        Protocols + factories (concrete impls live in provider_contracts)
-  provider_contracts/   Sibling repo (editable path dep) — LLM, embeddings, Qdrant, Presidio, audit, telemetry
+  provider_contracts/   Sibling repo (editable path dep) ΓÇö LLM, embeddings, Qdrant, Presidio, audit, telemetry
   data/
     sops/               Synthetic SOP markdown
     golden.jsonl        Eval prompts
@@ -73,45 +73,45 @@ LoanOps-Agent/
 ## 3. Current Runtime Architecture
 
 ```text
-┌──────────────────────────────────────────────────────────┐
-│ Chat UI (Vite :5173)                                     │
-│  ChatPane  ──POST /api/chat (SSE)──►                     │
-│  BorrowerContextPane ──POST /api/mcp/tools/call──►       │
-└────────────┬───────────────────────────┬─────────────────┘
-             │ Vite proxy strips /api    │
-             ▼                           ▼
-┌────────────────────────────┐  ┌─────────────────────────┐
-│ Agent API FastAPI :8000    │  │ mcp_routes.py           │
-│ POST /chat                 │  │ GET  /mcp/tools         │
-│  sanitize_inbound (PII)    │  │ POST /mcp/tools/call    │
-│  session history           │  │ POST /mcp/keys          │
-│  run_agent_turn            │  └────────────┬────────────┘
-│  evaluate_outbound         │               │
-│  audit JSONL               │               │
-└────────────┬───────────────┘               │
-             │ in-process                    │ in-process
-             ▼                               ▼
-┌──────────────────────────────────────────────────────────┐
-│ ModularToolsClient  (TOOLS_CLIENT__PROVIDER=modular)     │
-│  scope filter: AGENT_ROLE (default system)               │
-│    sse.read + docs.search                                │
-└───────┬──────────────────────┬───────────────────────────┘
-        │                      │
-        ▼                      ▼
-┌───────────────────┐   ┌──────────────────┐
-│ packages/sse      │   │ packages/docs    │
-│ search/list/call  │   │ search_docs      │
-│ httpx + Bearer    │   │ embed + Qdrant   │
-└─────────┬─────────┘   └────────┬─────────┘
-          │                      │
-          ▼                      ▼
+ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
+Γöé Chat UI (Vite :5173)                                     Γöé
+Γöé  ChatPane  ΓöÇΓöÇPOST /api/chat (SSE)ΓöÇΓöÇΓû║                     Γöé
+Γöé  BorrowerContextPane ΓöÇΓöÇPOST /api/mcp/tools/callΓöÇΓöÇΓû║       Γöé
+ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
+             Γöé Vite proxy strips /api    Γöé
+             Γû╝                           Γû╝
+ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ  ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
+Γöé Agent API FastAPI :8000    Γöé  Γöé mcp_routes.py           Γöé
+Γöé POST /chat                 Γöé  Γöé GET  /mcp/tools         Γöé
+Γöé  sanitize_inbound (PII)    Γöé  Γöé POST /mcp/tools/call    Γöé
+Γöé  session history           Γöé  Γöé POST /mcp/keys          Γöé
+Γöé  run_agent_turn            Γöé  ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
+Γöé  evaluate_outbound         Γöé               Γöé
+Γöé  audit JSONL               Γöé               Γöé
+ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ               Γöé
+             Γöé in-process                    Γöé in-process
+             Γû╝                               Γû╝
+ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
+Γöé ModularToolsClient  (TOOLS_CLIENT__PROVIDER=modular)     Γöé
+Γöé  scope filter: AGENT_ROLE (default system)               Γöé
+Γöé    sse.read + docs.search                                Γöé
+ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
+        Γöé                      Γöé
+        Γû╝                      Γû╝
+ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ   ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
+Γöé packages/sse      Γöé   Γöé packages/docs    Γöé
+Γöé search/list/call  Γöé   Γöé search_docs      Γöé
+Γöé httpx + Bearer    Γöé   Γöé embed + Qdrant   Γöé
+ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ   ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
+          Γöé                      Γöé
+          Γû╝                      Γû╝
    SSE REST hosts          Vector store
    (OpenAPI catalog)       namespace "docs"
 
 Not on the default agent tool list (still in ModularToolsClient):
-  SQL Server (packages/db) — role dev + db.read
-  wiki_* stubs (packages/wiki) — role dev
-  index_docs — docs.index scope
+  SQL Server (packages/db) ΓÇö role dev + db.read
+  wiki_* stubs (packages/wiki) ΓÇö role dev
+  index_docs ΓÇö docs.index scope
 
 Not on the agent path:
   RestApiLoanProvider (DATA__LOAN_API__*)
@@ -136,7 +136,7 @@ Example: user types `What is the status of loan 12345?` in the chat pane.
    - `run_agent_turn` (`packages/agent_core/_agent.py`).
 4. `classify_intent` (`packages/agent_core/_intent_router.py`) keyword-matches refuse and escalate patterns before any LLM call. A status question is `ANSWER`.
 5. System prompt `agent.system` is loaded from the file prompt store (`PROMPT_STORE__FILE_BASE_DIR`, default `./docs`) via `load_system_prompt`.
-6. `ChatProvider.chat` (concrete class from `provider_contracts`, selected by `LLM__PROVIDER`, default `bedrock`) is called with `json_mode=True` and the tool definitions from `_tools_for_client`. Default role `system` exposes four tools: `search_sse_apis`, `list_sse_apis`, `call_sse_api`, `search_docs`. Up to 3 rounds. Tool calls execute in-process through `ToolsClientProvider.call` → `ModularToolsClient.call`.
+6. `ChatProvider.chat` (concrete class from `provider_contracts`, selected by `LLM__PROVIDER`, default `bedrock`) is called with `json_mode=True` and the tool definitions from `_tools_for_client`. Default role `system` exposes four tools: `search_sse_apis`, `list_sse_apis`, `call_sse_api`, `search_docs`. Up to 3 rounds. Tool calls execute in-process through `ToolsClientProvider.call` ΓåÆ `ModularToolsClient.call`.
 7. Expected tool sequence for this question (model-chosen, not hard-coded):
    - `search_sse_apis` with a query about loan status/summary. Keyword score over the OpenAPI catalog (`packages/sse/catalog.py` `search_operations`).
    - `call_sse_api` with `operation_id` (for example `getLoanSummary`) and `path_params`. `packages/sse/invoke.py` `invoke_sse_api` builds the URL, checks the host allow-list, sends `Authorization: Bearer` from `SSE__API_KEY` when set, `httpx` timeout 30s, no retry.
@@ -144,7 +144,7 @@ Example: user types `What is the status of loan 12345?` in the chat pane.
 9. Back in `/chat`: detokenize the answer if tokenize mode was on; append turns to the session; `evaluate_outbound` content-safety; if unsafe, blank the answer and set a refusal. Audit event `agent_api.chat.turn` to the JSONL sink (`AUDIT__JSONL_DIR`, default `./audit`). `cost_usd` is always `0.0`.
 10. One SSE event: `data: {AgentTurnOutput JSON}\n\n`. Not token streaming. The UI reads the body, parses `data: ` lines, and renders `answer` plus tool calls (`ChatMessage`).
 
-Sidebar loan lookup is a different path. `BorrowerContextPane` → `lookupLoan` in `apps/web_ui/src/lib/api.ts` POSTs `/api/mcp/tools/call` with `name: call_sse_api` and `operation_id` `getLoanSummary` / `getBorrowerSummary`. That hits `mcp_routes.call_mcp_tool`, which calls the same `ModularToolsClient`. No LLM, no intent router, no outbound safety.
+Sidebar loan lookup is a different path. `BorrowerContextPane` ΓåÆ `lookupLoan` in `apps/web_ui/src/lib/api.ts` POSTs `/api/mcp/tools/call` with `name: call_sse_api` and `operation_id` `getLoanSummary` / `getBorrowerSummary`. That hits `mcp_routes.call_mcp_tool`, which calls the same `ModularToolsClient`. No LLM, no intent router, no outbound safety.
 
 ---
 
@@ -154,9 +154,9 @@ Sidebar loan lookup is a different path. `BorrowerContextPane` → `lookupLoan` 
 |---|---|
 | Framework | React  + TypeScript, Vite, Tailwind. Entry `apps/web_ui/src/main.tsx`, shell `App.tsx`. |
 | Layout | Left `BorrowerContextPane`, main `ChatPane`. |
-| Chat endpoint | `POST /api/chat` → backend `POST /chat`. |
-| Memory | `GET /api/chat/memory/{sessionId}` → `GET /chat/memory/{session_id}`. |
-| Sidebar data | `POST /api/mcp/tools/call` → `call_sse_api`. |
+| Chat endpoint | `POST /api/chat` ΓåÆ backend `POST /chat`. |
+| Memory | `GET /api/chat/memory/{sessionId}` ΓåÆ `GET /chat/memory/{session_id}`. |
+| Sidebar data | `POST /api/mcp/tools/call` ΓåÆ `call_sse_api`. |
 | Streaming | Fetch + `ReadableStream`. Backend sends one SSE `data:` event per turn after the full turn finishes. |
 | Request | `{ message, session_id, rep_id, loan_id }`. `rep_id` is the literal `"rep-456"`. |
 | Response | `AgentTurnOutput`: `answer`, `citations`, `tool_calls`, `requires_human_approval` (always true), `confidence`, `refusal`, `escalation`. Errors are `{ error, turn_id }` in the same SSE stream. |
@@ -175,7 +175,7 @@ Sidebar loan lookup is a different path. `BorrowerContextPane` → `lookupLoan` 
 | Instructions | File prompt `agent.system` plus a text-only JSON preamble in `_agent.py`. |
 | Tool registration | Static list `_SSE_ANSWER_TOOLS` in `_agent.py`, filtered by `ModularToolsClient.allowed_tools`. |
 | Tool selection | The LLM returns `tool_calls`. There is no embedding router and no Graphify lookup. |
-| Execution | `_execute_tools` → `tools_client.call(ToolCall)`. Max 3 rounds. Args detokenized only when a PII token map exists. Recorded args stay tokenized. Result summary truncated to 500 characters for the audit item; the model sees that same truncated summary. |
+| Execution | `_execute_tools` ΓåÆ `tools_client.call(ToolCall)`. Max 3 rounds. Args detokenized only when a PII token map exists. Recorded args stay tokenized. Result summary truncated to 500 characters for the audit item; the model sees that same truncated summary. |
 | Streaming | The LLM call is not streamed to the client. `/chat` emits one SSE frame. |
 | Conversation state | `SessionStoreProvider`, default in-memory, TTL 60 minutes, max 50 turns. History trimmed by `max_history_tokens` (default 2048). Turns that mention `session.loan_id` can be kept over budget. |
 | Errors | Tool exceptions become `ToolResult.success=False`. Parse failure retries once, then refusal. Uncaught exceptions in `/chat` become an SSE error payload. |
@@ -193,13 +193,13 @@ Intent gate (before the LLM):
 
 ## 7. Tool Inventory
 
-The agent LLM only receives tools that are both in `_SSE_ANSWER_TOOLS` and allowed by role. Default `AGENT_ROLE=system` → `sse.read` + `docs.search`.
+The agent LLM only receives tools that are both in `_SSE_ANSWER_TOOLS` and allowed by role. Default `AGENT_ROLE=system` ΓåÆ `sse.read` + `docs.search`.
 
 | Tool | Purpose | API | Read/Write | Registration | Implementation |
 |---|---|---|---|---|---|
 | `search_sse_apis` | Keyword search of loaded OpenAPI operations | None (local catalog) | Read | `_SSE_ANSWER_TOOLS`; scope `sse.read` | `packages/sse/tools.py` `handle_search_sse_apis` |
 | `list_sse_apis` | List operations, optional `source_label`, optional catalog refresh | Swagger HTTP only when not in fixture mode | Read | same | `handle_list_sse_apis` |
-| `call_sse_api` | Invoke one REST operation by `operation_id` or method+path | SSE REST via `httpx` | **Any HTTP method the caller passes.** No GET-only guard | same | `handle_call_sse_api` → `invoke_sse_api` |
+| `call_sse_api` | Invoke one REST operation by `operation_id` or method+path | SSE REST via `httpx` | **Any HTTP method the caller passes.** No GET-only guard | same | `handle_call_sse_api` ΓåÆ `invoke_sse_api` |
 | `search_docs` | Vector search of markdown docs | Embedding + vector store, namespace `docs` | Read | `_SSE_ANSWER_TOOLS`; scope `docs.search` | `packages/docs/service.py` `DocsService.search` |
 | `index_docs` | Chunk and upsert `data/sops` | Same vector store | Write to index | `ModularToolsClient` only; scope `docs.index`. Not in the LLM list | `DocsService.index_directory` |
 | `get_customer_servicing_summary` | Fixed SELECT or fixture text | SQL Server `dbo.SSE_Servicing_Data` | Read | Scope `db.read`. Not in the LLM list | `packages/db/client.py` |
@@ -233,7 +233,7 @@ Underlying API: None
 Authentication: None
 Read/Write: Read
 Where registered: packages/agent_core/_agent.py _SSE_ANSWER_TOOLS
-Where executed: ModularToolsClient.call → dispatch_sse_tool
+Where executed: ModularToolsClient.call ΓåÆ dispatch_sse_tool
 
 Tool name: list_sse_apis
 Purpose: Dump catalog sources and operations
@@ -275,13 +275,13 @@ Where executed: ModularToolsClient.call
 
 ```text
 Agent tool call_sse_api
-   ↓
+   Γåô
 ModularToolsClient.call
-   ↓
-dispatch_sse_tool → invoke_sse_api
-   ↓
+   Γåô
+dispatch_sse_tool ΓåÆ invoke_sse_api
+   Γåô
 OpenApiCatalogService (base URL, bearer, allow-list)
-   ↓
+   Γåô
 httpx request to the SSE host
 ```
 
@@ -312,11 +312,11 @@ httpx request to the SSE host
 
 ```text
 .env
-  ↓  pydantic-settings, nested delimiter "__", extra=forbid
+  Γåô  pydantic-settings, nested delimiter "__", extra=forbid
 packages/common/settings.py  Settings
-  ↓  packages/common/providers/factory.py
+  Γåô  packages/common/providers/factory.py
 API clients / providers
-  ↓
+  Γåô
 External APIs
 ```
 
@@ -326,22 +326,22 @@ Variable names (no values):
 
 **Agent role and tools**
 
-- `AGENT_ROLE` — `system` (default), `care_rep`, `customer`, `pm`, `dev`
-- `TOOLS_CLIENT__PROVIDER` — only `modular` is implemented
+- `AGENT_ROLE` ΓÇö `system` (default), `care_rep`, `customer`, `pm`, `dev`
+- `TOOLS_CLIENT__PROVIDER` ΓÇö only `modular` is implemented
 
 **SSE (the live answer API)**
 
 - `SSE__API_BASE_URL`
-- `SSE__API_KEY` — bearer for swagger fetch and REST calls
-- `SSE__USE_FIXTURE` — default true
+- `SSE__API_KEY` ΓÇö bearer for swagger fetch and REST calls
+- `SSE__USE_FIXTURE` ΓÇö default true
 - `SSE__FIXTURE_PATH`
-- `SSE__SWAGGER_LINKS` — JSON list of `{id,label,url}`
-- `SSE__SWAGGER_URLS` — URL list; ids derived from hostnames
+- `SSE__SWAGGER_LINKS` ΓÇö JSON list of `{id,label,url}`
+- `SSE__SWAGGER_URLS` ΓÇö URL list; ids derived from hostnames
 
 **Legacy loan client (not on the agent turn)**
 
-- `DATA__MODE` — deprecated; maps to loan source
-- `DATA__LOAN_SOURCE` — `mock` or `real`
+- `DATA__MODE` ΓÇö deprecated; maps to loan source
+- `DATA__LOAN_SOURCE` ΓÇö `mock` or `real`
 - `DATA__LOAN_API__BASE_URL`
 - `DATA__LOAN_API__API_KEY`
 - `DATA__LOAN_API__TIMEOUT_SECONDS`
@@ -351,8 +351,8 @@ Variable names (no values):
 
 **SOP / Confluence ingest**
 
-- `DATA__SOP_SOURCE` — `local`, `confluence`, `both`
-- `DATA__SOP_CONFLUENCE_MODE` — `cache` or `live`
+- `DATA__SOP_SOURCE` ΓÇö `local`, `confluence`, `both`
+- `DATA__SOP_CONFLUENCE_MODE` ΓÇö `cache` or `live`
 - `DATA__CONFLUENCE__BASE_URL`
 - `DATA__CONFLUENCE__API_TOKEN`
 - `DATA__CONFLUENCE__USERNAME`
@@ -365,7 +365,7 @@ Variable names (no values):
 
 **LLM**
 
-- `LLM__PROVIDER` — default `bedrock`
+- `LLM__PROVIDER` ΓÇö default `bedrock`
 - `LLM__OLLAMA__BASE_URL`, `LLM__OLLAMA__MODEL_FAST`, `LLM__OLLAMA__MODEL_ACCURATE`
 - `LLM__AOAI__ENDPOINT`, `LLM__AOAI__DEPLOYMENT_FAST`, `LLM__AOAI__DEPLOYMENT_ACCURATE`, `LLM__AOAI__API_VERSION`
 - `LLM__OPENAI__API_KEY`, `LLM__OPENAI__BASE_URL`, `LLM__OPENAI__MODEL`
@@ -375,31 +375,31 @@ Variable names (no values):
 
 **Embeddings and vector store**
 
-- `EMBEDDING__PROVIDER` — default `gemini`
+- `EMBEDDING__PROVIDER` ΓÇö default `gemini`
 - `EMBEDDING__GEMINI__API_KEY`, `EMBEDDING__GEMINI__MODEL`
 - `EMBEDDING__AOAI__ENDPOINT`, `EMBEDDING__AOAI__DEPLOYMENT`, `EMBEDDING__AOAI__API_VERSION`
 - `EMBEDDING__BEDROCK__REGION`, `EMBEDDING__BEDROCK__MODEL_ID`, `EMBEDDING__BEDROCK__PROFILE`, `EMBEDDING__BEDROCK__DIMENSIONS`, `EMBEDDING__BEDROCK__API_KEY`, `EMBEDDING__BEDROCK__ACCESS_KEY_ID`, `EMBEDDING__BEDROCK__SECRET_ACCESS_KEY`, `EMBEDDING__BEDROCK__SESSION_TOKEN`
-- `VECTOR_STORE__PROVIDER` — default `qdrant`
+- `VECTOR_STORE__PROVIDER` ΓÇö default `qdrant`
 - `VECTOR_STORE__QDRANT__URL`, `VECTOR_STORE__QDRANT__COLLECTION`, `VECTOR_STORE__QDRANT__PATH`
 - `VECTOR_STORE__AI_SEARCH__ENDPOINT`, `VECTOR_STORE__AI_SEARCH__API_KEY`, `VECTOR_STORE__AI_SEARCH__INDEX`, `VECTOR_STORE__AI_SEARCH__DIMENSIONS`
 - `VECTOR_STORE__PGVECTOR_DSN`, `VECTOR_STORE__PGVECTOR_DIMENSIONS`
 
 **SQL**
 
-- `SQL_SERVER__FIXTURE_MODE` — default true
+- `SQL_SERVER__FIXTURE_MODE` ΓÇö default true
 - `SQL_SERVER__SERVER`, `SQL_SERVER__DATABASE`, `SQL_SERVER__USER`, `SQL_SERVER__PASSWORD`, `SQL_SERVER__DRIVER`
 
 **Safety, audit, session, telemetry**
 
 - `PII__PROVIDER`, `PII__MODE`
-- `SAFETY__PROVIDER` — `stub` or `azure`
+- `SAFETY__PROVIDER` ΓÇö `stub` or `azure`
 - `AUDIT__SINK`, `AUDIT__JSONL_DIR`
-- `SECRETS__PROVIDER` — `env` or `keyvault`
-- `TELEMETRY__PROVIDER` — `console`, `appinsights` (factory raises), `langfuse`
+- `SECRETS__PROVIDER` ΓÇö `env` or `keyvault`
+- `TELEMETRY__PROVIDER` ΓÇö `console`, `appinsights` (factory raises), `langfuse`
 - `TELEMETRY__LANGFUSE__PUBLIC_KEY`, `TELEMETRY__LANGFUSE__SECRET_KEY`, `TELEMETRY__LANGFUSE__HOST`, `TELEMETRY__LANGFUSE__FLUSH_ON_SHUTDOWN`
 - `PROMPT_STORE__PROVIDER`, `PROMPT_STORE__FILE_BASE_DIR`
 - `SESSION_STORE__PROVIDER`, `SESSION_STORE__TTL_MINUTES`, `SESSION_STORE__MAX_TURNS`, `SESSION_STORE__POSTGRES_DSN`
-- `RERANKER__PROVIDER`, `RERANKER__MODEL` — factory exists; `search_docs` does not call it
+- `RERANKER__PROVIDER`, `RERANKER__MODEL` ΓÇö factory exists; `search_docs` does not call it
 
 Local vs dev: same `Settings` class. Fixture flags (`SSE__USE_FIXTURE`, `SQL_SERVER__FIXTURE_MODE`, `DATA__LOAN_SOURCE=mock`) switch clients off live hosts. There is no second settings module.
 
@@ -419,16 +419,16 @@ The checked-in LoanOps graph may be stale relative to HEAD; treat code as author
 
 ## 10b. RDF Capability Knowledge Graph (ADR-012 / ADR-014)
 
-**Implemented (v1):** offline OpenAPI → RDFLib Turtle + SPARQL; `CapabilityCatalog` facade. See [`CAPABILITY_KNOWLEDGE_GRAPH.md`](CAPABILITY_KNOWLEDGE_GRAPH.md), [`CAPABILITY_ONTOLOGY.md`](CAPABILITY_ONTOLOGY.md), [`MCP_ARD_PHASE_MATRIX.md`](MCP_ARD_PHASE_MATRIX.md).
+**Implemented (v1):** offline OpenAPI ΓåÆ RDFLib Turtle + SPARQL; `CapabilityCatalog` facade. See [`CAPABILITY_KNOWLEDGE_GRAPH.md`](CAPABILITY_KNOWLEDGE_GRAPH.md), [`CAPABILITY_ONTOLOGY.md`](CAPABILITY_ONTOLOGY.md), [`MCP_ARD_PHASE_MATRIX.md`](MCP_ARD_PHASE_MATRIX.md).
 
 ```text
 OpenAPI catalog (offline build)
-        ↓
+        Γåô
 RDF Capability Graph (RDFLib / Turtle)
-        ↓ CapabilityCatalog (search / get / by domain|permission|app|intent)
-ordered candidate capabilities → operation_id
-        ↓
-MCP (execute) → ModularToolsClient → invoke_sse_api
+        Γåô CapabilityCatalog (search / get / by domain|permission|app|intent)
+ordered candidate capabilities ΓåÆ operation_id
+        Γåô
+MCP (execute) ΓåÆ ModularToolsClient ΓåÆ invoke_sse_api
 ```
 
 - **Not Graphify.** Not the Qdrant `docs` / `sops` namespaces. Not ARD.
@@ -444,7 +444,7 @@ Today default agent discovery can still use keyword search; enable KG via `CAPAB
 
 Two pipelines exist. Only one is on the agent path.
 
-**Agent path — `search_docs`**
+**Agent path ΓÇö `search_docs`**
 
 - Source: markdown under `data/sops` when someone calls `index_docs` (not the default role).
 - Chunker: `MarkdownChunker`, about 600 words, 80 overlap, header-aware. `packages/rag/chunker.py`.
@@ -453,7 +453,7 @@ Two pipelines exist. Only one is on the agent path.
 - Retrieve: embed the query, `vector_store.search`, top_k default 5. No reranker.
 - Agent use: tool result text pasted back into the next LLM message. Citations in the JSON contract are whatever the model emits (`policy:` / `tool:` prefixes). The API does not auto-attach vector hits as citations. `retrieved_chunk_ids` in the audit record only copies citations whose source starts with `policy:`.
 
-**Ingest CLI — `packages/rag/ingest.py` `ingest_sops`**
+**Ingest CLI ΓÇö `packages/rag/ingest.py` `ingest_sops`**
 
 - Source: `get_policy_source_provider()` (local SOP files and/or Confluence, per `DATA__SOP_*`).
 - Store: collection name `"sops"`, not namespace `"docs"`.
@@ -489,7 +489,7 @@ Before a future MCP tool call, keep the existing inbound PII step and the intent
 | Provider contracts | `packages/common/providers/contract_tests` | Each provider protocol |
 | Agent eval | `packages/eval/run.py` | Loads `data/golden.jsonl`, calls `run_agent_turn` with the live factories |
 | Metrics | `packages/eval/metrics.py` | Citation coverage, refusal correctness, latency p95, cost average. Ragas-style faithfulness and answer relevance are named in the threshold table |
-| Gate | `packages/eval/thresholds.py` | faithfulness ≥ 0.85, answer relevance ≥ 0.85, citation coverage ≥ 1.0, refusal correctness ≥ 0.95, latency p95 ≤ 4000 ms. Thresholds must not be lowered without approval |
+| Gate | `packages/eval/thresholds.py` | faithfulness ΓëÑ 0.85, answer relevance ΓëÑ 0.85, citation coverage ΓëÑ 1.0, refusal correctness ΓëÑ 0.95, latency p95 Γëñ 4000 ms. Thresholds must not be lowered without approval |
 | CI | Eval is a CLI (`python -m packages.eval.run`). It is not wired into the chat request |
 
 There is no separate tool-selection eval. Golden items judge the full turn.
@@ -524,7 +524,7 @@ What exists is a **custom HTTP tool API** on the Agent API, tagged `mcp`:
 
 | Route | File | Behavior |
 |---|---|---|
-| `GET /mcp/tools` | `apps/agent_api/mcp_routes.py` | `tools_client.list_tools()` — names allowed for `AGENT_ROLE` |
+| `GET /mcp/tools` | `apps/agent_api/mcp_routes.py` | `tools_client.list_tools()` ΓÇö names allowed for `AGENT_ROLE` |
 | `POST /mcp/tools/call` | same | Body `{name, arguments}`. Optional `X-API-Key`. If the header is absent, the call is allowed. If present, the key must verify. Scopes on the key are ignored. Dispatch is `ModularToolsClient.call`. |
 | `POST /mcp/keys` | same | Registers an in-memory hashed key (`packages/sse/api_keys.py`). Returns the raw key once. Store is process-local and lost on restart. Default scopes `sse.read`, `docs.search`. |
 
@@ -562,15 +562,15 @@ The sidebar's direct `POST /mcp/tools/call` can keep its JSON shape if a thin ad
 
 ```text
 Current:
-run_agent_turn → ToolsClientProvider.call → ModularToolsClient (same process)
+run_agent_turn ΓåÆ ToolsClientProvider.call ΓåÆ ModularToolsClient (same process)
 
 Proposed:
-run_agent_turn → MCP client → MCP server → ModularToolsClient or dispatch_sse_tool / DocsService
+run_agent_turn ΓåÆ MCP client ΓåÆ MCP server ΓåÆ ModularToolsClient or dispatch_sse_tool / DocsService
 
 Files affected:
 packages/agent_core/_agent.py (_execute_tools)
 packages/common/providers/factory.py (get_tools_client_provider)
-packages/common/settings.py (transport, command or URL — new settings need an ADR)
+packages/common/settings.py (transport, command or URL ΓÇö new settings need an ADR)
 new MCP client module
 
 Risk:
@@ -587,7 +587,7 @@ Proposed:
 MCP server exposes the same four default tools (search_sse_apis, list_sse_apis, call_sse_api, search_docs) by calling the existing Python handlers. No second HTTP stack inside invoke_sse_api.
 
 Files affected:
-new server module (suggested home: packages/sse or a new packages/mcp_server — do not put business logic there)
+new server module (suggested home: packages/sse or a new packages/mcp_server ΓÇö do not put business logic there)
 packages/sse/tools.py and packages/docs/service.py stay the handlers
 apps/agent_api/mcp_routes.py stays as the UI adapter or delegates to the client
 
@@ -633,34 +633,34 @@ Turning on required keys breaks the sidebar until the UI sends a key. That is a 
 ## 18. Proposed MCP Architecture
 
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│ LoanOps process (unchanged UI contract)                     │
-│                                                             │
-│  Chat UI                                                    │
-│    │ POST /chat                         POST /mcp/tools/call│
-│    ▼                                        (sidebar only)  │
-│  Agent API                                                  │
-│    intent + PII + session + safety + audit                  │
-│    │                                                        │
-│    ▼                                                        │
-│  run_agent_turn  (tool list still the four SSE/docs tools)  │
-│    │                                                        │
-│    ▼                                                        │
-│  MCP client                                                 │
-│    │  stdio or streamable HTTP (undecided)                  │
-└────┼────────────────────────────────────────────────────────┘
-     │
-     ▼
-┌─────────────────────────────────────────────────────────────┐
-│ MCP server                                                  │
-│   tools/list  = scopes for the caller                       │
-│   tools/call  = ModularToolsClient or dispatch_*            │
-│        │                                                    │
-│        ├─ packages/sse  invoke_sse_api  (unchanged)         │
-│        └─ packages/docs DocsService.search (unchanged)      │
-└────┬────────────────────────────────────────────────────────┘
-     │
-     ▼
+ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
+Γöé LoanOps process (unchanged UI contract)                     Γöé
+Γöé                                                             Γöé
+Γöé  Chat UI                                                    Γöé
+Γöé    Γöé POST /chat                         POST /mcp/tools/callΓöé
+Γöé    Γû╝                                        (sidebar only)  Γöé
+Γöé  Agent API                                                  Γöé
+Γöé    intent + PII + session + safety + audit                  Γöé
+Γöé    Γöé                                                        Γöé
+Γöé    Γû╝                                                        Γöé
+Γöé  run_agent_turn  (tool list still the four SSE/docs tools)  Γöé
+Γöé    Γöé                                                        Γöé
+Γöé    Γû╝                                                        Γöé
+Γöé  MCP client                                                 Γöé
+Γöé    Γöé  stdio or streamable HTTP (undecided)                  Γöé
+ΓööΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
+     Γöé
+     Γû╝
+ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
+Γöé MCP server                                                  Γöé
+Γöé   tools/list  = scopes for the caller                       Γöé
+Γöé   tools/call  = ModularToolsClient or dispatch_*            Γöé
+Γöé        Γöé                                                    Γöé
+Γöé        Γö£ΓöÇ packages/sse  invoke_sse_api  (unchanged)         Γöé
+Γöé        ΓööΓöÇ packages/docs DocsService.search (unchanged)      Γöé
+ΓööΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
+     Γöé
+     Γû╝
  SSE REST hosts (SSE__API_BASE_URL + swagger origins)
 ```
 
@@ -721,7 +721,7 @@ api_mapping:
 
 Do not generate one MCP tool per OpenAPI operation in the first milestone. One `call_sse_api` plus search/list keeps the tool count at four. A per-operation explosion is Phase 6.
 
-## 21. API Discovery — Future Phase
+## 21. API Discovery ΓÇö Future Phase
 
 Keep this separate from the first MCP server.
 
@@ -731,11 +731,11 @@ Source of packages/sse (invoke, catalog)
 Tests (packages/sse/tests)
 API documentation
 Authorization policies (scopes.py, intent router)
-        ↓
+        Γåô
 API Capability Catalog   (new; not Graphify, not the Qdrant "docs" namespace)
-        ↓
+        Γåô
 Semantic discovery       (search_sse_apis is keyword-only today)
-        ↓
+        Γåô
 MCP tool descriptors
 ```
 
@@ -808,7 +808,7 @@ Eval for tool choice: expected tool name and `operation_id` on golden items that
 
 ### Phase 8
 
-Per-operation tools, semantic catalog, user-token propagation, write operations. Out of scope until Phases 2–4 have a rollback.
+Per-operation tools, semantic catalog, user-token propagation, write operations. Out of scope until Phases 2ΓÇô4 have a rollback.
 
 - Files: catalog generator, auth design, safety allow-list.
 - Dependencies: answers to section 24.
@@ -853,7 +853,7 @@ Per-operation tools, semantic catalog, user-token propagation, write operations.
 
 ## 25. Final Recommendation
 
-1. Current architecture: React UI → FastAPI `/chat` → in-process agent loop → four tools → `ModularToolsClient` → SSE `httpx` client and docs vector search. Protocol MCP listener is `packages/mcp_server` (ADR-011). Custom `/mcp/tools` remains a JSON helper. LoanOps Graphify is offline and LoanOps-only (ADR-012).
+1. Current architecture: React UI ΓåÆ FastAPI `/chat` ΓåÆ in-process agent loop ΓåÆ four tools ΓåÆ `ModularToolsClient` ΓåÆ SSE `httpx` client and docs vector search. Protocol MCP listener is `packages/mcp_server` (ADR-011). Custom `/mcp/tools` remains a JSON helper. LoanOps Graphify is offline and LoanOps-only (ADR-012).
 2. Insertion point: between `_execute_tools` and `ModularToolsClient` for execution. API **discovery** later inserts an SSE API knowledge graph + capability catalog **above** MCP tool choice, not inside Graphify.
 3. Preserve: Chat UI `/chat` contract, SSE client and `SSE__*` config, docs search, safety and intent gate on the API, eval thresholds, LoanOps Graphify (as code graph only), legacy loan provider (leave it unused).
 4. Modify: agent tool client (MCP flag), then SSE KG / capability discovery; read-only guard already on MCP `call_sse_api`.

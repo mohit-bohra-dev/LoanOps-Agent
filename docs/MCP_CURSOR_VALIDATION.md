@@ -4,7 +4,7 @@ Phase **11** of the MCP + Capability KG + ARD plan. Goal: prove **Cursor** can u
 
 Related: [`MCP_CLIENT_INTEGRATION.md`](MCP_CLIENT_INTEGRATION.md), [`MCP_SECURITY.md`](MCP_SECURITY.md), [`PHASE_STATUS.md`](PHASE_STATUS.md).
 
-**Status:** Todo — checklist ready; evidence not yet recorded.
+**Status:** Done — evidence recorded 2026-10-02 (Cursor MCP namespace `user-loanops` + Streamable HTTP).
 
 ---
 
@@ -51,6 +51,8 @@ Point Cursor at the remote Streamable HTTP URL and pass the bearer. Exact Cursor
 ```
 
 Replace `<MCP__AUTH_TOKEN>` with the same value loaded by the MCP server settings. Do not commit real tokens.
+
+Configured on this machine: user `~/.cursor/mcp.json` entry `loanops` → Cursor namespace `user-loanops`.
 
 ---
 
@@ -100,7 +102,11 @@ If the role includes `eakg.read` (default for `system`), also expect:
 
 | Date | Cursor version | Tester | P1–P6 | N1–N2 | Notes |
 |---|---|---|---|---|---|
-| TBD | TBD | TBD | TBD | TBD | Do not invent pass evidence |
+| 2026-10-02 | Cursor Desktop (this session) | agent | **PASS** | **PASS** | Via Cursor MCP `user-loanops` after `mcp_auth`. P1: 8 tools ready. P2/P3 OK. P4 `getLoanSummary` → downstream **HTTP 200**. P5 `search_docs` → config-limited (`docs not configured`, not auth). P6 `search_capabilities` OK after fixing `_READ_ONLY_TOOLS` to include EAKG. N1: bad bearer rejected (Streamable HTTP). N2: body + `method=POST` rejected. |
+
+### Fix during validation
+
+`packages/mcp_server/policy.py`: `_READ_ONLY_TOOLS` omitted EAKG tool names → listed tools failed at execute with scope denial. Added EAKG names; MCP tests green.
 
 ---
 

@@ -284,9 +284,9 @@ LoanOps Agent_Demos/
     terraform/              # AWS IaC modules
     scripts/            # azd hooks
   docs/
-    01-servicing-agent-prompts.md   # Project brief (source of truth â€” do not edit)
-    02-architecture.md
+    01-servicing-agent-prompts.md   # Project brief (source of truth — do not edit)
     03-eval-strategy.md
+  ARCHITECTURE.md                   # Living architecture (single file)
 ```
 
 ### 8.2 Tech Stack

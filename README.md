@@ -75,10 +75,9 @@ LoanOps Agent_Demos/
     scripts/        deployment hooks
   docs/
     01-servicing-agent-prompts.md  Project brief (do not edit)
-    02-architecture.md
     03-eval-strategy.md
+  ARCHITECTURE.md               Living architecture (single file)
 ```
-
 ## Key constraints
 
 - **Local-first**: `make demo` must work without any AWS credentials.

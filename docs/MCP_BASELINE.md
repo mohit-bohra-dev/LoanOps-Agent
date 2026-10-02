@@ -1,6 +1,6 @@
 # MCP Baseline
 
-Phase 1 of the MCP + RDF Capability KG + ARD master plan. Records what the running tree actually does. Architecture detail: [`CURRENT_ARCHITECTURE.md`](CURRENT_ARCHITECTURE.md). Phase matrix: [`MCP_ARD_PHASE_MATRIX.md`](MCP_ARD_PHASE_MATRIX.md).
+Phase 1 of the MCP + RDF Capability KG + ARD master plan. Records what the running tree actually does. Architecture detail: [`ARCHITECTURE.md`](../ARCHITECTURE.md). Phase matrix: [`MCP_ARD_PHASE_MATRIX.md`](MCP_ARD_PHASE_MATRIX.md).
 
 Secret values are not included.
 

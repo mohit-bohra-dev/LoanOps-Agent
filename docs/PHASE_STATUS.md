@@ -1,7 +1,8 @@
 # MCP + Capability KG + ARD — Phase Status
 
-Recorded 2026-09-30. Detail: [`MCP_ARD_PHASE_MATRIX.md`](MCP_ARD_PHASE_MATRIX.md).
-Next plan: [`PHASE_9_SEMANTIC_RETRIEVAL.md`](PHASE_9_SEMANTIC_RETRIEVAL.md).
+Recorded 2026-10-02. Detail: [`MCP_ARD_PHASE_MATRIX.md`](MCP_ARD_PHASE_MATRIX.md).
+North star: **MCP platform** — EAKG feeds tools; agent `/chat` + Cursor/Gemini consume same `:8001/mcp`.
+See [`MCP_CLIENT_INTEGRATION.md`](MCP_CLIENT_INTEGRATION.md), [`EAKG_COMMITTED_VS_LOCAL.md`](EAKG_COMMITTED_VS_LOCAL.md), [`DECIDE_AND_CLEANUP.md`](DECIDE_AND_CLEANUP.md), [`STACK_LAYER_DECISIONS.md`](STACK_LAYER_DECISIONS.md).
 
 ## Done
 
@@ -13,37 +14,42 @@ Next plan: [`PHASE_9_SEMANTIC_RETRIEVAL.md`](PHASE_9_SEMANTIC_RETRIEVAL.md).
 | 4 | Real MCP server | `packages/mcp_server`, ADR-011 |
 | 5 | Streamable HTTP | FastMCP `:8001` |
 | 6 | MCP client | `packages/common/mcp_tools_client.py`, ADR-013 |
-| 7 | Agent behind MCP | `TOOLS_CLIENT__PROVIDER=mcp` (default still `modular`) |
+| 7 | Agent behind MCP | Flag `TOOLS_CLIENT__PROVIDER=mcp` (default still `modular` for demo) |
+| 9 | Semantic capability retrieval | `CAPABILITY_KG__SEMANTIC`; [`PHASE_9_SEMANTIC_RETRIEVAL.md`](PHASE_9_SEMANTIC_RETRIEVAL.md) |
+| EAKG | Multi-repo enterprise KG | `packages/eakg/` ADR-015..019; pilot; review gate; shard merge |
+| 11 | Validate Cursor | [`MCP_CURSOR_VALIDATION.md`](MCP_CURSOR_VALIDATION.md) (2026-10-02) |
 
-Graph source for Phase 2: OpenAPI fixture `data/sse-loanservices-catalog.json` only. Not Graphify. Not live swagger. Not SSE app source.
+Graph source for Phase 2 seed: OpenAPI fixture. Live enterprise ops: EAKG shards (local).
 
 ## Partial
 
 | Phase | Name | Done | Still open |
 |---|---|---|---|
-| 8 | Auth / authz / audit | Bearer, scopes, GET-only, audit; principal headers on `call_sse_api`; EAKG tools via scopes + `approved_only` → `catalog/approved.ttl` | Full OBO (still `SSE__API_KEY` service bearer); `requiresPermission` at invoke edge |
-| 13 | Governance | `hasReviewStatus` in ontology; EAKG `review --pilot` + approved catalog | Human review workflow / UI |
+| 8 | Auth / authz / audit | Bearer, scopes, GET-only, audit; principal headers; EAKG `approved_only` | Full OBO; `requiresPermission` at invoke |
+| 13 | Governance | ReviewStatus + EAKG `review --pilot` + approved catalog | Human review UI |
 
-## Pending
-
-| Phase | Name | Notes |
-|---|---|---|
-| 10 | Graphify offline enrichment | Enrich RDF from LoanOps code graph; not runtime |
-| 11 | Validate Cursor | Todo — checklist [`MCP_CURSOR_VALIDATION.md`](MCP_CURSOR_VALIDATION.md); evidence TBD |
-| 12 | Validate Gemini | Todo — checklist [`MCP_GEMINI_VALIDATION.md`](MCP_GEMINI_VALIDATION.md); evidence TBD |
-| 14 | ARD | Pending — decision draft [`ARD_RESOURCE_CHOICE.md`](ARD_RESOURCE_CHOICE.md); after 11–12 green |
-
-## Recently completed
+## Pending (next)
 
 | Phase | Name | Notes |
 |---|---|---|
-| EAKG | Multi-repo enterprise KG | `packages/eakg/` ADR-015..019; real pilot shards; review --pilot; SSE shard merge |
-| 9 | Semantic capability retrieval | `CAPABILITY_KG__SEMANTIC`; see `PHASE_9_SEMANTIC_RETRIEVAL.md` |
+| 12 | Validate Gemini | Checklist ready — record evidence |
+| 14 | ARD | Decision draft only — after 11–12 |
+
+## Parked
+
+| Phase | Name | Notes |
+|---|---|---|
+| 10 | Graphify → RDF enrichment | Offline only; not runtime |
+| — | Roslyn/tree-sitter extractor | Roslyn = primary target; regex interim — [`STACK_LAYER_DECISIONS.md`](STACK_LAYER_DECISIONS.md) |
+| — | Live swagger CI ask | [`EAKG_SWAGGER_EXPORT.md`](EAKG_SWAGGER_EXPORT.md) |
+| — | Repo #4+ | [`EAKG_ONBOARD_REPO.md`](EAKG_ONBOARD_REPO.md) |
+| — | CodeQL / tree-sitter | Phase 2 per stack board |
 
 ## Preserve (do not replace)
 
-- Real SSE APIs (`invoke_sse_api`)
-- Four-tool surface until approved capability tools
+- Real SSE APIs (`invoke_sse_api`) behind MCP server (not a second agent bypass)
+- Agent `/chat` as MCP consumer (`TOOLS_CLIENT__PROVIDER=mcp` product path; `modular` = demo/rollback)
+- Four-tool surface until approved capability tools (+ EAKG tools under `eakg.read`)
 - Custom `/mcp/tools` JSON helper (not protocol MCP)
 - Graphify = code intelligence only
 - RAG `search_docs` separate from capability discovery

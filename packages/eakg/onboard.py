@@ -136,7 +136,7 @@ async def onboard_repository(
             {
                 "commit": commit,
                 "technology": tech,
-                "detector_versions": {"dotnet_static": "1.0.0"},
+                "detector_versions": {"dotnet_roslyn": "2.0.0", "dotnet_static": "1.0.0"},
                 "input_hashes": input_hashes,
                 "counts": {
                     "operations": len(iface.operations),

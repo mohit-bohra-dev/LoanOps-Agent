@@ -1,7 +1,8 @@
-"""Static .NET ASP.NET Core extractor (regex primary — ADR-018)."""
+"""Static .NET ASP.NET Core extractor — Roslyn primary (D5), regex interim."""
 
 from __future__ import annotations
 
+import logging
 import re
 from pathlib import Path
 
@@ -17,6 +18,8 @@ from packages.eakg.models import (
     ServiceUrlFact,
     TopicFact,
 )
+
+logger = logging.getLogger(__name__)
 
 DETECTOR_ID = "dotnet_static"
 DETECTOR_VERSION = "1.0.0"
@@ -508,15 +511,57 @@ def extract_repo(
     application_id: str,
     commit_sha: str,
     api_project_path: str = "",
+    extractor: str | None = None,
 ) -> tuple[RepoInterface, dict[str, object]]:
     root = Path(repo_root)
+    mode = (extractor or "").strip().lower()
+    if not mode:
+        try:
+            from packages.common.settings import Settings
+
+            mode = Settings().eakg.extractor
+        except Exception:  # noqa: BLE001
+            mode = "auto"
+    if mode not in {"auto", "roslyn", "regex"}:
+        mode = "auto"
+
     packages = extract_packages(root, repository_id=repository_id, commit_sha=commit_sha)
-    operations = extract_controllers(
-        root,
-        repository_id=repository_id,
-        commit_sha=commit_sha,
-        api_project_path=api_project_path,
-    )
+    operations: list[ApiOperationFact] = []
+    op_detector = DETECTOR_ID
+    if mode in {"auto", "roslyn"}:
+        try:
+            from packages.eakg.extractors.roslyn import (
+                DETECTOR_ID as ROSLYN_ID,
+            )
+            from packages.eakg.extractors.roslyn import extract_controllers_roslyn
+
+            operations = extract_controllers_roslyn(
+                root,
+                repository_id=repository_id,
+                commit_sha=commit_sha,
+                api_project_path=api_project_path,
+            )
+            op_detector = ROSLYN_ID
+            logger.info(
+                "eakg extractor=roslyn ops=%s repo=%s", len(operations), repository_id
+            )
+        except Exception as exc:  # noqa: BLE001
+            if mode == "roslyn":
+                raise
+            logger.warning("roslyn extract failed (%s); falling back to regex", exc)
+            operations = []
+    if not operations:
+        operations = extract_controllers(
+            root,
+            repository_id=repository_id,
+            commit_sha=commit_sha,
+            api_project_path=api_project_path,
+        )
+        op_detector = DETECTOR_ID
+        logger.info(
+            "eakg extractor=regex ops=%s repo=%s", len(operations), repository_id
+        )
+
     urls = extract_service_urls(root, repository_id=repository_id, commit_sha=commit_sha)
     topics = extract_topics(root, repository_id=repository_id, commit_sha=commit_sha)
     conns = extract_connections(root, repository_id=repository_id, commit_sha=commit_sha)
@@ -536,7 +581,7 @@ def extract_repo(
         proxies=proxies,
         routes=routes,
     )
-    details = {
+    details: dict[str, object] = {
         "packages": packages,
         "operations": operations,
         "urls": urls,
@@ -544,5 +589,6 @@ def extract_repo(
         "conns": conns,
         "proxies": proxies,
         "routes": routes,
+        "extractor": op_detector,
     }
     return iface, details

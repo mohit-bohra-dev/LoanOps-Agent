@@ -52,9 +52,12 @@ data/eakg/decisions/
 graphify-out/manifest.json
 graphify-out/cost.json
 graphify-out/cache/
+# Dated AST/semantic backups from `graphify update` (local only)
+graphify-out/20*/
 
-# Temporary files
-collect.txt
+# Tools build outputs
+tools/**/bin/
+tools/**/obj/
 fast.txt
 output.json
 *.whl

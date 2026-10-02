@@ -294,10 +294,11 @@ class McpConfig(BaseModel):
 
 
 class CapabilityKgConfig(BaseModel):
-    """RDF capability knowledge graph (ADR-014). Offline Turtle + SPARQL."""
+    """RDF capability knowledge graph (ADR-014 facade). Product truth is EAKG shards."""
 
-    enabled: bool = False
+    enabled: bool = True
     namespace: str = "https://loanops.local/ontology/"
+    # Deprecated for product discovery (D4). Kept for `capability_kg.build` experiments only.
     ttl_path: str = "data/capability_kg/capabilities.ttl"
     approved_only: bool = False
     # Phase 9: cosine over embeddings.json; ignored unless enabled=true
@@ -318,6 +319,8 @@ class EakgConfig(BaseModel):
     nightly_hour: int = 2
     review_stale_days: int = 14
     taac_config_path: str = ""
+    # Source analysis: roslyn (primary) | regex (interim) | auto (roslyn then regex)
+    extractor: Literal["auto", "roslyn", "regex"] = "auto"
     # Synthetic / redacted TAAC fixture for local/CI (never commit real secrets)
     taac_fixture_path: str = "data/eakg/fixtures/taac-client-config.redacted.json"
 
