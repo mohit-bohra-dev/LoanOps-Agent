@@ -204,6 +204,47 @@ async def test_pilot_onboard_and_cross_app(tmp_path: Path) -> None:
     assert catalog.list_capabilities(limit=50)
 
 
+@pytest.mark.asyncio
+async def test_shard_semantic_finds_payment_when_keyword_empty(tmp_path: Path) -> None:
+    from packages.capability_kg.extract_openapi import build_graph_from_openapi_dict
+    from packages.capability_kg.store import save_graph
+    from packages.eakg.embed import embed_shards
+
+    mini = {
+        "openapi": "3.0.0",
+        "info": {"title": "Loan Services API", "version": "1.0"},
+        "paths": {
+            "/api/Loans/{loan_id}/PaymentSchedules": {
+                "get": {
+                    "operationId": "getPaymentSchedules",
+                    "summary": "Get payment schedules for loan",
+                    "tags": ["payments"],
+                    "responses": {"200": {"description": "ok"}},
+                }
+            }
+        },
+    }
+    graph = build_graph_from_openapi_dict(mini, source_label="LoanServices")
+    shard = tmp_path / "eakg"
+    save_graph(graph, shard / "repos" / "loanservices" / "graph.ttl")
+
+    async def stub(text: str) -> list[float]:
+        t = text.lower()
+        return [
+            1.0 if "payment" in t or "schedule" in t else 0.0,
+            1.0 if "schedule" in t else 0.0,
+        ]
+
+    kw = catalog_from_shards(shard, semantic=False)
+    empty = await kw.search_capabilities("when is the next payment due", limit=5)
+    assert empty == []
+
+    await embed_shards(shard, stub)
+    sem = catalog_from_shards(shard, semantic=True, embed_query=stub)
+    hits = await sem.search_capabilities("when is the next payment due", limit=5)
+    assert any("payment" in h.id.lower() for h in hits)
+
+
 def test_registry_seed_file() -> None:
     reg = RepositoryRegistry(ROOT / "data" / "eakg" / "registry" / "repositories.yaml")
     ids = {r.repository_id for r in reg.list()}

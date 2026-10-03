@@ -1,3 +1,16 @@
+## [2026-10-04] — Wire EAKG capability embeddings
+
+**Session type:** Feature
+
+**Completed:**
+- `catalog_from_shards` loads `enterprise/embeddings.json`.
+- CLI `python -m packages.eakg embed` + `query search --semantic`.
+- Keyword still `[]` for “when is the next payment due”; semantic returns due/schedule APIs.
+
+**Reason:** Plug Phase 9 cosine into live shards.
+
+---
+
 ## [2026-10-03] — Roslyn reindex pilot git clones
 
 **Session type:** Ops / extractor

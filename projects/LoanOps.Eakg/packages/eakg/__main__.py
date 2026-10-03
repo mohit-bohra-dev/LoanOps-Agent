@@ -44,6 +44,10 @@ def main(argv: list[str] | None = None) -> int:
     p_on.add_argument("--semantic", action="store_true")
 
     sub.add_parser("cross-app", help="Rebuild cross_app.ttl from interfaces")
+    sub.add_parser(
+        "embed",
+        help="Write data/eakg/enterprise/embeddings.json from merged shards",
+    )
 
     p_taac = sub.add_parser("ingest-taac", help="Ingest TAAC fixture/config")
     p_taac.add_argument("--path", default="")
@@ -65,6 +69,11 @@ def main(argv: list[str] | None = None) -> int:
     p_q.add_argument("mode", choices=["search", "find", "explain", "impact"])
     p_q.add_argument("needle")
     p_q.add_argument("--limit", type=int, default=10)
+    p_q.add_argument(
+        "--semantic",
+        action="store_true",
+        help="Rank via embeddings.json (CapabilityCatalog), not keyword-only",
+    )
 
     args = parser.parse_args(argv)
     cfg = Settings()
@@ -114,6 +123,27 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"wrote": str(dest), "triples": len(g)}))
         return 0
 
+    if args.cmd == "embed":
+
+        async def _embed_cli() -> dict[str, object]:
+            from packages.common.providers.factory import get_embedding_provider
+            from packages.eakg.embed import embed_shards
+
+            async def _embed(text: str) -> list[float]:
+                result = await get_embedding_provider().embed(text)
+                return list(result.vector)
+
+            dest = await embed_shards(
+                store.root,
+                _embed,
+                namespace=cfg.capability_kg.namespace,
+                approved_only=cfg.capability_kg.approved_only,
+            )
+            return {"wrote": str(dest)}
+
+        print(json.dumps(asyncio.run(_embed_cli()), indent=2))
+        return 0
+
     if args.cmd == "review":
         if args.pilot:
             stats = review_pilot_edges(store)
@@ -136,7 +166,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "query":
-        from packages.eakg.merge import merge_shards
+        from packages.eakg.merge import catalog_from_shards, merge_shards
         from packages.eakg.query import (
             explain_capability,
             find_providers,
@@ -144,8 +174,38 @@ def main(argv: list[str] | None = None) -> int:
             search_capabilities,
         )
 
-        g = merge_shards(store.root, namespace=cfg.capability_kg.namespace)
         ns = cfg.capability_kg.namespace
+        if args.mode == "search" and args.semantic:
+
+            async def _sem() -> object:
+                from packages.common.providers.factory import get_embedding_provider
+
+                async def _embed(text: str) -> list[float]:
+                    result = await get_embedding_provider().embed(text)
+                    return list(result.vector)
+
+                caps = catalog_from_shards(
+                    store.root,
+                    namespace=ns,
+                    approved_only=cfg.capability_kg.approved_only,
+                    semantic=True,
+                    embed_query=_embed,
+                )
+                recs = await caps.search_capabilities(args.needle, limit=args.limit)
+                return [
+                    {
+                        "id": r.id,
+                        "operation_id": r.operation_id,
+                        "description": r.description,
+                        "read_only": r.read_only,
+                    }
+                    for r in recs
+                ]
+
+            print(json.dumps(asyncio.run(_sem()), indent=2, default=str))
+            return 0
+
+        g = merge_shards(store.root, namespace=ns)
         if args.mode == "search":
             rows = search_capabilities(g, args.needle, namespace=ns, limit=args.limit)
         elif args.mode == "find":

@@ -32,7 +32,8 @@ class EmbeddingEntry:
 def capability_text(rec: _CapLike, *, domain: str = _DOMAIN_DEFAULT) -> str:
     desc = rec.description or ""
     op = rec.operation_id or ""
-    return f"{rec.id}. {desc}. operation {op}. domain {domain}."
+    readable = rec.id.replace("_", " ")
+    return f"{readable}. {desc}. operation {op}. domain {domain}."
 
 
 def text_hash(text: str) -> str:
@@ -42,6 +43,11 @@ def text_hash(text: str) -> str:
 def embeddings_path_for_ttl(ttl_path: str | Path) -> Path:
     p = Path(ttl_path)
     return p.with_name("embeddings.json")
+
+
+def embeddings_path_for_shards(shard_dir: str | Path) -> Path:
+    """Sidecar for merged EAKG (gitignored under data/eakg/enterprise/)."""
+    return Path(shard_dir) / "enterprise" / "embeddings.json"
 
 
 def cosine(a: list[float], b: list[float]) -> float:

@@ -147,7 +147,7 @@ class CapabilityCatalog:
         except Exception:  # noqa: BLE001
             return keyword[:limit]
 
-        by_id = {r.id: r for r in self.list_capabilities(limit=500)}
+        by_id = {r.id: r for r in self.list_capabilities(limit=10_000)}
         keyword_ids = {r.id for r in keyword}
         ranked = rank(qvec, self._embed_index, top_k=max(limit * 3, 15))
 

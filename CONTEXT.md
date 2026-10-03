@@ -92,7 +92,7 @@
 | `CAPABILITY_KG__TTL_PATH` | `data/capability_kg/capabilities.ttl` | Deprecated for discovery; build CLI only |
 | `CAPABILITY_KG__NAMESPACE` | `https://loanops.local/ontology/` | RDF namespace |
 | `CAPABILITY_KG__APPROVED_ONLY` | `false` | Filter to approved/published review status |
-| `CAPABILITY_KG__SEMANTIC` | `false` | Phase 9: cosine rank via embeddings.json (needs ENABLED) |
+| `CAPABILITY_KG__SEMANTIC` | `false` | Phase 9: cosine rank via `data/eakg/enterprise/embeddings.json` after `python -m packages.eakg embed` |
 | — | — | Discovery = EAKG only: `docs/EAKG_COMMITTED_VS_LOCAL.md` |
 | `EAKG__WORKSPACE_DIR` | `.eakg-workspace` | Cloned enterprise repos (gitignored) |
 | `EAKG__REGISTRY_PATH` | `data/eakg/registry/repositories.yaml` | Repository Registry |

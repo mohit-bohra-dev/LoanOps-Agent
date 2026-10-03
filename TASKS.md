@@ -12,6 +12,7 @@ Use these instead of treating every open checkbox as equal priority.
 - [x] Record Gemini validation evidence — **skipped** 2026-10-03 (`docs/MCP_GEMINI_VALIDATION.md`)
 - [x] Product demo path: `TOOLS_CLIENT__PROVIDER=mcp` + MCP up + EAKG shards present — MCP hop `getLoanSummary` **200** with Subservicing M2M (2026-10-02)
 - [ ] Eval golden with MCP hop — after Bedrock SSO green for full `/chat`
+- [x] EAKG capability embeddings wired — `python -m packages.eakg embed`; `query --semantic` (2026-10-04)
 
 ### Next (EAKG feed)
 

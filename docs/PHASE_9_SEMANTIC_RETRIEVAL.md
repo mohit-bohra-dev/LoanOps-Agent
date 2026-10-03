@@ -17,7 +17,7 @@ User request
     ↓
 Embed query (existing EmbeddingProvider) when CAPABILITY_KG__SEMANTIC=true
     ↓
-Cosine rank vs capability vectors (data/capability_kg/embeddings.json)
+Cosine rank vs capability vectors (`data/eakg/enterprise/embeddings.json`)
     ↓
 Top-k candidates
     ↓
@@ -42,8 +42,13 @@ CAPABILITY_KG__SEMANTIC=true
 Build vectors (optional; uses live embedding provider):
 
 ```powershell
-python -m packages.capability_kg.build --embed
+uv run python -m packages.eakg embed
+# smoke: uv run python -m packages.eakg query search "when is the next payment due" --semantic
 ```
+
+Old OpenAPI-only TTL (not product discovery): `python -m packages.capability_kg.build --embed`
+
+MCP `search_sse_apis` uses the shard sidecar when `CAPABILITY_KG__SEMANTIC=true`.
 
 ## Code
 
@@ -51,5 +56,6 @@ python -m packages.capability_kg.build --embed
 |---|---|
 | `packages/capability_kg/embed_index.py` | Sidecar build/load + cosine |
 | `packages/capability_kg/catalog.py` | Semantic `search_capabilities` |
-| `packages/capability_kg/build.py` | `--embed` flag |
+| `packages/eakg/embed.py` | `embed` CLI → enterprise/embeddings.json |
+| `packages/eakg/merge.py` | `catalog_from_shards` loads that sidecar |
 | `packages/sse/tools.py` | Injects factory embedder when semantic on |
