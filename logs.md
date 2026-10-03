@@ -1,3 +1,42 @@
+## [2026-10-03] — Roslyn reindex pilot git clones
+
+**Session type:** Ops / extractor
+
+**Completed:**
+- Fixed Roslyn tool discovery (cwd/git; uv site-packages). `extractor=roslyn` no silent regex if 0 ops.
+- Manifest records `extractor`. Re-onboarded escrow/fees/loanservices from `.eakg-workspace`.
+- Ops 510 / 242 / 261. `cross-app` 243 rels. Query `GetLoanSummary` → `dotnet_roslyn`.
+
+**Reason:** Live shards were still regex (`dotnet_static`).
+
+---
+
+## [2026-10-03] — Live SSE swagger verify
+
+**Session type:** Ops / evidence
+
+**Completed:**
+- Forced HTTP swagger (`fixture_path=None`). Stale M2M → swagger 401; refresh → 292 ops.
+- Hand catalog 6 paths HIT vs live `{id}` templates. `GET /api/Loans/{id}/Summary` HTTP 200.
+- Script `scripts/verify_live_sse_swagger.py`. Evidence `docs/SSE_LIVE_SWAGGER.md`.
+- Team `swagger tofile` still open.
+
+**Reason:** Prove live OpenAPI fetch, not only hand catalog.
+
+---
+
+## [2026-10-03] — Skip Gemini MCP validation
+
+**Session type:** Backlog
+
+**Completed:**
+- Phase 12 Gemini parked. No evidence table. Cursor Phase 11 stays IDE proof.
+- Next: live SSE swagger verify; eval MCP hop still SSO-blocked.
+
+**Reason:** User skip Gemini.
+
+---
+
 ## [2026-10-02] — uv workspace split (ADR-020)
 
 **Session type:** Architecture / refactor

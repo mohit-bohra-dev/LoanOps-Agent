@@ -158,6 +158,7 @@ Code refs: `packages/agent_core/_agent.py` (`_tools_for_client`, tool loop); `pa
 | Doc | Content |
 |-----|---------|
 | `docs/FLOWS.md` F1 | Product chat (MCP hop) |
+| `docs/DEBUG_LAYER2.md` | Debugger hops (`LAYER2-BP`) + launch compounds |
 | `docs/FLOWS.md` F2 | Modular in-process |
 | `docs/FLOWS.md` F11 | Real MCP (Cursor / Gemini / agent client) |
 | `ARCHITECTURE.md` | Living architecture |

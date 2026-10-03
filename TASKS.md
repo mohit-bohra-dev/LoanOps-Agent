@@ -1,6 +1,6 @@
 # Servicing Agent — Task Tracker
 
-> **Current focus:** Agent as first-party MCP consumer (`TOOLS_CLIENT__PROVIDER=mcp`); EAKG feeds MCP tools; Cursor/Gemini = same endpoint
+> **Current focus:** Agent as first-party MCP consumer (`TOOLS_CLIENT__PROVIDER=mcp`); EAKG feeds MCP tools; Cursor = same endpoint (Gemini skipped)
 
 ## Backlog buckets (C6)
 
@@ -9,14 +9,15 @@ Use these instead of treating every open checkbox as equal priority.
 ### Now (MCP platform)
 
 - [x] Record Cursor validation evidence — `docs/MCP_CURSOR_VALIDATION.md` (2026-10-02)
-- [ ] Record Gemini validation evidence — `docs/MCP_GEMINI_VALIDATION.md`
+- [x] Record Gemini validation evidence — **skipped** 2026-10-03 (`docs/MCP_GEMINI_VALIDATION.md`)
 - [x] Product demo path: `TOOLS_CLIENT__PROVIDER=mcp` + MCP up + EAKG shards present — MCP hop `getLoanSummary` **200** with Subservicing M2M (2026-10-02)
 - [ ] Eval golden with MCP hop — after Bedrock SSO green for full `/chat`
 
 ### Next (EAKG feed)
 
 - [ ] Manual EAKG sync only — **D10:** no Task Scheduler, no cloud schedule — `docs/EAKG_INDEX_SCHEDULE.md`
-- [ ] Live SSE swagger verification / team `swagger tofile` ask — `docs/EAKG_SWAGGER_EXPORT.md`
+- [x] Live SSE swagger verify — Loan Services dev 292 ops + GET Summary **200** (2026-10-03) — `docs/SSE_LIVE_SWAGGER.md`
+- [ ] Team `swagger tofile` ask — `docs/EAKG_SWAGGER_EXPORT.md`
 
 ### Later / parked
 
@@ -149,7 +150,7 @@ Use these instead of treating every open checkbox as equal priority.
 - [x] `packages/docs` unified doc search service
 - [x] `packages/wiki` specialist stubs (full port pending)
 - [x] Modular tools client + scopes; MCP routes on Agent API
-- [ ] Live SSE swagger verification → see **Backlog buckets → Next**
+- [x] Live SSE swagger verification → `docs/SSE_LIVE_SWAGGER.md`
 - [ ] Full wiki specialist port → see **Later / parked**
 - [ ] ~~AWS image cutover~~ **deferred — local testing only for now**
 

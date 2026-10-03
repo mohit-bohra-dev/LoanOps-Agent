@@ -213,6 +213,7 @@ async def chat(request: ChatRequest) -> StreamingResponse:
         try:
             # 1. Obtain providers via factories (no concrete imports)
             chat_provider = get_chat_provider()
+            # LAYER2-BP A1: /chat entry — inspect type(tools_client)
             tools_client = get_tools_client_provider()
             prompt_store = get_prompt_store_provider()
             audit_sink = get_audit_sink_provider()

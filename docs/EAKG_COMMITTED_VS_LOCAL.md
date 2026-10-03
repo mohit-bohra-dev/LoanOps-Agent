@@ -2,6 +2,8 @@
 
 Quick map so clean clones and CI do not confuse registry seed with live enterprise shards.
 
+**How TAAC becomes graph (simple):** [`EAKG_TAAC.md`](EAKG_TAAC.md).
+
 **Source of truth (D4):** EAKG shards / approved catalog only.  
 ADR-014 single TTL fallback **removed** from product search.
 

@@ -106,6 +106,7 @@ def build_mcp_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClientPr
 def get_tools_client_provider() -> AbstractToolsClientProvider:
     """Return the configured tools client provider."""
     cfg = Settings()
+    # LAYER2-BP A2: branch modular vs mcp
     if cfg.tools_client.provider == "modular":
         return build_modular_tools_client(cfg, role=cfg.agent_role)
     if cfg.tools_client.provider == "mcp":

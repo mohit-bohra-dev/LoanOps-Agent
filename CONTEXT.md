@@ -15,6 +15,7 @@
 | `ARCHITECTURE.md` | **Only** architecture doc (living) |
 | `docs/FLOWS.md` | Every application / ops flow (F1–F25) |
 | `docs/THREE_QUERY_FLOWS.md` | UI modular vs UI+MCP vs Cursor (3 paths) |
+| `docs/DEBUG_LAYER2.md` | Debugger hops (`LAYER2-BP`) + launch compounds |
 | `decisions.md` | Architecture Decision Records |
 | `logs.md` | Dated session log |
 | `Makefile` | `install`, `lint`, `test`, `ingest`, `eval`, `demo`, `down` |

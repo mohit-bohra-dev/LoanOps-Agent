@@ -27,6 +27,7 @@ async def handle_search_sse_apis(
     capability_block: CapabilityBlock | None = None,
 ) -> str:
     catalog = await service.load()
+    # LAYER2-BP S1: OpenAPI search + optional EAKG block
     limit = min(int(args.get("limit") or 15), 50)
     query = str(args.get("query") or "")
 
@@ -80,6 +81,7 @@ async def handle_call_sse_api(
     cache: Any | None = None,
 ) -> str:
     catalog = await service.load()
+    # LAYER2-BP S2: live GET — inspect operation_id / path / path_params
     op: ApiOperation | None = None
     operation_id = args.get("operation_id")
     method = args.get("method")

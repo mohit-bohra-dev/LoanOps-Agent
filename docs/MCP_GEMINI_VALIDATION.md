@@ -4,7 +4,7 @@ Phase **12** of the MCP + Capability KG + ARD plan. Goal: prove **Gemini** (or G
 
 Related: [`MCP_CURSOR_VALIDATION.md`](MCP_CURSOR_VALIDATION.md) (Phase 11), [`MCP_CLIENT_INTEGRATION.md`](MCP_CLIENT_INTEGRATION.md), [`MCP_SECURITY.md`](MCP_SECURITY.md), [`PHASE_STATUS.md`](PHASE_STATUS.md).
 
-**Status:** Todo — checklist ready; evidence not yet recorded.
+**Status:** Skipped 2026-10-03 — no Gemini client evidence. Checklist stays for later. Cursor (Phase 11) remains the IDE proof.
 
 ---
 
