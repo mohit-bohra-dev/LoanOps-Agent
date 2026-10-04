@@ -35,6 +35,20 @@ from rdflib.namespace import RDF, RDFS, XSD
 _WRITE_METHODS = frozenset({"post", "put", "patch", "delete"})
 
 
+def _capability_comment(op: ApiOperation) -> str:
+    """Summary + longer description + tags — denser text for embeds / SPARQL."""
+    bits: list[str] = []
+    if op.summary:
+        bits.append(op.summary.strip())
+    if op.description:
+        desc = op.description.strip()
+        if desc and desc not in bits:
+            bits.append(desc)
+    if op.tags:
+        bits.append("tags: " + ", ".join(t.strip() for t in op.tags if t.strip()))
+    return ". ".join(bits)
+
+
 def camel_to_snake(name: str) -> str:
     s1 = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)
     return re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
@@ -89,8 +103,9 @@ def build_graph_from_operations(
         app_uri = ns[f"app_{_safe_local(app_key)}"]
         graph.add((op_uri, RDF.type, ns[CLASS_API_OPERATION]))
         graph.add((op_uri, RDFS.label, Literal(op_local)))
-        if op.summary:
-            graph.add((op_uri, RDFS.comment, Literal(op.summary)))
+        comment = _capability_comment(op)
+        if comment:
+            graph.add((op_uri, RDFS.comment, Literal(comment)))
         graph.add((op_uri, ns[PRED_OPERATION_ID], Literal(op_local)))
         graph.add((op_uri, ns[PRED_HTTP_METHOD], Literal(op.method.upper())))
         graph.add((op_uri, ns[PRED_HTTP_PATH], Literal(op.path)))
@@ -102,7 +117,8 @@ def build_graph_from_operations(
         cap_name = capability_id_for_operation(op.operation_id)
         cap = ns[f"cap_{_safe_local(cap_name)}"]
         read_only = op.method.lower() not in _WRITE_METHODS and not op.has_request_body
-        comment = op.summary or f"Capability for {op.operation_id}"
+        if not comment:
+            comment = f"Capability for {op.operation_id}"
         graph.add((cap, RDF.type, ns[CLASS_CAPABILITY]))
         graph.add((cap, RDFS.label, Literal(cap_name)))
         graph.add((cap, RDFS.comment, Literal(comment)))

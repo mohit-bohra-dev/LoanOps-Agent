@@ -33,11 +33,14 @@ class CapabilityRecord:
     review_status: str | None
     permission: str | None
     uri: str | None = None
+    http_path: str | None = None
 
     def summary_line(self) -> str:
         bits = [f"- capability: {self.id}"]
         if self.operation_id:
             bits.append(f"  operation_id: {self.operation_id}")
+        if self.http_path:
+            bits.append(f"  http_path: {self.http_path}")
         if self.description:
             bits.append(f"  description: {self.description}")
         if self.read_only is not None:
@@ -60,6 +63,7 @@ def _to_record(row: dict[str, str | bool | None]) -> CapabilityRecord:
         review_status=str(row["review_status"]) if row.get("review_status") is not None else None,
         permission=str(row["permission"]) if row.get("permission") is not None else None,
         uri=str(row["uri"]) if row.get("uri") is not None else None,
+        http_path=str(row["http_path"]) if row.get("http_path") is not None else None,
     )
 
 

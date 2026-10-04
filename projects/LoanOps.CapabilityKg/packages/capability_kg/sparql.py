@@ -14,157 +14,136 @@ def _initns(namespace: str = DEFAULT_NAMESPACE) -> dict[str, object]:
 
 _NS = _initns()
 
-_Q_BY_LABEL_CONTAINS = prepareQuery(
-    """
-    SELECT ?capability ?label ?description ?operationId ?readOnly ?status ?permission
-    WHERE {
-      ?capability a loanops:Capability ;
-                  rdfs:label ?label .
+# Shared projection: label/comment + op id/path + review metadata.
+_SELECT = (
+    "SELECT ?capability ?label ?description ?operationId ?httpPath "
+    "?readOnly ?status ?permission"
+)
+_OP_OPTIONALS = """
       OPTIONAL { ?capability rdfs:comment ?description }
       OPTIONAL { ?capability loanops:implementedBy ?op .
                  ?op loanops:operationId ?operationId }
+      OPTIONAL { ?capability loanops:implementedBy ?opPath .
+                 ?opPath loanops:httpPath ?httpPath }
       OPTIONAL { ?capability loanops:readOnly ?readOnly }
       OPTIONAL { ?capability loanops:hasReviewStatus ?status }
       OPTIONAL { ?capability loanops:requiresPermission ?perm .
                  ?perm rdfs:label ?permission }
+"""
+
+_Q_BY_LABEL_CONTAINS = prepareQuery(
+    f"""
+    {_SELECT}
+    WHERE {{
+      ?capability a loanops:Capability ;
+                  rdfs:label ?label .
+{_OP_OPTIONALS}
       FILTER(CONTAINS(LCASE(STR(?label)), LCASE(?needle)))
-    }
+    }}
     """,
     initNs=_NS,
 )
 
 _Q_BY_COMMENT_CONTAINS = prepareQuery(
-    """
-    SELECT ?capability ?label ?description ?operationId ?readOnly ?status ?permission
-    WHERE {
+    f"""
+    {_SELECT}
+    WHERE {{
       ?capability a loanops:Capability ;
                   rdfs:label ?label .
-      OPTIONAL { ?capability rdfs:comment ?description }
-      OPTIONAL { ?capability loanops:implementedBy ?op .
-                 ?op loanops:operationId ?operationId }
-      OPTIONAL { ?capability loanops:readOnly ?readOnly }
-      OPTIONAL { ?capability loanops:hasReviewStatus ?status }
-      OPTIONAL { ?capability loanops:requiresPermission ?perm .
-                 ?perm rdfs:label ?permission }
+{_OP_OPTIONALS}
       FILTER(BOUND(?description) && CONTAINS(LCASE(STR(?description)), LCASE(?needle)))
-    }
+    }}
     """,
     initNs=_NS,
 )
 
 _Q_READ_ONLY = prepareQuery(
-    """
-    SELECT ?capability ?label ?description ?operationId ?readOnly ?status ?permission
-    WHERE {
+    f"""
+    {_SELECT}
+    WHERE {{
       ?capability a loanops:Capability ;
                   rdfs:label ?label ;
                   loanops:readOnly true .
-      OPTIONAL { ?capability rdfs:comment ?description }
-      OPTIONAL { ?capability loanops:implementedBy ?op .
-                 ?op loanops:operationId ?operationId }
-      OPTIONAL { ?capability loanops:hasReviewStatus ?status }
-      OPTIONAL { ?capability loanops:requiresPermission ?perm .
-                 ?perm rdfs:label ?permission }
+{_OP_OPTIONALS}
       BIND(true AS ?readOnly)
-    }
+    }}
     """,
     initNs=_NS,
 )
 
 _Q_BY_PERMISSION = prepareQuery(
-    """
-    SELECT ?capability ?label ?description ?operationId ?readOnly ?status ?permission
-    WHERE {
+    f"""
+    {_SELECT}
+    WHERE {{
       ?capability a loanops:Capability ;
                   rdfs:label ?label ;
                   loanops:requiresPermission ?perm .
       ?perm rdfs:label ?permission .
       FILTER(LCASE(STR(?permission)) = LCASE(?permLabel))
-      OPTIONAL { ?capability rdfs:comment ?description }
-      OPTIONAL { ?capability loanops:implementedBy ?op .
-                 ?op loanops:operationId ?operationId }
-      OPTIONAL { ?capability loanops:readOnly ?readOnly }
-      OPTIONAL { ?capability loanops:hasReviewStatus ?status }
-    }
+{_OP_OPTIONALS}
+    }}
     """,
     initNs=_NS,
 )
 
 _Q_BY_DOMAIN = prepareQuery(
-    """
-    SELECT ?capability ?label ?description ?operationId ?readOnly ?status ?permission
-    WHERE {
+    f"""
+    {_SELECT}
+    WHERE {{
       ?capability a loanops:Capability ;
                   rdfs:label ?label ;
                   loanops:hasDomain ?domain .
       ?domain rdfs:label ?domainLabel .
       FILTER(LCASE(STR(?domainLabel)) = LCASE(?needle))
-      OPTIONAL { ?capability rdfs:comment ?description }
-      OPTIONAL { ?capability loanops:implementedBy ?op .
-                 ?op loanops:operationId ?operationId }
-      OPTIONAL { ?capability loanops:readOnly ?readOnly }
-      OPTIONAL { ?capability loanops:hasReviewStatus ?status }
-      OPTIONAL { ?capability loanops:requiresPermission ?perm .
-                 ?perm rdfs:label ?permission }
-    }
+{_OP_OPTIONALS}
+    }}
     """,
     initNs=_NS,
 )
 
 _Q_BY_APP = prepareQuery(
-    """
-    SELECT ?capability ?label ?description ?operationId ?readOnly ?status ?permission
-    WHERE {
+    f"""
+    {_SELECT}
+    WHERE {{
       ?capability a loanops:Capability ;
                   rdfs:label ?label ;
                   loanops:implementedBy ?op .
       ?op loanops:belongsToApp ?app .
       ?app rdfs:label ?appLabel .
       FILTER(LCASE(STR(?appLabel)) = LCASE(?needle))
-      OPTIONAL { ?capability rdfs:comment ?description }
-      OPTIONAL { ?op loanops:operationId ?operationId }
-      OPTIONAL { ?capability loanops:readOnly ?readOnly }
-      OPTIONAL { ?capability loanops:hasReviewStatus ?status }
-      OPTIONAL { ?capability loanops:requiresPermission ?perm .
-                 ?perm rdfs:label ?permission }
-    }
+      OPTIONAL {{ ?capability rdfs:comment ?description }}
+      OPTIONAL {{ ?op loanops:operationId ?operationId }}
+      OPTIONAL {{ ?op loanops:httpPath ?httpPath }}
+      OPTIONAL {{ ?capability loanops:readOnly ?readOnly }}
+      OPTIONAL {{ ?capability loanops:hasReviewStatus ?status }}
+      OPTIONAL {{ ?capability loanops:requiresPermission ?perm .
+                 ?perm rdfs:label ?permission }}
+    }}
     """,
     initNs=_NS,
 )
 
 _Q_GET_ONE = prepareQuery(
-    """
-    SELECT ?capability ?label ?description ?operationId ?readOnly ?status ?permission
-    WHERE {
+    f"""
+    {_SELECT}
+    WHERE {{
       ?capability a loanops:Capability ;
                   rdfs:label ?label .
       FILTER(LCASE(STR(?label)) = LCASE(?exact))
-      OPTIONAL { ?capability rdfs:comment ?description }
-      OPTIONAL { ?capability loanops:implementedBy ?op .
-                 ?op loanops:operationId ?operationId }
-      OPTIONAL { ?capability loanops:readOnly ?readOnly }
-      OPTIONAL { ?capability loanops:hasReviewStatus ?status }
-      OPTIONAL { ?capability loanops:requiresPermission ?perm .
-                 ?perm rdfs:label ?permission }
-    }
+{_OP_OPTIONALS}
+    }}
     """,
     initNs=_NS,
 )
 
 _Q_ALL = prepareQuery(
-    """
-    SELECT ?capability ?label ?description ?operationId ?readOnly ?status ?permission
-    WHERE {
+    f"""
+    {_SELECT}
+    WHERE {{
       ?capability a loanops:Capability ;
                   rdfs:label ?label .
-      OPTIONAL { ?capability rdfs:comment ?description }
-      OPTIONAL { ?capability loanops:implementedBy ?op .
-                 ?op loanops:operationId ?operationId }
-      OPTIONAL { ?capability loanops:readOnly ?readOnly }
-      OPTIONAL { ?capability loanops:hasReviewStatus ?status }
-      OPTIONAL { ?capability loanops:requiresPermission ?perm .
-                 ?perm rdfs:label ?permission }
-    }
+{_OP_OPTIONALS}
+    }}
     """,
     initNs=_NS,
 )
@@ -191,6 +170,7 @@ def _row(binding: object) -> dict[str, str | bool | None]:
         "id": str(_get("label") or ""),
         "description": str(_get("description")) if _get("description") is not None else None,
         "operation_id": str(_get("operationId")) if _get("operationId") is not None else None,
+        "http_path": str(_get("httpPath")) if _get("httpPath") is not None else None,
         "read_only": read_bool,
         "review_status": str(_get("status")) if _get("status") is not None else None,
         "permission": str(_get("permission")) if _get("permission") is not None else None,

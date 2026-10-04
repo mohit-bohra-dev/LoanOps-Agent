@@ -54,8 +54,13 @@ MCP `search_sse_apis` uses the shard sidecar when `CAPABILITY_KG__SEMANTIC=true`
 
 | File | Role |
 |---|---|
-| `packages/capability_kg/embed_index.py` | Sidecar build/load + cosine |
-| `packages/capability_kg/catalog.py` | Semantic `search_capabilities` |
+| `packages/capability_kg/embed_index.py` | Sidecar build/load + cosine; rich `capability_text` (summary + HTTP path phrases) |
+| `packages/capability_kg/catalog.py` | Semantic `search_capabilities`; `CapabilityRecord.http_path` |
+| `packages/capability_kg/extract_openapi.py` | Comment = summary + description + tags |
 | `packages/eakg/embed.py` | `embed` CLI → enterprise/embeddings.json |
 | `packages/eakg/merge.py` | `catalog_from_shards` loads that sidecar |
 | `packages/sse/tools.py` | Injects factory embedder when semantic on |
+
+## Ranking tip
+
+Re-run `uv run python -m packages.eakg embed` after extract/text changes — sidecar `text_hash` must refresh so “next payment due” ranks `PaymentSchedules` over ops that only share “due”.
