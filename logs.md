@@ -1,3 +1,28 @@
+## [2026-10-04] — Product CAPABILITY_KG__SEMANTIC=true
+
+**Session type:** Config / smoke
+
+**Completed:**
+- `.env`: `CAPABILITY_KG__SEMANTIC=true`; `EMBEDDING__PROVIDER=local_bge` (match sidecar).
+- Smoke: `eakg_capability_search_block("when is the next payment due")` → EAKG hits.
+- `.env.example` note updated.
+
+**Reason:** Wire NL capability rank into product search path.
+
+---
+
+## [2026-10-04] — Park golden-set refresh task
+
+**Session type:** Backlog
+
+**Completed:**
+- TASKS: refresh `data/golden.jsonl` for SSE/MCP tool names (later).
+- Eval MCP hop stays blocked until that + Bedrock SSO.
+
+**Reason:** Golden answer key still pre-ADR-010 tools.
+
+---
+
 ## [2026-10-04] — Wire EAKG capability embeddings
 
 **Session type:** Feature
