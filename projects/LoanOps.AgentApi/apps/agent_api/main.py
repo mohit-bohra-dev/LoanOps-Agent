@@ -124,9 +124,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:  # noqa: ARG001
 # FastAPI app
 # ---------------------------------------------------------------------------
 app = FastAPI(
-    title="Servicing Agent API",
+    title="LoanOps Agent API",
     description=(
-        "Internal copilot API for licensed mortgage-servicing care reps. "
+        "Internal AI platform API for enterprise users (any role). "
         "Provides streaming chat, health aggregation, and audit logging."
     ),
     version=_VERSION,

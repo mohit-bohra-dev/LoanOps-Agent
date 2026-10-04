@@ -1,3 +1,31 @@
+## [2026-10-04] — ADR-021 general internal audience
+
+**Session type:** Positioning / docs + light code
+
+**Completed:**
+- ADR-021: platform for any internal role (not care-rep-only).
+- `user` role in scopes; `care_rep` = deprecated alias.
+- AGENTS / README / ARCHITECTURE / CONTEXT / one-pager 09 / §B prompt opener.
+- Agent API title/description + ChatRequest docstring.
+
+**Reason:** Product moved off care-rep-only; docs/roles catch up.
+
+---
+
+## [2026-10-04] — Richer capability embed text
+
+**Session type:** Feature
+
+**Completed:**
+- `capability_text`: summary + op camel-split + HTTP path phrases.
+- SPARQL / `CapabilityRecord.http_path`; OpenAPI comment = summary+description+tags.
+- EAKG `graph_build`: persist summary → `rdfs:comment`; enrich pulls description/tags.
+- Tests: payment-due ranks above fees-due (capability_kg + eakg).
+
+**Reason:** “next payment due” was matching random “due” ops; path/summary density fixes rank.
+
+---
+
 ## [2026-10-04] — Product CAPABILITY_KG__SEMANTIC=true
 
 **Session type:** Config / smoke

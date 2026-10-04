@@ -82,7 +82,7 @@
 | `SECRETS__PROVIDER` | `env` | `env` / `keyvault` |
 | `TELEMETRY__PROVIDER` | `console` | `console` / `appinsights` |
 | `TOOLS_CLIENT__PROVIDER` | `modular` | `modular` (in-process) / `mcp` (Streamable HTTP → `:8001`, ADR-013) |
-| `AGENT_ROLE` | `system` | Role allow-list for tools (`system`/`care_rep`/`dev`/…) |
+| `AGENT_ROLE` | `system` | Role allow-list (`system`/`user`/`dev`/`pm`/…; `care_rep`=`user` alias) |
 | `MCP__HOST` / `MCP__PORT` / `MCP__PATH` | `127.0.0.1` / `8001` / `/mcp` | MCP listener bind + path |
 | `MCP__AUTH_TOKEN` | `""` | Bearer for MCP; empty rejects; required when provider=`mcp` |
 | `MCP__ROLE` | `system` | Scope allow-list on MCP server (align with `AGENT_ROLE`) |

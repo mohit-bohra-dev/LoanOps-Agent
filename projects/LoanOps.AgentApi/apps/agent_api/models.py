@@ -8,11 +8,11 @@ from pydantic import BaseModel, Field
 
 
 class ChatRequest(BaseModel):
-    """Inbound chat request from a care rep."""
+    """Inbound chat request from an internal user."""
 
     message: str
     session_id: str | None = None
-    rep_id: str | None = None
+    rep_id: str | None = None  # optional legacy caller id; not role-locked
     loan_id: str | None = None
     max_history_tokens: int = 2048
 

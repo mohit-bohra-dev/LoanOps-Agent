@@ -10,7 +10,7 @@
 
 ## 1. Executive Summary
 
-LoanOps is an internal copilot for mortgage-servicing care reps. A React chat UI talks to a FastAPI Agent API. The API runs one agent turn per message: keyword intent gate, then a Microsoft-style tool loop over a pluggable LLM (`provider_contracts` chat provider, default Bedrock). The model may call a fixed tool list.
+LoanOps is an **internal AI platform for any enterprise user** (ADR-021): discover APIs/capabilities, search docs, call tools via MCP, draft grounded answers. A React chat UI talks to a FastAPI Agent API. The API runs one agent turn per message: keyword intent gate, then a Microsoft-style tool loop over a pluggable LLM (`provider_contracts` chat provider, default Bedrock). The model may call a fixed tool list.
 
 **Product path:** `TOOLS_CLIENT__PROVIDER=mcp` → Streamable HTTP MCP on `:8001` (ADR-011/013) → `ModularToolsClient` / SSE / EAKG inside the MCP process.  
 **Rollback / single-process demo:** `TOOLS_CLIENT__PROVIDER=modular` (in-process tools, no MCP hop).
@@ -215,7 +215,7 @@ Classification:
 - `wiki_*`: placeholders. Off the default agent.
 - No graph tool is exposed to the agent.
 
-Roles (`packages/common/scopes.py`): `system` and `care_rep` = SSE read + docs search. `customer` = SSE read only. `pm` adds `wiki.jira`. `dev` adds docs index, SQL, and all wiki tools. `/mcp/tools/call` uses the process `AGENT_ROLE` allow-list. Key scopes on `POST /mcp/keys` are stored and not applied to the call.
+Roles (`packages/common/scopes.py`): `system` and `user` (= SSE read + docs + eakg). `care_rep` = deprecated alias of `user`. `customer` = SSE read only. `pm` adds `wiki.jira`. `dev` adds docs index, SQL, and all wiki tools. `/mcp/tools/call` uses the process `AGENT_ROLE` allow-list. Key scopes on `POST /mcp/keys` are stored and not applied to the call.
 
 Per-tool detail for the four agent tools:
 
@@ -322,7 +322,7 @@ Variable names (no values):
 
 **Agent role and tools**
 
-- `AGENT_ROLE` — `system` (default), `care_rep`, `customer`, `pm`, `dev`
+- `AGENT_ROLE` — `system` (default), `user` (`care_rep` alias), `customer`, `pm`, `dev`
 - `TOOLS_CLIENT__PROVIDER` — only `modular` is implemented
 
 **SSE (the live answer API)**
@@ -780,8 +780,8 @@ Point `_execute_tools` at an MCP client. Keep `ModularToolsClient` as the server
 Move `index_docs` only if a role needs it. Then `db.read` tools. Wiki stubs stay unported. Do not expose `run_read_only_sql` until the read-only classifier is covered by MCP tests.
 
 - Files: `packages/common/scopes.py` consumers on the server; `packages/db/client.py` unchanged.
-- Dependencies: role decision (`dev` vs `care_rep`).
-- Tests: scope denial for `care_rep`; SQL write keyword rejection.
+- Dependencies: role decision (`dev` vs `user` / deprecated `care_rep`).
+- Tests: scope denial for `user`/`care_rep`; SQL write keyword rejection.
 - Rollback: drop the tools from the server list.
 
 ### Phase 6

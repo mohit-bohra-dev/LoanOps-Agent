@@ -1,6 +1,6 @@
 # Servicing Agent — Task Tracker
 
-> **Current focus:** Agent as first-party MCP consumer (`TOOLS_CLIENT__PROVIDER=mcp`); EAKG feeds MCP tools; Cursor = same endpoint (Gemini skipped)
+> **Current focus:** General internal AI platform (ADR-021) — MCP consumer (`TOOLS_CLIENT__PROVIDER=mcp`); EAKG feeds tools; any role via scopes (Gemini skipped)
 
 ## Backlog buckets (C6)
 
@@ -14,6 +14,7 @@ Use these instead of treating every open checkbox as equal priority.
 - [ ] Eval golden with MCP hop — **blocked on golden refresh + Bedrock SSO** for full `/chat`
 - [x] EAKG capability embeddings wired — `python -m packages.eakg embed`; `query --semantic` (2026-10-04)
 - [x] Product semantic on — `CAPABILITY_KG__SEMANTIC=true`; `search_sse_apis` / capability block returns NL hits (2026-10-04; embedder=`local_bge` matches sidecar)
+- [x] Richer embed text (summary + HTTP path phrases) — “next payment due” ranks payment-schedule over random “due” ops (2026-10-04); re-run `python -m packages.eakg embed` after reindex
 
 ### Next (EAKG feed)
 
@@ -38,6 +39,7 @@ Use these instead of treating every open checkbox as equal priority.
 
 ### Hygiene
 
+- [x] ADR-021 general internal audience (not care-rep-only) — `user` role; docs/prompt — 2026-10-04
 - [x] Split into csproj-style uv workspace (`projects/LoanOps.*`, ADR-020) — 2026-10-02
 - Decide / cleanup board: [`docs/DECIDE_AND_CLEANUP.md`](docs/DECIDE_AND_CLEANUP.md)
 - Committed vs local EAKG: [`docs/EAKG_COMMITTED_VS_LOCAL.md`](docs/EAKG_COMMITTED_VS_LOCAL.md)
