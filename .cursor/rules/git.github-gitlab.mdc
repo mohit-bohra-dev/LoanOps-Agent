@@ -1,0 +1,35 @@
+---
+description: "This repo origin is GitHub (gh). Use glab only for gitlab.pnmac.com / EAKG work."
+alwaysApply: true
+---
+
+# Git remotes — GitHub first, GitLab when host is pnmac
+
+`LoanOps-Agent` origin is GitHub (`github.com/mohit-bohra-dev/LoanOps-Agent`).
+
+1. **This repo (PRs, issues, pipeline on origin):** `gh`. Do not default to `glab` or GitLab MCP.
+2. **`gitlab.pnmac.com` (EAKG clones, enterprise app repos):** `glab` first. GitLab MCP only if `glab` missing, auth fail, or no `glab` equivalent.
+3. Read host from `git remote get-url origin` (or the remote you are operating on). `github.com` → `gh`. `gitlab.pnmac.com` → `glab`.
+
+Do not apply `feature/{env}/{name}` branching from other Promp git packages. This repo uses conventional commits (`feat`, `fix`, `chore`, `docs`, `refactor`, `test`) on working branches. Jira keys in commits only when the user gives a ticket.
+
+## Command map (this repo)
+
+| Intent | Tool |
+|---|---|
+| Create PR | `gh pr create` |
+| View PR | `gh pr view` |
+| PR comment | `gh pr comment` |
+| Checks | `gh pr checks` |
+
+## Command map (`gitlab.pnmac.com`)
+
+| Intent | `glab` |
+|---|---|
+| Verify project / default branch | `glab repo view --output json` |
+| Create MR | `glab mr create --title "…" --description "…" --target-branch {target} [--draft]` |
+| View MR | `glab mr view {iid}` / `glab mr view {iid} --comments` |
+| MR note | `glab mr note {iid} --message "…"` |
+| Pipeline / job | `glab ci status` / `glab ci list` / `glab ci trace {job}` |
+
+Local `git` still owns branch / commit / push.

@@ -1,0 +1,814 @@
+{
+  "name": "story",
+  "version": "1.6.0",
+  "description": "Author, review, link, and sync user stories — authoring, rubric-based review, parent-epic and sibling-dependency linking, Jira delta-sync, and tracker lifecycle (state transitions, assignment, and estimate)",
+  "author": "Pennymac AI Platform",
+  "license": "MIT",
+  "keywords": [
+    "story",
+    "user-story",
+    "requirements",
+    "jira",
+    "sync",
+    "lifecycle",
+    "assignment",
+    "transition",
+    "epic",
+    "parent",
+    "linking",
+    "review",
+    "grading"
+  ],
+  "files": [
+    "prompts/**/*",
+    "agents/**/*",
+    "skills/**/*",
+    "templates/**/*",
+    "README.md"
+  ],
+  "default": "createStory",
+  "dependencies": {
+    "jira": "^1.10.0",
+    "arbor": "^0.4.0"
+  },
+  "prompts": [
+    {
+      "name": "createStory",
+      "description": "Author a new [name].story.md (WHAT/WHY) from a feature description and optionally offer a first Jira sync",
+      "prompt": "./prompts/create-story.md",
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Kebab-case name for the unit of work (e.g. 'payment-retries'); names the [name].story.md file",
+          "required": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "One-line description of what the feature does and the problem it solves",
+          "required": false
+        },
+        {
+          "name": "storyPath",
+          "type": "string",
+          "description": "Where to write the story file. A directory (file created as <dir>/[name].story.md) or a full file path. Defaults to ./[name].story.md",
+          "required": false
+        },
+        {
+          "name": "parentEpic",
+          "type": "string",
+          "description": "Optional parent epic to link the story under — a local [name].epic.md path OR an epic Jira issue key. Recorded in the story and applied on first Jira sync (via jira.createStory parentKey).",
+          "required": false
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "description": "Optional path to a template file OR an inline section-contract that overrides the package's default story.md.template. Lets a caller (e.g. nexus) supply its own story format while reusing this prompt's authoring + sync. When omitted, the package's default template is used.",
+          "required": false
+        },
+        {
+          "name": "offerSync",
+          "type": "boolean",
+          "description": "Whether to offer a first Jira sync after authoring (offered, never run automatically)",
+          "required": false,
+          "default": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Details about the created story",
+        "properties": {
+          "success": {"type":"boolean"},
+          "name": {"type":"string"},
+          "storyPath": {"type":"string","description":"Path to the created story file"},
+          "filesCreated": {"type":"array","items":{"type":"string"}}
+        },
+        "required": ["success","name","storyPath","filesCreated"]
+      },
+      "throws": [
+        {
+          "title": "InvalidNameError",
+          "type": "object",
+          "description": "The name is not kebab-case",
+          "properties": {
+            "code": {"type":"string","enum":["INVALID_NAME"]},
+            "message": {"type":"string"},
+            "providedName": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "StoryExistsError",
+          "type": "object",
+          "description": "A story file already exists at the resolved path",
+          "properties": {
+            "code": {"type":"string","enum":["STORY_EXISTS"]},
+            "message": {"type":"string"},
+            "storyPath": {"type":"string"}
+          },
+          "required": ["code","message","storyPath"]
+        }
+      ],
+      "metadata": {"category":"story","complexity":"intermediate"}
+    },
+    {
+      "name": "reviseStory",
+      "description": "Apply a described change to an existing [name].story.md in place, preserving stable IDs and the WHAT/WHY boundary, then optionally offer a Jira re-sync",
+      "prompt": "./prompts/revise-story.md",
+      "parameters": [
+        {
+          "name": "storyPath",
+          "type": "string",
+          "description": "Path to the existing [name].story.md to revise",
+          "required": true
+        },
+        {
+          "name": "changes",
+          "type": "string",
+          "description": "Description of what is changing and why",
+          "required": false
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "description": "Optional path to a template file OR an inline section-contract describing the story format to conform to (overrides the package default). Lets a caller keep its own format.",
+          "required": false
+        },
+        {
+          "name": "offerSync",
+          "type": "boolean",
+          "description": "Whether to offer a Jira re-sync after editing",
+          "required": false,
+          "default": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Details about the story revision",
+        "properties": {
+          "success": {"type":"boolean"},
+          "storyPath": {"type":"string"},
+          "changesSummary": {"type":"string"}
+        },
+        "required": ["success","storyPath"]
+      },
+      "throws": [
+        {
+          "title": "StoryNotFoundError",
+          "type": "object",
+          "description": "No readable story file exists at storyPath",
+          "properties": {
+            "code": {"type":"string","enum":["STORY_NOT_FOUND"]},
+            "message": {"type":"string"},
+            "storyPath": {"type":"string"}
+          },
+          "required": ["code","message","storyPath"]
+        }
+      ],
+      "metadata": {"category":"story","complexity":"intermediate"}
+    },
+    {
+      "name": "syncStoryToJira",
+      "description": "Delta-sync a story to its Jira issue — create on first sync, push only the changed fields (summary, description, acceptance criteria) on every sync after; surfaces Jira-side conflicts before overwriting",
+      "prompt": "./prompts/sync-story-to-jira.md",
+      "parameters": [
+        {
+          "name": "storySource",
+          "type": "string",
+          "description": "The sync target — a story file path OR a Jira issue key (auto-detected). When an issue key, the existing issue is updated, never re-created",
+          "required": false
+        },
+        {
+          "name": "storyPath",
+          "type": "string",
+          "description": "Explicit path to the local [name].story.md when storySource is an issue key or omitted",
+          "required": false
+        },
+        {
+          "name": "projectKey",
+          "type": "string",
+          "description": "Target Jira project for a first-sync create. When omitted, the jira config's default project is used",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of syncing the story to Jira",
+        "properties": {
+          "success": {"type":"boolean"},
+          "storyPath": {"type":"string"},
+          "issueKey": {"type":"string"},
+          "fieldsChanged": {"type":"array","items":{"type":"string"}},
+          "conflictReport": {"oneOf":[{"type":"object"},{"type":"null"}]}
+        },
+        "required": ["success","issueKey","fieldsChanged"]
+      },
+      "throws": [
+        {
+          "title": "StoryNotFoundError",
+          "type": "object",
+          "description": "The story file cannot be located",
+          "properties": {
+            "code": {"type":"string","enum":["STORY_NOT_FOUND"]},
+            "message": {"type":"string"},
+            "storyPath": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "description": "Surfaced from the jira skills when the Atlassian MCP server is not connected or authenticated",
+          "properties": {
+            "code": {"type":"string","enum":["CONNECTION_FAILED"]},
+            "message": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "IssueNotFoundError",
+          "type": "object",
+          "description": "Surfaced from the jira skills when the issue key does not exist",
+          "properties": {
+            "code": {"type":"string","enum":["ISSUE_NOT_FOUND"]},
+            "message": {"type":"string"},
+            "issueKey": {"type":"string"}
+          },
+          "required": ["code","message"]
+        }
+      ],
+      "metadata": {"category":"story","complexity":"intermediate"}
+    },
+    {
+      "name": "transitionStory",
+      "description": "Move a story's Jira issue to a target workflow status (its state), e.g. In Development at the start of work or In Review at completion. Status names are team-specific and opaque",
+      "prompt": "./prompts/transition-story.md",
+      "parameters": [
+        {
+          "name": "issueKey",
+          "type": "string",
+          "description": "The Jira issue key to transition (e.g. 'PAY-512')",
+          "required": false
+        },
+        {
+          "name": "storyPath",
+          "type": "string",
+          "description": "Path to the local [name].story.md; used to resolve a recorded issue key when issueKey is not given",
+          "required": false
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "description": "The target status name (e.g. 'In Development', 'In Review', 'Done'). Passed through verbatim",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of the transition",
+        "properties": {
+          "success": {"type":"boolean"},
+          "issueKey": {"type":"string"},
+          "status": {"type":"string"},
+          "transitioned": {"type":"boolean"}
+        },
+        "required": ["success","issueKey","status"]
+      },
+      "throws": [
+        {
+          "title": "NoIssueKeyError",
+          "type": "object",
+          "description": "No issue key was provided or recorded on the story",
+          "properties": {
+            "code": {"type":"string","enum":["NO_ISSUE_KEY"]},
+            "message": {"type":"string"},
+            "storyPath": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "TransitionError",
+          "type": "object",
+          "description": "Surfaced from jira when the requested status is not reachable from the issue's current status",
+          "properties": {
+            "code": {"type":"string","enum":["TRANSITION_FAILED"]},
+            "message": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {"type":"string","enum":["CONNECTION_FAILED"]},
+            "message": {"type":"string"}
+          },
+          "required": ["code","message"]
+        }
+      ],
+      "metadata": {"category":"story","complexity":"basic"}
+    },
+    {
+      "name": "assignStory",
+      "description": "Check a story's Jira assignment and, per policy, ensure it is assigned — assigning to the current user when unassigned and surfacing a conflict before reassigning a story held by someone else. Checks assignment in addition to state",
+      "prompt": "./prompts/assign-story.md",
+      "parameters": [
+        {
+          "name": "issueKey",
+          "type": "string",
+          "description": "The Jira issue key (e.g. 'PAY-512')",
+          "required": false
+        },
+        {
+          "name": "storyPath",
+          "type": "string",
+          "description": "Path to the local [name].story.md; used to resolve a recorded issue key when issueKey is not given",
+          "required": false
+        },
+        {
+          "name": "assignee",
+          "type": "string",
+          "description": "The desired assignee — a Jira account id, 'me' for the current MCP-authenticated user, or 'unassigned' to clear",
+          "required": false,
+          "default": "me"
+        },
+        {
+          "name": "policy",
+          "type": "string",
+          "description": "verify (read-only) | ensure-assigned (assign if unassigned, confirm before reassigning someone else's) | assign (set, confirming a conflict first)",
+          "required": false,
+          "default": "ensure-assigned",
+          "validation": {"enum":["verify","ensure-assigned","assign"]}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of the assignment check",
+        "properties": {
+          "success": {"type":"boolean"},
+          "issueKey": {"type":"string"},
+          "assigned": {"type":"boolean"},
+          "assignee": {"type":["string","null"]},
+          "changed": {"type":"boolean"},
+          "conflict": {"oneOf":[{"type":"object"},{"type":"null"}]}
+        },
+        "required": ["success","issueKey","assigned"]
+      },
+      "throws": [
+        {
+          "title": "NoIssueKeyError",
+          "type": "object",
+          "description": "No issue key was provided or recorded on the story",
+          "properties": {
+            "code": {"type":"string","enum":["NO_ISSUE_KEY"]},
+            "message": {"type":"string"},
+            "storyPath": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {"type":"string","enum":["CONNECTION_FAILED"]},
+            "message": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "IssueNotFoundError",
+          "type": "object",
+          "properties": {
+            "code": {"type":"string","enum":["ISSUE_NOT_FOUND"]},
+            "message": {"type":"string"},
+            "issueKey": {"type":"string"}
+          },
+          "required": ["code","message"]
+        }
+      ],
+      "metadata": {"category":"story","complexity":"intermediate"}
+    },
+    {
+      "name": "pointStory",
+      "description": "Check a story's Jira story-point estimate and, per policy, ensure it carries one — setting points when unpointed and surfacing a conflict before overwriting an estimate the team already recorded. Persists an estimate but never derives one (see nexus.estimateStory); checks the estimate in addition to state and assignment, because workflows commonly require Story Points before an issue may leave Backlog",
+      "prompt": "./prompts/point-story.md",
+      "parameters": [
+        {
+          "name": "issueKey",
+          "type": "string",
+          "description": "The Jira issue key (e.g. 'PAY-512')",
+          "required": false
+        },
+        {
+          "name": "storyPath",
+          "type": "string",
+          "description": "Path to the local [name].story.md; used to resolve a recorded issue key when issueKey is not given",
+          "required": false
+        },
+        {
+          "name": "points",
+          "type": "number",
+          "description": "The desired estimate. Required for ensure-pointed and set; ignored by verify. Passed through opaquely — the team's scale is not validated here",
+          "required": false
+        },
+        {
+          "name": "policy",
+          "type": "string",
+          "description": "verify (read-only) | ensure-pointed (set if unpointed, confirm before overwriting a different estimate) | set (force, confirming a conflict first)",
+          "required": false,
+          "default": "ensure-pointed",
+          "validation": {"enum":["verify","ensure-pointed","set"]}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of the pointing check",
+        "properties": {
+          "success": {"type":"boolean"},
+          "issueKey": {"type":"string"},
+          "pointed": {"type":"boolean"},
+          "points": {"type":["number","null"]},
+          "changed": {"type":"boolean"},
+          "conflict": {"oneOf":[{"type":"object"},{"type":"null"}]}
+        },
+        "required": ["success","issueKey","pointed"]
+      },
+      "throws": [
+        {
+          "title": "NoIssueKeyError",
+          "type": "object",
+          "description": "No issue key was provided or recorded on the story",
+          "properties": {
+            "code": {"type":"string","enum":["NO_ISSUE_KEY"]},
+            "message": {"type":"string"},
+            "storyPath": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "MissingPointsError",
+          "type": "object",
+          "description": "A mutating policy was requested without a points value; this prompt never invents an estimate",
+          "properties": {
+            "code": {"type":"string","enum":["MISSING_POINTS"]},
+            "message": {"type":"string"},
+            "policy": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "FieldNotConfiguredError",
+          "type": "object",
+          "description": "The project has no Story Points field configured (fieldIds.storyPoints is null)",
+          "properties": {
+            "code": {"type":"string","enum":["FIELD_NOT_CONFIGURED"]},
+            "message": {"type":"string"},
+            "projectKey": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {"type":"string","enum":["CONNECTION_FAILED"]},
+            "message": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "IssueNotFoundError",
+          "type": "object",
+          "properties": {
+            "code": {"type":"string","enum":["ISSUE_NOT_FOUND"]},
+            "message": {"type":"string"},
+            "issueKey": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "FieldValidationError",
+          "type": "object",
+          "description": "The issue type is not estimable (Sub-tasks carry no story points)",
+          "properties": {
+            "code": {"type":"string","enum":["FIELD_VALIDATION_FAILED"]},
+            "message": {"type":"string"},
+            "field": {"type":"string"}
+          },
+          "required": ["code","message"]
+        }
+      ],
+      "metadata": {"category":"story","complexity":"intermediate"}
+    },
+    {
+      "name": "linkStoryToEpic",
+      "description": "Set, verify, or clear a story's parent epic — recording it in the local [name].story.md and pushing the Epic Link / parent to the story's Jira issue. The desired parent may be a local [name].epic.md path or an epic Jira issue key (auto-detected); surfaces a conflict before re-parenting a story already under a different epic",
+      "prompt": "./prompts/link-story-to-epic.md",
+      "parameters": [
+        {
+          "name": "storyPath",
+          "type": "string",
+          "description": "Path to the local [name].story.md to link; used to record the parent locally and resolve a recorded story issue key",
+          "required": false
+        },
+        {
+          "name": "issueKey",
+          "type": "string",
+          "description": "The story's Jira issue key (e.g. 'PAY-512'); when omitted, resolved from storyPath",
+          "required": false
+        },
+        {
+          "name": "parentEpic",
+          "type": "string",
+          "description": "The desired parent epic — a local [name].epic.md path OR an epic Jira issue key, or 'none' to clear. Required unless policy=verify",
+          "required": false
+        },
+        {
+          "name": "policy",
+          "type": "string",
+          "description": "verify (read-only) | ensure-linked (link if unparented, confirm before re-parenting a different epic) | link (set, confirming a conflict first)",
+          "required": false,
+          "default": "ensure-linked",
+          "validation": {"enum":["verify","ensure-linked","link"]}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of the link operation",
+        "properties": {
+          "success": {"type":"boolean"},
+          "storyPath": {"type":"string"},
+          "issueKey": {"type":["string","null"]},
+          "parentEpicKey": {"type":["string","null"]},
+          "linked": {"type":"boolean"},
+          "changed": {"type":"boolean"},
+          "pushedToJira": {"type":"boolean"},
+          "conflict": {"oneOf":[{"type":"object"},{"type":"null"}]}
+        },
+        "required": ["success","linked"]
+      },
+      "throws": [
+        {
+          "title": "NoIssueKeyError",
+          "type": "object",
+          "description": "A Jira push was required but no story issue key resolved and the link could not be recorded locally",
+          "properties": {
+            "code": {"type":"string","enum":["NO_ISSUE_KEY"]},
+            "message": {"type":"string"},
+            "storyPath": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {"type":"string","enum":["CONNECTION_FAILED"]},
+            "message": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "IssueNotFoundError",
+          "type": "object",
+          "properties": {
+            "code": {"type":"string","enum":["ISSUE_NOT_FOUND"]},
+            "message": {"type":"string"},
+            "issueKey": {"type":"string"}
+          },
+          "required": ["code","message"]
+        }
+      ],
+      "metadata": {"category":"story","complexity":"intermediate"}
+    },
+    {
+      "name": "linkStoryDependencies",
+      "description": "Push story-to-story dependency relationships to Jira as native issue links (Blocks / is blocked by). Complements linkStoryToEpic, which owns the orthogonal parent-epic dimension (parentKey / Epic Link) — a dependency is a sideways link between peers, a parent is hierarchy, and the two must not be conflated. Resolves each story to its Jira issue key, orients each edge (dependsOn is the blocker, story is the blocked issue), and delegates every Atlassian operation to {{skill:jira.link-jira-issues}}, which discovers the link type and stays idempotent. Stories without a Jira issue are reported as unresolved rather than failing the batch.",
+      "prompt": "./prompts/link-story-dependencies.md",
+      "parameters": [
+        {
+          "name": "dependencies",
+          "type": "array",
+          "description": "Dependency edges to push. Each entry is { story, dependsOn }, where both values are a local [name].story.md path OR a story Jira issue key (auto-detected). dependsOn may be an array when a story has several predecessors. Direction: dependsOn is the blocker (inwardIssue), story is the blocked issue (outwardIssue).",
+          "required": true,
+          "items": {"type":"object"}
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "description": "Comment to post on each blocked issue when the link is created — e.g. a pointer back to the epic's dependency table",
+          "required": false
+        },
+        {
+          "name": "onTypeUnavailable",
+          "type": "string",
+          "description": "Passed through to jira.linkIssues for the case where the project defines no Blocks link type: 'skip' reports the links as skipped without failing, 'fail' raises LINK_TYPE_UNAVAILABLE",
+          "required": false,
+          "default": "skip",
+          "validation": {"enum":["skip","fail"]}
+        },
+        {
+          "name": "dryRun",
+          "type": "boolean",
+          "description": "Resolve and report the planned links without creating any",
+          "required": false,
+          "default": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of the dependency-linking pass",
+        "properties": {
+          "success": {"type":"boolean","description":"True when the pass completed, including when every link was already present or some stories were unresolved"},
+          "linksCreated": {"type":"array","items":{"type":"object"}},
+          "linksSkipped": {"type":"array","description":"Edges already correct (ALREADY_LINKED) or skipped for an unavailable link type (TYPE_UNAVAILABLE)","items":{"type":"object"}},
+          "conflicts": {"type":"array","description":"Pairs where the reverse link already exists — reported, never overwritten","items":{"type":"object"}},
+          "unresolved": {"type":"array","description":"Stories with no Jira issue yet, and the edges dropped because of them","items":{"type":"object"}},
+          "failed": {"type":"array","items":{"type":"object"}}
+        },
+        "required": ["success","linksCreated","linksSkipped"]
+      },
+      "throws": [
+        {
+          "title": "NoIssueKeyError",
+          "type": "object",
+          "description": "No story in the batch resolved to a Jira issue key, so there was nothing to link",
+          "properties": {
+            "code": {"type":"string","enum":["NO_ISSUE_KEY"]},
+            "message": {"type":"string"},
+            "stories": {"type":"array","items":{"type":"string"}}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {"type":"string","enum":["CONNECTION_FAILED"]},
+            "message": {"type":"string"}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "LinkTypeUnavailableError",
+          "type": "object",
+          "description": "Relayed from jira.linkIssues when the project defines no Blocks link type and onTypeUnavailable = fail",
+          "properties": {
+            "code": {"type":"string","enum":["LINK_TYPE_UNAVAILABLE"]},
+            "message": {"type":"string"},
+            "availableTypes": {"type":"array","items":{"type":"string"}}
+          },
+          "required": ["code","message"]
+        },
+        {
+          "title": "PermissionError",
+          "type": "object",
+          "description": "The user lacks the Link Issues permission on the project",
+          "properties": {
+            "code": {"type":"string","enum":["PERMISSION_DENIED"]},
+            "message": {"type":"string"}
+          },
+          "required": ["code","message"]
+        }
+      ],
+      "metadata": {"category":"story","complexity":"intermediate"}
+    },
+    {
+      "name": "reviewStory",
+      "description": "Review a [name].story.md against the standard eight-dimension rubric, ground it with cross-review analysis via the arbor search package, write a review write-up under .ai/working/, and return the write-up path, an overall score, and a pass/fail verdict. Read-only — never edits the story",
+      "prompt": "./prompts/review-story.md",
+      "parameters": [
+        {
+          "name": "storyPath",
+          "type": "string",
+          "description": "Path to the [name].story.md to review",
+          "required": true
+        },
+        {
+          "name": "formatContract",
+          "type": "string",
+          "description": "The format the story must conform to — a template path or an inline section-contract (e.g. a caller's story-format rule). When omitted, graded against the package default and story-authoring",
+          "required": false
+        },
+        {
+          "name": "outputDir",
+          "type": "string",
+          "description": "Where to write the review write-up. Default .ai/working/story-reviews",
+          "required": false,
+          "default": ".ai/working/story-reviews"
+        },
+        {
+          "name": "iteration",
+          "type": "number",
+          "description": "The review pass number in a cycle (1, 2, ...), recorded in the write-up header",
+          "required": false,
+          "default": 1
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "The review verdict",
+        "properties": {
+          "success": {"type":"boolean"},
+          "reviewPath": {"type":"string","description":"Path to the saved review write-up"},
+          "score": {"type":"number","description":"Overall score, 1.0-5.0 (mean of the eight dimensions)"},
+          "verdict": {"type":"string","enum":["pass","fail"]},
+          "iteration": {"type":"number"},
+          "mustFixCount": {"type":"number","description":"Count of open CRITICAL + HIGH findings"},
+          "summary": {"type":"string"}
+        },
+        "required": ["success","reviewPath","score","verdict"]
+      },
+      "throws": [
+        {
+          "title": "StoryNotFoundError",
+          "type": "object",
+          "description": "No readable story file exists at storyPath",
+          "properties": {
+            "code": {"type":"string","enum":["STORY_NOT_FOUND"]},
+            "message": {"type":"string"},
+            "storyPath": {"type":"string"}
+          },
+          "required": ["code","message","storyPath"]
+        }
+      ],
+      "metadata": {"category":"story","complexity":"intermediate"}
+    }
+  ],
+  "skills": [
+    {
+      "name": "story-authoring",
+      "description": "Standards for authoring [name].story.md (WHAT/WHY): prioritized P1/P2/P3 user stories with priority rationale, independent-test descriptions, and Given/When/Then scenarios; stable-ID requirements (FR-/NFR-/SC-) with [NEEDS CLARIFICATION] markers; edge cases as questions; business-meaning key entities; out-of-scope; and the technology-agnostic boundary (no code, schemas, or implementation detail). Use when creating, revising, or reviewing a story, or deciding whether content belongs in the story versus a technical design.",
+      "skill": "./skills/story-authoring/SKILL.md"
+    },
+    {
+      "name": "story-jira-sync",
+      "description": "Delta-sync methodology for keeping a story and its Jira issue in step, consuming the jira package only through {{skill:jira.*}} skill entry points. Covers the get → diff → update loop, first-sync create vs subsequent update, acceptance-criteria append vs replace (acMergeMode), surfacing and confirming Jira-side conflicts before overwriting, and config-bootstrap remediation. Use when syncing a story to Jira, diffing a local story against its issue, or resolving a sync conflict.",
+      "skill": "./skills/story-jira-sync/SKILL.md"
+    },
+    {
+      "name": "story-jira-lifecycle",
+      "description": "How a story's Jira issue is driven through its tracker lifecycle — workflow state (status transitions via {{skill:jira.update-jira-issues}} transition), assignment (reading the assignee via {{skill:jira.retrieve-jira}}, the verify/ensure-assigned/assign policies, resolving the current user, and surfacing an assignee conflict before reassigning), and the story-point estimate (the verify/ensure-pointed/set policies and the re-point conflict). Invoked with operation = transition | assign | point. Use when starting or completing work on a story, transitioning status, checking who a story is assigned to, or ensuring it carries the estimate a workflow validator requires.",
+      "skill": "./skills/story-jira-lifecycle/SKILL.md"
+    },
+    {
+      "name": "story-source-model",
+      "description": "Where a story comes from and how it is identified: story-source detection (a local [name].story.md path vs a Jira issue key, by shape), the [name].story.md naming convention, recording a created/synced Jira issue key back into the story so future syncs update instead of re-creating, and recording the parent epic reference. Use when resolving a story source before authoring or syncing, deciding whether a value is a file path or an issue key, or persisting the issue key after a first sync.",
+      "skill": "./skills/story-source-model/SKILL.md"
+    },
+    {
+      "name": "story-epic-linking",
+      "description": "How a story is linked to its parent epic — recording the parent in the local [name].story.md frontmatter and pushing the Epic Link / parent to Jira via {{skill:jira.*}} parentKey. Covers parent-epic source detection (a local [name].epic.md path vs an epic Jira issue key), resolving an epic file to its recorded issue key, the verify/ensure-linked/link policies, and surfacing a conflict before re-parenting a story already under a different epic. Use when setting, verifying, or clearing a story's parent epic, or carrying the parent link into a sync.",
+      "skill": "./skills/story-epic-linking/SKILL.md"
+    },
+    {
+      "name": "story-review",
+      "description": "Standard methodology for reviewing a [name].story.md and producing a written verdict: the eight-dimension grading rubric (format & structure, value & clarity, INVEST, acceptance-criteria quality, requirements & traceability, scope & independence, cross-story coherence, boundary discipline), the 1-5 scoring scale, the overall-score and pass/fail rules, the cross-review analysis via the arbor search package ({{skill:arbor.kb-search}}), and the standard write-up saved under .ai/working/. Use when reviewing a story, scoring it, or deciding whether it passes.",
+      "skill": "./skills/story-review/SKILL.md"
+    },
+    {
+      "name": "story-dependency-linking",
+      "description": "How story-to-story dependency relationships (this story cannot start until that one ships) are projected onto Jira as native issue links of type Blocks, via {{skill:jira.link-jira-issues}}. Covers the dependency-vs-parent distinction (a sideways peer link, never hierarchy), the direction rule (dependsOn is the blocker / inward issue, story is the blocked / outward issue), resolving each story to its Jira issue key, dropping and reporting edges whose stories have no issue yet, batching one call per pass for idempotency, and relaying created/skipped/conflict/failed results without reinterpreting them. Use when pushing an epic's story dependency tree to Jira, linking a story as blocked by a sibling, or deciding whether a relationship is a dependency or a parent epic.",
+      "skill": "./skills/story-dependency-linking/SKILL.md"
+    }
+  ],
+  "agents": [
+    {
+      "name": "story-author",
+      "description": "Authors a single [name].story.md (create or revise) in an isolated context using the story-authoring skill — honoring a caller-supplied format template/section-contract and recording the parent epic when given. In revise mode, can address a story-reviewer write-up's Required Changes via a reviewPath. Authoring only (no Jira sync/transition/assign); returns a success/questions/error status to its caller. Delegate when a story needs to be authored or revised in a fresh context (e.g. nexus batch generation, or the author -> review -> revise cycle).",
+      "agent": "./agents/story-author/AGENT.md",
+      "model": "inherit",
+      "readonly": false,
+      "userInvokable": false
+    },
+    {
+      "name": "story-reviewer",
+      "description": "Reviews a single [name].story.md in an isolated context against the standard story-review rubric, performs cross-review analysis via the arbor search package, writes a review write-up to .ai/working/, and returns the write-up path, an overall score, and a pass/fail verdict. Read-only with respect to the story — never edits it. Delegate when a story needs an objective, scored review in a fresh context (e.g. the nexus author -> review -> revise cycle).",
+      "agent": "./agents/story-reviewer/AGENT.md",
+      "model": "inherit",
+      "readonly": false,
+      "userInvokable": false
+    }
+  ],
+  "categories": [
+    "development",
+    "documentation",
+    "planning"
+  ],
+  "tags": [
+    "story",
+    "user-story",
+    "requirements",
+    "jira",
+    "sync",
+    "lifecycle",
+    "assignment",
+    "transition",
+    "epic",
+    "parent",
+    "linking",
+    "review",
+    "grading"
+  ]
+}

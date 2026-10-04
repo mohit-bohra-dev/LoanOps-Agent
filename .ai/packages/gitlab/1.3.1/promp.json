@@ -1,0 +1,1208 @@
+{
+  "name": "gitlab",
+  "version": "1.3.1",
+  "description": "GitLab CI/CD pipeline analysis and merge request automation prompts with a dual backend: GitLab MCP server (preferred) or the glab CLI as a fallback",
+  "author": "Pennymac AI Platform",
+  "license": "MIT",
+  "keywords": [
+    "gitlab",
+    "ci-cd",
+    "pipeline",
+    "logs",
+    "mcp",
+    "automation",
+    "merge-request",
+    "code-review"
+  ],
+  "files": [
+    "prompts/**/*",
+    "skills/**/*",
+    "README.md"
+  ],
+  "default": "pipelineLogRetrieval",
+  "mcpServers": [
+    {
+      "name": "gitlab",
+      "description": "GitLab MCP server for CI/CD pipeline interaction and analysis",
+      "command": "npx",
+      "args": [
+        "@zereight/mcp-gitlab"
+      ],
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "GITLAB_API_URL": "https://gitlab.pnmac.com/api/v4",
+        "GITLAB_READ_ONLY_MODE": "false",
+        "USE_GITLAB_WIKI": "false",
+        "USE_MILESTONE": "false",
+        "USE_PIPELINE": "true"
+      }
+    }
+  ],
+  "prompts": [
+    {
+      "name": "pipelineLogRetrieval",
+      "description": "Retrieve and analyze GitLab pipeline status and job logs for the latest commit using GitLab MCP tools",
+      "prompt": "./prompts/gitlab-pipeline-log-retrieval.md",
+      "parameters": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "description": "The GitLab project ID (numeric) or full path (e.g., 'cet/ai/promp')",
+          "required": false
+        },
+        {
+          "name": "repo_name",
+          "type": "string",
+          "description": "The repository name (e.g., 'promp') to look up the project",
+          "required": false
+        },
+        {
+          "name": "repo_url",
+          "type": "string",
+          "description": "The full repository URL (e.g., 'git@gitlab.pnmac.com:cet/ai/promp.git')",
+          "required": false
+        },
+        {
+          "name": "commit_sha",
+          "type": "string",
+          "description": "The commit SHA to investigate (defaults to latest commit from local Git)",
+          "required": false
+        },
+        {
+          "name": "branch_name",
+          "type": "string",
+          "description": "The branch name to check (defaults to current branch from local Git)",
+          "required": false
+        },
+        {
+          "name": "max_retries",
+          "type": "number",
+          "description": "Maximum number of retry attempts for API calls",
+          "required": false,
+          "default": 3,
+          "validation": {
+            "min": 1,
+            "max": 5
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Pipeline status and job analysis results",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the retrieval was successful"
+          },
+          "project_id": {
+            "type": "string",
+            "description": "The resolved project ID or path"
+          },
+          "commit_sha": {
+            "type": "string",
+            "description": "The commit SHA that was analyzed"
+          },
+          "pipeline_status": {
+            "type": "string",
+            "description": "The overall pipeline status (SUCCESS, FAILED, RUNNING, etc.)"
+          },
+          "pipeline_url": {
+            "type": "string",
+            "description": "Direct URL to the pipeline in GitLab"
+          },
+          "failed_jobs": {
+            "type": "array",
+            "description": "List of failed job details",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "stage": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "error_summary": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "summary_report": {
+            "type": "string",
+            "description": "Formatted markdown report of pipeline status"
+          }
+        },
+        "required": [
+          "success",
+          "project_id",
+          "commit_sha",
+          "pipeline_status"
+        ]
+      },
+      "throws": [
+        {
+          "title": "BackendUnavailableError",
+          "type": "object",
+          "description": "Error when neither the GitLab MCP server nor an authenticated glab CLI is available",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["BACKEND_UNAVAILABLE"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "remediation": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        },
+        {
+          "title": "ProjectNotFoundError",
+          "type": "object",
+          "description": "Error when GitLab project cannot be identified or found",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROJECT_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "suggestions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "AuthenticationError",
+          "type": "object",
+          "description": "Error when GitLab authentication fails",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "AUTHENTICATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "tokenInstructions": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "NoPipelinesError",
+          "type": "object",
+          "description": "Error when no pipelines are found for the commit",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NO_PIPELINES_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "commit_sha": {
+              "type": "string"
+            },
+            "reasons": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "commit_sha"
+          ]
+        },
+        {
+          "title": "NetworkError",
+          "type": "object",
+          "description": "Error when network issues prevent API calls",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NETWORK_ERROR"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Auto-detect from current directory",
+          "description": "Retrieve pipeline status without providing any parameters",
+          "input": {},
+          "output": {
+            "success": true,
+            "project_id": "cet/ai/promp",
+            "commit_sha": "34f286db5be6bc7ba76cb5d41cb9250293844732",
+            "pipeline_status": "SUCCESS",
+            "pipeline_url": "https://gitlab.pnmac.com/cet/ai/promp/-/pipelines/12345",
+            "failed_jobs": [],
+            "summary_report": "## Pipeline Status...\n"
+          }
+        },
+        {
+          "title": "Explicit project ID",
+          "description": "Check pipeline for a specific project and commit",
+          "input": {
+            "project_id": "13466",
+            "commit_sha": "34f286db5be6bc7ba76cb5d41cb9250293844732"
+          },
+          "output": {
+            "success": true,
+            "project_id": "13466",
+            "commit_sha": "34f286db5be6bc7ba76cb5d41cb9250293844732",
+            "pipeline_status": "FAILED",
+            "pipeline_url": "https://gitlab.pnmac.com/cet/ai/promp/-/pipelines/12346",
+            "failed_jobs": [
+              {
+                "name": "cdk-deploy",
+                "stage": "deploy",
+                "url": "https://gitlab.pnmac.com/cet/ai/promp/-/jobs/56789",
+                "error_summary": "CREATE_FAILED: S3BucketAccessLogging hook failure"
+              }
+            ],
+            "summary_report": "## Pipeline Status...\n"
+          }
+        }
+      ],
+      "metadata": {
+        "category": "gitlab-ci-cd",
+        "complexity": "advanced",
+        "requiresGitRepository": false,
+        "requiresGitLabBackend": "mcp-or-glab"
+      }
+    },
+    {
+      "name": "openMR",
+      "description": "Create a GitLab merge request from the current branch or a specified branch with auto-generated title and description",
+      "prompt": "./prompts/open-mr.md",
+      "parameters": [
+        {
+          "name": "branch",
+          "type": "string",
+          "description": "Source branch containing your changes (defaults to current Git branch)",
+          "required": false
+        },
+        {
+          "name": "targetBranch",
+          "type": "string",
+          "description": "Target branch to merge into (defaults to repository default branch)",
+          "required": false
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "description": "Merge request title (auto-generated from commits if not provided)",
+          "required": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Merge request description body in markdown (auto-generated if not provided)",
+          "required": false
+        },
+        {
+          "name": "draft",
+          "type": "boolean",
+          "description": "Whether to create the MR as a draft",
+          "required": false,
+          "default": false
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "description": "GitLab project ID (numeric) or full path (e.g., 'cet/ai/promp'). Auto-detected from Git remote if not provided.",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Created merge request details",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the MR was created successfully"
+          },
+          "mr_iid": {
+            "type": "number",
+            "description": "The merge request IID (human-readable number)"
+          },
+          "mr_url": {
+            "type": "string",
+            "description": "Direct URL to the merge request in GitLab"
+          },
+          "title": {
+            "type": "string",
+            "description": "The MR title"
+          },
+          "source_branch": {
+            "type": "string",
+            "description": "The source branch"
+          },
+          "target_branch": {
+            "type": "string",
+            "description": "The target branch"
+          },
+          "draft": {
+            "type": "boolean",
+            "description": "Whether the MR was created as a draft"
+          }
+        },
+        "required": [
+          "success",
+          "mr_iid",
+          "mr_url",
+          "title",
+          "source_branch",
+          "target_branch"
+        ]
+      },
+      "throws": [
+        {
+          "title": "BackendUnavailableError",
+          "type": "object",
+          "description": "Error when neither the GitLab MCP server nor an authenticated glab CLI is available",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["BACKEND_UNAVAILABLE"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "remediation": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        },
+        {
+          "title": "ProjectNotFoundError",
+          "type": "object",
+          "description": "Error when GitLab project cannot be identified",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROJECT_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "AuthenticationError",
+          "type": "object",
+          "description": "Error when GitLab authentication fails or token lacks write permissions",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "AUTHENTICATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "tokenInstructions": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "SameBranchError",
+          "type": "object",
+          "description": "Error when source and target branches are the same",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "SAME_BRANCH"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "branch"
+          ]
+        },
+        {
+          "title": "NoCommitsError",
+          "type": "object",
+          "description": "Error when no commits exist between source and target branches",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NO_COMMITS"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "source_branch": {
+              "type": "string"
+            },
+            "target_branch": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "source_branch",
+            "target_branch"
+          ]
+        },
+        {
+          "title": "MRCreationFailedError",
+          "type": "object",
+          "description": "Error when the API call to create the MR fails",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "MR_CREATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Auto-detect from current branch",
+          "description": "Create an MR from the current branch with auto-generated title and description",
+          "input": {},
+          "output": {
+            "success": true,
+            "mr_iid": 42,
+            "mr_url": "https://gitlab.pnmac.com/cet/ai/promp/-/merge_requests/42",
+            "title": "feat: add structured logging to API endpoints",
+            "source_branch": "feature/add-logging",
+            "target_branch": "main",
+            "draft": false
+          }
+        },
+        {
+          "title": "Draft MR with custom title",
+          "description": "Create a draft MR from a specific branch with a custom title",
+          "input": {
+            "branch": "feature/new-ui",
+            "title": "WIP: Redesign dashboard layout",
+            "draft": true
+          },
+          "output": {
+            "success": true,
+            "mr_iid": 43,
+            "mr_url": "https://gitlab.pnmac.com/cet/ai/promp/-/merge_requests/43",
+            "title": "WIP: Redesign dashboard layout",
+            "source_branch": "feature/new-ui",
+            "target_branch": "main",
+            "draft": true
+          }
+        },
+        {
+          "title": "MR targeting a specific branch",
+          "description": "Create an MR targeting develop instead of the default branch",
+          "input": {
+            "targetBranch": "develop"
+          },
+          "output": {
+            "success": true,
+            "mr_iid": 44,
+            "mr_url": "https://gitlab.pnmac.com/cet/ai/promp/-/merge_requests/44",
+            "title": "fix: resolve race condition in queue processor",
+            "source_branch": "fix/queue-race-condition",
+            "target_branch": "develop",
+            "draft": false
+          }
+        }
+      ],
+      "metadata": {
+        "category": "gitlab-merge-requests",
+        "complexity": "intermediate",
+        "requiresGitRepository": true,
+        "requiresGitLabBackend": "mcp-or-glab"
+      }
+    },
+    {
+      "name": "addressMRReview",
+      "description": "Retrieve, evaluate, and systematically address all review comments on a GitLab merge request with local progress tracking",
+      "prompt": "./prompts/address-mr-review.md",
+      "parameters": [
+        {
+          "name": "mr_iid",
+          "type": "number",
+          "description": "The merge request IID to address reviews for (auto-detected from current branch if not provided)",
+          "required": false
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "description": "GitLab project ID or full path (e.g., 'cet/ai/promp'). Auto-detected from Git remote if not provided.",
+          "required": false
+        },
+        {
+          "name": "includeResolved",
+          "type": "boolean",
+          "description": "Whether to re-process already-resolved discussion threads",
+          "required": false,
+          "default": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Summary of the MR review addressing session",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether all review comments were addressed"
+          },
+          "mr_iid": {
+            "type": "number",
+            "description": "The merge request IID"
+          },
+          "mr_url": {
+            "type": "string",
+            "description": "Direct URL to the merge request in GitLab"
+          },
+          "total_comments": {
+            "type": "number",
+            "description": "Total number of review comments processed"
+          },
+          "addressed": {
+            "type": "number",
+            "description": "Number of comments addressed in this session"
+          },
+          "dispositions": {
+            "type": "object",
+            "description": "Breakdown of how comments were handled",
+            "properties": {
+              "agree_implemented": {
+                "type": "number",
+                "description": "Comments where the reviewer's suggestion was implemented"
+              },
+              "better_alternative": {
+                "type": "number",
+                "description": "Comments where a better alternative was implemented"
+              },
+              "disagree_defended": {
+                "type": "number",
+                "description": "Comments where the current code was defended"
+              }
+            }
+          },
+          "files_modified": {
+            "type": "array",
+            "description": "List of files modified during the review session",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tracking_directory": {
+            "type": "string",
+            "description": "Path to the MR-specific review tracking directory (e.g., .ai/gitlab/review/{branch}-{mr_iid}/)"
+          }
+        },
+        "required": [
+          "success",
+          "mr_iid",
+          "mr_url",
+          "total_comments",
+          "addressed",
+          "dispositions"
+        ]
+      },
+      "throws": [
+        {
+          "title": "BackendUnavailableError",
+          "type": "object",
+          "description": "Error when neither the GitLab MCP server nor an authenticated glab CLI is available",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["BACKEND_UNAVAILABLE"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "remediation": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        },
+        {
+          "title": "NoMRFoundError",
+          "type": "object",
+          "description": "Error when no open merge request is found for the current branch",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NO_MR_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "NoCommentsError",
+          "type": "object",
+          "description": "Error when the MR has no unresolved review comments",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NO_COMMENTS"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "AuthenticationError",
+          "type": "object",
+          "description": "Error when GitLab authentication fails or token lacks write permissions",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "AUTHENTICATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "tokenInstructions": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Auto-detect MR from current branch",
+          "description": "Address all review comments on the current branch's open MR",
+          "input": {},
+          "output": {
+            "success": true,
+            "mr_iid": 42,
+            "mr_url": "https://gitlab.pnmac.com/cet/ai/promp/-/merge_requests/42",
+            "total_comments": 5,
+            "addressed": 5,
+            "dispositions": {
+              "agree_implemented": 2,
+              "better_alternative": 1,
+              "disagree_defended": 2
+            },
+            "files_modified": [
+              "src/api/handler.ts"
+            ],
+            "tracking_directory": ".ai/gitlab/review/feature-add-logging-42/"
+          }
+        },
+        {
+          "title": "Specific MR by IID",
+          "description": "Address reviews on a specific MR with explicit project",
+          "input": {
+            "mr_iid": 99,
+            "project_id": "cet/ai/promp"
+          },
+          "output": {
+            "success": true,
+            "mr_iid": 99,
+            "mr_url": "https://gitlab.pnmac.com/cet/ai/promp/-/merge_requests/99",
+            "total_comments": 12,
+            "addressed": 12,
+            "dispositions": {
+              "agree_implemented": 7,
+              "better_alternative": 3,
+              "disagree_defended": 2
+            },
+            "files_modified": [
+              "src/service.ts",
+              "src/config.ts",
+              "tests/service.test.ts"
+            ],
+            "tracking_directory": ".ai/gitlab/review/feature-dev-refactor-config-99/"
+          }
+        }
+      ],
+      "metadata": {
+        "category": "gitlab-merge-requests",
+        "complexity": "advanced",
+        "requiresGitRepository": true,
+        "requiresGitLabBackend": "mcp-or-glab"
+      }
+    },
+    {
+      "name": "setup",
+      "description": "Detect, install, and authenticate a GitLab backend (GitLab MCP server or the glab CLI) so the other GitLab prompts can run. Guided: asks before any install or credential change.",
+      "prompt": "./prompts/setup.md",
+      "parameters": [
+        {
+          "name": "backend",
+          "type": "string",
+          "description": "Which backend to set up: 'mcp', 'glab', or 'auto'",
+          "required": false,
+          "default": "auto",
+          "validation": {
+            "enum": ["mcp", "glab", "auto"]
+          }
+        },
+        {
+          "name": "hostname",
+          "type": "string",
+          "description": "GitLab host for glab authentication",
+          "required": false,
+          "default": "gitlab.pnmac.com"
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of the backend setup",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether a backend is configured or was already available"
+          },
+          "backend_configured": {
+            "type": "string",
+            "description": "The backend that is now configured (mcp or glab)"
+          },
+          "mcp_available": {
+            "type": "boolean",
+            "description": "Whether the GitLab MCP server tools are available"
+          },
+          "glab_installed": {
+            "type": "boolean",
+            "description": "Whether the glab CLI is installed"
+          },
+          "glab_authenticated": {
+            "type": "boolean",
+            "description": "Whether glab is authenticated to the GitLab host"
+          },
+          "next_steps": {
+            "type": "string",
+            "description": "Guidance on what to do next"
+          }
+        },
+        "required": ["success"]
+      },
+      "throws": [
+        {
+          "title": "InstallFailedError",
+          "type": "object",
+          "description": "Error when installing the glab CLI fails",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["INSTALL_FAILED"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            },
+            "remediation": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        },
+        {
+          "title": "AuthFailedError",
+          "type": "object",
+          "description": "Error when glab authentication does not complete",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["AUTH_FAILED"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "remediation": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Set up a backend automatically",
+          "description": "Detect current state and configure the fastest available backend",
+          "input": {},
+          "output": {
+            "success": true,
+            "backend_configured": "glab",
+            "mcp_available": false,
+            "glab_installed": true,
+            "glab_authenticated": true,
+            "next_steps": "glab is ready. Run /gitlab.openMR."
+          }
+        },
+        {
+          "title": "Set up the MCP server explicitly",
+          "description": "Configure the GitLab MCP server token",
+          "input": {
+            "backend": "mcp"
+          },
+          "output": {
+            "success": true,
+            "backend_configured": "mcp",
+            "mcp_available": false,
+            "glab_installed": false,
+            "glab_authenticated": false,
+            "next_steps": "Token added to .env. Restart Cursor to load the GitLab MCP server."
+          }
+        }
+      ],
+      "metadata": {
+        "category": "gitlab-setup",
+        "complexity": "basic",
+        "requiresGitRepository": false,
+        "requiresGitLabBackend": "none"
+      }
+    },
+    {
+      "name": "createProject",
+      "description": "Create a new GitLab project (repository) in a target group/namespace and return its details, using the dual backend: GitLab MCP server (preferred) or the glab CLI as a fallback",
+      "prompt": "./prompts/create-project.md",
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Project name / slug for the new repository",
+          "required": true
+        },
+        {
+          "name": "group",
+          "type": "string",
+          "description": "Target group full path (e.g., 'ai-platform-services/knowledge-bases'). Defaults to a configurable namespace, or the current user's personal namespace if unset.",
+          "required": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Project description",
+          "required": false
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "description": "Project visibility: 'private', 'internal', or 'public'",
+          "required": false,
+          "default": "private",
+          "validation": {
+            "enum": ["private", "internal", "public"]
+          }
+        },
+        {
+          "name": "initializeReadme",
+          "type": "boolean",
+          "description": "Initialize the repository with a README",
+          "required": false,
+          "default": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Created GitLab project details",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the project was created successfully"
+          },
+          "project_id": {
+            "type": "number",
+            "description": "The numeric GitLab project id"
+          },
+          "path_with_namespace": {
+            "type": "string",
+            "description": "The full path of the created project (e.g., 'ai-platform-services/knowledge-bases/my-kb')"
+          },
+          "web_url": {
+            "type": "string",
+            "description": "The web URL of the created project"
+          },
+          "default_branch": {
+            "type": ["string", "null"],
+            "description": "The project's default branch (may be null when created without a README)"
+          },
+          "ssh_url_to_repo": {
+            "type": "string",
+            "description": "The SSH clone URL"
+          },
+          "http_url_to_repo": {
+            "type": "string",
+            "description": "The HTTPS clone URL"
+          }
+        },
+        "required": [
+          "success",
+          "project_id",
+          "path_with_namespace",
+          "web_url"
+        ]
+      },
+      "throws": [
+        {
+          "title": "BackendUnavailableError",
+          "type": "object",
+          "description": "Error when neither the GitLab MCP server nor an authenticated glab CLI is available",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["BACKEND_UNAVAILABLE"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "remediation": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        },
+        {
+          "title": "GroupNotFoundError",
+          "type": "object",
+          "description": "Error when the target group/namespace does not exist or is not accessible",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["GROUP_NOT_FOUND"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "group": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        },
+        {
+          "title": "ProjectExistsError",
+          "type": "object",
+          "description": "Error when a project with that name already exists in the target group",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["PROJECT_EXISTS"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "path_with_namespace": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        },
+        {
+          "title": "AuthenticationError",
+          "type": "object",
+          "description": "Error when GitLab authentication fails or token lacks write permissions",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["AUTHENTICATION_FAILED"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "tokenInstructions": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        },
+        {
+          "title": "CreationFailedError",
+          "type": "object",
+          "description": "Error when the create API call fails for a reason other than authentication",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["CREATION_FAILED"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Create a project with defaults",
+          "description": "Create a private project in the default namespace",
+          "input": {
+            "name": "my-kb"
+          },
+          "output": {
+            "success": true,
+            "project_id": 4821,
+            "path_with_namespace": "jsmith/my-kb",
+            "web_url": "https://gitlab.pnmac.com/jsmith/my-kb",
+            "default_branch": null,
+            "ssh_url_to_repo": "git@gitlab.pnmac.com:jsmith/my-kb.git",
+            "http_url_to_repo": "https://gitlab.pnmac.com/jsmith/my-kb.git"
+          }
+        },
+        {
+          "title": "Create an internal project in a group with a README",
+          "description": "Create an internal project in a group, initialized with a README",
+          "input": {
+            "name": "team-docs",
+            "group": "ai-platform-services/knowledge-bases",
+            "visibility": "internal",
+            "initializeReadme": true
+          },
+          "output": {
+            "success": true,
+            "project_id": 4822,
+            "path_with_namespace": "ai-platform-services/knowledge-bases/team-docs",
+            "web_url": "https://gitlab.pnmac.com/ai-platform-services/knowledge-bases/team-docs",
+            "default_branch": "main",
+            "ssh_url_to_repo": "git@gitlab.pnmac.com:ai-platform-services/knowledge-bases/team-docs.git",
+            "http_url_to_repo": "https://gitlab.pnmac.com/ai-platform-services/knowledge-bases/team-docs.git"
+          }
+        }
+      ],
+      "metadata": {
+        "category": "gitlab-projects",
+        "complexity": "intermediate",
+        "requiresGitRepository": false,
+        "requiresGitLabBackend": "mcp-or-glab"
+      }
+    }
+  ],
+  "skills": [
+    {
+      "name": "gitlab-backend",
+      "description": "Resolve which GitLab backend to use (GitLab MCP server or the glab CLI) and map every GitLab operation to the resolved backend. Prefers MCP, falls back to glab, and stops with setup guidance when neither is available.",
+      "skill": "./skills/gitlab-backend/SKILL.md"
+    },
+    {
+      "name": "mr-review-address",
+      "description": "Retrieve, track, and systematically address GitLab merge request review comments. Persists state under .ai/gitlab/review/{branch}-{mr_iid}/ using the review-tracker TypeScript CLI only — never edit tracking JSON by hand. Use when the user wants to address MR feedback, respond to review comments, or resolve reviewer suggestions.",
+      "skill": "./skills/mr-review-address/SKILL.md"
+    },
+    {
+      "name": "check-branch-protection",
+      "description": "Determine whether the current user can push directly to a given branch (typically main) of a GitLab project, or whether changes must go through a merge request. Read-only; uses the dual backend (GitLab MCP server preferred, glab CLI fallback) and returns { protected, canPush, recommendation }. Use before pushing or publishing to decide push-vs-MR.",
+      "skill": "./skills/check-branch-protection/SKILL.md"
+    }
+  ],
+  "dependencies": {
+    "git": "^1.2.0"
+  },
+  "categories": [
+    "development",
+    "ci-cd",
+    "gitlab",
+    "devops"
+  ],
+  "tags": [
+    "gitlab",
+    "pipeline",
+    "ci-cd",
+    "logs",
+    "mcp",
+    "automation",
+    "debugging",
+    "merge-request",
+    "mr",
+    "code-review",
+    "review"
+  ]
+}

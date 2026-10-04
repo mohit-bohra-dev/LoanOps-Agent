@@ -22,6 +22,7 @@ ADR-014 single TTL fallback **removed** from product search.
 | Path | What | Role |
 |---|---|---|
 | `.eakg-workspace/` | `glab` clones of Escrow/Fees/LoanServices (+ live TAAC drop) | Input |
+| `.eakg-workspace/graphify/` | Optional local Graphify AST dumps of those clones | **Not pipeline** — see [`ENGINEERING_GRAPH_ANALYSIS.md`](ENGINEERING_GRAPH_ANALYSIS.md) |
 | `data/eakg/repos/` | Per-repo `graph.ttl` / `interface.json` shards | **Truth** |
 | `data/eakg/enterprise/` | Merged apps + `cross_app.ttl` | **Truth** |
 | `data/eakg/catalog/` | `approved.ttl` publish output | **Truth** (reviewed slice) |

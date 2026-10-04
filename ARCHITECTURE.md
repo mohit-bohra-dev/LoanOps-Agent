@@ -403,6 +403,8 @@ Local vs dev: same `Settings` class. Fixture flags (`SSE__USE_FIXTURE`, `SQL_SER
 
 ## 10. Graphify (LoanOps only)
 
+Analysis snapshot (two graphs, EAKG vs Graphify, one-off SSE extracts): [`docs/ENGINEERING_GRAPH_ANALYSIS.md`](docs/ENGINEERING_GRAPH_ANALYSIS.md).
+
 Graphify analyzes **this repository**: Python, TypeScript, and markdown under LoanOps-Agent. Nodes are code and doc symbols from AST extraction plus inferred semantic edges. Relationships are imports, references, and inferred links. Output is `graphify-out/graph.json`, `graph.html`, and `GRAPH_REPORT.md`, with dated snapshots under `graphify-out/YYYY-MM-DD/`.
 
 LoanOps does not import Graphify at runtime. It does not choose tools, retrieve APIs, or sit in `/chat`. Cursor rules tell coding agents to query it before grepping. That is a development aid for **LoanOps code**, not for SSE enterprise APIs (ADR-012).

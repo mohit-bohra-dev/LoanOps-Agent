@@ -1,0 +1,22 @@
+---
+description: Route impl/test/review/ship through vendored engineering skills; spec/story stay Promp
+alwaysApply: true
+---
+
+# Agent skills vs Promp spec
+
+Before non-trivial **implementation, test, review, simplify, webperf, or ship** work:
+
+1. Repo law first: `AGENTS.md`, graphify-first, provider abstraction, PowerShell.
+2. Then `.cursor/skills/using-agent-skills/SKILL.md` and the matching `.cursor/skills/<name>/SKILL.md`.
+3. Open `.cursor/references/` when a skill points at `../../references/`.
+4. Slash cmds `/review` `/ship` `/test` `/build` `/code-simplify` `/webperf` activate this pack.
+
+**Spec and story artifacts are Promp**, not root `SPEC.md`:
+
+- Live under `.ai/specs/<featureName>/`
+- Files: `README.md`, `[feature].story.md`, `[feature].spec.md`, `[feature].plan.md`
+- Commands: `/spec.createSpec`, `/spec.authorSpec`, `/spec.executeSpec`, `/story.createStory`
+- `/spec` and `/plan` in this repo **redirect** to that layout. Do not write `SPEC.md` or `tasks/plan.md` for product features.
+
+Git remotes: `git.github-gitlab.mdc` (`gh` on origin GitHub; `glab` only for `gitlab.pnmac.com`).

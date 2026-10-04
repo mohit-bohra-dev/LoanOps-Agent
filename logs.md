@@ -1,3 +1,30 @@
+## [2026-10-04] — Engineering graph analysis doc
+
+**Session type:** Analysis / docs
+
+**Completed:**
+- Wrote `docs/ENGINEERING_GRAPH_ANALYSIS.md` (Graphify vs EAKG, STEP 5, OpenAPI join, gaps).
+- One-off `graphify extract --code-only` on `.eakg-workspace/{escrow,fees,loanservices}` → `.eakg-workspace/graphify/` (gitignored, **not** onboard/CI).
+- Pointers in ARCHITECTURE §10, CONTEXT §19, `EAKG_COMMITTED_VS_LOCAL.md`.
+
+**Reason:** Record current graph state so Graphify-on-SSE is not mistaken for pipeline.
+
+---
+
+## [2026-10-04] — Pull Cursor engineering pack from pennysenselambda
+
+**Session type:** Tooling / agent config
+
+**Completed:**
+- Copied Addy Osmani skills + `references/` + `/review` `/ship` `/test` `/build` `/webperf` `/code-simplify`.
+- `/spec` `/plan` rewritten to Promp `.ai/specs/` (no root `SPEC.md`).
+- `agent-skills.mdc`; restored `git.github-gitlab.mdc`.
+- Skipped PennySense product rule and always-`glab` rule.
+
+**Reason:** Reuse impl/test/review workflows without colliding Promp spec layout or GitHub origin.
+
+---
+
 ## [2026-10-04] — ADR-021 general internal audience
 
 **Session type:** Positioning / docs + light code

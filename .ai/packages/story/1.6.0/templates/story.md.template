@@ -1,0 +1,236 @@
+# Feature Specification: {{featureName}}
+
+**Feature Branch**: `{{feature_branch}}`  
+**Created**: {{created_date}}  
+**Status**: {{status}}  
+**Input**: User description: "{{description}}"
+
+---
+
+## User Scenarios & Testing *(mandatory)*
+
+<!--
+  IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
+  Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
+  you should still have a viable MVP (Minimum Viable Product) that delivers value.
+  
+  Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
+  Think of each story as a standalone slice of functionality that can be:
+  - Developed independently
+  - Tested independently
+  - Deployed independently
+  - Demonstrated to users independently
+  
+  ACTION REQUIRED: Replace the placeholder content below with actual user stories for this feature.
+-->
+
+### User Story 1 - {{story_1_title}} (Priority: P1)
+
+{{story_1_description}}
+
+**Why this priority**: {{story_1_priority_rationale}}
+
+**Independent Test**: {{story_1_independent_test_description}}
+
+**Acceptance Scenarios**:
+
+1. **Given** {{initial_state}}, **When** {{action}}, **Then** {{expected_outcome}}
+2. **Given** {{initial_state}}, **When** {{action}}, **Then** {{expected_outcome}}
+3. **Given** {{initial_state}}, **When** {{action}}, **Then** {{expected_outcome}}
+
+---
+
+### User Story 2 - {{story_2_title}} (Priority: P2)
+
+{{story_2_description}}
+
+**Why this priority**: {{story_2_priority_rationale}}
+
+**Independent Test**: {{story_2_independent_test_description}}
+
+**Acceptance Scenarios**:
+
+1. **Given** {{initial_state}}, **When** {{action}}, **Then** {{expected_outcome}}
+2. **Given** {{initial_state}}, **When** {{action}}, **Then** {{expected_outcome}}
+
+---
+
+### User Story 3 - {{story_3_title}} (Priority: P3)
+
+{{story_3_description}}
+
+**Why this priority**: {{story_3_priority_rationale}}
+
+**Independent Test**: {{story_3_independent_test_description}}
+
+**Acceptance Scenarios**:
+
+1. **Given** {{initial_state}}, **When** {{action}}, **Then** {{expected_outcome}}
+
+---
+
+<!--
+  ACTION REQUIRED: Add more user stories as needed, each with an assigned priority.
+  Remember: Each story should be independently valuable and testable.
+-->
+
+### Edge Cases
+
+<!--
+  ACTION REQUIRED: The content in this section represents placeholders.
+  Fill them out with the actual edge cases for this feature.
+-->
+
+- What happens when {{boundary_condition}}?
+- How does system handle {{error_scenario}}?
+- What occurs when {{unexpected_input}}?
+- How should system behave when {{concurrent_operations}}?
+- What if {{resource_unavailable}}?
+
+---
+
+## Requirements *(mandatory)*
+
+<!--
+  ACTION REQUIRED: The content in this section represents placeholders.
+  Fill them out with the actual functional requirements for this feature.
+  Keep requirements technology-agnostic - focus on WHAT, not HOW.
+-->
+
+### Functional Requirements
+
+- **FR-001**: System MUST {{capability_1}}
+- **FR-002**: System MUST {{capability_2}}
+- **FR-003**: Users MUST be able to {{user_action_1}}
+- **FR-004**: System MUST {{data_requirement}}
+- **FR-005**: System MUST {{behavior_requirement}}
+- **FR-006**: System MUST {{integration_requirement}}
+
+<!--
+  Example of marking unclear requirements that need stakeholder input:
+  
+  - **FR-007**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
+  - **FR-008**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+-->
+
+### Non-Functional Requirements
+
+- **NFR-001**: System MUST respond to {{action}} within {{time_constraint}}
+- **NFR-002**: System MUST support {{scalability_requirement}}
+- **NFR-003**: System MUST maintain {{availability_requirement}} uptime
+- **NFR-004**: System MUST ensure {{security_requirement}}
+- **NFR-005**: System MUST comply with {{compliance_requirement}}
+
+### Key Entities *(include if feature involves data)*
+
+<!--
+  ACTION REQUIRED: Define key entities WITHOUT implementation details.
+  Focus on WHAT data represents, not HOW it's stored.
+-->
+
+- **{{Entity_1}}**: {{what_it_represents}}, {{key_attributes_without_implementation}}
+- **{{Entity_2}}**: {{what_it_represents}}, {{relationships_to_other_entities}}
+- **{{Entity_3}}**: {{what_it_represents}}, {{business_rules}}
+
+---
+
+## Success Criteria *(mandatory)*
+
+<!--
+  ACTION REQUIRED: Define measurable success criteria.
+  These must be technology-agnostic and measurable.
+  Think: "How will we know this feature is successful?"
+-->
+
+### Measurable Outcomes
+
+- **SC-001**: {{measurable_metric_1}}
+  - Example: "Users can complete {{task}} in under {{time}}"
+- **SC-002**: {{measurable_metric_2}}
+  - Example: "System handles {{volume}} concurrent users without degradation"
+- **SC-003**: {{user_satisfaction_metric}}
+  - Example: "{{percentage}}% of users successfully complete primary task on first attempt"
+- **SC-004**: {{business_metric}}
+  - Example: "Reduce support tickets related to {{area}} by {{percentage}}%"
+- **SC-005**: {{adoption_metric}}
+  - Example: "{{percentage}}% of target users adopt the feature within {{timeframe}}"
+
+---
+
+## Dependencies & Constraints
+
+<!--
+  ACTION REQUIRED: Identify dependencies and constraints that may impact delivery.
+  Keep these high-level — detailed technical dependencies belong in the technical design.
+-->
+
+### External Dependencies
+
+- {{dependency_1}}: {{why_needed}}
+- {{dependency_2}}: {{why_needed}}
+
+### Business Constraints
+
+- {{constraint_1}}: {{description}}
+- {{constraint_2}}: {{description}}
+
+---
+
+## Security & Privacy Considerations
+
+<!--
+  ACTION REQUIRED: Identify security and privacy implications at a user/business level.
+-->
+
+### Privacy Considerations
+
+- What user data is collected? {{data_types}}
+- How long is data retained? {{retention_period}}
+- Who has access to the data? {{access_control}}
+- Are there regulatory requirements? {{regulations}}
+
+---
+
+## Out of Scope
+
+<!--
+  ACTION REQUIRED: Clearly define what is NOT included in this feature.
+  This prevents scope creep and sets clear expectations.
+-->
+
+The following are explicitly OUT OF SCOPE for this feature:
+
+- {{out_of_scope_item_1}} - {{reason_why_out_of_scope}}
+- {{out_of_scope_item_2}} - {{reason_why_out_of_scope}}
+- {{out_of_scope_item_3}} - {{reason_why_out_of_scope}}
+
+These may be considered for future iterations.
+
+---
+
+## Open Questions
+
+<!--
+  ACTION REQUIRED: Document questions that need answers before implementation.
+  Remove questions as they are resolved and document the answers.
+-->
+
+1. **Q**: {{question_1}}  
+   **Status**: {{open/blocked/answered}}  
+   **Answer**: {{answer_if_resolved}}
+
+2. **Q**: {{question_2}}  
+   **Status**: {{open/blocked/answered}}  
+   **Answer**: {{answer_if_resolved}}
+
+---
+
+## Stakeholders & Reviewers
+
+<!--
+  ACTION REQUIRED: Identify who needs to review and approve this story.
+-->
+
+- **Product Owner**: {{name}}
+- **Technical Lead**: {{name}}
+- **Other Stakeholders**: {{names}}
