@@ -14,6 +14,7 @@ Use these instead of treating every open checkbox as equal priority.
 - [ ] Eval golden with MCP hop — **blocked on golden refresh + Bedrock SSO** for full `/chat`
 - [x] EAKG capability embeddings wired — `python -m packages.eakg embed`; `query --semantic` (2026-10-04)
 - [x] Product semantic on — `CAPABILITY_KG__SEMANTIC=true`; `search_sse_apis` / capability block returns NL hits (2026-10-04; embedder=`local_bge` matches sidecar)
+- [x] OpenAPI `search_sse_apis` uses embeddings (2026-10-06); EAKG vectors auto if `embeddings.json` exists
 - [x] Richer embed text (summary + HTTP path phrases) — “next payment due” ranks payment-schedule over random “due” ops (2026-10-04); re-run `python -m packages.eakg embed` after reindex
 
 ### Next (EAKG feed)

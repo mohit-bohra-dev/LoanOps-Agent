@@ -21,6 +21,9 @@ uv run python -m packages.eakg register `
 
 ```powershell
 uv run python -m packages.eakg onboard --id <repo_id>
+# optional AST + links.json (Graphify CLI required; failure does not fail EAKG index)
+uv run python -m packages.eakg onboard --id <repo_id> --engineering-graph
+uv run python -m packages.eakg code --id <repo_id> --operation op_<app>_<Action>_<METHOD>
 ```
 
 3. Rebuild cross-app + review:

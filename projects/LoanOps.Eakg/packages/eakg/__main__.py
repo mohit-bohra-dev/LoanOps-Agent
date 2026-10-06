@@ -42,6 +42,11 @@ def main(argv: list[str] | None = None) -> int:
     p_on.add_argument("--id", required=True)
     p_on.add_argument("--local-path", default="")
     p_on.add_argument("--semantic", action="store_true")
+    p_on.add_argument(
+        "--engineering-graph",
+        action="store_true",
+        help="Optional Graphify AST extract + links.json (not fatal if graphify fails)",
+    )
 
     sub.add_parser("cross-app", help="Rebuild cross_app.ttl from interfaces")
     sub.add_parser(
@@ -73,6 +78,17 @@ def main(argv: list[str] | None = None) -> int:
         "--semantic",
         action="store_true",
         help="Rank via embeddings.json (CapabilityCatalog), not keyword-only",
+    )
+
+    p_code = sub.add_parser(
+        "code",
+        help="Explain EAKG operation via Graphify one-hop callers (links.json)",
+    )
+    p_code.add_argument("--id", required=True, help="repository_id")
+    p_code.add_argument(
+        "--operation",
+        required=True,
+        help="RDF local name, e.g. op_loanservices_GetLoanSummary_GET",
     )
 
     args = parser.parse_args(argv)
@@ -107,9 +123,27 @@ def main(argv: list[str] | None = None) -> int:
                 settings=cfg,
                 local_path=args.local_path or None,
                 run_semantic=bool(args.semantic),
+                engineering_graph=bool(args.engineering_graph),
             )
         )
         print(json.dumps(result, indent=2, default=str))
+        return 0
+
+    if args.cmd == "code":
+        from packages.eakg.engineering import explain_operation
+
+        eng = store.engineering_dir(args.id)
+        print(
+            json.dumps(
+                explain_operation(
+                    eng / "links.json",
+                    eng / "graph.json",
+                    args.operation,
+                ),
+                indent=2,
+                default=str,
+            )
+        )
         return 0
 
     if args.cmd == "cross-app":

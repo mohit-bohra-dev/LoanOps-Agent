@@ -1,0 +1,18 @@
+# EAKG engineering-graph extract — skip vendor / build / minified web assets
+node_modules/
+bin/
+obj/
+wwwroot/
+**/wwwroot/**
+*.min.js
+*.min.css
+**/redoc/**
+**/dist/
+**/coverage/
+packages/
+.vs/
+*.user
+*.suo
+*.dll
+*.exe
+*.nupkg

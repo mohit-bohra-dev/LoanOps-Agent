@@ -1,8 +1,17 @@
 # Engineering Graph analysis (LoanOps + EAKG)
 
 **Date:** 2026-10-04  
-**Scope:** Existing implementation only. No new architecture.  
-**Status:** Snapshot of code + a **one-off** Graphify extract on registry clones. That extract is **not** in the EAKG pipeline.
+**Scope:** Analysis snapshot plus **implemented MVP** (optional Graphify stage).  
+**Status:** EAKG RDF pipeline is product truth. Optional `--engineering-graph` writes per-repo AST + `links.json`. That stage is **not** on by default.
+
+## Target (MVP, implemented)
+
+- Analyzers live in `packages/eakg/analyzers/`. Registry selects **DotNetRoslynAdapter** (API surface) and, with `--engineering-graph`, **GraphifyAstAdapter**.
+- Graphify output: `data/eakg/repos/<id>/engineering/graph.json` (gitignored with shards). Links: `engineering/links.json`.
+- Join key: `application|METHOD|normalized_path`. Match Roslyn evidence file + action to Graphify `source_file` + `label`. No fuzzy `Task`/`List` links.
+- CLI: `uv run python -m packages.eakg onboard --id <id> --engineering-graph` then `uv run python -m packages.eakg code --id <id> --operation op_<app>_<Action>_<METHOD>`.
+- Graphify failure does **not** fail EAKG index. Java has no adapter. Unknown languages are `unsupported` on the manifest.
+- LoanOps `graphify-out/` is unchanged (this repo only). MCP `search_sse_apis` is unchanged.
 
 Related: [`ARCHITECTURE.md`](../ARCHITECTURE.md) §10–10b, [`docs/STACK_LAYER_DECISIONS.md`](STACK_LAYER_DECISIONS.md), [`GRAPHIFY_SETUP.md`](../GRAPHIFY_SETUP.md), [`docs/EAKG_COMMITTED_VS_LOCAL.md`](EAKG_COMMITTED_VS_LOCAL.md), [`docs/EAKG_ONBOARD_REPO.md`](EAKG_ONBOARD_REPO.md).
 

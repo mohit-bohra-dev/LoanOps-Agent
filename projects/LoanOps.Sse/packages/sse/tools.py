@@ -6,9 +6,10 @@ import json
 from collections.abc import Awaitable, Callable
 from typing import Any
 
-from packages.sse.catalog import find_operation, search_operations, summarize_operation
+from packages.sse.catalog import find_operation, summarize_operation
 from packages.sse.invoke import invoke_sse_api
 from packages.sse.loader import OpenApiCatalogService
+from packages.sse.semantic import EmbedFn, search_operations_with_embeddings
 from packages.sse.types import ApiOperation
 
 SSE_TOOL_NAMES = (
@@ -20,21 +21,39 @@ SSE_TOOL_NAMES = (
 CapabilityBlock = Callable[[str, int], Awaitable[str | None]]
 
 
+def _live_embed() -> EmbedFn:
+    async def _embed(text: str) -> list[float]:
+        from packages.common.providers.factory import get_embedding_provider
+
+        result = await get_embedding_provider().embed(text)
+        return list(result.vector)
+
+    return _embed
+
+
 async def handle_search_sse_apis(
     service: OpenApiCatalogService,
     args: dict[str, Any],
     *,
     capability_block: CapabilityBlock | None = None,
+    embed: EmbedFn | None = None,
 ) -> str:
     catalog = await service.load()
-    # LAYER2-BP S1: OpenAPI search + optional EAKG block
+    # LAYER2-BP S1: OpenAPI vector search + optional EAKG block
     limit = min(int(args.get("limit") or 15), 50)
     query = str(args.get("query") or "")
 
     kg_block: str | None = None
     if capability_block is not None:
         kg_block = await capability_block(query, limit)
-    hits = search_operations(catalog.operations, query, limit)
+    embed_fn = embed if embed is not None else _live_embed()
+    hits = await search_operations_with_embeddings(
+        catalog.operations,
+        query,
+        cache=service.openapi_embed_cache,
+        limit=limit,
+        embed=embed_fn,
+    )
     if not hits and not kg_block:
         return "No matching SSE API operations."
     parts: list[str] = []

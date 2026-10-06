@@ -30,7 +30,11 @@ CapabilityCatalog results → search_sse_apis text
 Agent still calls call_sse_api by operation_id
 ```
 
-Fallback: flag off, missing sidecar, or embed failure → keyword SPARQL.
+Fallback: no sidecar and flag off, or embed failure → keyword SPARQL.
+
+`search_sse_apis` also embeds **OpenAPI operations** in-process (`packages/sse/semantic.py`, same 0.7/0.3 blend). Vectors cached on `OpenApiCatalogService`. Embedder fail → keyword. No new env var.
+
+EAKG: `CAPABILITY_KG__SEMANTIC=true` **or** `data/eakg/enterprise/embeddings.json` present.
 
 ## Enable
 

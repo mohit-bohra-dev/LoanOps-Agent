@@ -130,6 +130,15 @@ class ShardStore:
                 out.append(json.loads(line))
         return out
 
+    def engineering_dir(self, repository_id: str) -> Path:
+        return self.repo_dir(repository_id) / "engineering"
+
+    def write_engineering_links(self, repository_id: str, payload: dict[str, Any]) -> Path:
+        dest = self.engineering_dir(repository_id) / "links.json"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        return dest
+
     def write_openapi_cache(self, repository_id: str, commit: str, spec: dict[str, Any]) -> Path:
         dest = self.repo_dir(repository_id) / "openapi" / f"{commit[:12]}.json"
         dest.parent.mkdir(parents=True, exist_ok=True)

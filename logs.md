@@ -1,3 +1,39 @@
+## [2026-10-06] — Embedding search for OpenAPI + EAKG
+
+**Session type:** Implementation
+
+**Completed:**
+- `packages/sse/semantic.py` — cosine search over OpenAPI ops; `search_sse_apis` uses EmbeddingProvider (keyword fallback).
+- EAKG capability block uses sidecar `embeddings.json` even when `CAPABILITY_KG__SEMANTIC` is false.
+
+**Reason:** User asked for embedding search on both swagger catalog and RDF-backed capabilities.
+
+---
+
+## [2026-10-04] — Plaisse wiki vs LoanOps comparison doc
+
+**Session type:** Analysis / docs
+
+**Completed:**
+- Wrote `docs/PLAISSE_WIKI_VS_LOANOPS.md` (goals, knowledge stores, live GET, docs-from-code, when to use which).
+
+**Reason:** Capture wiki vs LoanOps in simple words after architecture comparison in chat.
+
+---
+
+## [2026-10-04] — EAKG engineering graph MVP
+
+**Session type:** Implementation
+
+**Completed:**
+- Analyzer registry (`DotNetRoslynAdapter`, optional `GraphifyAstAdapter`); onboard no longer uses hardcoded `EXTRACTORS`.
+- `--engineering-graph` + `python -m packages.eakg code --id --operation`.
+- Projector `links.json`; `.graphifyignore` template; Graphify failure does not fail index.
+
+**Reason:** Link EAKG operations to Graphify symbols without copying AST into Turtle.
+
+---
+
 ## [2026-10-04] — Engineering graph analysis doc
 
 **Session type:** Analysis / docs
