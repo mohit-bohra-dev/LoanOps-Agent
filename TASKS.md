@@ -1,6 +1,6 @@
 # Servicing Agent — Task Tracker
 
-> **Current focus:** Agent as first-party MCP consumer (`TOOLS_CLIENT__PROVIDER=mcp`); EAKG feeds MCP tools; Cursor/Gemini = same endpoint
+> **Current focus:** General internal AI platform (ADR-021) — MCP consumer (`TOOLS_CLIENT__PROVIDER=mcp`); EAKG feeds tools; any role via scopes (Gemini skipped)
 
 ## Backlog buckets (C6)
 
@@ -9,17 +9,23 @@ Use these instead of treating every open checkbox as equal priority.
 ### Now (MCP platform)
 
 - [x] Record Cursor validation evidence — `docs/MCP_CURSOR_VALIDATION.md` (2026-10-02)
-- [ ] Record Gemini validation evidence — `docs/MCP_GEMINI_VALIDATION.md`
+- [x] Record Gemini validation evidence — **skipped** 2026-10-03 (`docs/MCP_GEMINI_VALIDATION.md`)
 - [x] Product demo path: `TOOLS_CLIENT__PROVIDER=mcp` + MCP up + EAKG shards present — MCP hop `getLoanSummary` **200** with Subservicing M2M (2026-10-02)
-- [ ] Eval golden with MCP hop — after Bedrock SSO green for full `/chat`
+- [ ] Eval golden with MCP hop — **blocked on golden refresh + Bedrock SSO** for full `/chat`
+- [x] EAKG capability embeddings wired — `python -m packages.eakg embed`; `query --semantic` (2026-10-04)
+- [x] Product semantic on — `CAPABILITY_KG__SEMANTIC=true`; `search_sse_apis` / capability block returns NL hits (2026-10-04; embedder=`local_bge` matches sidecar)
+- [x] OpenAPI `search_sse_apis` uses embeddings (2026-10-06); EAKG vectors auto if `embeddings.json` exists
+- [x] Richer embed text (summary + HTTP path phrases) — “next payment due” ranks payment-schedule over random “due” ops (2026-10-04); re-run `python -m packages.eakg embed` after reindex
 
 ### Next (EAKG feed)
 
 - [ ] Manual EAKG sync only — **D10:** no Task Scheduler, no cloud schedule — `docs/EAKG_INDEX_SCHEDULE.md`
-- [ ] Live SSE swagger verification / team `swagger tofile` ask — `docs/EAKG_SWAGGER_EXPORT.md`
+- [x] Live SSE swagger verify — Loan Services dev 292 ops + GET Summary **200** (2026-10-03) — `docs/SSE_LIVE_SWAGGER.md`
+- [ ] Team `swagger tofile` ask — `docs/EAKG_SWAGGER_EXPORT.md`
 
 ### Later / parked
 
+- [ ] **Refresh golden set for SSE/MCP** — `data/golden.jsonl` still expects old tools (`lookup_loan`, `get_escrow_breakdown`, `search_policy`, …). Keep prompts; rewrite `must_call_tools` / `must_cite` to `search_sse_apis` → `call_sse_api` + `search_docs`. Prove ~10 items first, then full 50. Do **not** lower eval thresholds. Then run eval with `TOOLS_CLIENT__PROVIDER=mcp`.
 - [ ] **D9** push `vdd` to GitLab — **not yet**; after full test pass
 - [x] **Roslyn .NET extractor** cutover (D5) — `tools/eakg-dotnet-extract`, `EAKG__EXTRACTOR=auto`
 - [x] Repo #4+ — **D6 freeze at 3** (Escrow/Fees/LoanServices); guide when unfrozen: `docs/EAKG_ONBOARD_REPO.md`
@@ -34,6 +40,7 @@ Use these instead of treating every open checkbox as equal priority.
 
 ### Hygiene
 
+- [x] ADR-021 general internal audience (not care-rep-only) — `user` role; docs/prompt — 2026-10-04
 - [x] Split into csproj-style uv workspace (`projects/LoanOps.*`, ADR-020) — 2026-10-02
 - Decide / cleanup board: [`docs/DECIDE_AND_CLEANUP.md`](docs/DECIDE_AND_CLEANUP.md)
 - Committed vs local EAKG: [`docs/EAKG_COMMITTED_VS_LOCAL.md`](docs/EAKG_COMMITTED_VS_LOCAL.md)
@@ -149,7 +156,7 @@ Use these instead of treating every open checkbox as equal priority.
 - [x] `packages/docs` unified doc search service
 - [x] `packages/wiki` specialist stubs (full port pending)
 - [x] Modular tools client + scopes; MCP routes on Agent API
-- [ ] Live SSE swagger verification → see **Backlog buckets → Next**
+- [x] Live SSE swagger verification → `docs/SSE_LIVE_SWAGGER.md`
 - [ ] Full wiki specialist port → see **Later / parked**
 - [ ] ~~AWS image cutover~~ **deferred — local testing only for now**
 
@@ -160,7 +167,7 @@ Use these instead of treating every open checkbox as equal priority.
 - [x] Factory wiring; empty `MCP__AUTH_TOKEN` refuses `mcp` provider
 - [x] Unit tests: fake session + agent turn via MCP client
 - [x] Live MCP hop smoke (`getLoanSummary` 200) — SSO chat compare still optional
-- [ ] Eval golden with MCP hop → see **Backlog buckets → Now**
+- [ ] Eval golden with MCP hop → see **Backlog buckets → Now** (first: refresh golden under Later)
 
 ## Step 15 — RDF Capability Knowledge Graph (ADR-014)
 

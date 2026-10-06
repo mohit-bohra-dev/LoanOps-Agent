@@ -19,8 +19,13 @@ async def eakg_capability_search_block(query: str, limit: int = 15) -> str | Non
     if not repos.is_dir() or not any(p.is_dir() for p in repos.iterdir()):
         return None
 
+    from packages.capability_kg.embed_index import embeddings_path_for_shards
+
+    sidecar = embeddings_path_for_shards(shards)
+    use_semantic = cfg.semantic or sidecar.is_file()
+
     embed_query = None
-    if cfg.semantic:
+    if use_semantic:
 
         async def _embed(text: str) -> list[float]:
             from packages.common.providers.factory import get_embedding_provider
@@ -36,7 +41,7 @@ async def eakg_capability_search_block(query: str, limit: int = 15) -> str | Non
         shards,
         namespace=cfg.namespace,
         approved_only=cfg.approved_only,
-        semantic=cfg.semantic,
+        semantic=use_semantic,
         embed_query=embed_query,
     )
     records = await caps.search_capabilities(query, limit=limit)

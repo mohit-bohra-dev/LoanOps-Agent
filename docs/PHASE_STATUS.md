@@ -32,8 +32,13 @@ Graph source for Phase 2 seed: OpenAPI fixture. Live enterprise ops: EAKG shards
 
 | Phase | Name | Notes |
 |---|---|---|
-| 12 | Validate Gemini | Checklist ready — record evidence |
-| 14 | ARD | Decision draft only — after 11–12 |
+| 14 | ARD | Decision draft only — after Cursor (11); Gemini (12) skipped |
+
+## Skipped
+
+| Phase | Name | Notes |
+|---|---|---|
+| 12 | Validate Gemini | 2026-10-03 — no Gemini evidence; checklist kept |
 
 ## Parked
 
@@ -41,7 +46,7 @@ Graph source for Phase 2 seed: OpenAPI fixture. Live enterprise ops: EAKG shards
 |---|---|---|
 | 10 | Graphify → RDF enrichment | Offline only; not runtime |
 | — | Roslyn/tree-sitter extractor | Roslyn = primary target; regex interim — [`STACK_LAYER_DECISIONS.md`](STACK_LAYER_DECISIONS.md) |
-| — | Live swagger CI ask | [`EAKG_SWAGGER_EXPORT.md`](EAKG_SWAGGER_EXPORT.md) |
+| — | Live swagger CI ask | [`EAKG_SWAGGER_EXPORT.md`](EAKG_SWAGGER_EXPORT.md) — runtime fetch: [`SSE_LIVE_SWAGGER.md`](SSE_LIVE_SWAGGER.md) |
 | — | Repo #4+ | [`EAKG_ONBOARD_REPO.md`](EAKG_ONBOARD_REPO.md) |
 | — | CodeQL / tree-sitter | Phase 2 per stack board |
 

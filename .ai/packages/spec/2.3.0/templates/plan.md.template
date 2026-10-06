@@ -1,0 +1,453 @@
+---
+name: {{featureName}}
+overview: {{one_sentence_plan_overview}}
+todos:
+  - id: p1-{{task_id}}
+    content: "{{phase_1_task_description}}"
+    status: pending
+  - id: p1-{{task_id_2}}
+    content: "{{phase_1_task_description_2}}"
+    status: pending
+  - id: p2-{{task_id}}
+    content: "{{phase_2_task_description}}"
+    status: pending
+  - id: p3-{{task_id}}
+    content: "{{phase_3_task_description}}"
+    status: pending
+isProject: false
+---
+
+# {{featureName}} - Implementation Plan
+
+## Status
+
+| Field | Value |
+|-------|-------|
+| **Status** | {{status}} |
+| **Version** | {{version}} |
+| **Created** | {{created_date}} |
+{{#if storyPath}}
+| **Story** | {{storyPath}} |
+| **User Stories** | [story]({{storyPath}}) |
+{{else}}
+| **User Stories** | [{{featureName}}.story.md](./{{featureName}}.story.md) |
+{{/if}}
+| **Technical Spec** | [{{featureName}}.spec.md](./{{featureName}}.spec.md) |
+
+---
+
+## How to Use This Plan
+
+This plan follows the Cursor plan format. Work is tracked in two ways:
+
+1. **Todos (YAML frontmatter)** - Atomic, trackable tasks. Update each todo's `status` field (`pending` | `in_progress` | `completed`) as work progresses. Todo IDs use the `p{N}-{slug}` convention where `N` is the phase number.
+2. **Markdown body (below)** - Rich context for each phase: architecture, code examples, test requirements, and success criteria.
+
+The todos are the source of truth for progress. The markdown body is the source of truth for how to execute each task.
+
+---
+
+## Technology Stack
+
+### Core Dependencies
+{{list_of_dependencies}}
+
+### Existing Infrastructure
+{{list_of_existing_tools}}
+
+---
+
+## Architecture Overview
+
+```
+{{architecture_diagram}}
+```
+
+---
+
+## Implementation Phases
+
+### Phase 1: {{phase_name}} (Days {{days}})
+
+**Owner**: {{owner}}
+**Type**: {{type}}
+**Duration**: {{duration}}
+**Dependencies**: {{dependencies}}
+
+**Todos in this phase**: `p1-*`
+
+---
+
+#### 1.1 {{task_name}}
+
+**File**: `{{file_path}}`
+
+**Tasks**:
+
+1. **{{subtask_name}}**
+
+```typescript
+{{code_example}}
+```
+
+**Test**: {{test_description}}
+
+---
+
+2. **{{subtask_name}}**
+
+```typescript
+{{code_example}}
+```
+
+**Test**:
+{{list_of_test_scenarios}}
+
+---
+
+#### 1.2 {{task_name}}
+
+**File**: `{{file_path}}`
+
+**Tasks**:
+
+{{task_details}}
+
+**Coverage Goal**: {{coverage_percentage}}%
+
+---
+
+### Phase 2: {{phase_name}} (Days {{days}})
+
+**Owner**: {{owner}}
+**Type**: {{type}}
+**Duration**: {{duration}}
+**Dependencies**: {{dependencies}}
+
+**Todos in this phase**: `p2-*`
+
+---
+
+#### 2.1 {{task_name}}
+
+**File**: `{{file_path}}`
+
+**Tasks**:
+
+{{task_details_with_code_examples}}
+
+**Test**: {{test_description}}
+
+---
+
+### Phase 3: {{phase_name}} (Days {{days}})
+
+**Owner**: {{owner}}
+**Type**: {{type}}
+**Duration**: {{duration}}
+**Dependencies**: {{dependencies}}
+
+**Todos in this phase**: `p3-*`
+
+---
+
+#### 3.1 {{task_name}}
+
+**File**: `{{file_path}}`
+
+**Tasks**:
+
+{{task_details}}
+
+---
+
+### Phase 4: {{phase_name}} (Days {{days}})
+
+**Owner**: {{owner}}
+**Type**: {{type}}
+**Duration**: {{duration}}
+**Dependencies**: {{dependencies}}
+
+**Todos in this phase**: `p4-*`
+
+---
+
+#### 4.1 {{task_name}}
+
+**File**: `{{file_path}}`
+
+**Tasks**:
+
+{{documentation_tasks}}
+
+**Length**: {{line_count}} lines ({{description}})
+
+---
+
+### Phase 5: {{phase_name}} (Day {{day}})
+
+**Owner**: {{owner}}
+**Type**: {{type}}
+**Duration**: {{duration}}
+**Dependencies**: {{dependencies}}
+
+**Todos in this phase**: `p5-*`
+
+---
+
+#### 5.1 Comprehensive Testing
+
+**Tasks**:
+
+1. **Run full test suite**
+   ```bash
+   {{test_commands}}
+   ```
+   {{test_requirements}}
+
+2. **Run test coverage**
+   ```bash
+   {{coverage_commands}}
+   ```
+   {{coverage_requirements}}
+
+3. **Run type checking**
+   ```bash
+   {{type_check_commands}}
+   ```
+   {{type_check_requirements}}
+
+4. **Run linting**
+   ```bash
+   {{lint_commands}}
+   ```
+   {{lint_requirements}}
+
+5. **Run build**
+   ```bash
+   {{build_commands}}
+   ```
+   {{build_requirements}}
+
+---
+
+#### 5.2 Edge Case Validation
+
+**Tasks**:
+
+Test each edge case manually:
+
+{{list_of_edge_cases_with_test_commands}}
+
+---
+
+#### 5.3 Performance Testing
+
+**Tasks**:
+
+{{performance_test_tasks}}
+
+---
+
+#### 5.4 Manual End-to-End Testing
+
+**Scenarios**:
+
+{{e2e_test_scenarios}}
+
+---
+
+#### 5.5 Documentation Review
+
+**Tasks**:
+
+{{documentation_review_tasks}}
+
+---
+
+## Timeline Summary
+
+| Phase | Duration | Key Deliverables |
+|-------|----------|------------------|
+| Phase 1 | {{duration}} | {{deliverables}} |
+| Phase 2 | {{duration}} | {{deliverables}} |
+| Phase 3 | {{duration}} | {{deliverables}} |
+| Phase 4 | {{duration}} | {{deliverables}} |
+| Phase 5 | {{duration}} | {{deliverables}} |
+
+**Total**: {{total_days}} development days
+
+---
+
+## Success Criteria
+
+### Functional Requirements
+{{functional_requirements}}
+
+### Quality Requirements
+{{quality_requirements}}
+
+### Performance Requirements
+{{performance_requirements}}
+
+### Safety Requirements
+{{safety_requirements}}
+
+---
+
+## Risk Mitigation
+
+### Risk: {{risk_name}}
+
+**Mitigation**:
+{{mitigation_strategies}}
+
+### Risk: {{risk_name}}
+
+**Mitigation**:
+{{mitigation_strategies}}
+
+### Risk: {{risk_name}}
+
+**Mitigation**:
+{{mitigation_strategies}}
+
+---
+
+## Dependencies
+
+### External Dependencies
+```json
+{
+  {{external_dependencies}}
+}
+```
+
+### Internal Dependencies
+{{internal_dependencies}}
+
+---
+
+## Rollout Plan
+
+### Phase 1: Internal Testing
+{{testing_plan}}
+
+### Phase 2: Beta Release
+{{beta_release_plan}}
+
+### Phase 3: General Availability
+{{ga_release_plan}}
+
+---
+
+## Post-Implementation
+
+### Monitoring
+{{monitoring_plan}}
+
+### Future Enhancements
+{{future_enhancements}}
+
+---
+
+## Final Validation
+
+Before marking the plan complete, verify:
+
+### Code Quality
+- [ ] Code follows project style guide
+- [ ] No duplicate code (jscpd passes)
+- [ ] All functions documented with JSDoc
+- [ ] All magic numbers extracted to constants
+- [ ] All error cases handled
+- [ ] All TODOs resolved or documented
+
+### Documentation Quality
+- [ ] All examples tested and working
+- [ ] All commands documented accurately
+- [ ] All options documented
+- [ ] All edge cases explained
+- [ ] All links working
+- [ ] Consistent terminology throughout
+
+### Test Quality
+- [ ] All functions have tests
+- [ ] All edge cases covered
+- [ ] All error paths tested
+- [ ] Integration tests comprehensive
+- [ ] Test names descriptive
+- [ ] Test assertions specific
+
+### Deployment Readiness
+- [ ] Package.json updated if needed
+- [ ] No breaking changes to existing functionality
+- [ ] Backward compatible
+- [ ] Migration path clear (if needed)
+- [ ] Release notes drafted
+
+---
+
+## Code Review Checklist
+
+### Before Requesting Review
+- [ ] All tests passing
+- [ ] Documentation complete
+- [ ] Code formatted properly
+- [ ] No console.log statements
+- [ ] No commented-out code
+- [ ] Git history clean
+
+### Review Items
+- [ ] Algorithm correctness verified
+- [ ] Error handling comprehensive
+- [ ] Performance acceptable
+- [ ] Security validated
+- [ ] User experience polished
+- [ ] Documentation accurate
+
+---
+
+## Sign-off
+
+### Developer
+- [ ] Implementation complete (all todos `completed`)
+- [ ] All tests passing
+- [ ] Documentation complete
+- [ ] Ready for code review
+
+**Developer**: _______________ **Date**: _______________
+
+### Code Reviewer
+- [ ] Code reviewed
+- [ ] Tests reviewed
+- [ ] Documentation reviewed
+- [ ] Approved for merge
+
+**Reviewer**: _______________ **Date**: _______________
+
+### QA
+- [ ] Manual testing complete
+- [ ] Edge cases validated
+- [ ] User experience verified
+- [ ] Approved for deployment
+
+**QA**: _______________ **Date**: _______________
+
+---
+
+## Quick Command Reference
+
+```bash
+{{quick_commands}}
+```
+
+---
+
+## Notes
+
+_Use this space for implementation notes, issues encountered, or decisions made during development:_
+
+---
+
+**Ready to implement!** Start with the first `p1-*` todo and follow the plan phase by phase. Update each todo's `status` as you progress.

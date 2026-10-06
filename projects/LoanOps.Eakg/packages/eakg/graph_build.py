@@ -29,6 +29,7 @@ from packages.capability_kg.ontology import (
     PRED_HTTP_PATH,
     PRED_IMPLEMENTED_BY,
     PRED_IMPLEMENTED_BY_CODE_UNIT,
+    PRED_INTENT,
     PRED_LINE_END,
     PRED_LINE_START,
     PRED_OPERATION_ID,
@@ -48,6 +49,7 @@ from packages.capability_kg.ontology import (
 )
 from packages.eakg.models import (
     ApiOperationFact,
+    AuthzSource,
     CrossAppRelationship,
     Evidence,
     RepoInterface,
@@ -58,6 +60,20 @@ from rdflib.namespace import RDF, RDFS, XSD
 
 def _safe(value: str) -> str:
     return re.sub(r"[^a-zA-Z0-9_]+", "_", value).strip("_")[:140]
+
+
+_AUTHZ: dict[str, AuthzSource] = {
+    "attribute": "attribute",
+    "class-level": "class-level",
+    "convention": "convention",
+    "unknown": "unknown",
+}
+
+
+def _authz_source(raw: object) -> AuthzSource:
+    if isinstance(raw, str) and raw in _AUTHZ:
+        return _AUTHZ[raw]
+    return "unknown"
 
 
 def evidence_to_graph(items: list[Evidence], *, namespace: str = DEFAULT_NAMESPACE) -> Graph:
@@ -107,6 +123,7 @@ def interface_to_graph(
     if not ops:
         # rebuild light facts from interface JSON
         for o in iface.operations:
+            summary_raw = o.get("summary")
             ops.append(
                 ApiOperationFact(
                     operation_key=str(o.get("key") or ""),
@@ -114,9 +131,12 @@ def interface_to_graph(
                     http_path=str(o.get("path") or "/"),
                     controller=str(o.get("controller") or ""),
                     action=str(o.get("action") or ""),
-                    authz_policy=o.get("authz_policy"),  # type: ignore[arg-type]
-                    authz_source=o.get("authz_source") or "unknown",  # type: ignore[arg-type]
+                    authz_policy=o.get("authz_policy")
+                    if isinstance(o.get("authz_policy"), str)
+                    else None,
+                    authz_source=_authz_source(o.get("authz_source")),
                     read_only=bool(o.get("read_only", True)),
+                    summary=str(summary_raw).strip() if isinstance(summary_raw, str) else None,
                 )
             )
 
@@ -133,6 +153,8 @@ def interface_to_graph(
         g.add((op_uri, ns[PRED_READ_ONLY], Literal(op.read_only, datatype=XSD.boolean)))
         if op.authz_policy:
             g.add((op_uri, ns[PRED_REQUIRES_PERMISSION], Literal(op.authz_policy)))
+        if op.summary:
+            g.add((op_uri, RDFS.comment, Literal(op.summary)))
 
         code = ns[f"code_{_safe(op.controller)}_{_safe(op.action)}"]
         g.add((code, RDF.type, ns[CLASS_CODE_UNIT]))
@@ -143,8 +165,11 @@ def interface_to_graph(
         cap_name = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", op_id)
         cap_name = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", cap_name).lower()
         cap = ns[f"cap_{_safe(iface.application_id)}_{_safe(cap_name)}"]
+        comment = op.summary or f"Capability for {op_id}"
         g.add((cap, RDF.type, ns[CLASS_CAPABILITY]))
         g.add((cap, RDFS.label, Literal(cap_name)))
+        g.add((cap, RDFS.comment, Literal(comment)))
+        g.add((cap, ns[PRED_INTENT], Literal(comment)))
         g.add((cap, ns[PRED_IMPLEMENTED_BY], op_uri))
         g.add((cap, ns[PRED_BELONGS_TO_APP], app))
         g.add((cap, ns[PRED_REVIEW_STATUS], Literal("discovered")))
@@ -241,8 +266,20 @@ def enrich_operations_from_openapi(
         if op:
             if op.get("operationId"):
                 row["openapi_operation_id"] = op["operationId"]
-            if op.get("summary"):
-                row["summary"] = op["summary"]
+            bits: list[str] = []
+            if isinstance(op.get("summary"), str) and op["summary"].strip():
+                bits.append(op["summary"].strip())
+            if isinstance(op.get("description"), str) and op["description"].strip():
+                desc = op["description"].strip()
+                if desc not in bits:
+                    bits.append(desc)
+            tags = op.get("tags")
+            if isinstance(tags, list):
+                tag_bits = [t.strip() for t in tags if isinstance(t, str) and t.strip()]
+                if tag_bits:
+                    bits.append("tags: " + ", ".join(tag_bits))
+            if bits:
+                row["summary"] = ". ".join(bits)
         new_ops.append(row)
     iface.operations = new_ops
     return iface

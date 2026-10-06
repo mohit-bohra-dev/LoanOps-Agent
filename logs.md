@@ -1,3 +1,171 @@
+## [2026-10-06] — Embedding search for OpenAPI + EAKG
+
+**Session type:** Implementation
+
+**Completed:**
+- `packages/sse/semantic.py` — cosine search over OpenAPI ops; `search_sse_apis` uses EmbeddingProvider (keyword fallback).
+- EAKG capability block uses sidecar `embeddings.json` even when `CAPABILITY_KG__SEMANTIC` is false.
+
+**Reason:** User asked for embedding search on both swagger catalog and RDF-backed capabilities.
+
+---
+
+## [2026-10-04] — Plaisse wiki vs LoanOps comparison doc
+
+**Session type:** Analysis / docs
+
+**Completed:**
+- Wrote `docs/PLAISSE_WIKI_VS_LOANOPS.md` (goals, knowledge stores, live GET, docs-from-code, when to use which).
+
+**Reason:** Capture wiki vs LoanOps in simple words after architecture comparison in chat.
+
+---
+
+## [2026-10-04] — EAKG engineering graph MVP
+
+**Session type:** Implementation
+
+**Completed:**
+- Analyzer registry (`DotNetRoslynAdapter`, optional `GraphifyAstAdapter`); onboard no longer uses hardcoded `EXTRACTORS`.
+- `--engineering-graph` + `python -m packages.eakg code --id --operation`.
+- Projector `links.json`; `.graphifyignore` template; Graphify failure does not fail index.
+
+**Reason:** Link EAKG operations to Graphify symbols without copying AST into Turtle.
+
+---
+
+## [2026-10-04] — Engineering graph analysis doc
+
+**Session type:** Analysis / docs
+
+**Completed:**
+- Wrote `docs/ENGINEERING_GRAPH_ANALYSIS.md` (Graphify vs EAKG, STEP 5, OpenAPI join, gaps).
+- One-off `graphify extract --code-only` on `.eakg-workspace/{escrow,fees,loanservices}` → `.eakg-workspace/graphify/` (gitignored, **not** onboard/CI).
+- Pointers in ARCHITECTURE §10, CONTEXT §19, `EAKG_COMMITTED_VS_LOCAL.md`.
+
+**Reason:** Record current graph state so Graphify-on-SSE is not mistaken for pipeline.
+
+---
+
+## [2026-10-04] — Pull Cursor engineering pack from pennysenselambda
+
+**Session type:** Tooling / agent config
+
+**Completed:**
+- Copied Addy Osmani skills + `references/` + `/review` `/ship` `/test` `/build` `/webperf` `/code-simplify`.
+- `/spec` `/plan` rewritten to Promp `.ai/specs/` (no root `SPEC.md`).
+- `agent-skills.mdc`; restored `git.github-gitlab.mdc`.
+- Skipped PennySense product rule and always-`glab` rule.
+
+**Reason:** Reuse impl/test/review workflows without colliding Promp spec layout or GitHub origin.
+
+---
+
+## [2026-10-04] — ADR-021 general internal audience
+
+**Session type:** Positioning / docs + light code
+
+**Completed:**
+- ADR-021: platform for any internal role (not care-rep-only).
+- `user` role in scopes; `care_rep` = deprecated alias.
+- AGENTS / README / ARCHITECTURE / CONTEXT / one-pager 09 / §B prompt opener.
+- Agent API title/description + ChatRequest docstring.
+
+**Reason:** Product moved off care-rep-only; docs/roles catch up.
+
+---
+
+## [2026-10-04] — Richer capability embed text
+
+**Session type:** Feature
+
+**Completed:**
+- `capability_text`: summary + op camel-split + HTTP path phrases.
+- SPARQL / `CapabilityRecord.http_path`; OpenAPI comment = summary+description+tags.
+- EAKG `graph_build`: persist summary → `rdfs:comment`; enrich pulls description/tags.
+- Tests: payment-due ranks above fees-due (capability_kg + eakg).
+
+**Reason:** “next payment due” was matching random “due” ops; path/summary density fixes rank.
+
+---
+
+## [2026-10-04] — Product CAPABILITY_KG__SEMANTIC=true
+
+**Session type:** Config / smoke
+
+**Completed:**
+- `.env`: `CAPABILITY_KG__SEMANTIC=true`; `EMBEDDING__PROVIDER=local_bge` (match sidecar).
+- Smoke: `eakg_capability_search_block("when is the next payment due")` → EAKG hits.
+- `.env.example` note updated.
+
+**Reason:** Wire NL capability rank into product search path.
+
+---
+
+## [2026-10-04] — Park golden-set refresh task
+
+**Session type:** Backlog
+
+**Completed:**
+- TASKS: refresh `data/golden.jsonl` for SSE/MCP tool names (later).
+- Eval MCP hop stays blocked until that + Bedrock SSO.
+
+**Reason:** Golden answer key still pre-ADR-010 tools.
+
+---
+
+## [2026-10-04] — Wire EAKG capability embeddings
+
+**Session type:** Feature
+
+**Completed:**
+- `catalog_from_shards` loads `enterprise/embeddings.json`.
+- CLI `python -m packages.eakg embed` + `query search --semantic`.
+- Keyword still `[]` for “when is the next payment due”; semantic returns due/schedule APIs.
+
+**Reason:** Plug Phase 9 cosine into live shards.
+
+---
+
+## [2026-10-03] — Roslyn reindex pilot git clones
+
+**Session type:** Ops / extractor
+
+**Completed:**
+- Fixed Roslyn tool discovery (cwd/git; uv site-packages). `extractor=roslyn` no silent regex if 0 ops.
+- Manifest records `extractor`. Re-onboarded escrow/fees/loanservices from `.eakg-workspace`.
+- Ops 510 / 242 / 261. `cross-app` 243 rels. Query `GetLoanSummary` → `dotnet_roslyn`.
+
+**Reason:** Live shards were still regex (`dotnet_static`).
+
+---
+
+## [2026-10-03] — Live SSE swagger verify
+
+**Session type:** Ops / evidence
+
+**Completed:**
+- Forced HTTP swagger (`fixture_path=None`). Stale M2M → swagger 401; refresh → 292 ops.
+- Hand catalog 6 paths HIT vs live `{id}` templates. `GET /api/Loans/{id}/Summary` HTTP 200.
+- Script `scripts/verify_live_sse_swagger.py`. Evidence `docs/SSE_LIVE_SWAGGER.md`.
+- Team `swagger tofile` still open.
+
+**Reason:** Prove live OpenAPI fetch, not only hand catalog.
+
+---
+
+## [2026-10-03] — Skip Gemini MCP validation
+
+**Session type:** Backlog
+
+**Completed:**
+- Phase 12 Gemini parked. No evidence table. Cursor Phase 11 stays IDE proof.
+- Next: live SSE swagger verify; eval MCP hop still SSO-blocked.
+
+**Reason:** User skip Gemini.
+
+---
+
 ## [2026-10-02] — uv workspace split (ADR-020)
 
 **Session type:** Architecture / refactor

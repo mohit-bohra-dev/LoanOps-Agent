@@ -2,6 +2,8 @@
 
 Quick map so clean clones and CI do not confuse registry seed with live enterprise shards.
 
+**How TAAC becomes graph (simple):** [`EAKG_TAAC.md`](EAKG_TAAC.md).
+
 **Source of truth (D4):** EAKG shards / approved catalog only.  
 ADR-014 single TTL fallback **removed** from product search.
 
@@ -20,7 +22,8 @@ ADR-014 single TTL fallback **removed** from product search.
 | Path | What | Role |
 |---|---|---|
 | `.eakg-workspace/` | `glab` clones of Escrow/Fees/LoanServices (+ live TAAC drop) | Input |
-| `data/eakg/repos/` | Per-repo `graph.ttl` / `interface.json` shards | **Truth** |
+| `.eakg-workspace/graphify/` | Optional local Graphify AST dumps of those clones | **Not pipeline** — see [`ENGINEERING_GRAPH_ANALYSIS.md`](ENGINEERING_GRAPH_ANALYSIS.md) |
+| `data/eakg/repos/` | Per-repo `graph.ttl` / `interface.json` shards (+ optional `engineering/`) | **Truth** |
 | `data/eakg/enterprise/` | Merged apps + `cross_app.ttl` | **Truth** |
 | `data/eakg/catalog/` | `approved.ttl` publish output | **Truth** (reviewed slice) |
 | `data/eakg/proposals/` | LLM semantic proposal queue | Overlay |

@@ -119,6 +119,7 @@ class McpToolsClient(AbstractToolsClientProvider):
         if name not in self._allowed:
             return self._err(name, f"Tool '{name}' not allowed for current scope")
         try:
+            # LAYER2-BP B1: Agent → HTTP MCP tools/call
             ok, text = await self._session.call_tool(name, dict(tool.parameters))
             if ok:
                 return self._ok(name, text)

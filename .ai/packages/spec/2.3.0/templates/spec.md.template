@@ -1,0 +1,597 @@
+# Technical Specification: {{featureName}}
+
+{{#if storyPath}}
+**Story**: {{storyPath}}
+**Related User Stories**: [story]({{storyPath}})
+{{else}}
+**Related User Stories**: [{{featureName}}.story.md](./{{featureName}}.story.md)
+{{/if}}
+**Created**: {{created_date}}
+**Status**: {{status}}
+
+---
+
+## Overview
+
+{{#if storyPath}}
+This document describes the **technical approach** for implementing the feature defined in [the external story]({{storyPath}}).
+{{else}}
+This document describes the **technical approach** for implementing the feature defined in [{{featureName}}.story.md](./{{featureName}}.story.md).
+{{/if}}
+
+**Purpose**: Define HOW we will build the solution, including architecture, algorithms, data structures, and technical decisions.
+
+**Audience**: Software architects, senior developers, technical leads
+
+---
+
+## Architecture
+
+### High-Level Architecture
+
+{{architecture_overview}}
+
+```
+{{architecture_diagram}}
+```
+
+### Component Design
+
+#### {{component_1_name}}
+
+**Purpose**: {{what_it_does}}
+
+**Responsibilities**:
+- {{responsibility_1}}
+- {{responsibility_2}}
+- {{responsibility_3}}
+
+**Interfaces**:
+```typescript
+{{interface_definitions}}
+```
+
+**Dependencies**:
+- {{dependency_1}}
+- {{dependency_2}}
+
+---
+
+#### {{component_2_name}}
+
+**Purpose**: {{what_it_does}}
+
+**Responsibilities**:
+- {{responsibility_1}}
+- {{responsibility_2}}
+
+**Interfaces**:
+```typescript
+{{interface_definitions}}
+```
+
+---
+
+### Data Flow
+
+```
+{{data_flow_diagram}}
+```
+
+**Description**:
+{{data_flow_description}}
+
+---
+
+## Algorithms & Logic
+
+### {{algorithm_1_name}}
+
+**Purpose**: {{what_it_solves}}
+
+**Approach**:
+{{algorithm_description}}
+
+**Pseudocode**:
+```
+{{pseudocode}}
+```
+
+**Complexity**:
+- Time: O({{time_complexity}})
+- Space: O({{space_complexity}})
+
+**Example**:
+```typescript
+{{code_example}}
+```
+
+---
+
+### {{algorithm_2_name}}
+
+**Purpose**: {{what_it_solves}}
+
+**Approach**:
+{{algorithm_description}}
+
+**Pseudocode**:
+```
+{{pseudocode}}
+```
+
+---
+
+## Data Model
+
+### Data Structures
+
+#### {{structure_1_name}}
+
+```typescript
+{{data_structure_definition}}
+```
+
+**Purpose**: {{what_it_represents}}
+
+**Properties**:
+- `{{property_1}}`: {{description}}
+- `{{property_2}}`: {{description}}
+
+**Validation Rules**:
+- {{rule_1}}
+- {{rule_2}}
+
+---
+
+#### {{structure_2_name}}
+
+```typescript
+{{data_structure_definition}}
+```
+
+**Purpose**: {{what_it_represents}}
+
+---
+
+### Database Schema (if applicable)
+
+```sql
+{{database_schema}}
+```
+
+**Indexes**:
+- {{index_description}}
+
+**Relationships**:
+- {{relationship_description}}
+
+---
+
+## API Design
+
+### Endpoints (if applicable)
+
+#### {{endpoint_1}}
+
+```
+{{http_method}} {{endpoint_path}}
+```
+
+**Request**:
+```json
+{{request_schema}}
+```
+
+**Response**:
+```json
+{{response_schema}}
+```
+
+**Error Codes**:
+- `{{error_code}}`: {{description}}
+
+---
+
+### Function Signatures
+
+#### {{function_1_name}}
+
+```typescript
+{{function_signature}}
+```
+
+**Parameters**:
+- `{{param_1}}`: {{description}}
+- `{{param_2}}`: {{description}}
+
+**Returns**: {{return_description}}
+
+**Throws**: {{exception_types}}
+
+**Example Usage**:
+```typescript
+{{usage_example}}
+```
+
+---
+
+## Technical Decisions
+
+### Decision 1: {{decision_topic}}
+
+**Context**: {{context}}
+
+**Decision**: {{decision_made}}
+
+**Rationale**: {{why_this_decision}}
+
+**Alternatives Considered**:
+1. {{alternative_1}}: {{why_not_chosen}}
+2. {{alternative_2}}: {{why_not_chosen}}
+
+**Consequences**:
+- Pros: {{benefits}}
+- Cons: {{drawbacks}}
+
+---
+
+### Decision 2: {{decision_topic}}
+
+**Context**: {{context}}
+
+**Decision**: {{decision_made}}
+
+**Rationale**: {{why_this_decision}}
+
+---
+
+## File Structure
+
+### New Files to Create
+
+```
+{{file_structure_tree}}
+```
+
+**Details**:
+
+- `{{file_path}}`: {{purpose_and_contents}}
+- `{{file_path}}`: {{purpose_and_contents}}
+- `{{file_path}}`: {{purpose_and_contents}}
+
+### Files to Modify
+
+- `{{file_path}}`: {{what_changes_and_why}}
+- `{{file_path}}`: {{what_changes_and_why}}
+
+---
+
+## Implementation Details
+
+### {{module_1_name}}
+
+**File**: `{{file_path}}`
+
+**Core Functions**:
+
+```typescript
+{{function_implementations}}
+```
+
+**Dependencies**:
+```typescript
+{{import_statements}}
+```
+
+**Key Implementation Notes**:
+- {{note_1}}
+- {{note_2}}
+
+---
+
+### {{module_2_name}}
+
+**File**: `{{file_path}}`
+
+**Core Functions**:
+
+```typescript
+{{function_implementations}}
+```
+
+---
+
+## Integration Points
+
+### {{integration_1_name}}
+
+**System/Service**: {{system_name}}
+
+**Integration Method**: {{method_description}}
+
+**Authentication**: {{auth_mechanism}}
+
+**Error Handling**: {{error_handling_approach}}
+
+**Example**:
+```typescript
+{{integration_example}}
+```
+
+---
+
+## Edge Cases & Error Handling
+
+### Edge Case 1: {{edge_case_name}}
+
+**Scenario**: {{description}}
+
+**Technical Handling**:
+```typescript
+{{code_showing_handling}}
+```
+
+**Why This Approach**: {{rationale}}
+
+---
+
+### Edge Case 2: {{edge_case_name}}
+
+**Scenario**: {{description}}
+
+**Technical Handling**: {{approach}}
+
+---
+
+### Error Handling Strategy
+
+**Error Types**:
+1. **{{error_type_1}}**: {{when_it_occurs}}
+   - **Handling**: {{how_to_handle}}
+   - **Recovery**: {{recovery_strategy}}
+
+2. **{{error_type_2}}**: {{when_it_occurs}}
+   - **Handling**: {{how_to_handle}}
+   - **Recovery**: {{recovery_strategy}}
+
+**Error Propagation**:
+{{error_propagation_strategy}}
+
+---
+
+## Security Considerations
+
+### {{security_topic_1}}
+
+**Risk**: {{security_risk}}
+
+**Mitigation**: {{mitigation_strategy}}
+
+**Implementation**:
+```typescript
+{{security_implementation}}
+```
+
+---
+
+### {{security_topic_2}}
+
+**Risk**: {{security_risk}}
+
+**Mitigation**: {{mitigation_strategy}}
+
+---
+
+### Security Checklist
+
+- [ ] {{security_item_1}}
+- [ ] {{security_item_2}}
+- [ ] {{security_item_3}}
+- [ ] {{security_item_4}}
+
+---
+
+## Performance Considerations
+
+### Performance Requirements
+
+{{#if storyPath}}
+From [the external story]({{storyPath}}):
+{{else}}
+From [{{featureName}}.story.md](./{{featureName}}.story.md):
+{{/if}}
+- {{requirement_1_from_spec}}
+- {{requirement_2_from_spec}}
+
+### Optimization Strategy
+
+**{{optimization_area_1}}**:
+- **Approach**: {{optimization_approach}}
+- **Expected Impact**: {{impact_description}}
+- **Implementation**:
+  ```typescript
+  {{optimization_code}}
+  ```
+
+**{{optimization_area_2}}**:
+- **Approach**: {{optimization_approach}}
+- **Expected Impact**: {{impact_description}}
+
+### Performance Monitoring
+
+**Metrics to Track**:
+- {{metric_1}}: {{target_value}}
+- {{metric_2}}: {{target_value}}
+
+**Monitoring Approach**: {{monitoring_strategy}}
+
+---
+
+## Testing Strategy
+
+### Unit Testing
+
+**Test Coverage Requirements**:
+- Minimum {{percentage}}% for new code
+- 100% for {{critical_components}}
+
+**Key Test Scenarios**:
+
+**{{component_name}}**:
+```typescript
+describe('{{component_name}}', () => {
+  it('{{test_scenario_1}}', () => {
+    // Test implementation
+  });
+
+  it('{{test_scenario_2}}', () => {
+    // Test implementation
+  });
+});
+```
+
+---
+
+### Integration Testing
+
+**Test Scenarios**:
+1. {{scenario_1}}
+2. {{scenario_2}}
+3. {{scenario_3}}
+
+**Test Environment Requirements**:
+- {{requirement_1}}
+- {{requirement_2}}
+
+---
+
+### Performance Testing
+
+**Load Testing**:
+- {{load_test_scenario}}
+- Expected results: {{expected_performance}}
+
+**Stress Testing**:
+- {{stress_test_scenario}}
+
+---
+
+## Configuration
+
+### Environment Variables
+
+| Variable | Type | Required | Description | Default |
+|----------|------|----------|-------------|---------|
+| `{{var_1}}` | {{type}} | {{yes/no}} | {{description}} | {{default}} |
+| `{{var_2}}` | {{type}} | {{yes/no}} | {{description}} | {{default}} |
+
+### Configuration Files
+
+**{{config_file_1}}**:
+```json
+{{config_example}}
+```
+
+---
+
+## Deployment Considerations
+
+### Deployment Strategy
+
+{{deployment_approach}}
+
+### Rollback Plan
+
+{{rollback_strategy}}
+
+### Monitoring & Alerts
+
+**Key Metrics**:
+- {{metric_1}}
+- {{metric_2}}
+
+**Alert Thresholds**:
+- {{alert_1}}: {{threshold}}
+- {{alert_2}}: {{threshold}}
+
+---
+
+## Dependencies
+
+### External Libraries
+
+```json
+{
+  "dependencies": {
+    "{{package_1}}": "{{version}}",
+    "{{package_2}}": "{{version}}"
+  },
+  "devDependencies": {
+    "{{package_3}}": "{{version}}"
+  }
+}
+```
+
+**Rationale**:
+- **{{package_1}}**: {{why_needed}}
+- **{{package_2}}**: {{why_needed}}
+
+### Internal Dependencies
+
+- **{{module_1}}**: {{what_it_provides}}
+- **{{module_2}}**: {{what_it_provides}}
+
+---
+
+## Migration Path (if applicable)
+
+### Data Migration
+
+**From**: {{old_format}}
+
+**To**: {{new_format}}
+
+**Migration Script**:
+```typescript
+{{migration_script}}
+```
+
+**Validation**: {{validation_approach}}
+
+---
+
+### Backward Compatibility
+
+**Breaking Changes**:
+- {{change_1}}
+- {{change_2}}
+
+**Migration Support**: {{support_period}}
+
+---
+
+## Open Technical Questions
+
+1. **Q**: {{technical_question_1}}
+   **Status**: {{open/resolved}}
+   **Answer**: {{answer_if_resolved}}
+
+2. **Q**: {{technical_question_2}}
+   **Status**: {{open/resolved}}
+
+---
+
+## References
+
+### Technical Documentation
+- {{reference_1}}: {{url}}
+- {{reference_2}}: {{url}}
+
+### Related Design Docs
+- {{doc_1}}: {{description}}
+- {{doc_2}}: {{description}}
+
+### External Resources
+- {{resource_1}}: {{url}}
+- {{resource_2}}: {{url}}

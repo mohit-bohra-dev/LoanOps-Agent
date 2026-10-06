@@ -7,9 +7,10 @@ from pathlib import Path
 
 import pytest
 from packages.capability_kg import sparql as sparql_q
-from packages.capability_kg.catalog import CapabilityCatalog
+from packages.capability_kg.catalog import CapabilityCatalog, CapabilityRecord
 from packages.capability_kg.embed_index import (
     build_index,
+    capability_text,
     cosine,
     embeddings_path_for_ttl,
     load_index,
@@ -45,7 +46,24 @@ MINI_OPENAPI = {
             "get": {
                 "operationId": "getPaymentSchedules",
                 "summary": "Get payment schedules for loan",
+                "description": "Upcoming scheduled payments and next due dates",
                 "tags": ["payments"],
+                "parameters": [
+                    {
+                        "name": "loan_id",
+                        "in": "path",
+                        "required": True,
+                        "schema": {"type": "string"},
+                    }
+                ],
+                "responses": {"200": {"description": "ok"}},
+            }
+        },
+        "/api/Loans/{loan_id}/FeesDue": {
+            "get": {
+                "operationId": "getFeesDue",
+                "summary": "Get fees due for loan",
+                "tags": ["fees"],
                 "parameters": [
                     {
                         "name": "loan_id",
@@ -127,11 +145,32 @@ async def test_capability_catalog_facade(tmp_path: Path) -> None:
     assert approved.list_capabilities() == []
 
 
+def test_capability_text_includes_summary_and_path() -> None:
+    rec = CapabilityRecord(
+        id="get_payment_schedules",
+        description="Get payment schedules for loan. Upcoming scheduled payments",
+        operation_id="getPaymentSchedules",
+        read_only=True,
+        review_status="discovered",
+        permission="loan.read",
+        http_path="/api/Loans/{loan_id}/PaymentSchedules",
+    )
+    text = capability_text(rec)
+    assert "Upcoming scheduled payments" in text
+    assert "/api/Loans/{loan_id}/PaymentSchedules" in text
+    assert "Payment Schedules" in text
+
+
 @pytest.mark.asyncio
 async def test_semantic_ranks_payment_history(tmp_path: Path) -> None:
     graph = build_graph_from_openapi_dict(MINI_OPENAPI, source_label="LoanServices")
     ttl = save_graph(graph, tmp_path / "capabilities.ttl")
     base = CapabilityCatalog.from_ttl(ttl)
+    pay = base.get_capability("get_payment_schedules")
+    assert pay is not None
+    assert pay.http_path and "PaymentSchedules" in pay.http_path
+    assert pay.description and "due dates" in pay.description
+
     entries = await build_index(base.list_capabilities(), _stub_embed)
     side = embeddings_path_for_ttl(ttl)
     save_index(side, entries)
@@ -148,6 +187,39 @@ async def test_semantic_ranks_payment_history(tmp_path: Path) -> None:
     ids = [h.id for h in hits]
     assert "get_payment_schedules" in ids
     assert ids.index("get_payment_schedules") < 3
+
+
+@pytest.mark.asyncio
+async def test_semantic_ranks_next_payment_due_over_fees_due(tmp_path: Path) -> None:
+    """Path/summary density beats a random op that only shares the word 'due'."""
+
+    async def stub(text: str) -> list[float]:
+        t = text.lower()
+        return [
+            1.0 if "payment" in t else 0.0,
+            1.0 if "schedule" in t else 0.0,
+            0.5 if "due" in t else 0.0,
+            1.0 if "fee" in t else 0.0,
+        ]
+
+    graph = build_graph_from_openapi_dict(MINI_OPENAPI, source_label="LoanServices")
+    ttl = save_graph(graph, tmp_path / "capabilities.ttl")
+    base = CapabilityCatalog.from_ttl(ttl)
+    entries = await build_index(base.list_capabilities(), stub)
+    side = embeddings_path_for_ttl(ttl)
+    save_index(side, entries)
+
+    catalog = CapabilityCatalog.from_ttl(
+        ttl,
+        semantic=True,
+        embed_query=stub,
+        embeddings_path=side,
+    )
+    hits = await catalog.search_capabilities("when is the next payment due", limit=5)
+    ids = [h.id for h in hits]
+    assert "get_payment_schedules" in ids
+    assert "get_fees_due" in ids
+    assert ids.index("get_payment_schedules") < ids.index("get_fees_due")
 
 
 @pytest.mark.asyncio

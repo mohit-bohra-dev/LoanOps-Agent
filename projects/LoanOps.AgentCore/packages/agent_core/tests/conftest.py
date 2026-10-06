@@ -112,7 +112,7 @@ async def mock_prompt_store() -> MockPromptStoreProvider:
     store.set(
         "agent.system",
         """
-You are "Helix", an internal copilot for licensed mortgage-servicing care representatives.
+You are "Helix", an internal AI assistant for enterprise teams.
 
 HARD RULES
 1. Cite every factual claim.
@@ -135,7 +135,7 @@ OUTPUT CONTRACT (return ONLY this JSON, no prose)
 
 # Default test system prompt used when mock is dynamically configured
 TEST_SYSTEM_PROMPT = """
-You are "Helix", an internal copilot for licensed mortgage-servicing care representatives.
+You are "Helix", an internal AI assistant for enterprise teams.
 
 HARD RULES
 1. Cite every factual claim.

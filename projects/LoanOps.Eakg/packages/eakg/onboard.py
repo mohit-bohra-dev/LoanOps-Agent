@@ -6,13 +6,14 @@ from pathlib import Path
 from typing import Any
 
 from packages.common.settings import Settings
+from packages.eakg.analyzers.registry import select_analyzers
 from packages.eakg.detectors import EnterpriseIndex, run_detectors
+from packages.eakg.engineering import project_links
 from packages.eakg.extractors import detect_technology
-from packages.eakg.extractors.dotnet import extract_repo
 from packages.eakg.gitops import access_check, clone_or_fetch
 from packages.eakg.graph_build import interface_to_graph, relationships_to_graph
 from packages.eakg.locks import RepoLock
-from packages.eakg.models import ApiOperationFact
+from packages.eakg.models import ApiOperationFact, RepoInterface
 from packages.eakg.openapi_enrich import enrich_interface
 from packages.eakg.registry import RepositoryRecord, RepositoryRegistry
 from packages.eakg.semantic import propose_for_repo
@@ -22,11 +23,6 @@ from packages.eakg.taac import (
     load_connection_catalogs,
     load_service_url_map,
 )
-
-EXTRACTORS = {
-    "dotnet-aspnetcore": extract_repo,
-    "dotnet": extract_repo,
-}
 
 
 def _workspace_repo(settings: Settings, repository_id: str) -> Path:
@@ -42,6 +38,7 @@ async def onboard_repository(
     skip_clone: bool = False,
     local_path: str | Path | None = None,
     run_semantic: bool = False,
+    engineering_graph: bool = False,
 ) -> dict[str, Any]:
     """Run extract → interface → graph for one repository."""
     cfg = settings or Settings()
@@ -82,27 +79,50 @@ async def onboard_repository(
             repo_path = dest
         report["stages"].append({"clone": "ok", "commit": commit})
 
-        # detect technology
+        # detect technology (legacy single label) + analyzer inventory
         tech = detect_technology(repo_path)
         record.technology = tech
         registry.upsert(record)
         registry.save()
-        report["stages"].append({"technology": tech})
+        adapters, inv, unsupported = select_analyzers(
+            repo_path, engineering_graph=engineering_graph
+        )
+        report["stages"].append(
+            {
+                "technology": tech,
+                "inventory": {"languages": inv.languages, "projects": inv.projects},
+                "unsupported": unsupported,
+                "adapters": [a.id for a in adapters],
+            }
+        )
 
-        extractor = EXTRACTORS.get(tech)
-        if extractor is None:
+        api_adapters = [a for a in adapters if a.produces_api_surface]
+        if not api_adapters:
             registry.set_status(record.repository_id, index_status="failed")
             report["error"] = f"no extractor for technology={tech}"
             return report
 
         registry.set_status(record.repository_id, index_status="extracting")
-        iface, details = extractor(
+        api = api_adapters[0]
+        api_result = api.extract(
             repo_path,
             repository_id=record.repository_id,
             application_id=record.application_id,
             commit_sha=commit,
             api_project_path=record.api_project_path,
         )
+        if api_result.error and api.fatal:
+            registry.set_status(record.repository_id, index_status="failed")
+            report["error"] = api_result.error
+            return report
+        iface_obj = api_result.extra.get("repo_interface")
+        details_obj = api_result.extra.get("details")
+        if not isinstance(iface_obj, RepoInterface) or not isinstance(details_obj, dict):
+            registry.set_status(record.repository_id, index_status="failed")
+            report["error"] = "dotnet adapter missing RepoInterface"
+            return report
+        iface = iface_obj
+        details = details_obj
 
         # openapi hybrid
         iface = await enrich_interface(
@@ -127,6 +147,39 @@ async def onboard_repository(
         store.write_evidence(record.repository_id, eg)
         store.write_interface(iface)
 
+        eng_status = "skipped"
+        eng_error: str | None = None
+        if engineering_graph:
+            gf_adapters = [a for a in adapters if a.id == "graphify_ast"]
+            if not gf_adapters:
+                eng_status = "skipped"
+            else:
+                eng_dir = store.engineering_dir(record.repository_id)
+                gf_result = gf_adapters[0].extract(
+                    repo_path,
+                    repository_id=record.repository_id,
+                    application_id=record.application_id,
+                    commit_sha=commit,
+                    api_project_path=record.api_project_path,
+                    dest=eng_dir,
+                )
+                if gf_result.error:
+                    eng_status = "failed"
+                    eng_error = gf_result.error
+                else:
+                    ops_list = details.get("operations")
+                    facts: list[ApiOperationFact] = []
+                    if isinstance(ops_list, list):
+                        facts = [o for o in ops_list if isinstance(o, ApiOperationFact)]
+                    gpath = eng_dir / "graph.json"
+                    if gpath.is_file() and facts:
+                        payload = project_links(iface, facts, gpath, commit_sha=commit)
+                        store.write_engineering_links(record.repository_id, payload)
+                    eng_status = "ok"
+        report["stages"].append(
+            {"engineering_graph": eng_status, **({"error": eng_error} if eng_error else {})}
+        )
+
         input_hashes = {
             "interface": content_hash(iface.to_dict()),
         }
@@ -135,6 +188,11 @@ async def onboard_repository(
             {
                 "commit": commit,
                 "technology": tech,
+                "extractor": details.get("extractor"),
+                "adapters": [a.id for a in adapters],
+                "unsupported_languages": unsupported,
+                "inventory_languages": inv.languages,
+                "engineering_graph": eng_status,
                 "detector_versions": {"dotnet_roslyn": "2.0.0", "dotnet_static": "1.0.0"},
                 "input_hashes": input_hashes,
                 "counts": {

@@ -1,0 +1,1313 @@
+{
+  "name": "spec",
+  "version": "2.3.0",
+  "description": "Create, maintain, execute, and review technical specifications with research-grounded, scoped execution and Jira lifecycle integration",
+  "author": "Pennymac AI Platform",
+  "license": "MIT",
+  "keywords": [
+    "specification",
+    "technical-spec",
+    "feature-spec",
+    "implementation",
+    "planning",
+    "documentation",
+    "execution",
+    "jira"
+  ],
+  "files": [
+    "prompts/**/*",
+    "agents/**/*",
+    "skills/**/*",
+    "rules/**/*",
+    "templates/**/*",
+    "README.md"
+  ],
+  "default": "createSpec",
+  "dependencies": {
+    "story": "^1.6.0",
+    "jira": "^1.10.0"
+  },
+  "prompts": [
+    {
+      "name": "createSpec",
+      "description": "Create a new spec directory and its skills-backed artifacts for a feature, optionally sourcing the story from a file or a Jira issue",
+      "prompt": "./prompts/create-spec.md",
+      "parameters": [
+        {
+          "name": "featureName",
+          "type": "string",
+          "description": "Name of the feature in kebab-case (e.g., 'package-version-cleanup')",
+          "required": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Brief description of what the feature does",
+          "required": false
+        },
+        {
+          "name": "storySource",
+          "type": "string",
+          "description": "Story file path OR Jira issue key (auto-detected). When provided, the spec references this external story instead of generating a local [featureName].story.md",
+          "required": false
+        },
+        {
+          "name": "specDirectory",
+          "type": "string",
+          "description": "Directory where spec should be created (defaults to .ai/specs/<featureName>)",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Details about the created specification",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the spec was created successfully"
+          },
+          "featureName": {
+            "type": "string",
+            "description": "Name of the feature"
+          },
+          "specPath": {
+            "type": "string",
+            "description": "Path to the spec directory"
+          },
+          "storySource": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The external story path or Jira issue key, or null when a local story was generated"
+          },
+          "filesCreated": {
+            "type": "array",
+            "description": "List of files that were created",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "success",
+          "featureName",
+          "specPath",
+          "filesCreated"
+        ]
+      },
+      "throws": [
+        {
+          "title": "SpecExistsError",
+          "type": "object",
+          "description": "Error when a spec with the same name already exists",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "SPEC_EXISTS"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "existingSpecPath": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "existingSpecPath"
+          ]
+        },
+        {
+          "title": "StoryNotFoundError",
+          "type": "object",
+          "description": "Error when the story source cannot be resolved (missing file or Jira issue)",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "STORY_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "storySource": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "storySource"
+          ]
+        },
+        {
+          "title": "InvalidNameError",
+          "type": "object",
+          "description": "Error when feature name is invalid",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "INVALID_NAME"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "providedName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "metadata": {
+        "category": "specification",
+        "complexity": "advanced"
+      }
+    },
+    {
+      "name": "updateSpec",
+      "description": "Update existing spec artifacts from a description of changes, routing each change to the artifacts it touches and keeping them consistent",
+      "prompt": "./prompts/update-spec.md",
+      "parameters": [
+        {
+          "name": "featureName",
+          "type": "string",
+          "description": "Name of the feature spec to update",
+          "required": false
+        },
+        {
+          "name": "changes",
+          "type": "string",
+          "description": "Description of changes or updates to make",
+          "required": false
+        },
+        {
+          "name": "artifact",
+          "type": "string",
+          "description": "Specific artifact to update: story, spec, plan, readme, or all. 'plan' refers to [featureName].plan.md; 'readme' is the merged README.md (overview + executive summary)",
+          "required": false,
+          "validation": {
+            "enum": [
+              "story",
+              "spec",
+              "plan",
+              "readme",
+              "all"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Details about the spec update",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the update was successful"
+          },
+          "featureName": {
+            "type": "string",
+            "description": "Name of the updated feature"
+          },
+          "filesUpdated": {
+            "type": "array",
+            "description": "List of files that were updated",
+            "items": {
+              "type": "string"
+            }
+          },
+          "changesSummary": {
+            "type": "string",
+            "description": "Summary of changes made"
+          }
+        },
+        "required": [
+          "success",
+          "featureName",
+          "filesUpdated"
+        ]
+      },
+      "throws": [
+        {
+          "title": "SpecNotFoundError",
+          "type": "object",
+          "description": "Error when the specified spec does not exist",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "SPEC_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "featureName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "featureName"
+          ]
+        },
+        {
+          "title": "InvalidArtifactError",
+          "type": "object",
+          "description": "Error when the artifact parameter is not one of the allowed values",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "INVALID_ARTIFACT"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "providedArtifact": {
+              "type": "string"
+            },
+            "allowedValues": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "providedArtifact"
+          ]
+        }
+      ],
+      "metadata": {
+        "category": "specification",
+        "complexity": "intermediate"
+      }
+    },
+    {
+      "name": "executeSpec",
+      "description": "Execute a technical specification end to end through a research → triage → scoped-execution loop, operating as the spec execution coordinator",
+      "prompt": "./prompts/execute-spec.md",
+      "parameters": [
+        {
+          "name": "featureName",
+          "type": "string",
+          "description": "Name of the feature spec to execute",
+          "required": false
+        },
+        {
+          "name": "phase",
+          "type": "string",
+          "description": "Specific phase to scope the run to (e.g., 'p1' or a phase name from the plan)",
+          "required": false
+        },
+        {
+          "name": "task",
+          "type": "string",
+          "description": "Specific todo id to scope the run to (e.g., 'p1-create-utility')",
+          "required": false
+        },
+        {
+          "name": "reviewArtifact",
+          "type": "string",
+          "description": "Path to [featureName].review.md; when provided, review findings become the work source instead of plan phases",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Implementation progress details from the execution loop",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the in-scope work completed without an unrecoverable error"
+          },
+          "featureName": {
+            "type": "string",
+            "description": "Name of the feature being executed"
+          },
+          "phase": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The phase scope of the run, or null when the full plan ran"
+          },
+          "todosCompleted": {
+            "type": "array",
+            "description": "Todos completed in this run, each as id: summary",
+            "items": {
+              "type": "string"
+            }
+          },
+          "todosRemaining": {
+            "type": "number",
+            "description": "Count of todos not yet complete across the plan"
+          },
+          "percentComplete": {
+            "type": "number",
+            "description": "Overall plan completion percentage (0-100)"
+          },
+          "assumptionsMade": {
+            "type": "array",
+            "description": "Confirmed assumptions execution acted within",
+            "items": {
+              "type": "string"
+            }
+          },
+          "openQuestionsRaised": {
+            "type": "array",
+            "description": "Open questions raised this run and their disposition",
+            "items": {
+              "type": "string"
+            }
+          },
+          "filesChanged": {
+            "type": "array",
+            "description": "Files created or modified during the run",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "success",
+          "featureName",
+          "todosCompleted"
+        ]
+      },
+      "throws": [
+        {
+          "title": "SpecNotFoundError",
+          "type": "object",
+          "description": "Error when the specified spec does not exist",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "SPEC_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "featureName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "featureName"
+          ]
+        }
+      ],
+      "metadata": {
+        "category": "implementation",
+        "complexity": "advanced"
+      }
+    },
+    {
+      "name": "workSpec",
+      "description": "DEPRECATED — alias for executeSpec; use executeSpec. Execute a technical specification end to end through a research → triage → scoped-execution loop, operating as the spec execution coordinator",
+      "prompt": "./prompts/execute-spec.md",
+      "parameters": [
+        {
+          "name": "featureName",
+          "type": "string",
+          "description": "Name of the feature spec to execute",
+          "required": false
+        },
+        {
+          "name": "phase",
+          "type": "string",
+          "description": "Specific phase to scope the run to (e.g., 'p1' or a phase name from the plan)",
+          "required": false
+        },
+        {
+          "name": "task",
+          "type": "string",
+          "description": "Specific todo id to scope the run to (e.g., 'p1-create-utility')",
+          "required": false
+        },
+        {
+          "name": "reviewArtifact",
+          "type": "string",
+          "description": "Path to [featureName].review.md; when provided, review findings become the work source instead of plan phases",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Implementation progress details from the execution loop",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the in-scope work completed without an unrecoverable error"
+          },
+          "featureName": {
+            "type": "string",
+            "description": "Name of the feature being executed"
+          },
+          "phase": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The phase scope of the run, or null when the full plan ran"
+          },
+          "todosCompleted": {
+            "type": "array",
+            "description": "Todos completed in this run, each as id: summary",
+            "items": {
+              "type": "string"
+            }
+          },
+          "todosRemaining": {
+            "type": "number",
+            "description": "Count of todos not yet complete across the plan"
+          },
+          "percentComplete": {
+            "type": "number",
+            "description": "Overall plan completion percentage (0-100)"
+          },
+          "assumptionsMade": {
+            "type": "array",
+            "description": "Confirmed assumptions execution acted within",
+            "items": {
+              "type": "string"
+            }
+          },
+          "openQuestionsRaised": {
+            "type": "array",
+            "description": "Open questions raised this run and their disposition",
+            "items": {
+              "type": "string"
+            }
+          },
+          "filesChanged": {
+            "type": "array",
+            "description": "Files created or modified during the run",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "success",
+          "featureName",
+          "todosCompleted"
+        ]
+      },
+      "throws": [
+        {
+          "title": "SpecNotFoundError",
+          "type": "object",
+          "description": "Error when the specified spec does not exist",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "SPEC_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "featureName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "featureName"
+          ]
+        }
+      ],
+      "metadata": {
+        "category": "implementation",
+        "complexity": "advanced"
+      }
+    },
+    {
+      "name": "reviewSpecImplementation",
+      "description": "Review an implementation against its specification by operating as the spec-review agent, which scores coverage, classifies findings, persists a review artifact, and returns the structured result",
+      "prompt": "./prompts/review-spec-implementation.md",
+      "parameters": [
+        {
+          "name": "featureName",
+          "type": "string",
+          "description": "Name of the feature spec to review",
+          "required": false
+        },
+        {
+          "name": "specDirectory",
+          "type": "string",
+          "description": "Path to the spec directory (defaults to .ai/specs/<featureName>)",
+          "required": false
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "description": "Scope of the review: full, requirements, technical, tests, or phase",
+          "required": false,
+          "default": "full",
+          "validation": {
+            "enum": [
+              "full",
+              "requirements",
+              "technical",
+              "tests",
+              "phase"
+            ]
+          }
+        },
+        {
+          "name": "phase",
+          "type": "string",
+          "description": "Specific phase to review (when scope is 'phase')",
+          "required": false
+        },
+        {
+          "name": "strictness",
+          "type": "string",
+          "description": "How strict the review should be: strict, normal, or lenient",
+          "required": false,
+          "default": "normal",
+          "validation": {
+            "enum": [
+              "strict",
+              "normal",
+              "lenient"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Comprehensive review results comparing implementation against specification",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the review completed successfully"
+          },
+          "featureName": {
+            "type": "string",
+            "description": "Name of the reviewed feature"
+          },
+          "healthScore": {
+            "type": "number",
+            "description": "Overall implementation health score from 0-100",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "requirementCoverage": {
+            "type": "object",
+            "description": "Breakdown of requirement implementation status",
+            "properties": {
+              "total": {
+                "type": "number",
+                "description": "Total number of requirements"
+              },
+              "implemented": {
+                "type": "number",
+                "description": "Fully implemented requirements"
+              },
+              "partial": {
+                "type": "number",
+                "description": "Partially implemented requirements"
+              },
+              "missing": {
+                "type": "number",
+                "description": "Not implemented requirements"
+              },
+              "percentage": {
+                "type": "number",
+                "description": "Overall coverage percentage",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            "required": [
+              "total",
+              "implemented",
+              "partial",
+              "missing",
+              "percentage"
+            ]
+          },
+          "findings": {
+            "type": "array",
+            "description": "List of review findings categorized by severity",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Unique finding identifier (e.g., F-001)"
+                },
+                "severity": {
+                  "type": "string",
+                  "description": "Finding severity level",
+                  "enum": [
+                    "critical",
+                    "major",
+                    "minor",
+                    "info"
+                  ]
+                },
+                "category": {
+                  "type": "string",
+                  "description": "Finding category",
+                  "enum": [
+                    "requirement",
+                    "technical",
+                    "test",
+                    "documentation",
+                    "tracking"
+                  ]
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Brief title of the finding"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Detailed description of the finding"
+                },
+                "specReference": {
+                  "type": "string",
+                  "description": "Reference to the relevant spec section"
+                },
+                "recommendation": {
+                  "type": "string",
+                  "description": "Recommended action to address the finding"
+                }
+              },
+              "required": [
+                "id",
+                "severity",
+                "category",
+                "title",
+                "description",
+                "recommendation"
+              ]
+            }
+          },
+          "testCoverage": {
+            "type": "object",
+            "description": "Assessment of test coverage",
+            "properties": {
+              "testFilesExpected": {
+                "type": "number",
+                "description": "Number of test files expected per spec"
+              },
+              "testFilesFound": {
+                "type": "number",
+                "description": "Number of test files found"
+              },
+              "qualityAssessment": {
+                "type": "string",
+                "description": "Qualitative assessment of test quality",
+                "enum": [
+                  "excellent",
+                  "good",
+                  "adequate",
+                  "poor"
+                ]
+              },
+              "missingAreas": {
+                "type": "array",
+                "description": "Areas lacking test coverage",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "testFilesExpected",
+              "testFilesFound",
+              "qualityAssessment",
+              "missingAreas"
+            ]
+          },
+          "trackerAccuracy": {
+            "type": "object",
+            "description": "Accuracy of todo status tracking in [featureName].plan.md's YAML frontmatter",
+            "properties": {
+              "percentage": {
+                "type": "number",
+                "description": "Accuracy percentage",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "falseCompletions": {
+                "type": "number",
+                "description": "Todos marked completed but not actually done"
+              },
+              "unreportedCompletions": {
+                "type": "number",
+                "description": "Work done but corresponding todos not set to completed"
+              }
+            },
+            "required": [
+              "percentage",
+              "falseCompletions",
+              "unreportedCompletions"
+            ]
+          },
+          "recommendations": {
+            "type": "array",
+            "description": "Prioritized list of recommended actions",
+            "items": {
+              "type": "string"
+            }
+          },
+          "positiveNotes": {
+            "type": "array",
+            "description": "Things that were done well",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reviewArtifactPath": {
+            "type": "string",
+            "description": "Path to the persisted [featureName].review.md artifact, consumable by executeSpec via reviewArtifact"
+          }
+        },
+        "required": [
+          "success",
+          "featureName",
+          "healthScore",
+          "requirementCoverage",
+          "findings",
+          "recommendations"
+        ]
+      },
+      "throws": [
+        {
+          "title": "SpecNotFoundError",
+          "type": "object",
+          "description": "Error when the specified spec does not exist",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "SPEC_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "featureName": {
+              "type": "string"
+            },
+            "searchedPath": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "featureName"
+          ]
+        },
+        {
+          "title": "InsufficientSpecError",
+          "type": "object",
+          "description": "Error when the spec lacks enough detail for meaningful review",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "INSUFFICIENT_SPEC"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "featureName": {
+              "type": "string"
+            },
+            "missingArtifacts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "recommendation": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "featureName",
+            "missingArtifacts"
+          ]
+        },
+        {
+          "title": "NoImplementationError",
+          "type": "object",
+          "description": "Error when no implementation code can be found for the specification",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NO_IMPLEMENTATION"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "featureName": {
+              "type": "string"
+            },
+            "expectedFiles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "recommendation": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "featureName"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Full review of completed feature",
+          "description": "Review all aspects of a completed implementation against its spec",
+          "input": {
+            "featureName": "package-version-cleanup",
+            "scope": "full",
+            "strictness": "normal"
+          },
+          "output": {
+            "success": true,
+            "featureName": "package-version-cleanup",
+            "healthScore": 92,
+            "requirementCoverage": {
+              "total": 12,
+              "implemented": 11,
+              "partial": 1,
+              "missing": 0,
+              "percentage": 96
+            },
+            "findings": [
+              {
+                "id": "F-001",
+                "severity": "minor",
+                "category": "requirement",
+                "title": "Partial verbose output implementation",
+                "description": "FR-008 specifies detailed verbose logging but only basic logging is implemented",
+                "specReference": "story.md - FR-008",
+                "recommendation": "Add detailed file-by-file logging when --verbose flag is used"
+              }
+            ],
+            "recommendations": [
+              "Enhance verbose logging to match FR-008 specification"
+            ],
+            "positiveNotes": [
+              "All P1 user stories fully implemented and tested",
+              "Technical architecture matches spec design"
+            ],
+            "reviewArtifactPath": ".ai/specs/package-version-cleanup/package-version-cleanup.review.md"
+          }
+        },
+        {
+          "title": "Requirements-only review with strict mode",
+          "description": "Strict review focusing only on requirement coverage",
+          "input": {
+            "featureName": "user-authentication",
+            "scope": "requirements",
+            "strictness": "strict"
+          },
+          "output": {
+            "success": true,
+            "featureName": "user-authentication",
+            "healthScore": 68,
+            "requirementCoverage": {
+              "total": 20,
+              "implemented": 14,
+              "partial": 3,
+              "missing": 3,
+              "percentage": 72
+            },
+            "findings": [
+              {
+                "id": "F-001",
+                "severity": "critical",
+                "category": "requirement",
+                "title": "Missing password reset flow",
+                "description": "FR-012 specifies password reset via email but no implementation exists",
+                "specReference": "story.md - FR-012",
+                "recommendation": "Implement password reset flow as specified in spec.md Section 5"
+              }
+            ],
+            "recommendations": [
+              "Implement password reset flow (Critical - P1 user story)",
+              "Add rate limiting to auth endpoints (Critical - security requirement)"
+            ],
+            "reviewArtifactPath": ".ai/specs/user-authentication/user-authentication.review.md"
+          }
+        }
+      ],
+      "metadata": {
+        "category": "specification",
+        "complexity": "advanced"
+      }
+    },
+    {
+      "name": "syncSpecToJira",
+      "description": "Delta-sync a spec's story to its Jira issue — create on first sync, push only the changed fields on every sync after. Thin entry point that loads the spec-jira-sync skill, which delegates to the story package's story-jira-sync skill",
+      "prompt": "./prompts/sync-spec-to-jira.md",
+      "parameters": [
+        {
+          "name": "featureName",
+          "type": "string",
+          "description": "The spec whose story to sync",
+          "required": false
+        },
+        {
+          "name": "storySource",
+          "type": "string",
+          "description": "Story file path OR Jira issue key (auto-detected). When an issue key, the existing issue is updated, never re-created",
+          "required": false
+        },
+        {
+          "name": "projectKey",
+          "type": "string",
+          "description": "Target Jira project for a first-sync create. When omitted, the jira config's default project is used",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of syncing the spec story to Jira",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the sync completed (including a clean no-op when nothing changed)"
+          },
+          "featureName": {
+            "type": "string",
+            "description": "The spec that was synced"
+          },
+          "issueKey": {
+            "type": "string",
+            "description": "The created or updated Jira issue key"
+          },
+          "fieldsChanged": {
+            "type": "array",
+            "description": "Fields actually pushed (summary, description, acceptanceCriteria, transition). Empty when the story already matched Jira",
+            "items": {
+              "type": "string"
+            }
+          },
+          "conflictReport": {
+            "description": "Object describing surfaced divergences and their resolution, or null when there were no conflicts",
+            "oneOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "featureName",
+          "issueKey",
+          "fieldsChanged"
+        ]
+      },
+      "throws": [
+        {
+          "title": "SpecNotFoundError",
+          "type": "object",
+          "description": "Error when the spec directory or story file cannot be located",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "SPEC_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "featureName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "featureName"
+          ]
+        },
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "description": "Surfaced from the jira skills when the Atlassian MCP server is not connected or authenticated",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "IssueNotFoundError",
+          "type": "object",
+          "description": "Surfaced from the jira skills when the issue key does not exist",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "ISSUE_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "issueKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "metadata": {
+        "category": "specification",
+        "complexity": "intermediate"
+      }
+    },
+    {
+      "name": "authorSpec",
+      "description": "Author (create) or revise a feature's spec artifacts (README, [featureName].spec.md, [featureName].plan.md) in an isolated context by loading the technical-spec-authoring skill's invocation contract and operating as the spec-author agent. In create mode it runs the spec-artifact-model create contract and deepens the spec and plan; in revise mode it applies a spec-design review's Required Changes. The isolated-context authoring stage an orchestrator loops through a design-quality gate.",
+      "prompt": "./prompts/author-spec.md",
+      "parameters": [
+        {"name":"featureName","type":"string","description":"Feature name in kebab-case; names the spec directory and [featureName].* artifacts.","required":false},
+        {"name":"mode","type":"string","description":"create or revise. Default create. revise requires reviewPath.","required":false,"validation":{"enum":["create","revise"]}},
+        {"name":"storySource","type":"string","description":"Approved story: file path OR Jira issue key (auto-detected). External sources are referenced, not copied. Omit for a local story.","required":false},
+        {"name":"description","type":"string","description":"One-line feature description, used when a local story is generated in create mode.","required":false},
+        {"name":"specDirectory","type":"string","description":"Directory for the spec. Defaults to .ai/specs/<featureName>.","required":false},
+        {"name":"reviewPath","type":"string","description":"Spec-design review write-up whose Required Changes drive a revise. Required when mode is revise.","required":false}
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of authoring or revising the spec artifacts",
+        "properties": {
+          "status": {"type":"string","enum":["success","questions","error"]},
+          "mode": {"type":"string","enum":["create","revise"]},
+          "featureName": {"type":"string"},
+          "paths": {"type":"array","items":{"type":"string"},"description":"Artifacts created (create) or changed (revise)"},
+          "storySource": {"type":["string","null"],"description":"External story path/key, or null for a local story"},
+          "changesApplied": {"type":"array","items":{"type":"string"},"description":"Resolved Required Change IDs (revise only)"}
+        },
+        "required": ["status","featureName"]
+      },
+      "throws": [
+        {"title":"SpecIncompleteError","type":"object","description":"Handoff missing mode, featureName, specDirectory, or (revise) reviewPath","properties":{"code":{"type":"string","enum":["SPEC_INCOMPLETE"]},"message":{"type":"string"}},"required":["code","message"]},
+        {"title":"SpecExistsError","type":"object","description":"create against an existing spec directory","properties":{"code":{"type":"string","enum":["SPEC_EXISTS"]},"message":{"type":"string"},"existingSpecPath":{"type":"string"}},"required":["code","message"]},
+        {"title":"StoryNotFoundError","type":"object","description":"The story source cannot be resolved (missing file or Jira issue)","properties":{"code":{"type":"string","enum":["STORY_NOT_FOUND"]},"message":{"type":"string"},"storySource":{"type":"string"}},"required":["code","message"]},
+        {"title":"WriteFailedError","type":"object","description":"A required artifact could not be written","properties":{"code":{"type":"string","enum":["WRITE_FAILED"]},"message":{"type":"string"}},"required":["code","message"]}
+      ],
+      "metadata": {"category":"specification","complexity":"advanced"}
+    },
+    {
+      "name": "reviewSpecDesign",
+      "description": "Review a spec's design before implementation by operating as the spec-design-reviewer agent: score five design dimensions (requirement coverage, architectural soundness, buildability, testability, cross-artifact consistency), return a pass/fail verdict with ordered Required Changes, and persist a design-review write-up. The design-quality gate counterpart to reviewSpecImplementation.",
+      "prompt": "./prompts/review-spec-design.md",
+      "parameters": [
+        {"name":"featureName","type":"string","description":"Name of the feature spec to review; resolves .ai/specs/<featureName>.","required":false},
+        {"name":"specDirectory","type":"string","description":"Path to the spec directory. Defaults to .ai/specs/<featureName>.","required":false},
+        {"name":"storySource","type":"string","description":"Approved story the design is measured against: file path, Jira issue key, or the local story (auto-detected).","required":false},
+        {"name":"strictness","type":"string","description":"How strict the review is.","required":false,"default":"normal","validation":{"enum":["strict","normal","lenient"]}},
+        {"name":"outputDir","type":"string","description":"Where to persist the design-review write-up. Defaults to .ai/working/spec-design-reviews/.","required":false},
+        {"name":"iteration","type":"number","description":"Review pass number (1, then 2, ...), used to name the write-up. Default 1.","required":false,"default":1}
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Design-review verdict and scores",
+        "properties": {
+          "status": {"type":"string","enum":["success","error"]},
+          "reviewPath": {"type":"string","description":"Persisted design-review write-up; consumable by authorSpec as reviewPath"},
+          "verdict": {"type":"string","enum":["pass","fail"]},
+          "score": {"type":"number","description":"Overall 1-5 (one decimal)","minimum":1,"maximum":5},
+          "mustFixCount": {"type":"number"},
+          "shouldFixCount": {"type":"number"},
+          "passScores": {"type":"object","description":"coverage, soundness, buildability, testability, consistency (each 1-5)"}
+        },
+        "required": ["status","verdict","score","mustFixCount","reviewPath"]
+      },
+      "throws": [
+        {"title":"SpecNotFoundError","type":"object","description":"The spec directory or [featureName].spec.md does not exist","properties":{"code":{"type":"string","enum":["SPEC_NOT_FOUND"]},"message":{"type":"string"},"searchedPath":{"type":"string"}},"required":["code","message"]},
+        {"title":"InsufficientSpecError","type":"object","description":"Artifacts exist but contain no parseable design to review","properties":{"code":{"type":"string","enum":["INSUFFICIENT_SPEC"]},"message":{"type":"string"},"missingArtifacts":{"type":"array","items":{"type":"string"}}},"required":["code","message"]},
+        {"title":"WriteFailedError","type":"object","description":"The design-review write-up could not be persisted after the review computed","properties":{"code":{"type":"string","enum":["WRITE_FAILED"]},"message":{"type":"string"}},"required":["code","message"]}
+      ],
+      "metadata": {"category":"specification","complexity":"advanced"}
+    }
+  ],
+  "agents": [
+    {
+      "name": "spec-research",
+      "description": "Grounds a spec in the actual codebase before execution begins — reads the spec artifacts, explores the real code to find relevant files, integration points, wiring points, and conventions, runs spec-sizing, and classifies every gap as a big open question or a small documented assumption. Returns a context brief, a sizing verdict, open questions, and proposed assumptions to the spec-execution-coordinator. Read-only with respect to the subject — never modifies code or spec artifacts and never executes code; the only file it writes is its own context brief. Delegate when a spec needs codebase grounding, a sizing verdict, or gap classification before an execution pass.",
+      "agent": "./agents/spec-research/AGENT.md",
+      "model": "inherit",
+      "readonly": false,
+      "userInvokable": false
+    },
+    {
+      "name": "spec-execution",
+      "description": "Executes one scoped phase or todo-group of a technical spec and wires the implementation completely into the running system — implements the unit, connects every integration point (calls, route/command registration, config references, imports), writes tests, runs tiered quality gates, and updates the plan's todo statuses. Delegate when a single scoped unit of a spec needs end-to-end implementation: a phase, a todo-group, or a set of [feature].review.md findings. A leaf specialist that returns a success/questions/error status to its caller and never talks to the user.",
+      "agent": "./agents/spec-execution/AGENT.md",
+      "model": "inherit",
+      "readonly": false,
+      "userInvokable": false
+    },
+    {
+      "name": "spec-execution-coordinator",
+      "description": "Owns the executeSpec loop end to end — runs research once, triages the resulting open questions (answers from its own context, escalates only genuine unknowns, records answers on the spec's story), recommends a split when the spec is oversized, loops scoped execution one phase/todo-group at a time, and drives the Jira lifecycle — assignment and status (start → completion) — through the story package. It is the only agent that talks to the user in this flow; sub-agents return to it, not the user. A first-class reusable abstraction: the operational model loaded by the executeSpec prompt and invocable by any external workflow that needs the whole research → triage → scoped-execution loop. Delegates grounding to spec-research and all implementation to spec-execution; never writes code itself. Delegate when a spec needs to be executed end to end with research grounding, gap triage, scoped per-phase execution, and Jira lifecycle handling.",
+      "agent": "./agents/spec-execution-coordinator/AGENT.md",
+      "model": "inherit",
+      "readonly": false,
+      "userInvokable": false
+    },
+    {
+      "name": "spec-review",
+      "description": "Evaluates a spec implementation against its story, spec, and plan: scores requirement and test coverage, reconciles plan todos, classifies findings, computes a 0-100 health score, and persists a [feature].review.md artifact that a follow-up executeSpec pass can consume. Delegate from the reviewSpecImplementation prompt (or any caller) when an implementation must be reviewed against its spec. Reads and searches implementation code but never modifies it; the only file it writes is the review artifact.",
+      "agent": "./agents/spec-review/AGENT.md",
+      "model": "inherit",
+      "readonly": false,
+      "userInvokable": false
+    },
+    {
+      "name": "spec-author",
+      "description": "Authors a feature's spec artifacts (README, [feature].spec.md, [feature].plan.md) from an approved story in an isolated context — the create and revise stages an orchestrator loops through a design-quality gate. create runs the spec-artifact-model create contract; revise applies a spec-design review's Required Changes. Authoring only — never implements code, never talks to the user; returns a success/questions/error status to its caller. Delegate when a spec must be authored or revised in a fresh context (e.g. the nexus implement-story author -> review -> revise cycle).",
+      "agent": "./agents/spec-author/AGENT.md",
+      "model": "inherit",
+      "readonly": false,
+      "userInvokable": false
+    },
+    {
+      "name": "spec-design-reviewer",
+      "description": "Reviews a spec's design before implementation — reads the authored README/spec/plan against the approved story, scores five design dimensions (requirement coverage, architectural soundness, buildability, testability, cross-artifact consistency), and returns a pass/fail verdict with ordered Required Changes, persisting a design-review write-up. Read-only with respect to the spec (writes only its own write-up); never writes code, never talks to the user; no questions path. Delegate as the design-quality gate before a spec is executed. Reviews the spec itself; reviewing an implementation against a spec is spec-review.",
+      "agent": "./agents/spec-design-reviewer/AGENT.md",
+      "model": "inherit",
+      "readonly": false,
+      "userInvokable": false
+    }
+  ],
+  "skills": [
+    {
+      "name": "spec-artifact-model",
+      "description": "The spec artifact model: the required file set under `.ai/specs/<featureName>/`, the `[featureName].X.md` naming convention, what each artifact is for and who reads it, the WHAT/WHY (story) vs HOW (spec) boundary, cross-link rules between artifacts, story-source detection (local file path vs Jira issue key), and how the spec templates map to artifacts. Use when creating, updating, executing, or reviewing any spec artifact, or when deciding which file holds which content or how artifacts reference each other.",
+      "skill": "./skills/spec-artifact-model/SKILL.md"
+    },
+    {
+      "name": "spec-plan-format",
+      "description": "The Cursor `[feature].plan.md` plan format used across the spec workflows: the YAML frontmatter schema (name, overview, todos, isProject), the `p{N}-slug` todo ID convention, the pending → in_progress → completed status lifecycle, progress math by phase, the markdown-body-vs-frontmatter-todos split, and the discipline of never marking a todo completed before the work is actually done. Use when reading, parsing, or editing a plan's todos, computing spec progress, scoping work to a phase or todo, or updating todo status.",
+      "skill": "./skills/spec-plan-format/SKILL.md"
+    },
+    {
+      "name": "technical-spec-authoring",
+      "description": "Standards for authoring `[featureName].spec.md` — the HOW layer of a spec. Covers the technical section catalog (architecture and data flow, algorithms with pseudocode and complexity, data model and validation, API/function signatures, technical decisions with alternatives and consequences, file structure, implementation details, integration points, edge cases and error handling, security, performance, testing strategy, configuration, dependencies), the depth bar that makes each section buildable, the HOW-belongs-here boundary (code, schemas, and implementation detail live in the spec, not the story), and how the spec links back to the story and feeds the plan. Use when creating, drafting, updating, or reviewing a technical spec / spec.md / the HOW layer of a feature specification.",
+      "skill": "./skills/technical-spec-authoring/SKILL.md"
+    },
+    {
+      "name": "spec-review-rubric",
+      "description": "The spec-implementation review methodology used by the spec-review agent: the requirement-coverage matrix (IMPLEMENTED / PARTIAL / MISSING plus a coverage percentage), test-coverage assessment with quality bands, plan-todo accuracy (false vs. unreported completions), the finding taxonomy (five categories plus critical/major/minor/info severity), the strict / normal / lenient strictness modes, the 0-100 health-score method, and the section spec for the persisted [feature].review.md artifact. Use when reviewing a spec implementation, scoring implementation health, classifying or prioritizing findings, assessing requirement or test coverage, reconciling plan todos, or writing the review artifact.",
+      "skill": "./skills/spec-review-rubric/SKILL.md"
+    },
+    {
+      "name": "spec-implementation-execution",
+      "description": "How the spec-execution agent implements one scoped unit (a phase or todo-group) of a spec and wires it into the system: the scoped-task discipline (create / modify / test / docs), the wiring discipline that connects every integration point — calls, route/command registration, config references, imports — so nothing is left defined-but-unwired, the assumption-vs-blocking-question contract for pre-confirmed small gaps versus larger unknowns, when a plan todo may be marked completed, and the tiered quality-gate strategy (detect aidev → repo package.json scripts → skip-with-note). Use when executing a scoped phase or todo, wiring an implementation into the rest of the codebase, deciding whether to assume or ask, marking todo progress, or running quality gates after implementing a unit.",
+      "skill": "./skills/spec-implementation-execution/SKILL.md"
+    },
+    {
+      "name": "spec-research-grounding",
+      "description": "How the readonly spec-research agent grounds a spec in the actual codebase before execution: build a context brief (relevant existing files, integration and wiring points, and conventions the implementation must follow) and classify every gap as either a BIG gap that becomes an open question for the user or a SMALL gap that becomes a documented assumption execution can make. Covers the investigator contract (note gaps, never block, never modify, never execute, return findings to the coordinator) and the structured output the agent produces. Use when grounding a spec before execution, exploring a codebase to find integration and wiring points, building a research context brief, classifying gaps, or deciding whether an unknown must be asked or assumed.",
+      "skill": "./skills/spec-research-grounding/SKILL.md"
+    },
+    {
+      "name": "spec-sizing",
+      "description": "How the spec-research agent judges whether a spec is one executable block and, when it is not, how to recommend a split. Covers the one-block principle, a signal-based sizing rubric (independent deliverables, unrelated-subsystem spread, mixed concerns, independent P1 stories, no single definition-of-done), the `single-block` vs `should-split` verdict returned to the coordinator, the split strategy along independently-testable story/deliverable boundaries into separate `.ai/specs/<child>/` specs, and the rule that splitting is a recommendation to the user — never an automatic action. Use when assessing spec size, deciding single-block vs should-split, or recommending how to break an oversized spec into smaller specs.",
+      "skill": "./skills/spec-sizing/SKILL.md"
+    },
+    {
+      "name": "spec-design-review-rubric",
+      "description": "The pre-implementation spec-DESIGN review methodology used by the spec-design-reviewer agent: the five design-review passes (requirement coverage of the story's acceptance criteria, architectural soundness, buildability of the plan, testability, cross-artifact consistency), 1-5 per-pass scoring, the pass/fail verdict and must-fix rule, the strict/normal/lenient strictness modes, the ordered Required Changes change-set, and the section spec for the persisted design-review write-up. Use when reviewing a technical spec's design before any code is written — not when reviewing an implementation against a spec (that is spec-review-rubric).",
+      "skill": "./skills/spec-design-review-rubric/SKILL.md"
+    },
+    {
+      "name": "spec-jira-sync",
+      "description": "How a spec's story is delta-synced to its Jira issue: resolving the spec's [featureName].story.md from a feature name, delegating the sync itself to the story package's story-jira-sync skill (create on first sync, push only the changed fields on every sync after), mapping the story-package result back into the spec response shape, and relaying story/jira errors verbatim rather than repairing them in the spec layer. Use when syncing a spec's story to Jira, creating a Jira issue for a newly authored spec, re-syncing after a story change, or diagnosing a spec-to-Jira sync failure — not when transitioning status or assigning an issue during execution.",
+      "skill": "./skills/spec-jira-sync/SKILL.md"
+    }
+  ],
+  "rules": [
+    {
+      "name": "specStructure",
+      "description": "Guardrails for spec work under `.ai/specs/`: the required artifact set and `[featureName].X.md` naming, the story (WHAT/WHY) vs spec (HOW) boundary, and the directive to load the spec package's skills before creating, updating, executing, or reviewing a spec.",
+      "rule": "./rules/spec-structure.md",
+      "alwaysApply": true,
+      "globs": [
+        ".ai/specs/**"
+      ]
+    }
+  ],
+  "categories": [
+    "development",
+    "documentation",
+    "planning",
+    "specification"
+  ],
+  "tags": [
+    "spec",
+    "technical-spec",
+    "specification",
+    "planning",
+    "implementation",
+    "execution",
+    "documentation",
+    "jira"
+  ]
+}
