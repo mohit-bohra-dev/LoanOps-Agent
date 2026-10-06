@@ -33,6 +33,8 @@ SCOPE_TOOLS: dict[str, frozenset[str]] = {
     "wiki.screen": frozenset({"wiki_read_page"}),
 }
 
+_DEFAULT_USER_SCOPES = frozenset({"sse.read", "docs.search", "eakg.read"})
+
 ROLE_SCOPES: dict[str, frozenset[str]] = {
     # Default agent path: live SSE OpenAPI + docs + enterprise capability graph queries.
     "system": frozenset({"sse.read", "docs.search", "eakg.read"}),
@@ -51,7 +53,10 @@ ROLE_SCOPES: dict[str, frozenset[str]] = {
         }
     ),
     "pm": frozenset({"sse.read", "docs.search", "wiki.jira", "eakg.read"}),
-    "care_rep": frozenset({"sse.read", "docs.search", "eakg.read"}),
+    # Canonical general-internal role (ADR-021). Not job-title-specific.
+    "user": _DEFAULT_USER_SCOPES,
+    # Deprecated alias — same scopes as `user` (kept for env/tests).
+    "care_rep": _DEFAULT_USER_SCOPES,
     "customer": frozenset({"sse.read"}),
 }
 

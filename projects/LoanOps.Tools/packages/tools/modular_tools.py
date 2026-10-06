@@ -85,6 +85,7 @@ class ModularToolsClient(AbstractToolsClientProvider):
         )
 
     async def call(self, tool: ToolCall) -> ToolResult:
+        # LAYER2-BP A5: in-process helpers (Agent modular OR MCP server)
         name = tool.tool_name
         if name not in self._allowed:
             return self._err(name, f"Tool '{name}' not allowed for current scope")

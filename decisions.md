@@ -481,3 +481,28 @@ gate). Wired into pytest + pre-commit.
 
 **Status:** Accepted 2026-10-02.
 
+---
+
+## ADR-021 — Audience: general internal users (not care-rep-only)
+
+**Decision:** Position LoanOps as an **internal AI platform for any authorized
+enterprise role**. Capability discovery (EAKG), MCP tools, docs search, and
+grounded drafts are the product. Care-rep workflows are one optional persona,
+not the product definition.
+
+**Context:** Team moved away from building care-rep-specific UX/flows; same
+stack should serve engineers, PMs, ops, and others via role scopes.
+
+**Alternatives:** Keep care-rep-only messaging; split a second product.
+
+**Reasoning:** MCP + EAKG + scopes already support multi-role use. Docs and
+`AGENT_ROLE=care_rep` naming were lagging the real direction.
+
+**Implications:**
+- Canonical role name `user` (same scopes as former default internal pack).
+- `care_rep` kept as deprecated alias.
+- One-pager: `docs/09-loanops-one-pager.md`. System prompt §B updated for
+  internal colleague (not borrower).
+
+**Status:** Accepted 2026-10-04.
+

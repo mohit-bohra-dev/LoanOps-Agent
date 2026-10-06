@@ -1,0 +1,255 @@
+# {{featureName}}
+
+## Overview
+
+{{description}}
+
+This directory contains the specification and implementation plan for {{featureName}}. The feature {{brief_description_of_enhancement}}.
+
+> This README is the front door for the spec. It absorbs the executive summary, so there is no separate `SUMMARY.md`.
+
+## Executive Summary
+
+**Status**: {{status}} · **Version**: {{version}} · **Created**: {{created_date}}
+
+{{brief_overview}}
+
+### What Gets Implemented
+
+- **{{feature_1_name}}** — {{feature_1_description}}
+- **{{feature_2_name}}** — {{feature_2_description}}
+- **{{feature_3_name}}** — {{feature_3_description}}
+
+### Core Approach
+
+{{core_approach_summary}}
+
+### Key Files
+
+- **New ({{new_file_count}})**: {{list_of_new_files}}
+- **Modified ({{modified_file_count}})**: {{list_of_modified_files}}
+
+### Testing Strategy (at a glance)
+
+{{testing_strategy_summary}}
+
+## Documents
+
+{{#if storyPath}}
+### User Stories ({{storyPath}})
+**Purpose**: User stories and business requirements (maintained externally)
+**Location**: `{{storyPath}}`
+**Audience**: Product managers, stakeholders, business analysts
+**Contents**:
+- Prioritized user stories (P1, P2, P3) with acceptance criteria
+- Functional and non-functional requirements
+- Success criteria and measurable outcomes
+- Edge cases and constraints
+- Out of scope items
+{{else}}
+### User Stories ([{{featureName}}.story.md](./{{featureName}}.story.md))
+**Purpose**: User stories and business requirements
+**Audience**: Product managers, stakeholders, business analysts
+**Contents**:
+- Prioritized user stories (P1, P2, P3) with acceptance criteria
+- Functional and non-functional requirements
+- Success criteria and measurable outcomes
+- Edge cases and constraints
+- Out of scope items
+{{/if}}
+
+### Technical Specification ([{{featureName}}.spec.md](./{{featureName}}.spec.md))
+**Purpose**: Technical design and architecture
+**Audience**: Software architects, senior developers, technical leads
+**Contents**:
+- Architecture and component design
+- Algorithms and data structures
+- API design and function signatures
+- Technical decisions and rationale
+- File structure and implementation details
+- Integration points
+- Security and performance implementation
+
+### Implementation Plan ([{{featureName}}.plan.md](./{{featureName}}.plan.md))
+**Purpose**: Detailed step-by-step implementation guide with integrated progress tracking (Cursor plan format)
+**Audience**: Developers, implementation team
+**Contents**:
+- YAML frontmatter with trackable todos (`pending` | `in_progress` | `completed`)
+- Phase-by-phase breakdown with code examples
+- Testing strategy per phase
+- Timeline and milestones
+- Dependencies and prerequisites
+- Final validation, code review, and sign-off sections
+- Quick command reference
+
+### Implementation Review ([{{featureName}}.review.md](./{{featureName}}.review.md))
+**Purpose**: Findings from `reviewSpecImplementation` (created on first review; may not exist yet)
+**Audience**: Developers, reviewers
+**Contents**:
+- Requirement coverage and health score
+- Categorized findings with recommendations
+- Scoped work source for a follow-up `executeSpec` pass
+
+## Quick Reference
+
+### What This Provides
+
+- **Feature 1** — {{feature_1_details}}
+- **Feature 2** — {{feature_2_details}}
+- **Feature 3** — {{feature_3_details}}
+
+### What This Doesn't Provide (Out of Scope)
+
+- {{out_of_scope_item_1}} — {{reason}}
+- {{out_of_scope_item_2}} — {{reason}}
+- {{out_of_scope_item_3}} — {{reason}}
+
+## Architecture Summary
+
+```
+{{architecture_diagram}}
+```
+
+## User Experience
+
+### {{scenario_1_name}}
+
+```bash
+{{example_usage}}
+```
+
+## Key Concepts
+
+### {{key_concept_1}}
+
+{{explanation}}
+
+### {{key_concept_2}}
+
+{{explanation}}
+
+## Implementation Overview
+
+### Timeline
+
+| Phase | Duration | Focus |
+|-------|----------|-------|
+| Phase 1 | {{duration}} | {{focus}} |
+| Phase 2 | {{duration}} | {{focus}} |
+| Phase 3 | {{duration}} | {{focus}} |
+| Phase 4 | {{duration}} | {{focus}} |
+| Phase 5 | {{duration}} | {{focus}} |
+
+**Total Estimate:** {{total_days}} development days
+
+### Dependencies
+
+```json
+{
+  "dependencies": {
+    {{dependencies}}
+  },
+  "devDependencies": {
+    {{devDependencies}}
+  }
+}
+```
+
+## Quality Standards
+
+### Testing Requirements
+- {{coverage_percentage}}% code coverage for new files
+- 100% coverage for critical paths
+- All edge cases tested
+- Integration tests passing
+- Performance targets met
+
+### Documentation Requirements
+- All commands documented
+- All options explained
+- Examples tested and working
+- Troubleshooting guide included
+- Related commands linked
+
+### Code Quality
+- No code duplication
+- All linting passes
+- Quality gates pass (`aidev workflow run` when available, else repo scripts)
+- Functions documented
+
+## Safety Guarantees
+
+{{safety_guarantees}}
+
+## Performance Targets
+
+{{performance_targets}}
+
+## Getting Started
+
+### For Implementers
+
+1. **Read First**:
+   - This README (Executive Summary above) — high-level understanding
+   - [{{featureName}}.spec.md](./{{featureName}}.spec.md) — algorithm and architecture
+
+2. **During Implementation**:
+   - [{{featureName}}.plan.md](./{{featureName}}.plan.md) — follow phase-by-phase guide and update todo statuses as you progress
+
+3. **When Stuck**:
+   - Search {{featureName}}.spec.md for specific topics
+   - Review algorithm and edge cases sections
+   - Look at code examples
+
+### For Reviewers
+
+1. **Architecture Review**:
+   - Read the Executive Summary above
+   - Review algorithm in {{featureName}}.spec.md
+   - Check security considerations
+
+2. **Code Review**:
+   - Use {{featureName}}.plan.md todo statuses and sign-off section to verify completeness
+   - Reference {{featureName}}.spec.md for requirements
+   - Validate test coverage
+
+3. **Documentation Review**:
+   - Check all docs listed in {{featureName}}.plan.md
+   - Verify examples work
+
+## Status
+
+| Field | Value |
+|-------|-------|
+| **Status** | {{status}} |
+| **Version** | {{version}} |
+| **Created** | {{created_date}} |
+| **Author** | {{author}} |
+| **Type** | {{type}} |
+| **Estimated Effort** | {{effort}} |
+| **Jira Issue** | {{jira_issue_key}} |
+
+## Related Documents
+
+### Related Specifications
+{{list_of_related_specs}}
+
+### Quick Reference
+{{list_of_quick_references}}
+
+## Success Criteria
+
+The implementation will be considered complete when:
+
+### Functional
+{{functional_criteria}}
+
+### Quality
+{{quality_criteria}}
+
+### Performance
+{{performance_criteria}}
+
+---
+
+See [{{featureName}}.plan.md](./{{featureName}}.plan.md) to get started with the first `p1-*` todo.

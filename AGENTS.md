@@ -5,10 +5,14 @@
 
 ## What this project is
 
-An **internal copilot for licensed mortgage-servicing care reps** at a US
-mortgage servicer. Hybrid architecture: identical Python codebase runs
-locally (Ollama + Qdrant) or on AWS (Bedrock + Qdrant Cloud) via env-var swap.
-Full brief: `docs/01-servicing-agent-prompts.md`.
+An **internal, citation-grounded AI platform** for enterprise teams (any role:
+engineers, PMs, ops, analysts — not a single job title). Discovers capabilities
+(EAKG), calls APIs via MCP/SSE, searches docs, and drafts grounded answers.
+
+Hybrid architecture: identical Python codebase runs locally (Ollama + Qdrant)
+or on AWS (Bedrock + Qdrant Cloud) via env-var swap. Early docs still say
+“care rep”; product direction is **general internal users** (ADR-021).
+Brief: `docs/01-servicing-agent-prompts.md` (system prompt + build history).
 
 ## Read order
 

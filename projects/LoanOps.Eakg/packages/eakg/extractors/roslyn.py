@@ -16,23 +16,54 @@ logger = logging.getLogger(__name__)
 DETECTOR_ID = "dotnet_roslyn"
 DETECTOR_VERSION = "2.0.0"
 
-_REPO_ROOT = Path(__file__).resolve().parents[3]
-_TOOL_PROJ = _REPO_ROOT / "tools" / "eakg-dotnet-extract" / "EakgDotnetExtract.csproj"
-_TOOL_DLL = (
-    _REPO_ROOT
-    / "tools"
-    / "eakg-dotnet-extract"
-    / "bin"
-    / "Release"
-    / "net8.0"
-    / "eakg-dotnet-extract.dll"
-)
+
+def _loanops_repo_root() -> Path:
+    """Find LoanOps-Agent root (uv install copies eakg into site-packages)."""
+    marker = Path("tools") / "eakg-dotnet-extract" / "EakgDotnetExtract.csproj"
+    cwd = Path.cwd()
+    if (cwd / marker).is_file():
+        return cwd
+    try:
+        git = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            check=False,
+            cwd=str(cwd),
+        )
+        if git.returncode == 0:
+            root = Path(git.stdout.strip())
+            if (root / marker).is_file():
+                return root
+    except OSError:
+        pass
+    here = Path(__file__).resolve()
+    for parent in (here, *here.parents):
+        if (parent / marker).is_file():
+            return parent
+    return cwd
+
+
+def _tool_proj() -> Path:
+    return _loanops_repo_root() / "tools" / "eakg-dotnet-extract" / "EakgDotnetExtract.csproj"
+
+
+def _tool_dll() -> Path:
+    return (
+        _loanops_repo_root()
+        / "tools"
+        / "eakg-dotnet-extract"
+        / "bin"
+        / "Release"
+        / "net8.0"
+        / "eakg-dotnet-extract.dll"
+    )
 
 
 def roslyn_tool_available() -> bool:
     if shutil.which("dotnet") is None:
         return False
-    return _TOOL_PROJ.is_file()
+    return _tool_proj().is_file()
 
 
 def _run_extractor(
@@ -56,14 +87,16 @@ def _run_extractor(
     if api_project_path:
         args.extend(["--api-project-path", api_project_path])
 
-    if _TOOL_DLL.is_file():
-        cmd = ["dotnet", "exec", str(_TOOL_DLL), *args]
+    tool_proj = _tool_proj()
+    tool_dll = _tool_dll()
+    if tool_dll.is_file():
+        cmd = ["dotnet", "exec", str(tool_dll), *args]
     else:
         cmd = [
             "dotnet",
             "run",
             "--project",
-            str(_TOOL_PROJ),
+            str(tool_proj),
             "-c",
             "Release",
             "--no-build",
@@ -72,21 +105,21 @@ def _run_extractor(
         ]
         # Ensure build once if dll missing
         build = subprocess.run(
-            ["dotnet", "build", str(_TOOL_PROJ), "-c", "Release", "-v", "q"],
+            ["dotnet", "build", str(tool_proj), "-c", "Release", "-v", "q"],
             capture_output=True,
             text=True,
             check=False,
         )
         if build.returncode != 0:
             raise RuntimeError(f"roslyn tool build failed: {build.stderr[-500:]}")
-        if _TOOL_DLL.is_file():
-            cmd = ["dotnet", "exec", str(_TOOL_DLL), *args]
+        if tool_dll.is_file():
+            cmd = ["dotnet", "exec", str(tool_dll), *args]
         else:
             cmd = [
                 "dotnet",
                 "run",
                 "--project",
-                str(_TOOL_PROJ),
+                str(tool_proj),
                 "-c",
                 "Release",
                 "--",

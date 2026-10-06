@@ -128,6 +128,7 @@ async def _execute_tools(
         )
 
         tool = ToolCall(tool_name=tc.name, parameters=resolved_args)
+        # LAYER2-BP A4: LLM chose this tool — next line is ModularToolsClient or McpToolsClient
         result = await tools_client.call(tool)
         recorded.append(
             ToolCallItem(
@@ -151,6 +152,7 @@ async def run_agent_turn(
     pii_token_map: dict[str, str] | None = None,
 ) -> AgentTurnOutput:
     """Run a single agent turn and return structured output."""
+    # LAYER2-BP A3: turn start — step into classify_intent / later tool loop
     # Step 1: Classify intent
     intent, reason, detail = classify_intent(prompt)
 

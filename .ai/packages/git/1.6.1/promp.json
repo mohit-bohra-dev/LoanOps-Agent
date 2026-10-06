@@ -1,0 +1,2341 @@
+{
+  "name": "git",
+  "version": "1.6.1",
+  "description": "Git workflow automation prompts for committing, pushing, and handling merge conflicts",
+  "author": "Pennymac AI Platform",
+  "license": "MIT",
+  "keywords": [
+    "git",
+    "commit",
+    "push",
+    "merge",
+    "workflow",
+    "automation",
+    "branch",
+    "branching",
+    "submodule",
+    "submodules"
+  ],
+  "files": [
+    "prompts/**/*",
+    "rules/**/*",
+    "skills/**/*",
+    "README.md"
+  ],
+  "default": "commitAndPush",
+  "prompts": [
+    {
+      "name": "commit",
+      "description": "Commit staged changes with an AI-generated message, with automatic pre-commit hook failure handling",
+      "prompt": "./prompts/commit.md",
+      "parameters": [
+        {
+          "name": "verificationMode",
+          "type": "string",
+          "description": "Controls git hook verification behavior for the commit",
+          "required": false,
+          "default": "full",
+          "validation": {
+            "enum": [
+              "full",
+              "no-verify",
+              "no-verify-commit"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of the commit operation",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          },
+          "commitHash": {
+            "type": "string",
+            "description": "The Git commit hash (SHA) of the created commit"
+          },
+          "commitMessage": {
+            "type": "string",
+            "description": "The generated commit message that was used"
+          },
+          "branch": {
+            "type": "string",
+            "description": "The current branch name"
+          },
+          "filesChanged": {
+            "type": "number",
+            "description": "Number of files changed in the commit"
+          },
+          "preCommitFixesApplied": {
+            "type": "boolean",
+            "description": "Whether pre-commit hook failures required fixes"
+          },
+          "fixesApplied": {
+            "type": "array",
+            "description": "List of fixes that were applied due to pre-commit hooks",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "success",
+          "commitHash",
+          "commitMessage",
+          "branch"
+        ]
+      },
+      "throws": [
+        {
+          "title": "NoStagedChangesError",
+          "type": "object",
+          "description": "Error when there are no staged changes to commit",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NO_STAGED_CHANGES"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "PreCommitHookError",
+          "type": "object",
+          "description": "Error when pre-commit hook fails and cannot be automatically fixed",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PRE_COMMIT_HOOK_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "hookOutput": {
+              "type": "string",
+              "description": "The output from the failed pre-commit hook"
+            },
+            "failedChecks": {
+              "type": "array",
+              "description": "List of checks that failed",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "hookOutput"
+          ]
+        },
+        {
+          "title": "CommitMessageGenerationError",
+          "type": "object",
+          "description": "Error when AI fails to generate a suitable commit message",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "COMMIT_MESSAGE_GENERATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string",
+              "description": "Reason why commit message generation failed"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Standard commit",
+          "description": "Commit staged changes with full verification",
+          "input": {
+            "verificationMode": "full"
+          },
+          "output": {
+            "success": true,
+            "commitHash": "a1b2c3d4",
+            "commitMessage": "feat: add user authentication flow",
+            "branch": "feature/auth",
+            "filesChanged": 5,
+            "preCommitFixesApplied": false,
+            "fixesApplied": []
+          }
+        },
+        {
+          "title": "Commit with pre-commit fixes",
+          "description": "Commit that requires linting fixes from pre-commit hooks",
+          "input": {
+            "verificationMode": "full"
+          },
+          "output": {
+            "success": true,
+            "commitHash": "e5f6g7h8",
+            "commitMessage": "fix: resolve validation errors and apply linting fixes",
+            "branch": "main",
+            "filesChanged": 3,
+            "preCommitFixesApplied": true,
+            "fixesApplied": [
+              "Fixed ESLint errors in auth.ts",
+              "Applied Prettier formatting to login.tsx"
+            ]
+          }
+        },
+        {
+          "title": "Skip verification",
+          "description": "Commit without running any git hooks",
+          "input": {
+            "verificationMode": "no-verify"
+          },
+          "output": {
+            "success": true,
+            "commitHash": "i9j0k1l2",
+            "commitMessage": "chore: update dependencies",
+            "branch": "develop",
+            "filesChanged": 2,
+            "preCommitFixesApplied": false,
+            "fixesApplied": []
+          }
+        }
+      ],
+      "metadata": {
+        "category": "git-workflows",
+        "complexity": "intermediate",
+        "requiresGitRepository": true
+      }
+    },
+    {
+      "name": "commitAndPush",
+      "description": "Commit staged changes with an AI-generated message and push to the current branch",
+      "prompt": "./prompts/commit-and-push.md",
+      "parameters": [
+        {
+          "name": "verificationMode",
+          "type": "string",
+          "description": "Controls git hook verification behavior",
+          "required": false,
+          "default": "full",
+          "validation": {
+            "enum": [
+              "full",
+              "no-verify",
+              "no-verify-commit",
+              "no-verify-push"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of the commit and push operation",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          },
+          "commitHash": {
+            "type": "string",
+            "description": "The Git commit hash (SHA) of the created commit"
+          },
+          "commitMessage": {
+            "type": "string",
+            "description": "The generated commit message that was used"
+          },
+          "branch": {
+            "type": "string",
+            "description": "The branch name that was pushed to"
+          },
+          "filesChanged": {
+            "type": "number",
+            "description": "Number of files changed in the commit"
+          },
+          "preCommitFixesApplied": {
+            "type": "boolean",
+            "description": "Whether pre-commit hook failures required fixes"
+          },
+          "fixesApplied": {
+            "type": "array",
+            "description": "List of fixes that were applied due to pre-commit hooks",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "success",
+          "commitHash",
+          "commitMessage",
+          "branch"
+        ]
+      },
+      "throws": [
+        {
+          "title": "NoStagedChangesError",
+          "type": "object",
+          "description": "Error when there are no staged changes to commit",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NO_STAGED_CHANGES"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "PreCommitHookError",
+          "type": "object",
+          "description": "Error when pre-commit hook fails and cannot be automatically fixed",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PRE_COMMIT_HOOK_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "hookOutput": {
+              "type": "string",
+              "description": "The output from the failed pre-commit hook"
+            },
+            "failedChecks": {
+              "type": "array",
+              "description": "List of checks that failed",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "hookOutput"
+          ]
+        },
+        {
+          "title": "PushHookError",
+          "type": "object",
+          "description": "Error when push hook fails (not retried)",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PUSH_HOOK_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "hookOutput": {
+              "type": "string",
+              "description": "The output from the failed push hook"
+            },
+            "commitHash": {
+              "type": "string",
+              "description": "The commit hash that was created (commit succeeded but push failed)"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "hookOutput",
+            "commitHash"
+          ]
+        },
+        {
+          "title": "RemoteChangesError",
+          "type": "object",
+          "description": "Error when push is rejected because the remote has commits not present locally",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "REMOTE_CHANGES_EXIST"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string",
+              "description": "The branch that was being pushed to"
+            },
+            "commitHash": {
+              "type": "string",
+              "description": "The local commit hash that failed to push"
+            },
+            "pushOutput": {
+              "type": "string",
+              "description": "The output from the rejected push command"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "branch",
+            "commitHash",
+            "pushOutput"
+          ]
+        },
+        {
+          "title": "NetworkError",
+          "type": "object",
+          "description": "Error when network connectivity issues prevent push",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NETWORK_ERROR"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "commitHash": {
+              "type": "string",
+              "description": "The commit hash that was created (commit succeeded but push failed)"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "AuthenticationError",
+          "type": "object",
+          "description": "Error when authentication fails for remote repository",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "AUTHENTICATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "remote": {
+              "type": "string",
+              "description": "The remote URL that failed authentication"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "remote"
+          ]
+        },
+        {
+          "title": "ProtectedBranchError",
+          "type": "object",
+          "description": "Error when pushing to a protected branch without permissions",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROTECTED_BRANCH"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string",
+              "description": "The protected branch name"
+            },
+            "requiredPermissions": {
+              "type": "array",
+              "description": "List of required permissions",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "branch"
+          ]
+        },
+        {
+          "title": "CommitMessageGenerationError",
+          "type": "object",
+          "description": "Error when AI fails to generate a suitable commit message",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "COMMIT_MESSAGE_GENERATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string",
+              "description": "Reason why commit message generation failed"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Standard commit and push",
+          "description": "Commit staged changes with full verification",
+          "input": {
+            "verificationMode": "full"
+          },
+          "output": {
+            "success": true,
+            "commitHash": "a1b2c3d4",
+            "commitMessage": "feat: add user authentication flow",
+            "branch": "feature/auth",
+            "filesChanged": 5,
+            "preCommitFixesApplied": false,
+            "fixesApplied": []
+          }
+        },
+        {
+          "title": "Commit with pre-commit fixes",
+          "description": "Commit that requires linting fixes from pre-commit hooks",
+          "input": {
+            "verificationMode": "full"
+          },
+          "output": {
+            "success": true,
+            "commitHash": "e5f6g7h8",
+            "commitMessage": "fix: resolve validation errors and apply linting fixes",
+            "branch": "main",
+            "filesChanged": 3,
+            "preCommitFixesApplied": true,
+            "fixesApplied": [
+              "Fixed ESLint errors in auth.ts",
+              "Applied Prettier formatting to login.tsx"
+            ]
+          }
+        },
+        {
+          "title": "Skip verification",
+          "description": "Commit and push without running any git hooks",
+          "input": {
+            "verificationMode": "no-verify"
+          },
+          "output": {
+            "success": true,
+            "commitHash": "i9j0k1l2",
+            "commitMessage": "chore: update dependencies",
+            "branch": "develop",
+            "filesChanged": 2,
+            "preCommitFixesApplied": false,
+            "fixesApplied": []
+          }
+        }
+      ],
+      "metadata": {
+        "category": "git-workflows",
+        "complexity": "advanced",
+        "requiresGitRepository": true
+      }
+    },
+    {
+      "name": "commitPullPush",
+      "description": "Commit staged changes, pull remote changes with rebase, and push \u2014 a complete sync-and-ship workflow",
+      "prompt": "./prompts/commit-pull-push.md",
+      "parameters": [
+        {
+          "name": "verificationMode",
+          "type": "string",
+          "description": "Controls git hook verification behavior",
+          "required": false,
+          "default": "full",
+          "validation": {
+            "enum": [
+              "full",
+              "no-verify",
+              "no-verify-commit",
+              "no-verify-push"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of the commit, pull, and push operation",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          },
+          "commitHash": {
+            "type": "string",
+            "description": "The Git commit hash (SHA) of the created commit"
+          },
+          "commitMessage": {
+            "type": "string",
+            "description": "The generated commit message that was used"
+          },
+          "branch": {
+            "type": "string",
+            "description": "The branch name that was pushed to"
+          },
+          "filesChanged": {
+            "type": "number",
+            "description": "Number of files changed in the commit"
+          },
+          "preCommitFixesApplied": {
+            "type": "boolean",
+            "description": "Whether pre-commit hook failures required fixes"
+          },
+          "fixesApplied": {
+            "type": "array",
+            "description": "List of fixes that were applied due to pre-commit hooks",
+            "items": {
+              "type": "string"
+            }
+          },
+          "newCommitsPulled": {
+            "type": "boolean",
+            "description": "Whether new commits were fetched from remote during pull"
+          },
+          "mergeConflictsResolved": {
+            "type": "boolean",
+            "description": "Whether merge conflicts from the pull were encountered and resolved"
+          }
+        },
+        "required": [
+          "success",
+          "commitHash",
+          "commitMessage",
+          "branch"
+        ]
+      },
+      "throws": [
+        {
+          "title": "NoStagedChangesError",
+          "type": "object",
+          "description": "Error when there are no staged changes to commit",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NO_STAGED_CHANGES"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "PreCommitHookError",
+          "type": "object",
+          "description": "Error when pre-commit hook fails and cannot be automatically fixed",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PRE_COMMIT_HOOK_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "hookOutput": {
+              "type": "string",
+              "description": "The output from the failed pre-commit hook"
+            },
+            "failedChecks": {
+              "type": "array",
+              "description": "List of checks that failed",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "hookOutput"
+          ]
+        },
+        {
+          "title": "CommitMessageGenerationError",
+          "type": "object",
+          "description": "Error when AI fails to generate a suitable commit message",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "COMMIT_MESSAGE_GENERATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string",
+              "description": "Reason why commit message generation failed"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "StashError",
+          "type": "object",
+          "description": "Error when git stash fails during pull",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "STASH_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "stashOutput": {
+              "type": "string",
+              "description": "The output from the failed stash command"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "stashOutput"
+          ]
+        },
+        {
+          "title": "PullError",
+          "type": "object",
+          "description": "Error when git pull --rebase fails",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PULL_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "pullOutput": {
+              "type": "string",
+              "description": "The output from the failed pull command"
+            },
+            "recoverySteps": {
+              "type": "array",
+              "description": "Suggested recovery steps",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "pullOutput"
+          ]
+        },
+        {
+          "title": "StashPopConflictError",
+          "type": "object",
+          "description": "Error when stash pop produces merge conflicts too complex to auto-resolve",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "STASH_POP_CONFLICT"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "conflictedFiles": {
+              "type": "array",
+              "description": "List of files with unresolved conflicts",
+              "items": {
+                "type": "string"
+              }
+            },
+            "localChanges": {
+              "type": "string",
+              "description": "Description of stashed local changes"
+            },
+            "remoteChanges": {
+              "type": "string",
+              "description": "Description of newly pulled remote changes"
+            },
+            "clarificationNeeded": {
+              "type": "string",
+              "description": "Specific questions that need user input to resolve"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "conflictedFiles",
+            "clarificationNeeded"
+          ]
+        },
+        {
+          "title": "RebaseError",
+          "type": "object",
+          "description": "Error when rebase fails during pull due to corrupted repository state",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "REBASE_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "rebaseOutput": {
+              "type": "string",
+              "description": "The output from the failed rebase operation"
+            },
+            "recoverySteps": {
+              "type": "array",
+              "description": "Suggested recovery steps",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "rebaseOutput"
+          ]
+        },
+        {
+          "title": "RemoteChangesError",
+          "type": "object",
+          "description": "Error when push is rejected because the remote has commits not present locally",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "REMOTE_CHANGES_EXIST"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string",
+              "description": "The branch that was being pushed to"
+            },
+            "commitHash": {
+              "type": "string",
+              "description": "The local commit hash that failed to push"
+            },
+            "pushOutput": {
+              "type": "string",
+              "description": "The output from the rejected push command"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "branch",
+            "commitHash",
+            "pushOutput"
+          ]
+        },
+        {
+          "title": "PushHookError",
+          "type": "object",
+          "description": "Error when push hook fails (not retried)",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PUSH_HOOK_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "hookOutput": {
+              "type": "string",
+              "description": "The output from the failed push hook"
+            },
+            "commitHash": {
+              "type": "string",
+              "description": "The commit hash that was created (commit succeeded but push failed)"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "hookOutput",
+            "commitHash"
+          ]
+        },
+        {
+          "title": "NetworkError",
+          "type": "object",
+          "description": "Error when network connectivity issues prevent pull or push",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NETWORK_ERROR"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "AuthenticationError",
+          "type": "object",
+          "description": "Error when authentication fails for remote repository",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "AUTHENTICATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "remote": {
+              "type": "string",
+              "description": "The remote URL that failed authentication"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "remote"
+          ]
+        },
+        {
+          "title": "ProtectedBranchError",
+          "type": "object",
+          "description": "Error when pushing to a protected branch without permissions",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROTECTED_BRANCH"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string",
+              "description": "The protected branch name"
+            },
+            "requiredPermissions": {
+              "type": "array",
+              "description": "List of required permissions",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "branch"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Clean commit, pull, push",
+          "description": "All three steps succeed with no remote changes or conflicts",
+          "input": {
+            "verificationMode": "full"
+          },
+          "output": {
+            "success": true,
+            "commitHash": "a1b2c3d4",
+            "commitMessage": "feat: add user authentication flow",
+            "branch": "feature/auth",
+            "filesChanged": 5,
+            "preCommitFixesApplied": false,
+            "fixesApplied": [],
+            "newCommitsPulled": false,
+            "mergeConflictsResolved": false
+          }
+        },
+        {
+          "title": "Commit with fixes, pull with remote changes",
+          "description": "Pre-commit hooks fixed, remote had new commits",
+          "input": {
+            "verificationMode": "full"
+          },
+          "output": {
+            "success": true,
+            "commitHash": "e5f6g7h8",
+            "commitMessage": "fix: resolve validation errors and apply linting fixes",
+            "branch": "main",
+            "filesChanged": 3,
+            "preCommitFixesApplied": true,
+            "fixesApplied": [
+              "Fixed ESLint errors in auth.ts",
+              "Applied Prettier formatting to login.tsx"
+            ],
+            "newCommitsPulled": true,
+            "mergeConflictsResolved": false
+          }
+        },
+        {
+          "title": "Skip all verification",
+          "description": "Commit and push without running any git hooks",
+          "input": {
+            "verificationMode": "no-verify"
+          },
+          "output": {
+            "success": true,
+            "commitHash": "i9j0k1l2",
+            "commitMessage": "chore: update dependencies",
+            "branch": "develop",
+            "filesChanged": 2,
+            "preCommitFixesApplied": false,
+            "fixesApplied": [],
+            "newCommitsPulled": false,
+            "mergeConflictsResolved": false
+          }
+        }
+      ],
+      "metadata": {
+        "category": "git-workflows",
+        "complexity": "advanced",
+        "requiresGitRepository": true
+      }
+    },
+    {
+      "name": "push",
+      "description": "Push the current branch to the remote origin, failing immediately if the remote has diverged",
+      "prompt": "./prompts/push.md",
+      "parameters": [
+        {
+          "name": "verificationMode",
+          "type": "string",
+          "description": "Controls git hook verification behavior for the push",
+          "required": false,
+          "default": "full",
+          "validation": {
+            "enum": [
+              "full",
+              "no-verify",
+              "no-verify-push"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of the push operation",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          },
+          "branch": {
+            "type": "string",
+            "description": "The branch name that was pushed to"
+          },
+          "commitHash": {
+            "type": "string",
+            "description": "The commit SHA that was pushed"
+          }
+        },
+        "required": [
+          "success",
+          "branch",
+          "commitHash"
+        ]
+      },
+      "throws": [
+        {
+          "title": "RemoteChangesError",
+          "type": "object",
+          "description": "Error when push is rejected because the remote has commits not present locally",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "REMOTE_CHANGES_EXIST"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string",
+              "description": "The branch that was being pushed to"
+            },
+            "commitHash": {
+              "type": "string",
+              "description": "The local commit hash that failed to push"
+            },
+            "pushOutput": {
+              "type": "string",
+              "description": "The output from the rejected push command"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "branch",
+            "commitHash",
+            "pushOutput"
+          ]
+        },
+        {
+          "title": "PushHookError",
+          "type": "object",
+          "description": "Error when push hook fails (not retried)",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PUSH_HOOK_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "hookOutput": {
+              "type": "string",
+              "description": "The output from the failed push hook"
+            },
+            "commitHash": {
+              "type": "string",
+              "description": "The commit hash that was created (commit succeeded but push failed)"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "hookOutput",
+            "commitHash"
+          ]
+        },
+        {
+          "title": "NetworkError",
+          "type": "object",
+          "description": "Error when network connectivity issues prevent push",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NETWORK_ERROR"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "commitHash": {
+              "type": "string",
+              "description": "The commit hash that was created (commit succeeded but push failed)"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "AuthenticationError",
+          "type": "object",
+          "description": "Error when authentication fails for remote repository",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "AUTHENTICATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "remote": {
+              "type": "string",
+              "description": "The remote URL that failed authentication"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "remote"
+          ]
+        },
+        {
+          "title": "ProtectedBranchError",
+          "type": "object",
+          "description": "Error when pushing to a protected branch without permissions",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROTECTED_BRANCH"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string",
+              "description": "The protected branch name"
+            },
+            "requiredPermissions": {
+              "type": "array",
+              "description": "List of required permissions",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "branch"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Clean push",
+          "description": "Push succeeds on the first attempt",
+          "input": {
+            "verificationMode": "full"
+          },
+          "output": {
+            "success": true,
+            "branch": "feature/auth",
+            "commitHash": "a1b2c3d4"
+          }
+        },
+        {
+          "title": "Push with skipped hooks",
+          "description": "Push without running push hooks",
+          "input": {
+            "verificationMode": "no-verify"
+          },
+          "output": {
+            "success": true,
+            "branch": "develop",
+            "commitHash": "i9j0k1l2"
+          }
+        }
+      ],
+      "metadata": {
+        "category": "git-workflows",
+        "complexity": "advanced",
+        "requiresGitRepository": true
+      }
+    },
+    {
+      "name": "pull",
+      "description": "Pull latest remote changes using a stash-based rebase workflow that safely preserves local work-in-progress",
+      "prompt": "./prompts/pull.md",
+      "parameters": [],
+      "returns": {
+        "type": "object",
+        "description": "Result of the pull operation",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          },
+          "branch": {
+            "type": "string",
+            "description": "The current branch name"
+          },
+          "newCommitsPulled": {
+            "type": "boolean",
+            "description": "Whether new commits were fetched from remote"
+          },
+          "stashUsed": {
+            "type": "boolean",
+            "description": "Whether local changes were stashed and restored"
+          },
+          "mergeConflictsResolved": {
+            "type": "boolean",
+            "description": "Whether stash pop conflicts were encountered and auto-resolved"
+          },
+          "resolvedFiles": {
+            "type": "array",
+            "description": "List of files where merge conflicts were resolved",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "success",
+          "branch",
+          "newCommitsPulled",
+          "stashUsed",
+          "mergeConflictsResolved"
+        ]
+      },
+      "throws": [
+        {
+          "title": "StashError",
+          "type": "object",
+          "description": "Error when git stash fails",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "STASH_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "stashOutput": {
+              "type": "string",
+              "description": "The output from the failed stash command"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "stashOutput"
+          ]
+        },
+        {
+          "title": "PullError",
+          "type": "object",
+          "description": "Error when git pull --rebase fails",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PULL_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "pullOutput": {
+              "type": "string",
+              "description": "The output from the failed pull command"
+            },
+            "recoverySteps": {
+              "type": "array",
+              "description": "Suggested recovery steps",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "pullOutput"
+          ]
+        },
+        {
+          "title": "StashPopConflictError",
+          "type": "object",
+          "description": "Error when stash pop produces merge conflicts too complex to auto-resolve",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "STASH_POP_CONFLICT"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "conflictedFiles": {
+              "type": "array",
+              "description": "List of files with unresolved conflicts",
+              "items": {
+                "type": "string"
+              }
+            },
+            "localChanges": {
+              "type": "string",
+              "description": "Description of stashed local changes"
+            },
+            "remoteChanges": {
+              "type": "string",
+              "description": "Description of newly pulled remote changes"
+            },
+            "clarificationNeeded": {
+              "type": "string",
+              "description": "Specific questions that need user input to resolve"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "conflictedFiles",
+            "clarificationNeeded"
+          ]
+        },
+        {
+          "title": "NetworkError",
+          "type": "object",
+          "description": "Error when network connectivity issues prevent pull",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NETWORK_ERROR"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "AuthenticationError",
+          "type": "object",
+          "description": "Error when authentication fails for remote repository",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "AUTHENTICATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "remote": {
+              "type": "string",
+              "description": "The remote URL that failed authentication"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "remote"
+          ]
+        },
+        {
+          "title": "RebaseError",
+          "type": "object",
+          "description": "Error when rebase fails during pull due to corrupted repository state",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "REBASE_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "rebaseOutput": {
+              "type": "string",
+              "description": "The output from the failed rebase operation"
+            },
+            "recoverySteps": {
+              "type": "array",
+              "description": "Suggested recovery steps",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "rebaseOutput"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Clean pull with no local changes",
+          "description": "Pull when working tree is clean",
+          "input": {},
+          "output": {
+            "success": true,
+            "branch": "main",
+            "newCommitsPulled": true,
+            "stashUsed": false,
+            "mergeConflictsResolved": false,
+            "resolvedFiles": []
+          }
+        },
+        {
+          "title": "Pull with local changes, no conflicts",
+          "description": "Stash local work, pull remote changes, restore stash cleanly",
+          "input": {},
+          "output": {
+            "success": true,
+            "branch": "feature/auth",
+            "newCommitsPulled": true,
+            "stashUsed": true,
+            "mergeConflictsResolved": false,
+            "resolvedFiles": []
+          }
+        },
+        {
+          "title": "Pull with auto-resolved stash pop conflicts",
+          "description": "Pull introduces changes in same files as local work, but conflicts are auto-resolvable",
+          "input": {},
+          "output": {
+            "success": true,
+            "branch": "feature/auth",
+            "newCommitsPulled": true,
+            "stashUsed": true,
+            "mergeConflictsResolved": true,
+            "resolvedFiles": [
+              "src/config.ts",
+              "src/utils/helpers.ts"
+            ]
+          }
+        },
+        {
+          "title": "Already up to date",
+          "description": "No new remote commits and no local changes",
+          "input": {},
+          "output": {
+            "success": true,
+            "branch": "main",
+            "newCommitsPulled": false,
+            "stashUsed": false,
+            "mergeConflictsResolved": false,
+            "resolvedFiles": []
+          }
+        }
+      ],
+      "metadata": {
+        "category": "git-workflows",
+        "complexity": "advanced",
+        "requiresGitRepository": true
+      }
+    },
+    {
+      "name": "createBranch",
+      "description": "Create and switch to a new Git branch, with support for the feature/[environment]/[feature-name] naming convention",
+      "prompt": "./prompts/create-branch.md",
+      "parameters": [
+        {
+          "name": "branchName",
+          "type": "string",
+          "description": "The full branch name to create (takes precedence over featureName/environment)",
+          "required": false
+        },
+        {
+          "name": "featureName",
+          "type": "string",
+          "description": "The feature name in kebab-case, used to construct feature/[environment]/[featureName]",
+          "required": false
+        },
+        {
+          "name": "environment",
+          "type": "string",
+          "description": "Target environment for the feature branch",
+          "required": false,
+          "default": "dev",
+          "validation": {
+            "enum": [
+              "dev",
+              "dev2",
+              "qa",
+              "qa2",
+              "stg",
+              "prod"
+            ]
+          }
+        },
+        {
+          "name": "baseBranch",
+          "type": "string",
+          "description": "The branch to create the new branch from (defaults to current branch)",
+          "required": false
+        },
+        {
+          "name": "push",
+          "type": "boolean",
+          "description": "Whether to push the new branch to the remote and set upstream tracking",
+          "required": false,
+          "default": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Details of the created branch",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the branch was created successfully"
+          },
+          "branch": {
+            "type": "string",
+            "description": "The full name of the created branch"
+          },
+          "baseBranch": {
+            "type": "string",
+            "description": "The branch it was created from"
+          },
+          "isFeatureBranch": {
+            "type": "boolean",
+            "description": "Whether it follows the feature branch convention"
+          },
+          "environment": {
+            "type": "string",
+            "description": "The environment segment (if feature branch)"
+          },
+          "pushed": {
+            "type": "boolean",
+            "description": "Whether the branch was pushed to the remote"
+          }
+        },
+        "required": [
+          "success",
+          "branch",
+          "baseBranch",
+          "isFeatureBranch",
+          "pushed"
+        ]
+      },
+      "throws": [
+        {
+          "title": "BranchExistsError",
+          "type": "object",
+          "description": "Error when the branch already exists",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "BRANCH_EXISTS"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string"
+            },
+            "suggestion": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "branch"
+          ]
+        },
+        {
+          "title": "InvalidEnvironmentError",
+          "type": "object",
+          "description": "Error when an invalid environment is specified",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "INVALID_ENVIRONMENT"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "environment": {
+              "type": "string"
+            },
+            "validEnvironments": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "environment",
+            "validEnvironments"
+          ]
+        },
+        {
+          "title": "BaseBranchNotFoundError",
+          "type": "object",
+          "description": "Error when the specified base branch does not exist",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "BASE_BRANCH_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "branch"
+          ]
+        },
+        {
+          "title": "InvalidBranchNameError",
+          "type": "object",
+          "description": "Error when the branch name contains invalid characters",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "INVALID_BRANCH_NAME"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string"
+            },
+            "requirements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "branch"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Feature branch with default environment",
+          "description": "Create a feature branch defaulting to dev environment",
+          "input": {
+            "featureName": "add-user-auth"
+          },
+          "output": {
+            "success": true,
+            "branch": "feature/dev/add-user-auth",
+            "baseBranch": "main",
+            "isFeatureBranch": true,
+            "environment": "dev",
+            "pushed": false
+          }
+        },
+        {
+          "title": "Feature branch for QA",
+          "description": "Create a feature branch targeting QA environment",
+          "input": {
+            "featureName": "fix-payment-flow",
+            "environment": "qa"
+          },
+          "output": {
+            "success": true,
+            "branch": "feature/qa/fix-payment-flow",
+            "baseBranch": "main",
+            "isFeatureBranch": true,
+            "environment": "qa",
+            "pushed": false
+          }
+        },
+        {
+          "title": "Exact branch name",
+          "description": "Create a branch with a specific name",
+          "input": {
+            "branchName": "hotfix/critical-security-patch"
+          },
+          "output": {
+            "success": true,
+            "branch": "hotfix/critical-security-patch",
+            "baseBranch": "main",
+            "isFeatureBranch": false,
+            "pushed": false
+          }
+        },
+        {
+          "title": "Feature branch from develop, pushed",
+          "description": "Create and push a feature branch from develop",
+          "input": {
+            "featureName": "redesign-dashboard",
+            "environment": "dev2",
+            "baseBranch": "develop",
+            "push": true
+          },
+          "output": {
+            "success": true,
+            "branch": "feature/dev2/redesign-dashboard",
+            "baseBranch": "develop",
+            "isFeatureBranch": true,
+            "environment": "dev2",
+            "pushed": true
+          }
+        }
+      ],
+      "metadata": {
+        "category": "git-workflows",
+        "complexity": "simple",
+        "requiresGitRepository": true
+      }
+    },
+    {
+      "name": "addSubmodule",
+      "description": "Add a git repository as a submodule at a target path and initialize it, optionally tracking a branch/ref",
+      "prompt": "./prompts/add-submodule.md",
+      "parameters": [
+        {
+          "name": "repositoryUrl",
+          "type": "string",
+          "description": "The URL of the repository to attach as a submodule",
+          "required": true
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "description": "The target path for the submodule (e.g. .kbs/<name>)",
+          "required": true
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "description": "The branch or ref the submodule should track (defaults to the remote's default branch)",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of adding the submodule",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the submodule was added successfully"
+          },
+          "path": {
+            "type": "string",
+            "description": "The submodule path that was added"
+          },
+          "ref": {
+            "type": "string",
+            "description": "The tracked branch/ref (provided ref or the resolved default branch)"
+          },
+          "commit": {
+            "type": "string",
+            "description": "The commit SHA the submodule is checked out at"
+          }
+        },
+        "required": [
+          "success",
+          "path",
+          "commit"
+        ]
+      },
+      "throws": [
+        {
+          "title": "SubmoduleExistsError",
+          "type": "object",
+          "description": "Error when a submodule already exists at the target path",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "SUBMODULE_EXISTS"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string",
+              "description": "The conflicting target path"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "path"
+          ]
+        },
+        {
+          "title": "RepoNotFoundError",
+          "type": "object",
+          "description": "Error when the submodule repository cannot be found, cloned, or authenticated",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "REPO_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "repositoryUrl": {
+              "type": "string",
+              "description": "The repository URL that could not be cloned"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "repositoryUrl"
+          ]
+        },
+        {
+          "title": "AddFailedError",
+          "type": "object",
+          "description": "Error when git submodule add fails for any other reason",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "ADD_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "addOutput": {
+              "type": "string",
+              "description": "The output from the failed git submodule add command"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Add a knowledge base submodule tracking a branch",
+          "description": "Attach a repository under .kbs/ and track its main branch",
+          "input": {
+            "repositoryUrl": "git@github.com:org/handbook.git",
+            "path": ".kbs/handbook",
+            "ref": "main"
+          },
+          "output": {
+            "success": true,
+            "path": ".kbs/handbook",
+            "ref": "main",
+            "commit": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+          }
+        }
+      ],
+      "metadata": {
+        "category": "git-workflows",
+        "complexity": "intermediate",
+        "requiresGitRepository": true
+      }
+    },
+    {
+      "name": "updateSubmodule",
+      "description": "Update one or all submodules to the latest commit on their tracked branch",
+      "prompt": "./prompts/update-submodule.md",
+      "parameters": [
+        {
+          "name": "path",
+          "type": "string",
+          "description": "A single submodule path to update (defaults to all submodules when omitted)",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of updating the submodule(s)",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the update completed successfully"
+          },
+          "updated": {
+            "type": "array",
+            "description": "Per-submodule update details",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "The submodule path"
+                },
+                "previousRef": {
+                  "type": "string",
+                  "description": "The commit SHA before the update"
+                },
+                "newRef": {
+                  "type": "string",
+                  "description": "The commit SHA after the update (equal to previousRef if already current)"
+                },
+                "changedFiles": {
+                  "type": "number",
+                  "description": "Number of files changed between previousRef and newRef"
+                }
+              },
+              "required": [
+                "path",
+                "previousRef",
+                "newRef"
+              ]
+            }
+          }
+        },
+        "required": [
+          "success",
+          "updated"
+        ]
+      },
+      "throws": [
+        {
+          "title": "SubmoduleNotFoundError",
+          "type": "object",
+          "description": "Error when the given path is not a registered submodule",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "SUBMODULE_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string",
+              "description": "The path that is not a registered submodule"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "path"
+          ]
+        },
+        {
+          "title": "UpdateFailedError",
+          "type": "object",
+          "description": "Error when git submodule update --remote fails",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "UPDATE_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "updateOutput": {
+              "type": "string",
+              "description": "The output from the failed git submodule update command"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "DirtyWorktreeError",
+          "type": "object",
+          "description": "Error when a submodule has uncommitted changes, so updating could discard work",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "DIRTY_WORKTREE"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string",
+              "description": "The submodule path with uncommitted changes"
+            },
+            "dirtyFiles": {
+              "type": "array",
+              "description": "The modified files inside the submodule",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "path"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Update a single submodule to latest",
+          "description": "Advance one submodule to the latest commit on its tracked branch",
+          "input": {
+            "path": ".kbs/handbook"
+          },
+          "output": {
+            "success": true,
+            "updated": [
+              {
+                "path": ".kbs/handbook",
+                "previousRef": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0",
+                "newRef": "f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a39281",
+                "changedFiles": 7
+              }
+            ]
+          }
+        },
+        {
+          "title": "Update all submodules",
+          "description": "Advance every submodule to the latest commit on its tracked branch",
+          "input": {},
+          "output": {
+            "success": true,
+            "updated": [
+              {
+                "path": ".kbs/handbook",
+                "previousRef": "a1b2c3d4",
+                "newRef": "f0e9d8c7",
+                "changedFiles": 7
+              },
+              {
+                "path": ".kbs/policies",
+                "previousRef": "9c8b7a6d",
+                "newRef": "9c8b7a6d",
+                "changedFiles": 0
+              }
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "category": "git-workflows",
+        "complexity": "intermediate",
+        "requiresGitRepository": true
+      }
+    },
+    {
+      "name": "removeSubmodule",
+      "description": "Remove a submodule and clean up its git metadata (deinit, git rm, and .git/modules cleanup)",
+      "prompt": "./prompts/remove-submodule.md",
+      "parameters": [
+        {
+          "name": "path",
+          "type": "string",
+          "description": "The submodule path to remove",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of removing the submodule",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the submodule was removed successfully"
+          },
+          "path": {
+            "type": "string",
+            "description": "The submodule path that was removed"
+          },
+          "cleanedPaths": {
+            "type": "array",
+            "description": "The metadata locations that were cleaned during removal",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "success",
+          "path",
+          "cleanedPaths"
+        ]
+      },
+      "throws": [
+        {
+          "title": "SubmoduleNotFoundError",
+          "type": "object",
+          "description": "Error when the given path is not a registered submodule",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "SUBMODULE_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string",
+              "description": "The path that is not a registered submodule"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "path"
+          ]
+        },
+        {
+          "title": "RemoveFailedError",
+          "type": "object",
+          "description": "Error when the submodule cannot be fully removed",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "REMOVE_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "removeOutput": {
+              "type": "string",
+              "description": "The output from the failed removal commands"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Remove a submodule",
+          "description": "Detach a submodule and clean up all of its git metadata",
+          "input": {
+            "path": ".kbs/handbook"
+          },
+          "output": {
+            "success": true,
+            "path": ".kbs/handbook",
+            "cleanedPaths": [
+              ".kbs/handbook",
+              ".gitmodules entry: submodule..kbs/handbook",
+              ".git/modules/.kbs/handbook"
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "category": "git-workflows",
+        "complexity": "advanced",
+        "requiresGitRepository": true
+      }
+    }
+  ],
+  "skills": [
+    {
+      "name": "git-commit",
+      "description": "Commit staged changes with an AI-generated message and automatic pre-commit hook failure handling. Use when the user wants to commit changes, create a commit, or save their work to git.",
+      "skill": "./skills/git-commit/SKILL.md"
+    },
+    {
+      "name": "git-push",
+      "description": "Push the current branch to the remote origin with configurable hook verification. Use when the user wants to push commits, upload changes, or sync their branch to the remote.",
+      "skill": "./skills/git-push/SKILL.md"
+    },
+    {
+      "name": "git-pull",
+      "description": "Pull latest remote changes using a stash-based rebase workflow that safely preserves local work-in-progress. Use when the user wants to pull changes, sync with remote, update their branch, or fetch latest code.",
+      "skill": "./skills/git-pull/SKILL.md"
+    },
+    {
+      "name": "git-submodule",
+      "description": "Add, update, and remove git submodules — including init on add, latest-remote tracking on update, safe deinit-and-cleanup on remove, and submodule status reporting. Use when the user wants to attach, refresh, or detach a git repository embedded as a submodule.",
+      "skill": "./skills/git-submodule/SKILL.md"
+    }
+  ],
+  "rules": [
+    {
+      "name": "branchingStructure",
+      "description": "Git branching structure convention: feature branches use feature/[environment]/[feature-name] format with environments dev, dev2, qa, qa2, stg, prod",
+      "rule": "./rules/branching-structure.md",
+      "alwaysApply": true
+    }
+  ],
+  "categories": [
+    "development",
+    "git",
+    "version-control"
+  ],
+  "tags": [
+    "git",
+    "commit",
+    "push",
+    "pull",
+    "rebase",
+    "stash",
+    "merge",
+    "automation",
+    "workflow",
+    "branch",
+    "branching",
+    "feature-branch",
+    "submodule",
+    "submodules"
+  ]
+}

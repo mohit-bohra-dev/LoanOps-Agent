@@ -1,4 +1,7 @@
-# LoanOps Agent — One-Pager
+# LoanOps Agent — One-Pager (archived draft)
+
+> **Superseded** by [`09-loanops-one-pager.md`](09-loanops-one-pager.md) + ADR-021
+> (general internal platform). Kept for history.
 
 **Audience:** Srini (demo prep)  
 **Status:** Working demo / internal prototype  

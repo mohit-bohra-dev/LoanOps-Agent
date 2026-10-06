@@ -1,7 +1,8 @@
-# Servicing Agent for Internal Care Reps
+# LoanOps Agent — Internal AI Platform
 
-Hybrid (local-first, AWS-deployable) copilot for licensed mortgage-servicing
-care representatives at a US mortgage servicer.
+Hybrid (local-first, AWS-deployable) **citation-grounded AI platform** for
+enterprise teams — API/capability discovery (EAKG + MCP), docs search, and
+grounded answers for any internal role (not care-rep-only).
 
 ## Quick start
 

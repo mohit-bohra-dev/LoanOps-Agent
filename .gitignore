@@ -33,6 +33,9 @@ audit/
 # Confluence SOP artifacts (confidential; local cache only)
 data/sops/_confluence/
 
+# Live SSE swagger dumps (List B; local only — do not commit)
+data/sse-live/
+
 # EAKG workspace (cloned enterprise repos) + generated shards with possible secrets
 .eakg-workspace/
 data/eakg/repos/

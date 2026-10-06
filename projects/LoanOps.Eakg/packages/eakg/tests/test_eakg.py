@@ -204,6 +204,134 @@ async def test_pilot_onboard_and_cross_app(tmp_path: Path) -> None:
     assert catalog.list_capabilities(limit=50)
 
 
+@pytest.mark.asyncio
+async def test_shard_semantic_finds_payment_when_keyword_empty(tmp_path: Path) -> None:
+    from packages.capability_kg.extract_openapi import build_graph_from_openapi_dict
+    from packages.capability_kg.store import save_graph
+    from packages.eakg.embed import embed_shards
+
+    mini = {
+        "openapi": "3.0.0",
+        "info": {"title": "Loan Services API", "version": "1.0"},
+        "paths": {
+            "/api/Loans/{loan_id}/PaymentSchedules": {
+                "get": {
+                    "operationId": "getPaymentSchedules",
+                    "summary": "Get payment schedules for loan",
+                    "tags": ["payments"],
+                    "responses": {"200": {"description": "ok"}},
+                }
+            }
+        },
+    }
+    graph = build_graph_from_openapi_dict(mini, source_label="LoanServices")
+    shard = tmp_path / "eakg"
+    save_graph(graph, shard / "repos" / "loanservices" / "graph.ttl")
+
+    async def stub(text: str) -> list[float]:
+        t = text.lower()
+        return [
+            1.0 if "payment" in t or "schedule" in t else 0.0,
+            1.0 if "schedule" in t else 0.0,
+        ]
+
+    kw = catalog_from_shards(shard, semantic=False)
+    empty = await kw.search_capabilities("when is the next payment due", limit=5)
+    assert empty == []
+
+    await embed_shards(shard, stub)
+    sem = catalog_from_shards(shard, semantic=True, embed_query=stub)
+    hits = await sem.search_capabilities("when is the next payment due", limit=5)
+    assert any("payment" in h.id.lower() for h in hits)
+
+
+@pytest.mark.asyncio
+async def test_eakg_embed_text_uses_summary_and_path(tmp_path: Path) -> None:
+    """Static EAKG caps get OpenAPI summary + path phrases into embed text."""
+    from packages.capability_kg.embed_index import capability_text
+    from packages.capability_kg.store import save_graph
+    from packages.eakg.embed import embed_shards
+    from packages.eakg.graph_build import enrich_operations_from_openapi, interface_to_graph
+    from packages.eakg.models import RepoInterface
+
+    iface = RepoInterface(
+        repository_id="loanservices",
+        application_id="loanservices",
+        commit_sha="abc",
+        operations=[
+            {
+                "key": "GET:/api/Loans/{id}/PaymentSchedules",
+                "method": "GET",
+                "path": "/api/Loans/{id}/PaymentSchedules",
+                "controller": "LoansController",
+                "action": "GetPaymentSchedules",
+                "authz_policy": None,
+                "authz_source": "unknown",
+                "read_only": True,
+            },
+            {
+                "key": "GET:/api/Loans/{id}/FeesDue",
+                "method": "GET",
+                "path": "/api/Loans/{id}/FeesDue",
+                "controller": "LoansController",
+                "action": "GetFeesDue",
+                "authz_policy": None,
+                "authz_source": "unknown",
+                "read_only": True,
+            },
+        ],
+    )
+    spec = {
+        "paths": {
+            "/api/Loans/{id}/PaymentSchedules": {
+                "get": {
+                    "operationId": "getPaymentSchedules",
+                    "summary": "Get payment schedules for loan",
+                    "description": "Upcoming scheduled payments and next due dates",
+                    "tags": ["payments"],
+                }
+            },
+            "/api/Loans/{id}/FeesDue": {
+                "get": {
+                    "operationId": "getFeesDue",
+                    "summary": "Get fees due for loan",
+                    "tags": ["fees"],
+                }
+            },
+        }
+    }
+    iface = enrich_operations_from_openapi(iface, spec)
+    g, _eg = interface_to_graph(iface)
+    shard = tmp_path / "eakg"
+    save_graph(g, shard / "repos" / "loanservices" / "graph.ttl")
+
+    base = catalog_from_shards(shard, semantic=False)
+    pay = base.get_capability("get_payment_schedules")
+    assert pay is not None
+    assert pay.http_path and "PaymentSchedules" in pay.http_path
+    assert pay.description and "due dates" in pay.description
+    text = capability_text(pay)
+    assert "Payment Schedules" in text
+    assert "Upcoming scheduled payments" in text
+
+    async def stub(text: str) -> list[float]:
+        t = text.lower()
+        return [
+            1.0 if "payment" in t else 0.0,
+            1.0 if "schedule" in t else 0.0,
+            0.5 if "due" in t else 0.0,
+            1.0 if "fee" in t else 0.0,
+        ]
+
+    await embed_shards(shard, stub)
+    sem = catalog_from_shards(shard, semantic=True, embed_query=stub)
+    hits = await sem.search_capabilities("when is the next payment due", limit=5)
+    ids = [h.id for h in hits]
+    assert "get_payment_schedules" in ids
+    assert "get_fees_due" in ids
+    assert ids.index("get_payment_schedules") < ids.index("get_fees_due")
+
+
 def test_registry_seed_file() -> None:
     reg = RepositoryRegistry(ROOT / "data" / "eakg" / "registry" / "repositories.yaml")
     ids = {r.repository_id for r in reg.list()}

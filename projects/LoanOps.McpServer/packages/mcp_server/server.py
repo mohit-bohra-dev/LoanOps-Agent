@@ -205,6 +205,7 @@ async def execute_tool(
     decision = "denied"
     call_args = dict(arguments)
     try:
+        # LAYER2-BP C2: MCP auth/scope then EAKG or ModularToolsClient
         if not bearer_matches(authorization, settings.mcp.auth_token):
             raise AuthError("unauthorized")
         allowed = tools_for_role(settings.mcp.role)
@@ -365,6 +366,7 @@ def create_app(cfg: Settings | None = None) -> Starlette:
         annotations=_READ_ONLY,
     )
     async def search_sse_apis(query: str, limit: int = 15) -> str:
+        # LAYER2-BP C1: MCP tool wrapper (Cursor/Agent hop) — same pattern on call_sse_api below
         return await _run("search_sse_apis", {"query": query, "limit": limit})
 
     @mcp.tool(

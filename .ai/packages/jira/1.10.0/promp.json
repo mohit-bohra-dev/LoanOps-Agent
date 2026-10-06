@@ -1,0 +1,3867 @@
+{
+  "name": "jira",
+  "version": "1.10.0",
+  "description": "Atlassian Jira and Confluence integration prompts with MCP server support for retrieving tickets, pages, and searching content",
+  "author": "Pennymac AI Platform",
+  "license": "MIT",
+  "keywords": [
+    "jira",
+    "confluence",
+    "atlassian",
+    "mcp",
+    "tickets",
+    "pages",
+    "search",
+    "download"
+  ],
+  "files": [
+    "prompts/**/*",
+    "skills/**/*",
+    "README.md"
+  ],
+  "default": "getJira",
+  "mcpServers": [
+    {
+      "name": "atlassian",
+      "displayName": "Atlassian MCP Server",
+      "description": "Atlassian Jira and Confluence integration via MCP for retrieving tickets, pages, and searching content",
+      "transportType": "http",
+      "serverUrl": "https://mcp.atlassian.com/v1/mcp"
+    }
+  ],
+  "prompts": [
+    {
+      "name": "getJira",
+      "description": "Retrieve a specific Jira ticket by issue key with optional download to markdown file",
+      "prompt": "./prompts/get-jira.md",
+      "parameters": [
+        {
+          "name": "issueKey",
+          "type": "string",
+          "description": "Jira issue key (e.g., 'PROJ-123', 'CET-456')",
+          "required": true
+        },
+        {
+          "name": "download",
+          "type": "boolean",
+          "description": "Whether to save the ticket as a markdown file in a jira/ directory",
+          "required": false,
+          "default": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Retrieved Jira ticket details",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the retrieval was successful"
+          },
+          "issueKey": {
+            "type": "string",
+            "description": "The Jira issue key"
+          },
+          "summary": {
+            "type": "string",
+            "description": "Issue summary/title"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current issue status"
+          },
+          "assignee": {
+            "type": ["string", "null"],
+            "description": "Display name of the current assignee, or null when the issue is unassigned"
+          },
+          "content": {
+            "type": "string",
+            "description": "Full issue content in markdown format"
+          },
+          "filePath": {
+            "type": "string",
+            "description": "Path to the downloaded markdown file (only if download=true)"
+          }
+        },
+        "required": [
+          "success",
+          "issueKey",
+          "summary",
+          "status",
+          "content"
+        ]
+      },
+      "throws": [
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "description": "Error when the Atlassian MCP server connection fails",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "IssueNotFoundError",
+          "type": "object",
+          "description": "Error when the specified Jira issue cannot be found",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "ISSUE_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "issueKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "issueKey"
+          ]
+        },
+        {
+          "title": "DownloadError",
+          "type": "object",
+          "description": "Error when saving the issue to a file fails",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "DOWNLOAD_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "issueKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Retrieve a Jira ticket",
+          "description": "Get details of a specific Jira issue",
+          "input": {
+            "issueKey": "CET-123"
+          },
+          "output": {
+            "success": true,
+            "issueKey": "CET-123",
+            "summary": "Implement user authentication",
+            "status": "In Progress",
+            "content": "# CET-123: Implement user authentication\n\n**Status:** In Progress\n..."
+          }
+        },
+        {
+          "title": "Retrieve and download a Jira ticket",
+          "description": "Get a Jira issue and save it as a markdown file",
+          "input": {
+            "issueKey": "CET-456",
+            "download": true
+          },
+          "output": {
+            "success": true,
+            "issueKey": "CET-456",
+            "summary": "Fix login redirect loop",
+            "status": "Open",
+            "content": "# CET-456: Fix login redirect loop\n\n**Status:** Open\n...",
+            "filePath": "jira/CET-456_fix-login-redirect-loop.md"
+          }
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "basic",
+        "requiresMCPServer": "atlassian"
+      }
+    },
+    {
+      "name": "getConfluencePage",
+      "description": "Retrieve a specific Confluence page by page ID or title with optional download to markdown file",
+      "prompt": "./prompts/get-confluence-page.md",
+      "parameters": [
+        {
+          "name": "pageIdentifier",
+          "type": "string",
+          "description": "Confluence page ID (numeric) or page title to search for",
+          "required": true
+        },
+        {
+          "name": "download",
+          "type": "boolean",
+          "description": "Whether to save the page as a markdown file in a confluence/ directory",
+          "required": false,
+          "default": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Retrieved Confluence page details",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the retrieval was successful"
+          },
+          "pageId": {
+            "type": "string",
+            "description": "The Confluence page ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "Page title"
+          },
+          "content": {
+            "type": "string",
+            "description": "Full page content in markdown format"
+          },
+          "filePath": {
+            "type": "string",
+            "description": "Path to the downloaded markdown file (only if download=true)"
+          }
+        },
+        "required": [
+          "success",
+          "pageId",
+          "title",
+          "content"
+        ]
+      },
+      "throws": [
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "description": "Error when the Atlassian MCP server connection fails",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "PageNotFoundError",
+          "type": "object",
+          "description": "Error when the specified Confluence page cannot be found",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PAGE_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "pageIdentifier": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "pageIdentifier"
+          ]
+        },
+        {
+          "title": "DownloadError",
+          "type": "object",
+          "description": "Error when saving the page to a file fails",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "DOWNLOAD_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Retrieve a Confluence page by ID",
+          "description": "Get a specific page using its numeric ID",
+          "input": {
+            "pageIdentifier": "123456789"
+          },
+          "output": {
+            "success": true,
+            "pageId": "123456789",
+            "title": "API Design Guidelines",
+            "content": "# API Design Guidelines\n\n## Overview\n..."
+          }
+        },
+        {
+          "title": "Retrieve and download a Confluence page by title",
+          "description": "Search for a page by title and save as markdown",
+          "input": {
+            "pageIdentifier": "Deployment Runbook",
+            "download": true
+          },
+          "output": {
+            "success": true,
+            "pageId": "987654321",
+            "title": "Deployment Runbook",
+            "content": "# Deployment Runbook\n\n## Prerequisites\n...",
+            "filePath": "confluence/987654321_deployment-runbook.md"
+          }
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "basic",
+        "requiresMCPServer": "atlassian"
+      }
+    },
+    {
+      "name": "searchConfluence",
+      "description": "Search Confluence for a topic, download all relevant pages, and produce a comprehensive summary",
+      "prompt": "./prompts/search-confluence.md",
+      "parameters": [
+        {
+          "name": "searchTopic",
+          "type": "string",
+          "description": "The main topic or keyword to search for in Confluence",
+          "required": true
+        },
+        {
+          "name": "specificSpaces",
+          "type": "array",
+          "description": "Limit search to specific Confluence space keys (e.g., ['ENG', 'OPS'])",
+          "required": false
+        },
+        {
+          "name": "dateRange",
+          "type": "string",
+          "description": "Filter by date using CQL syntax (e.g., 'created > -30d', 'lastModified > -7d')",
+          "required": false
+        },
+        {
+          "name": "contentTypes",
+          "type": "array",
+          "description": "Filter by content types (e.g., ['page', 'blogpost']). Defaults to all types.",
+          "required": false
+        },
+        {
+          "name": "maxResults",
+          "type": "number",
+          "description": "Maximum number of documents to process",
+          "required": false,
+          "default": 50,
+          "validation": {
+            "min": 1,
+            "max": 200
+          }
+        },
+        {
+          "name": "download",
+          "type": "boolean",
+          "description": "Whether to save all found pages as markdown files in a confluence/ directory",
+          "required": false,
+          "default": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Search results and comprehensive summary",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the search and summarization completed successfully"
+          },
+          "searchTopic": {
+            "type": "string",
+            "description": "The topic that was searched"
+          },
+          "executiveSummary": {
+            "type": "string",
+            "description": "High-level summary of findings"
+          },
+          "documentsFound": {
+            "type": "number",
+            "description": "Total number of relevant documents found"
+          },
+          "documentsDownloaded": {
+            "type": "number",
+            "description": "Number of documents downloaded (if download=true)"
+          },
+          "outputDirectory": {
+            "type": "string",
+            "description": "Path to the directory containing downloaded files"
+          },
+          "summaryPath": {
+            "type": "string",
+            "description": "Path to the generated summary markdown file"
+          }
+        },
+        "required": [
+          "success",
+          "searchTopic",
+          "executiveSummary",
+          "documentsFound"
+        ]
+      },
+      "throws": [
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "description": "Error when the Atlassian MCP server connection fails",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "NoResultsFoundError",
+          "type": "object",
+          "description": "Error when no Confluence content matches the search topic",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NO_RESULTS_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "searchTopic": {
+              "type": "string"
+            },
+            "searchQuery": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "searchTopic"
+          ]
+        },
+        {
+          "title": "SearchError",
+          "type": "object",
+          "description": "Error when the CQL search fails",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "SEARCH_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "cqlQuery": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "DownloadError",
+          "type": "object",
+          "description": "Error when downloading pages fails",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "DOWNLOAD_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "failedPages": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Search for a topic across all spaces",
+          "description": "Search and summarize all Confluence content about a topic",
+          "input": {
+            "searchTopic": "API rate limiting"
+          },
+          "output": {
+            "success": true,
+            "searchTopic": "API rate limiting",
+            "executiveSummary": "Found 12 documents across 3 spaces covering rate limiting policies, implementation guides, and incident reports...",
+            "documentsFound": 12,
+            "documentsDownloaded": 12,
+            "outputDirectory": "confluence/",
+            "summaryPath": "confluence/SUMMARY.md"
+          }
+        },
+        {
+          "title": "Search within specific spaces with date filter",
+          "description": "Targeted search in engineering spaces for recent content",
+          "input": {
+            "searchTopic": "deployment process",
+            "specificSpaces": [
+              "ENG",
+              "OPS"
+            ],
+            "dateRange": "lastModified > -90d",
+            "maxResults": 20
+          },
+          "output": {
+            "success": true,
+            "searchTopic": "deployment process",
+            "executiveSummary": "Found 8 documents in ENG and OPS spaces detailing the deployment pipeline, rollback procedures, and environment setup...",
+            "documentsFound": 8,
+            "documentsDownloaded": 8,
+            "outputDirectory": "confluence/",
+            "summaryPath": "confluence/SUMMARY.md"
+          }
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "advanced",
+        "requiresMCPServer": "atlassian"
+      }
+    },
+    {
+      "name": "search",
+      "description": "Arbor-compatible search source over Confluence: runs one CQL query and returns ranked, cited results in arbor's normalized SearchResultSet/RankedResult envelope (lightweight retrieval, no download/summarize). Designed to be registered as a federated source in arbor's .kbs/.arbor.json and to degrade gracefully (soft error, never throws) when the Atlassian MCP is unavailable.",
+      "prompt": "./prompts/search.md",
+      "parameters": [
+        {
+          "name": "query",
+          "type": "string",
+          "description": "The search text",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "description": "Maximum number of results to return",
+          "required": false,
+          "default": 10,
+          "validation": {
+            "min": 1
+          }
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "description": "Content-type filter; honored when 'page' or 'blogpost', otherwise ignored",
+          "required": false
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "description": "Source-specific filters: { spaces: [space keys], dateRange: CQL date clause }",
+          "required": false
+        },
+        {
+          "name": "timeoutMs",
+          "type": "number",
+          "description": "Soft time budget; return available results with partial=true if exceeded",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "A SearchResultSet in arbor's Search Source contract shape. Never throws; soft failures are reported via error + partial.",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": ["jira-confluence"],
+            "description": "The source id"
+          },
+          "query": {
+            "type": "string",
+            "description": "The query that was searched"
+          },
+          "count": {
+            "type": "number",
+            "description": "Number of results returned"
+          },
+          "partial": {
+            "type": "boolean",
+            "description": "True when results were truncated or the source was skipped due to a soft error"
+          },
+          "error": {
+            "type": ["object", "null"],
+            "description": "Soft error when the source could not run, else null",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["CONNECTION_FAILED", "SEARCH_FAILED"]
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          },
+          "results": {
+            "type": "array",
+            "description": "Ranked results (RankedResult shape). Empty means no matches — not an error.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "source": { "type": "string", "enum": ["jira-confluence"] },
+                "ref": { "type": "string", "description": "Confluence page id" },
+                "url": { "type": "string", "description": "Page URL" },
+                "type": { "type": ["string", "null"], "description": "Content type (page/blogpost)" },
+                "title": { "type": "string" },
+                "score": { "type": "number", "description": "Source-relative rank score; not comparable across sources" },
+                "matchedSections": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "heading": { "type": "string" },
+                      "excerpt": { "type": "string" }
+                    }
+                  }
+                },
+                "citation": { "type": "string" }
+              },
+              "required": ["source", "title", "score", "citation"]
+            }
+          }
+        },
+        "required": ["source", "query", "count", "results"]
+      },
+      "examples": [
+        {
+          "title": "Source query from arbor federation",
+          "description": "Return ranked Confluence hits in the normalized envelope",
+          "input": {
+            "query": "incident escalation policy",
+            "limit": 5
+          },
+          "output": {
+            "source": "jira-confluence",
+            "query": "incident escalation policy",
+            "count": 1,
+            "partial": false,
+            "error": null,
+            "results": [
+              {
+                "source": "jira-confluence",
+                "ref": "123456",
+                "url": "https://acme.atlassian.net/wiki/spaces/ENG/pages/123456",
+                "type": "page",
+                "title": "On-Call Escalation Runbook",
+                "score": 10,
+                "matchedSections": [ { "heading": "Excerpt", "excerpt": "Page the secondary on-call if the primary does not ack within 5 minutes…" } ],
+                "citation": "Confluence › ENG › On-Call Escalation Runbook"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Source unavailable (soft error)",
+          "description": "MCP not authenticated — degrade gracefully instead of throwing",
+          "input": {
+            "query": "rate limiting"
+          },
+          "output": {
+            "source": "jira-confluence",
+            "query": "rate limiting",
+            "count": 0,
+            "partial": true,
+            "error": { "code": "CONNECTION_FAILED", "message": "Atlassian MCP not authenticated; skipped Confluence source." },
+            "results": []
+          }
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "intermediate",
+        "requiresMCPServer": "atlassian",
+        "usesSkills": [
+          "validate-mcp-connection",
+          "confluence-search-source"
+        ]
+      }
+    },
+    {
+      "name": "createStory",
+      "description": "Create a new Jira Story with required project fields, optional acceptance criteria in ADF format, and proper field validation",
+      "prompt": "./prompts/create-story.md",
+      "parameters": [
+        {
+          "name": "projectKey",
+          "type": "string",
+          "description": "Jira project key the story should be created in (e.g., 'AIP', 'PCG'). When omitted, the workflow falls back to top-level defaultProjectKey in .ai/jira.config.json. If neither is set, the workflow halts with DefaultProjectKeyMissingError.",
+          "required": false
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "description": "Story title / summary",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Story description in markdown format",
+          "required": false
+        },
+        {
+          "name": "acceptanceCriteria",
+          "type": "string",
+          "description": "Acceptance criteria as a comma-separated or newline-separated list",
+          "required": false
+        },
+        {
+          "name": "labels",
+          "type": "string",
+          "description": "Comma-separated labels to apply to the story",
+          "required": false
+        },
+        {
+          "name": "parentKey",
+          "type": "string",
+          "description": "Issue key of the parent Epic to link this story under (the Epic Link / parent relationship), e.g., 'PROJ-100'. When omitted, the story is created without a parent.",
+          "required": false
+        },
+        {
+          "name": "storyPoints",
+          "type": "number",
+          "description": "Numeric story-point estimate written to the configured Story Points field as a bare number. Setting it at create time avoids a follow-up edit in projects whose workflow requires points before a story may leave Backlog.",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Created Jira story details",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "issueKey": {
+            "type": "string",
+            "description": "Created issue key"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "issueType": {
+            "type": "string",
+            "enum": [
+              "Story"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "description": "Jira issue URL"
+          }
+        },
+        "required": [
+          "success",
+          "issueKey",
+          "summary",
+          "issueType"
+        ]
+      },
+      "throws": [
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "CreationError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CREATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "FieldValidationError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "FIELD_VALIDATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ConfigInvalidError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists but failed schema validation. The workflow halts before attempting to create or update an issue. Run the verify-jira-config skill to see violations.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONFIG_INVALID"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the offending config file"
+            },
+            "details": {
+              "type": "array",
+              "description": "Per-violation findings from schema validation",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "BootstrapFailedError",
+          "type": "object",
+          "description": "The configure-jira skill reported success but the freshly-written .ai/jira.config.json could not be loaded or validated on the follow-up load-jira-config call. Indicates an unexpected discrepancy between write and read.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "BOOTSTRAP_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path the configure-jira skill reported writing"
+            },
+            "details": {
+              "type": "string",
+              "description": "Why the post-write load failed (parse error, schema violation, missing file)"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ProjectNotInConfigError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists and is valid, but has no entry under config.projects for the requested project key. The workflow halts and the calling agent should offer to bootstrap the missing project via the configure-jira skill with projectKey=<requested>.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROJECT_NOT_IN_CONFIG"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "requestedProjectKey": {
+              "type": "string",
+              "description": "The project key the workflow attempted to resolve"
+            },
+            "availableProjectKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Project keys currently configured in the file"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the loaded config file"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "requestedProjectKey"
+          ]
+        },
+        {
+          "title": "DefaultProjectKeyMissingError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file is valid but the workflow could not resolve a project key — the calling prompt did not supply a projectKey parameter and config.defaultProjectKey is unset. The workflow halts; the user must either supply projectKey explicitly or run the configure-jira skill to set defaultProjectKey.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "DEFAULT_PROJECT_KEY_MISSING"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "availableProjectKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Project keys configured in the file (the user can pick one to pass as projectKey)"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the loaded config file"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "intermediate",
+        "requiresMCPServer": "atlassian",
+        "usesSkills": [
+          "validate-mcp-connection",
+          "load-jira-config",
+          "create-jira-issues",
+          "set-acceptance-criteria"
+        ]
+      }
+    },
+    {
+      "name": "updateStory",
+      "description": "Update fields on an existing Jira Story with proper separation of markdown and ADF field updates into distinct API calls",
+      "prompt": "./prompts/update-story.md",
+      "parameters": [
+        {
+          "name": "issueKey",
+          "type": "string",
+          "description": "Jira issue key to update (e.g., 'PROJ-123')",
+          "required": true
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "description": "Updated story title",
+          "required": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Updated description in markdown format",
+          "required": false
+        },
+        {
+          "name": "acceptanceCriteria",
+          "type": "string",
+          "description": "Updated acceptance criteria as a comma-separated or newline-separated list",
+          "required": false
+        },
+        {
+          "name": "acMergeMode",
+          "type": "string",
+          "description": "How acceptance criteria are applied: 'replace' (default, overwrites the whole AC field) or 'append' (merges new AC items into the existing ones, deduped). Only affects the AC field; ignored when acceptanceCriteria is not provided.",
+          "required": false,
+          "default": "replace",
+          "validation": {
+            "enum": [
+              "replace",
+              "append"
+            ]
+          }
+        },
+        {
+          "name": "labels",
+          "type": "string",
+          "description": "Comma-separated labels (replaces existing)",
+          "required": false
+        },
+        {
+          "name": "transition",
+          "type": "string",
+          "description": "Transition the story to this status (e.g., 'To Do', 'In Progress', 'Done')",
+          "required": false
+        },
+        {
+          "name": "assignee",
+          "type": "string",
+          "description": "Set the assignee — a Jira account id, the token 'me' (the current MCP-authenticated user), or 'unassigned' to clear. Applied as a standard user field in the same call as summary/labels.",
+          "required": false
+        },
+        {
+          "name": "parentKey",
+          "type": "string",
+          "description": "Issue key of the parent Epic to link this story under (the Epic Link / parent relationship), e.g., 'PROJ-100'. Pass 'unassigned' to clear the parent. Applied as a standard field in the same call as summary/labels.",
+          "required": false
+        },
+        {
+          "name": "storyPoints",
+          "type": "number",
+          "description": "Numeric story-point estimate written to the configured Story Points field as a bare number, in the same call as summary/labels. Many project workflows require it before a story may leave Backlog.",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Update result details",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "issueKey": {
+            "type": "string"
+          },
+          "fieldsUpdated": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "transitioned": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "issueKey",
+          "fieldsUpdated"
+        ]
+      },
+      "throws": [
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "IssueNotFoundError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "ISSUE_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "issueKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "issueKey"
+          ]
+        },
+        {
+          "title": "UpdateError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "UPDATE_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ConfigInvalidError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists but failed schema validation. The workflow halts before attempting to create or update an issue. Run the verify-jira-config skill to see violations.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONFIG_INVALID"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the offending config file"
+            },
+            "details": {
+              "type": "array",
+              "description": "Per-violation findings from schema validation",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "BootstrapFailedError",
+          "type": "object",
+          "description": "The configure-jira skill reported success but the freshly-written .ai/jira.config.json could not be loaded or validated on the follow-up load-jira-config call. Indicates an unexpected discrepancy between write and read.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "BOOTSTRAP_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path the configure-jira skill reported writing"
+            },
+            "details": {
+              "type": "string",
+              "description": "Why the post-write load failed (parse error, schema violation, missing file)"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ProjectNotInConfigError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists and is valid, but has no entry under config.projects for the requested project key. The workflow halts and the calling agent should offer to bootstrap the missing project via the configure-jira skill with projectKey=<requested>.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROJECT_NOT_IN_CONFIG"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "requestedProjectKey": {
+              "type": "string",
+              "description": "The project key the workflow attempted to resolve"
+            },
+            "availableProjectKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Project keys currently configured in the file"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the loaded config file"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "requestedProjectKey"
+          ]
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "intermediate",
+        "requiresMCPServer": "atlassian",
+        "usesSkills": [
+          "validate-mcp-connection",
+          "load-jira-config",
+          "update-jira-issues",
+          "set-acceptance-criteria"
+        ]
+      }
+    },
+    {
+      "name": "createTask",
+      "description": "Create a new Jira Task for technical work, maintenance, or non-feature work with required project fields",
+      "prompt": "./prompts/create-task.md",
+      "parameters": [
+        {
+          "name": "projectKey",
+          "type": "string",
+          "description": "Jira project key the task should be created in (e.g., 'AIP', 'PCG'). When omitted, the workflow falls back to top-level defaultProjectKey in .ai/jira.config.json. If neither is set, the workflow halts with DefaultProjectKeyMissingError.",
+          "required": false
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "description": "Task title / summary",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Task description in markdown format",
+          "required": false
+        },
+        {
+          "name": "acceptanceCriteria",
+          "type": "string",
+          "description": "Acceptance criteria as a comma-separated or newline-separated list",
+          "required": false
+        },
+        {
+          "name": "labels",
+          "type": "string",
+          "description": "Comma-separated labels to apply to the task",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Created Jira task details",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "issueKey": {
+            "type": "string",
+            "description": "Created issue key"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "issueType": {
+            "type": "string",
+            "enum": [
+              "Task"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "description": "Jira issue URL"
+          }
+        },
+        "required": [
+          "success",
+          "issueKey",
+          "summary",
+          "issueType"
+        ]
+      },
+      "throws": [
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "CreationError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CREATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "FieldValidationError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "FIELD_VALIDATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ConfigInvalidError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists but failed schema validation. The workflow halts before attempting to create or update an issue. Run the verify-jira-config skill to see violations.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONFIG_INVALID"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the offending config file"
+            },
+            "details": {
+              "type": "array",
+              "description": "Per-violation findings from schema validation",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "BootstrapFailedError",
+          "type": "object",
+          "description": "The configure-jira skill reported success but the freshly-written .ai/jira.config.json could not be loaded or validated on the follow-up load-jira-config call. Indicates an unexpected discrepancy between write and read.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "BOOTSTRAP_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path the configure-jira skill reported writing"
+            },
+            "details": {
+              "type": "string",
+              "description": "Why the post-write load failed (parse error, schema violation, missing file)"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ProjectNotInConfigError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists and is valid, but has no entry under config.projects for the requested project key. The workflow halts and the calling agent should offer to bootstrap the missing project via the configure-jira skill with projectKey=<requested>.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROJECT_NOT_IN_CONFIG"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "requestedProjectKey": {
+              "type": "string",
+              "description": "The project key the workflow attempted to resolve"
+            },
+            "availableProjectKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Project keys currently configured in the file"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the loaded config file"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "requestedProjectKey"
+          ]
+        },
+        {
+          "title": "DefaultProjectKeyMissingError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file is valid but the workflow could not resolve a project key — the calling prompt did not supply a projectKey parameter and config.defaultProjectKey is unset. The workflow halts; the user must either supply projectKey explicitly or run the configure-jira skill to set defaultProjectKey.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "DEFAULT_PROJECT_KEY_MISSING"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "availableProjectKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Project keys configured in the file (the user can pick one to pass as projectKey)"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the loaded config file"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "intermediate",
+        "requiresMCPServer": "atlassian",
+        "usesSkills": [
+          "validate-mcp-connection",
+          "load-jira-config",
+          "create-jira-issues",
+          "set-acceptance-criteria"
+        ]
+      }
+    },
+    {
+      "name": "updateTask",
+      "description": "Update fields on an existing Jira Task with proper separation of markdown and ADF field updates",
+      "prompt": "./prompts/update-task.md",
+      "parameters": [
+        {
+          "name": "issueKey",
+          "type": "string",
+          "description": "Jira issue key to update (e.g., 'PROJ-123')",
+          "required": true
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "description": "Updated task title",
+          "required": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Updated description in markdown format",
+          "required": false
+        },
+        {
+          "name": "acceptanceCriteria",
+          "type": "string",
+          "description": "Updated acceptance criteria",
+          "required": false
+        },
+        {
+          "name": "labels",
+          "type": "string",
+          "description": "Comma-separated labels (replaces existing)",
+          "required": false
+        },
+        {
+          "name": "transition",
+          "type": "string",
+          "description": "Transition the task to this status (e.g., 'To Do', 'In Progress', 'Done')",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Update result details",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "issueKey": {
+            "type": "string"
+          },
+          "fieldsUpdated": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "transitioned": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "issueKey",
+          "fieldsUpdated"
+        ]
+      },
+      "throws": [
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "IssueNotFoundError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "ISSUE_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "issueKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "issueKey"
+          ]
+        },
+        {
+          "title": "UpdateError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "UPDATE_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ConfigInvalidError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists but failed schema validation. The workflow halts before attempting to create or update an issue. Run the verify-jira-config skill to see violations.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONFIG_INVALID"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the offending config file"
+            },
+            "details": {
+              "type": "array",
+              "description": "Per-violation findings from schema validation",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "BootstrapFailedError",
+          "type": "object",
+          "description": "The configure-jira skill reported success but the freshly-written .ai/jira.config.json could not be loaded or validated on the follow-up load-jira-config call. Indicates an unexpected discrepancy between write and read.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "BOOTSTRAP_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path the configure-jira skill reported writing"
+            },
+            "details": {
+              "type": "string",
+              "description": "Why the post-write load failed (parse error, schema violation, missing file)"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ProjectNotInConfigError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists and is valid, but has no entry under config.projects for the requested project key. The workflow halts and the calling agent should offer to bootstrap the missing project via the configure-jira skill with projectKey=<requested>.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROJECT_NOT_IN_CONFIG"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "requestedProjectKey": {
+              "type": "string",
+              "description": "The project key the workflow attempted to resolve"
+            },
+            "availableProjectKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Project keys currently configured in the file"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the loaded config file"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "requestedProjectKey"
+          ]
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "intermediate",
+        "requiresMCPServer": "atlassian",
+        "usesSkills": [
+          "validate-mcp-connection",
+          "load-jira-config",
+          "update-jira-issues",
+          "set-acceptance-criteria"
+        ]
+      }
+    },
+    {
+      "name": "createBug",
+      "description": "Create a new Jira Bug with all required bug-specific fields (Environment, Severity, Test Phase, Responsible Team) and AC embedded in description",
+      "prompt": "./prompts/create-bug.md",
+      "parameters": [
+        {
+          "name": "projectKey",
+          "type": "string",
+          "description": "Jira project key the bug should be created in (e.g., 'AIP', 'PCG'). When omitted, the workflow falls back to top-level defaultProjectKey in .ai/jira.config.json. If neither is set, the workflow halts with DefaultProjectKeyMissingError.",
+          "required": false
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "description": "Bug title / summary",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Bug description in markdown (include repro steps, expected/actual behavior)",
+          "required": false
+        },
+        {
+          "name": "acceptanceCriteria",
+          "type": "string",
+          "description": "Acceptance criteria (appended to description since AC field unavailable for Bugs)",
+          "required": false
+        },
+        {
+          "name": "environment",
+          "type": "string",
+          "description": "Environment where bug was found (e.g., PRD, QA, DEV, STG)",
+          "required": false,
+          "default": "PRD"
+        },
+        {
+          "name": "severity",
+          "type": "string",
+          "description": "Bug severity level (Sev 1, Sev 2, Sev 3, TBD)",
+          "required": false,
+          "default": "Sev 2"
+        },
+        {
+          "name": "testPhase",
+          "type": "string",
+          "description": "Testing phase where bug was discovered (QA, UAT, SIT, E2E, Production)",
+          "required": false,
+          "default": "Production"
+        },
+        {
+          "name": "responsibleTeam",
+          "type": "string",
+          "description": "Development team responsible for the fix",
+          "required": false,
+          "default": "Pennymac"
+        },
+        {
+          "name": "labels",
+          "type": "string",
+          "description": "Comma-separated labels to apply to the bug",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Created Jira bug details",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "issueKey": {
+            "type": "string",
+            "description": "Created issue key"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "issueType": {
+            "type": "string",
+            "enum": [
+              "Bug"
+            ]
+          },
+          "environment": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "description": "Jira issue URL"
+          }
+        },
+        "required": [
+          "success",
+          "issueKey",
+          "summary",
+          "issueType"
+        ]
+      },
+      "throws": [
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "CreationError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CREATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "FieldValidationError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "FIELD_VALIDATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ConfigInvalidError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists but failed schema validation. The workflow halts before attempting to create or update an issue. Run the verify-jira-config skill to see violations.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONFIG_INVALID"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the offending config file"
+            },
+            "details": {
+              "type": "array",
+              "description": "Per-violation findings from schema validation",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "BootstrapFailedError",
+          "type": "object",
+          "description": "The configure-jira skill reported success but the freshly-written .ai/jira.config.json could not be loaded or validated on the follow-up load-jira-config call. Indicates an unexpected discrepancy between write and read.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "BOOTSTRAP_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path the configure-jira skill reported writing"
+            },
+            "details": {
+              "type": "string",
+              "description": "Why the post-write load failed (parse error, schema violation, missing file)"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ProjectNotInConfigError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists and is valid, but has no entry under config.projects for the requested project key. The workflow halts and the calling agent should offer to bootstrap the missing project via the configure-jira skill with projectKey=<requested>.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROJECT_NOT_IN_CONFIG"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "requestedProjectKey": {
+              "type": "string",
+              "description": "The project key the workflow attempted to resolve"
+            },
+            "availableProjectKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Project keys currently configured in the file"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the loaded config file"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "requestedProjectKey"
+          ]
+        },
+        {
+          "title": "DefaultProjectKeyMissingError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file is valid but the workflow could not resolve a project key — the calling prompt did not supply a projectKey parameter and config.defaultProjectKey is unset. The workflow halts; the user must either supply projectKey explicitly or run the configure-jira skill to set defaultProjectKey.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "DEFAULT_PROJECT_KEY_MISSING"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "availableProjectKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Project keys configured in the file (the user can pick one to pass as projectKey)"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the loaded config file"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "intermediate",
+        "requiresMCPServer": "atlassian",
+        "usesSkills": [
+          "validate-mcp-connection",
+          "load-jira-config",
+          "create-jira-issues"
+        ]
+      }
+    },
+    {
+      "name": "updateBug",
+      "description": "Update fields on an existing Jira Bug including bug-specific fields and AC embedded in description",
+      "prompt": "./prompts/update-bug.md",
+      "parameters": [
+        {
+          "name": "issueKey",
+          "type": "string",
+          "description": "Jira issue key to update (e.g., 'PROJ-123')",
+          "required": true
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "description": "Updated bug title",
+          "required": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Updated description in markdown format",
+          "required": false
+        },
+        {
+          "name": "acceptanceCriteria",
+          "type": "string",
+          "description": "Updated acceptance criteria (appended to description)",
+          "required": false
+        },
+        {
+          "name": "environment",
+          "type": "string",
+          "description": "Updated environment value (e.g., PRD, QA, DEV)",
+          "required": false
+        },
+        {
+          "name": "severity",
+          "type": "string",
+          "description": "Updated severity level (Sev 1, Sev 2, Sev 3, TBD)",
+          "required": false
+        },
+        {
+          "name": "testPhase",
+          "type": "string",
+          "description": "Updated test phase (QA, UAT, SIT, E2E, Production)",
+          "required": false
+        },
+        {
+          "name": "responsibleTeam",
+          "type": "string",
+          "description": "Updated responsible development team",
+          "required": false
+        },
+        {
+          "name": "labels",
+          "type": "string",
+          "description": "Comma-separated labels (replaces existing)",
+          "required": false
+        },
+        {
+          "name": "transition",
+          "type": "string",
+          "description": "Transition the bug to this status",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Update result details",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "issueKey": {
+            "type": "string"
+          },
+          "fieldsUpdated": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "transitioned": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "issueKey",
+          "fieldsUpdated"
+        ]
+      },
+      "throws": [
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "IssueNotFoundError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "ISSUE_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "issueKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "issueKey"
+          ]
+        },
+        {
+          "title": "UpdateError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "UPDATE_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ConfigInvalidError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists but failed schema validation. The workflow halts before attempting to create or update an issue. Run the verify-jira-config skill to see violations.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONFIG_INVALID"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the offending config file"
+            },
+            "details": {
+              "type": "array",
+              "description": "Per-violation findings from schema validation",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "BootstrapFailedError",
+          "type": "object",
+          "description": "The configure-jira skill reported success but the freshly-written .ai/jira.config.json could not be loaded or validated on the follow-up load-jira-config call. Indicates an unexpected discrepancy between write and read.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "BOOTSTRAP_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path the configure-jira skill reported writing"
+            },
+            "details": {
+              "type": "string",
+              "description": "Why the post-write load failed (parse error, schema violation, missing file)"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ProjectNotInConfigError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists and is valid, but has no entry under config.projects for the requested project key. The workflow halts and the calling agent should offer to bootstrap the missing project via the configure-jira skill with projectKey=<requested>.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROJECT_NOT_IN_CONFIG"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "requestedProjectKey": {
+              "type": "string",
+              "description": "The project key the workflow attempted to resolve"
+            },
+            "availableProjectKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Project keys currently configured in the file"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the loaded config file"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "requestedProjectKey"
+          ]
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "intermediate",
+        "requiresMCPServer": "atlassian",
+        "usesSkills": [
+          "validate-mcp-connection",
+          "load-jira-config",
+          "update-jira-issues"
+        ]
+      }
+    },
+    {
+      "name": "createEpic",
+      "description": "Create a new Jira Epic via the create-jira-issues workflow skill. Uses the Epic profile (acceptanceCriteriaMode = inline-description by default since most projects, including AIP, do not expose the AC custom field on Epic; flips to adf-field when the project does expose it). Supports the standard priority field and optional Epic-specific custom fields (Epic Name, target start/end dates, theme).",
+      "prompt": "./prompts/create-epic.md",
+      "parameters": [
+        {
+          "name": "projectKey",
+          "type": "string",
+          "description": "Jira project key the epic should be created in (e.g., 'AIP', 'PCG'). When omitted, the workflow falls back to top-level defaultProjectKey in .ai/jira.config.json. If neither is set, the workflow halts with DefaultProjectKeyMissingError.",
+          "required": false
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "description": "Epic title / summary (also serves as the Epic Name in modern Jira)",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Epic description in markdown format",
+          "required": false
+        },
+        {
+          "name": "acceptanceCriteria",
+          "type": "string",
+          "description": "Acceptance criteria as a comma-separated or newline-separated list. Default mode appends them as a `## Acceptance Criteria` section in the description (inline-description); when the project exposes the AC custom field on Epic, the workflow sets it via a separate ADF API call instead.",
+          "required": false
+        },
+        {
+          "name": "labels",
+          "type": "string",
+          "description": "Comma-separated labels to apply",
+          "required": false
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "description": "Priority name as defined in the target Jira instance (e.g. 'High', 'Medium', 'Low', or 'Highest'/'Lowest' where the project defines them). Sent as the standard priority field in object form: {\"name\": \"<priority>\"}. Omit to let the project default apply. Names are instance-specific and passed through unchanged; an unknown name returns FIELD_VALIDATION_FAILED.",
+          "required": false
+        },
+        {
+          "name": "epicName",
+          "type": "string",
+          "description": "Separate Epic Name field, when the consuming Jira project keeps Epic Name distinct from summary",
+          "required": false
+        },
+        {
+          "name": "targetStartDate",
+          "type": "string",
+          "description": "Target start date in YYYY-MM-DD format",
+          "required": false
+        },
+        {
+          "name": "targetEndDate",
+          "type": "string",
+          "description": "Target end date in YYYY-MM-DD format",
+          "required": false
+        },
+        {
+          "name": "theme",
+          "type": "string",
+          "description": "Epic theme value, when the consuming project defines themes",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Created Jira epic details",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "issueKey": {
+            "type": "string",
+            "description": "Created issue key"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "issueType": {
+            "type": "string",
+            "enum": [
+              "Epic"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "description": "Jira issue URL"
+          }
+        },
+        "required": [
+          "success",
+          "issueKey",
+          "summary",
+          "issueType"
+        ]
+      },
+      "throws": [
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "CreationError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CREATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "FieldValidationError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "FIELD_VALIDATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ConfigInvalidError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists but failed schema validation. The workflow halts before attempting to create or update an issue. Run the verify-jira-config skill to see violations.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONFIG_INVALID"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the offending config file"
+            },
+            "details": {
+              "type": "array",
+              "description": "Per-violation findings from schema validation",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "BootstrapFailedError",
+          "type": "object",
+          "description": "The configure-jira skill reported success but the freshly-written .ai/jira.config.json could not be loaded or validated on the follow-up load-jira-config call. Indicates an unexpected discrepancy between write and read.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "BOOTSTRAP_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path the configure-jira skill reported writing"
+            },
+            "details": {
+              "type": "string",
+              "description": "Why the post-write load failed (parse error, schema violation, missing file)"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ProjectNotInConfigError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists and is valid, but has no entry under config.projects for the requested project key. The workflow halts and the calling agent should offer to bootstrap the missing project via the configure-jira skill with projectKey=<requested>.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROJECT_NOT_IN_CONFIG"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "requestedProjectKey": {
+              "type": "string",
+              "description": "The project key the workflow attempted to resolve"
+            },
+            "availableProjectKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Project keys currently configured in the file"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the loaded config file"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "requestedProjectKey"
+          ]
+        },
+        {
+          "title": "DefaultProjectKeyMissingError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file is valid but the workflow could not resolve a project key — the calling prompt did not supply a projectKey parameter and config.defaultProjectKey is unset. The workflow halts; the user must either supply projectKey explicitly or run the configure-jira skill to set defaultProjectKey.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "DEFAULT_PROJECT_KEY_MISSING"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "availableProjectKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Project keys configured in the file (the user can pick one to pass as projectKey)"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the loaded config file"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Create a simple Epic",
+          "description": "Create an Epic with a summary, description, and acceptance criteria",
+          "input": {
+            "summary": "AI Portal — Self-Service Onboarding and Visibility",
+            "description": "## Overview\nDelivers the AI Portal — the web interface through which engineering teams opt their repositories into PitCrew and watch the platform work.\n\n## Key Features\n- Repository opt-in flow\n- Repo Readiness Checklist\n- Live activity dashboard",
+            "acceptanceCriteria": "Authenticated Technical Lead can opt a repository in without contacting the platform team\nActivity dashboard displays MRs submitted, MRs merged, and time-to-MR statistics",
+            "labels": "pitcrew,ai-portal,phase-2"
+          },
+          "output": {
+            "success": true,
+            "issueKey": "AIP-123",
+            "summary": "AI Portal — Self-Service Onboarding and Visibility",
+            "issueType": "Epic",
+            "url": "https://pennymac.atlassian.net/browse/AIP-123"
+          }
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "intermediate",
+        "requiresMCPServer": "atlassian",
+        "usesSkills": [
+          "validate-mcp-connection",
+          "load-jira-config",
+          "create-jira-issues",
+          "set-acceptance-criteria"
+        ]
+      }
+    },
+    {
+      "name": "updateEpic",
+      "description": "Update fields on an existing Jira Epic via the update-jira-issues workflow skill, using the Epic profile (acceptanceCriteriaMode = inline-description by default; flips to adf-field when the project exposes the AC custom field on Epic). Supports summary, description, acceptance criteria, labels, priority, status transition, assignee, and optional Epic-specific custom fields (Epic Name, target start/end dates, theme).",
+      "prompt": "./prompts/update-epic.md",
+      "parameters": [
+        {
+          "name": "issueKey",
+          "type": "string",
+          "description": "Jira issue key to update (e.g., 'PROJ-123')",
+          "required": true
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "description": "Updated epic title (also serves as the Epic Name in modern Jira)",
+          "required": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Updated description in markdown format",
+          "required": false
+        },
+        {
+          "name": "acceptanceCriteria",
+          "type": "string",
+          "description": "Updated high-level epic-completion acceptance criteria as a comma-separated or newline-separated list. By default merged into the description (inline-description mode); set via a separate ADF API call when the project exposes the AC custom field on Epic.",
+          "required": false
+        },
+        {
+          "name": "acMergeMode",
+          "type": "string",
+          "description": "How acceptance criteria are applied when the effective AC mode is adf-field: 'replace' (default) or 'append'. Ignored for inline-description (the Epic default) and when acceptanceCriteria is not provided.",
+          "required": false,
+          "default": "replace",
+          "validation": {
+            "enum": [
+              "replace",
+              "append"
+            ]
+          }
+        },
+        {
+          "name": "labels",
+          "type": "string",
+          "description": "Comma-separated labels (replaces existing)",
+          "required": false
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "description": "Updated priority name as defined in the target Jira instance (e.g. 'High', 'Medium', 'Low'). Sent as the standard priority field in object form: {\"name\": \"<priority>\"}. Omit to leave the current priority untouched; there is no clear token, since Jira issues always carry a priority.",
+          "required": false
+        },
+        {
+          "name": "transition",
+          "type": "string",
+          "description": "Transition the epic to this status (e.g., 'To Do', 'In Progress', 'Done')",
+          "required": false
+        },
+        {
+          "name": "assignee",
+          "type": "string",
+          "description": "Set the assignee — a Jira account id, the token 'me' (the current MCP-authenticated user), or 'unassigned' to clear.",
+          "required": false
+        },
+        {
+          "name": "epicName",
+          "type": "string",
+          "description": "Separate Epic Name field, when the consuming Jira project keeps Epic Name distinct from summary",
+          "required": false
+        },
+        {
+          "name": "targetStartDate",
+          "type": "string",
+          "description": "Target start date in YYYY-MM-DD format",
+          "required": false
+        },
+        {
+          "name": "targetEndDate",
+          "type": "string",
+          "description": "Target end date in YYYY-MM-DD format",
+          "required": false
+        },
+        {
+          "name": "theme",
+          "type": "string",
+          "description": "Epic theme value, when the consuming project defines themes",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Update result details",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "issueKey": {
+            "type": "string"
+          },
+          "fieldsUpdated": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "transitioned": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "issueKey",
+          "fieldsUpdated"
+        ]
+      },
+      "throws": [
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "IssueNotFoundError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "ISSUE_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "issueKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "issueKey"
+          ]
+        },
+        {
+          "title": "FieldValidationError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "FIELD_VALIDATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "UpdateError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "UPDATE_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "TransitionError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "TRANSITION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ConfigInvalidError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists but failed schema validation. The workflow halts before attempting to update an issue. Run the verify-jira-config skill to see violations.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONFIG_INVALID"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string",
+              "description": "Absolute path to the offending config file"
+            },
+            "details": {
+              "type": "array",
+              "description": "Per-violation findings from schema validation",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ProjectNotInConfigError",
+          "type": "object",
+          "description": "The .ai/jira.config.json file exists and is valid, but has no entry under config.projects for the project key derived from issueKey.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROJECT_NOT_IN_CONFIG"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "requestedProjectKey": {
+              "type": "string"
+            },
+            "availableProjectKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "configPath": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "requestedProjectKey"
+          ]
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "intermediate",
+        "requiresMCPServer": "atlassian",
+        "usesSkills": [
+          "validate-mcp-connection",
+          "load-jira-config",
+          "update-jira-issues",
+          "set-acceptance-criteria"
+        ]
+      }
+    },
+    {
+      "name": "configureJira",
+      "description": "Generate or update one project entry in .ai/jira.config.json by discovering the team's live Jira project field configuration via MCP and capturing per-team defaults. Multi-project safe: when an existing config has entries for other projects, this prompt merges the new entry into config.projects rather than overwriting the file. Run once per Jira project the team works in.",
+      "prompt": "./prompts/configure-jira.md",
+      "parameters": [
+        {
+          "name": "projectKey",
+          "type": "string",
+          "description": "Jira project key to configure against (e.g., 'AIP'). When omitted, the prompt asks the user.",
+          "required": false
+        },
+        {
+          "name": "siteUrl",
+          "type": "string",
+          "description": "Atlassian site URL (e.g., https://pennymac.atlassian.net). When omitted, the prompt detects via validate-mcp-connection.",
+          "required": false
+        },
+        {
+          "name": "force",
+          "type": "boolean",
+          "description": "Skip the per-project replace-confirmation prompt when an entry already exists for projectKey. Does not suppress the final write-permission prompt. Default: false.",
+          "required": false,
+          "default": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Result of the configuration generation or update for one project entry",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "configPath": {
+            "type": "string",
+            "description": "Absolute path to the written .ai/jira.config.json file"
+          },
+          "projectKey": {
+            "type": "string",
+            "description": "Project key whose entry was added or replaced"
+          },
+          "replaceMode": {
+            "type": "string",
+            "enum": [
+              "add",
+              "replace",
+              "create-file"
+            ],
+            "description": "How the file was modified: add (new project added to existing file), replace (existing entry overwritten), create-file (no file existed; new file created)"
+          },
+          "projectsAfterWrite": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Project keys present in the file after the merge — useful for the calling workflow to confirm no previously-configured projects were dropped"
+          },
+          "fieldsResolved": {
+            "type": "number",
+            "description": "Count of logical field IDs resolved to a customfield_NNN value for this project"
+          },
+          "fieldsUnresolved": {
+            "type": "number",
+            "description": "Count of logical field IDs left as null because the project does not expose them"
+          },
+          "defaultsConfigured": {
+            "type": "number",
+            "description": "Count of per-team defaults the user supplied for this project"
+          },
+          "issueTypesProfiled": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Names of issue types whose field metadata was inspected"
+          },
+          "driftReport": {
+            "type": "object",
+            "description": "Result of the post-write verify-jira-config sanity check (single-project mode against the freshly-written project)"
+          }
+        },
+        "required": [
+          "success",
+          "configPath",
+          "projectKey",
+          "replaceMode",
+          "projectsAfterWrite"
+        ]
+      },
+      "throws": [
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ProjectNotFoundError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROJECT_NOT_FOUND"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "projectKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "projectKey"
+          ]
+        },
+        {
+          "title": "WriteError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "WRITE_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "UserCancelled",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "USER_CANCELLED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ConfigInvalidError",
+          "type": "object",
+          "description": "An existing .ai/jira.config.json was found but failed schema validation. The configure-jira skill halts to avoid merging a new project entry into a malformed file. The user must hand-fix or replace the file before re-running.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONFIG_INVALID"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "configPath": {
+              "type": "string"
+            },
+            "details": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "InvalidProjectKeyError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "INVALID_PROJECT_KEY"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "projectKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "projectKey"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "First-time configuration (no existing config)",
+          "description": "Discover field IDs for AIP, capture team defaults, and create a fresh .ai/jira.config.json with AIP as the default project",
+          "input": {
+            "projectKey": "AIP"
+          },
+          "output": {
+            "success": true,
+            "configPath": "/repo/.ai/jira.config.json",
+            "projectKey": "AIP",
+            "replaceMode": "create-file",
+            "projectsAfterWrite": [
+              "AIP"
+            ],
+            "fieldsResolved": 9,
+            "fieldsUnresolved": 3,
+            "defaultsConfigured": 5,
+            "issueTypesProfiled": [
+              "Story",
+              "Task",
+              "Bug",
+              "Sub-task",
+              "Epic"
+            ],
+            "driftReport": {
+              "outcome": "no-drift"
+            }
+          }
+        },
+        {
+          "title": "Add a second project to an existing config",
+          "description": "Add PCG to a config that already has AIP. defaultProjectKey is preserved (sticky).",
+          "input": {
+            "projectKey": "PCG"
+          },
+          "output": {
+            "success": true,
+            "configPath": "/repo/.ai/jira.config.json",
+            "projectKey": "PCG",
+            "replaceMode": "add",
+            "projectsAfterWrite": [
+              "AIP",
+              "PCG"
+            ],
+            "fieldsResolved": 8,
+            "fieldsUnresolved": 4,
+            "defaultsConfigured": 6,
+            "issueTypesProfiled": [
+              "Story",
+              "Bug"
+            ],
+            "driftReport": {
+              "outcome": "no-drift"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "advanced",
+        "requiresMCPServer": "atlassian",
+        "usesSkills": [
+          "validate-mcp-connection",
+          "load-jira-config",
+          "verify-jira-config"
+        ]
+      }
+    },
+    {
+      "name": "verifyJiraConfig",
+      "description": "Detect drift between the team's .ai/jira.config.json and live Jira project(s). Multi-project: when projectKey is supplied, verifies that single project; when omitted, iterates every entry in config.projects and returns a multi-project envelope with one DriftReport per project. Compares configured field IDs, AC handling modes, and required-field coverage against MCP discovery data. Read-only — never mutates Jira state.",
+      "prompt": "./prompts/verify-jira-config.md",
+      "parameters": [
+        {
+          "name": "projectKey",
+          "type": "string",
+          "description": "Jira project key to verify against. When provided, runs in single-project mode. When omitted, runs in all-projects mode and iterates every entry in config.projects.",
+          "required": false
+        },
+        {
+          "name": "issueTypes",
+          "type": "string",
+          "description": "Comma-separated list of issue type names to verify (e.g., 'Story,Epic'). Defaults to all issue types each project exposes. Applied uniformly to every project in all-projects mode.",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Drift detection report. Shape varies by mode: single-project returns a flat report; all-projects returns an envelope containing per-project sub-reports under projects.<KEY>.",
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "no-drift",
+              "drift-detected",
+              "partial-failure",
+              "total-failure"
+            ],
+            "description": "Aggregated outcome. In single-project mode this is the project's outcome. In all-projects mode: no-drift if all projects pass; drift-detected if any project has drift; partial-failure if at least one project errored AND another succeeded; total-failure if every project errored."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "single-project",
+              "all-projects"
+            ],
+            "description": "Which verification mode produced this report"
+          },
+          "configPath": {
+            "type": "string"
+          },
+          "projectKey": {
+            "type": "string",
+            "description": "Present only in single-project mode — the project that was verified"
+          },
+          "issueTypesChecked": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Present only in single-project mode"
+          },
+          "findings": {
+            "type": "object",
+            "description": "Drift findings grouped by category. Present only when outcome = drift-detected in single-project mode.",
+            "properties": {
+              "fieldIdDrift": {
+                "type": "array"
+              },
+              "acModeDrift": {
+                "type": "array"
+              },
+              "requiredFieldDrift": {
+                "type": "array"
+              }
+            }
+          },
+          "projects": {
+            "type": "object",
+            "description": "Present only in all-projects mode — map of project key to per-project sub-report. Each value has the shape { outcome, projectKey, issueTypesChecked?, findings? } matching a single-project report (minus mode and configPath)."
+          }
+        },
+        "required": [
+          "outcome",
+          "mode"
+        ]
+      },
+      "throws": [
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ConfigInvalidError",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONFIG_INVALID"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "NoConfigError",
+          "type": "object",
+          "description": "No .ai/jira.config.json exists at any of the searched paths.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NO_CONFIG"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "searchedPaths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ProjectNotInConfigError",
+          "type": "object",
+          "description": "Single-project mode only: the supplied projectKey has no entry under config.projects.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROJECT_NOT_IN_CONFIG"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "requestedProjectKey": {
+              "type": "string"
+            },
+            "availableProjectKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "requestedProjectKey"
+          ]
+        },
+        {
+          "title": "EmptyProjectsConfigError",
+          "type": "object",
+          "description": "All-projects mode only: config.projects exists but is empty (no projects to verify). Run the configure-jira skill to add at least one project.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "EMPTY_PROJECTS_CONFIG"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "ProjectNotAccessibleError",
+          "type": "object",
+          "description": "Single-project mode only: the Jira project is unreachable or the user lacks access. In all-projects mode this is captured per-project inside projects.<KEY>.outcome instead.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PROJECT_NOT_ACCESSIBLE"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "projectKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "intermediate",
+        "requiresMCPServer": "atlassian",
+        "usesSkills": [
+          "validate-mcp-connection",
+          "load-jira-config",
+          "verify-jira-config"
+        ]
+      }
+    },
+    {
+      "name": "linkIssues",
+      "description": "Create directional links between existing Jira issues (Blocks, Relates, Duplicate, Clones) via the link-jira-issues workflow skill. Discovers the link types the instance actually defines, resolves direction (inwardIssue = blocker, outwardIssue = blocked), reads existing links so re-runs are idempotent, reports a reversed existing link as a conflict, and soft-skips when the requested type is unavailable. For dependency/blocking relationships only — the parent Epic relationship is the parentKey input on the create-jira-issues / update-jira-issues skills, not an issue link.",
+      "prompt": "./prompts/link-issues.md",
+      "parameters": [
+        {
+          "name": "links",
+          "type": "array",
+          "description": "Links to create. Each entry is an object: { inwardIssue, outwardIssue, type?, comment? }. Pass an array of one to create a single link. For directional types, inwardIssue is the blocker and outwardIssue is the blocked issue — for a dependency edge where the dependent needs the predecessor, inwardIssue = predecessor and outwardIssue = dependent.",
+          "required": true,
+          "items": {
+            "type": "object"
+          }
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "description": "Default link type for entries that omit their own. Matched case-insensitively against the types the instance defines, including their inward/outward descriptions.",
+          "required": false,
+          "default": "Blocks"
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "description": "Default comment for entries that omit one. Posted on the outward issue.",
+          "required": false
+        },
+        {
+          "name": "onTypeUnavailable",
+          "type": "string",
+          "description": "What to do when the instance does not define the requested link type. 'skip' returns success with every link reported as skipped, so a project-configuration gap does not block the caller's wider workflow; 'fail' raises LINK_TYPE_UNAVAILABLE.",
+          "required": false,
+          "default": "skip",
+          "validation": {
+            "enum": [
+              "skip",
+              "fail"
+            ]
+          }
+        },
+        {
+          "name": "dryRun",
+          "type": "boolean",
+          "description": "Resolve and report the planned links without creating any.",
+          "required": false,
+          "default": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Per-link outcome of the linking pass",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "True when the pass completed, including when every link was skipped. False only when nothing could be attempted."
+          },
+          "resolvedType": {
+            "type": "string",
+            "description": "The link type name as the instance defines it"
+          },
+          "created": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "skipped": {
+            "type": "array",
+            "description": "Links not created, each with a reason (ALREADY_LINKED, TYPE_UNAVAILABLE)",
+            "items": {
+              "type": "object"
+            }
+          },
+          "conflicts": {
+            "type": "array",
+            "description": "Pairs where a reverse link of the same type already exists; reported rather than overwritten",
+            "items": {
+              "type": "object"
+            }
+          },
+          "failed": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "availableTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "success",
+          "created",
+          "skipped"
+        ]
+      },
+      "throws": [
+        {
+          "title": "ConnectionError",
+          "type": "object",
+          "description": "The Atlassian MCP server is unreachable or unauthenticated",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "CONNECTION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "LinkTypeUnavailableError",
+          "type": "object",
+          "description": "The requested link type is not defined in this Jira instance and onTypeUnavailable = fail",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "LINK_TYPE_UNAVAILABLE"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "availableTypes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "PermissionError",
+          "type": "object",
+          "description": "The user lacks the Link Issues permission on the project",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "PERMISSION_DENIED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      ],
+      "metadata": {
+        "category": "atlassian",
+        "complexity": "intermediate",
+        "requiresMCPServer": "atlassian",
+        "usesSkills": [
+          "validate-mcp-connection",
+          "link-jira-issues"
+        ]
+      }
+    }
+  ],
+  "skills": [
+    {
+      "name": "validate-mcp-connection",
+      "description": "Validates the Atlassian MCP server connection by retrieving accessible resources and verifying user access. Use as a prerequisite before any Jira or Confluence operations.",
+      "skill": "./skills/validate-mcp-connection/SKILL.md"
+    },
+    {
+      "name": "link-jira-issues",
+      "description": "Creates directional links between existing Jira issues (Blocks, Relates, Duplicate, Clones) via getIssueLinkTypes and createIssueLink. Discovers the link types the instance actually defines rather than assuming Blocks exists, resolves link direction (inwardIssue = blocker, outwardIssue = blocked), reads existing links first so re-runs do not duplicate, reports a reversed existing link as a conflict instead of overwriting it, and soft-skips when the requested type is unavailable. Covers issue links only — the parent Epic relationship is the parentKey input on the create-jira-issues / update-jira-issues skills.",
+      "skill": "./skills/link-jira-issues/SKILL.md"
+    },
+    {
+      "name": "retrieve-jira",
+      "description": "Retrieves a specific Jira ticket by issue key and returns structured ticket data including summary, description, status, assignee, and priority.",
+      "skill": "./skills/retrieve-jira/SKILL.md"
+    },
+    {
+      "name": "get-confluence-page",
+      "description": "Retrieves a specific Confluence page by page ID or title and returns the page content in markdown format with metadata.",
+      "skill": "./skills/get-confluence-page/SKILL.md"
+    },
+    {
+      "name": "download-jiras",
+      "description": "Downloads multiple Jira tickets matching a JQL query or list of issue keys and saves each as a markdown file in a local directory.",
+      "skill": "./skills/download-jiras/SKILL.md"
+    },
+    {
+      "name": "download-confluence-pages",
+      "description": "Downloads multiple Confluence pages and saves each as a markdown file in a local directory. Supports batch retrieval from search results or explicit page IDs.",
+      "skill": "./skills/download-confluence-pages/SKILL.md"
+    },
+    {
+      "name": "search-summarize-confluence",
+      "description": "Systematically searches Confluence for a topic using CQL queries, downloads all relevant content, analyzes and categorizes findings, and produces a comprehensive summary with key insights.",
+      "skill": "./skills/search-summarize-confluence/SKILL.md"
+    },
+    {
+      "name": "search-jira",
+      "description": "Federated search entry point for the Atlassian source. Accepts arbor's SearchQuery envelope, runs a single CQL query over Confluence via the Atlassian MCP, and returns ranked, cited results in arbor's normalized SearchResultSet/RankedResult shape — lightweight retrieval (titles + excerpts), not a download/summarize pass. Never throws: connection, auth, and CQL failures come back as a soft error on the envelope so a federated search degrades gracefully. Executes the retrieval mechanics documented in confluence-search-source.",
+      "skill": "./skills/search-jira/SKILL.md"
+    },
+    {
+      "name": "confluence-search-source",
+      "description": "Arbor-compatible search source over Confluence. Runs a single CQL query via the Atlassian MCP and maps the top matches to ranked, cited results in arbor's SearchResultSet/RankedResult shape — lightweight retrieval (titles + excerpts), not a download/summarize workflow. Surfaces connection/auth problems as a soft error so a federated search degrades gracefully. Provides the retrieval mechanics the search-jira skill executes.",
+      "skill": "./skills/confluence-search-source/SKILL.md"
+    },
+    {
+      "name": "create-jira-issues",
+      "description": "Drives the end-to-end create workflow for Jira stories, tasks, bugs, sub-tasks, and epics via the Atlassian MCP server. Loads an issue-type profile, assembles required + optional fields, asks user permission, creates the issue, dispatches acceptance-criteria handling (adf-field vs inline-description), and verifies the result.",
+      "skill": "./skills/create-jira-issues/SKILL.md"
+    },
+    {
+      "name": "update-jira-issues",
+      "description": "Drives the end-to-end update workflow for existing Jira issues. Retrieves the current issue, builds a focused change set, asks user permission, applies updates across multiple editJiraIssue calls (markdown vs ADF separation), optionally transitions status, and verifies the result. Acceptance criteria support replace (default) or append/merge via acMergeMode.",
+      "skill": "./skills/update-jira-issues/SKILL.md"
+    },
+    {
+      "name": "set-acceptance-criteria",
+      "description": "Sets the Acceptance Criteria field on an existing Jira issue using ADF JSON in a separate API call from any markdown updates. Supports acMergeMode: 'replace' (default, overwrites the whole AC field) or 'append' (merges new AC items into existing ones, deduped). Used by the create and update workflow skills, also callable directly when only AC needs to change.",
+      "skill": "./skills/set-acceptance-criteria/SKILL.md"
+    },
+    {
+      "name": "load-jira-config",
+      "description": "Locates and parses the per-team .ai/jira.config.json for the consuming repo, validates it against the package schema, and returns either a flat single-project view (resolved from the caller's projectKey input or defaultProjectKey) or the full multi-project config. Read-only filesystem skill — no MCP calls. Used by the create and update workflow skills (Step 2) and by verify-jira-config to resolve {{*FieldId}} placeholders deterministically against the right project's settings.",
+      "skill": "./skills/load-jira-config/SKILL.md"
+    },
+    {
+      "name": "configure-jira",
+      "description": "Generates or repairs one project entry in the consuming repo's .ai/jira.config.json by discovering that Jira project's live issue types and per-type field metadata via the Atlassian MCP, heuristically mapping the package's logical field names to the project's custom field IDs, capturing per-team default values, and writing the merged multi-project file behind an explicit user-approval gate. Multi-project safe — merges one project entry at a time and preserves every other entry. Invoked by the create and update workflow skills when the config is missing or has no entry for the active project.",
+      "skill": "./skills/configure-jira/SKILL.md"
+    },
+    {
+      "name": "verify-jira-config",
+      "description": "Detects drift between .ai/jira.config.json and the live Jira project(s). Multi-project: verifies one project in single-project mode (when projectKey is supplied) or iterates every entry in config.projects in all-projects mode. Compares configured field IDs, AC handling modes, and required-field coverage against MCP discovery data. Emits a structured DriftReport. Read-only — invokes only getJiraProjectIssueTypesMetadata and getJiraIssueTypeMetaWithFields, never createJiraIssue/editJiraIssue.",
+      "skill": "./skills/verify-jira-config/SKILL.md"
+    }
+  ],
+  "categories": [
+    "development",
+    "documentation",
+    "atlassian"
+  ],
+  "tags": [
+    "jira",
+    "confluence",
+    "atlassian",
+    "mcp",
+    "tickets",
+    "pages",
+    "search",
+    "download",
+    "summarize"
+  ]
+}

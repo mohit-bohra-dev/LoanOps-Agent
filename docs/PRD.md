@@ -1,4 +1,9 @@
-# Product Requirements Document â€” Servicing Agent ("Helix")
+# Product Requirements Document â€” LoanOps Agent ("Helix")
+
+> **Superseded positioning (ADR-021, 2026-10-04):** LoanOps is a **general
+> internal AI platform** for any enterprise role. Body below retains the
+> original care-rep PRD for history; do not treat “care rep only” as current
+> product lock-in. See `docs/09-loanops-one-pager.md`.
 
 **Version:** 1.0
 **Date:** 2026-05-23

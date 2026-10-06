@@ -2,46 +2,40 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Tools API (uvicorn)",
-      "type": "debugpy",
-      "request": "launch",
-      "module": "uvicorn",
-      "python": "${workspaceFolder}/.venv/Scripts/python.exe",
-      "args": [
-        "apps.tools_api.main:app",
-        "--port",
-        "8001",
-        "--reload"
-      ],
-      "cwd": "${workspaceFolder}",
-      "envFile": "${workspaceFolder}/.env",
-      "console": "integratedTerminal",
-      "justMyCode": true
-    },
-    {
-      "name": "Agent API (uvicorn)",
+      "name": "Layer2: Agent API :8000",
       "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
       "python": "${workspaceFolder}/.venv/Scripts/python.exe",
       "args": [
         "apps.agent_api.main:app",
+        "--host",
+        "127.0.0.1",
         "--port",
-        "8000",
-        "--reload"
+        "8000"
       ],
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/.env",
       "console": "integratedTerminal",
-      "justMyCode": true
+      "justMyCode": false
+    },
+    {
+      "name": "Layer2: MCP server :8001",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "packages.mcp_server",
+      "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "justMyCode": false
     },
     {
       "name": "Web UI (Vite dev)",
       "type": "node-terminal",
       "request": "launch",
       "command": "npm run dev",
-      "cwd": "${workspaceFolder}/apps/web_ui",
-      "console": "integratedTerminal"
+      "cwd": "${workspaceFolder}/apps/web_ui"
     },
     {
       "name": "Python: Current File",
@@ -51,25 +45,26 @@
       "program": "${file}",
       "console": "integratedTerminal",
       "envFile": "${workspaceFolder}/.env",
-      "justMyCode": true
+      "justMyCode": false
     }
   ],
   "compounds": [
     {
-      "name": "Full Demo (Tools + Agent + Web UI)",
+      "name": "Layer2: Flow A (modular — Agent only)",
+      "configurations": ["Layer2: Agent API :8000"],
+      "stopAll": true
+    },
+    {
+      "name": "Layer2: Flow B (mcp hop — Agent + MCP)",
       "configurations": [
-        "Tools API (uvicorn)",
-        "Agent API (uvicorn)",
-        "Web UI (Vite dev)"
+        "Layer2: MCP server :8001",
+        "Layer2: Agent API :8000"
       ],
       "stopAll": true
     },
     {
-      "name": "Backend Only (Tools + Agent)",
-      "configurations": [
-        "Tools API (uvicorn)",
-        "Agent API (uvicorn)"
-      ],
+      "name": "Layer2: Flow C (Cursor — MCP only)",
+      "configurations": ["Layer2: MCP server :8001"],
       "stopAll": true
     }
   ]

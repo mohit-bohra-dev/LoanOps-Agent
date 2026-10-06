@@ -46,6 +46,7 @@ class OpenApiCatalogService:
         self.fixture_path = fixture_path
         self.timeout_seconds = timeout_seconds
         self._catalog: OpenApiCatalog | None = None
+        self.openapi_embed_cache: dict[str, list[float]] = {}
 
     def allowed_origins(self) -> list[str]:
         origins: set[str] = set()
@@ -63,6 +64,8 @@ class OpenApiCatalogService:
     async def load(self, *, refresh: bool = False) -> OpenApiCatalog:
         if self._catalog is not None and not refresh:
             return self._catalog
+        if refresh:
+            self.openapi_embed_cache = {}
         if self.fixture_path:
             self._catalog = self._load_fixture(Path(self.fixture_path))
             return self._catalog

@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 
 from packages.capability_kg.catalog import CapabilityCatalog
+from packages.capability_kg.embed_index import embeddings_path_for_shards, load_index
 from packages.capability_kg.ontology import DEFAULT_NAMESPACE
 from packages.capability_kg.store import load_graph
 from rdflib import Graph
+
+EmbedFn = Callable[[str], Awaitable[list[float]]]
 
 
 def merge_shards(
@@ -51,13 +55,23 @@ def catalog_from_shards(
     namespace: str = DEFAULT_NAMESPACE,
     approved_only: bool = False,
     semantic: bool = False,
-    embed_query: object | None = None,
+    embed_query: EmbedFn | None = None,
+    embeddings_path: str | Path | None = None,
 ) -> CapabilityCatalog:
     """CapabilityCatalog over merged shards (facade unchanged for MCP)."""
+    index = {}
+    if semantic:
+        side = (
+            Path(embeddings_path)
+            if embeddings_path is not None
+            else embeddings_path_for_shards(shard_dir)
+        )
+        index = load_index(side)
     return CapabilityCatalog(
         merge_shards(shard_dir, namespace=namespace),
         namespace=namespace,
         approved_only=approved_only,
         semantic=semantic,
-        embed_query=embed_query,  # type: ignore[arg-type]
+        embed_index=index,
+        embed_query=embed_query,
     )

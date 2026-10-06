@@ -550,7 +550,7 @@ def extract_repo(
                 raise
             logger.warning("roslyn extract failed (%s); falling back to regex", exc)
             operations = []
-    if not operations:
+    if not operations and mode != "roslyn":
         operations = extract_controllers(
             root,
             repository_id=repository_id,

@@ -1,6 +1,6 @@
 # LoanOps Agent — One-Pager
 
-**Audience:** Srini  
+**Audience:** Stakeholders / demos  
 **Status:** Working demo / internal prototype  
 **Owner:** Mohit Bohra  
 
@@ -8,13 +8,15 @@
 
 ## What it is
 
-**LoanOps** is an **internal, citation-grounded AI copilot for mortgage-servicing care reps**.
+**LoanOps** is an **internal, citation-grounded AI platform** for enterprise teams — not locked to one job title.
 
-A rep asks a borrower question in plain English. The agent:
+Anyone internal can ask in plain English. The agent:
 
-1. Retrieves relevant **policy / SOP** chunks (with citations)
-2. Looks up **loan data** (payments, escrow, schedules, and related facts)
-3. Drafts a **rep-ready answer** for the rep to review, approve, or escalate
+1. Discovers the right **APIs / capabilities** (EAKG + OpenAPI via MCP)
+2. Searches **docs / SOPs** (with citations)
+3. Calls **read-oriented tools** and drafts a **grounded answer** for human review
+
+It is **not** a public borrower chatbot. Mutating business actions stay out of v1 tool policy unless explicitly approved later.
 
 ---
 
@@ -22,7 +24,9 @@ A rep asks a borrower question in plain English. The agent:
 
 | User | Need |
 |------|------|
-| Care rep (Tier 1/2) | Fast, citable answer + draft reply |
+| Engineer / analyst | Find and call the right API; impact / capability questions |
+| PM / ops | Docs + Jira/wiki context (wiki tools when ported); grounded drafts |
+| Any internal role | Same MCP surface; scopes differ by `AGENT_ROLE` |
 
 ---
 
@@ -30,19 +34,20 @@ A rep asks a borrower question in plain English. The agent:
 
 | Today | With LoanOps |
 |-------|----------------|
-| Rep hunts SOPs, wiki, loan screens | One ask → cited draft |
-| Inconsistent answers, weak audit | Every factual claim cited (`policy:` / `tool:`) |
-| High AHT on common Qs | Target: lower AHT, higher FCR |
+| Hunt swagger, wiki, repo docs, many UIs | One ask → cited answer + tool trace |
+| “Which API?” tribal knowledge | EAKG + semantic capability search |
+| Weak audit of what was used | Citations (`policy:` / `tool:`) + audit log |
 
-**Scope:** not locked yet — open to expand based on your direction (which care workflows / loan domains to prioritize first).
+**Scope:** platform for general internal use (ADR-021). Domain content today is mortgage-servicing APIs/docs; the product shape is role-agnostic.
 
 ---
 
 ## How it works (short)
 
 ```
-Rep UI → Agent API → RAG (SOPs) + Tools API (loan data)
-                   → LLM draft → human Approve / Escalate
+Chat UI / Cursor → Agent API or MCP :8001
+                 → search_sse_apis / EAKG / search_docs
+                 → call_sse_api → grounded draft
 ```
 
 - **Hybrid:** same Python codebase local (Ollama + Qdrant) or cloud (Bedrock + Qdrant Cloud) via env swap
@@ -51,4 +56,8 @@ Rep UI → Agent API → RAG (SOPs) + Tools API (loan data)
 
 ---
 
-Related: [SPMI-1171](https://pennymac.atlassian.net/browse/SPMI-1171) — LoanOps is the **internal care-rep agent-assist** path alongside that servicing AI work.
+## Links
+
+- ADR-021 (audience): `decisions.md`
+- PRD (historical care-rep framing): `docs/PRD.md`
+- Demo pitch: `presentations/demo-pitch/slides.md`

@@ -1,0 +1,1295 @@
+{
+  "name": "worktrees",
+  "version": "1.3.1",
+  "description": "Cursor git worktree configuration — sets up project-local worktree storage with symlinks and setup hooks",
+  "author": "Pennymac AI Platform",
+  "license": "MIT",
+  "keywords": [
+    "git",
+    "worktrees",
+    "cursor",
+    "symlink",
+    "setup",
+    "configuration"
+  ],
+  "files": [
+    "prompts/**/*",
+    "skills/**/*",
+    "README.md"
+  ],
+  "default": "setup",
+  "prompts": [
+    {
+      "name": "setup",
+      "description": "Configure Cursor git worktrees to use a project-local .worktrees/ directory with a symlink from ~/.cursor/worktrees/",
+      "prompt": "./prompts/setup.md",
+      "parameters": [
+        {
+          "name": "projectRoot",
+          "type": "string",
+          "description": "Absolute path to the project root directory. Defaults to the current workspace root.",
+          "required": false
+        },
+        {
+          "name": "setupCommands",
+          "type": "array",
+          "description": "Shell commands to run when a new worktree is created (e.g., dependency installation). Auto-detected from project files if not provided.",
+          "required": false,
+          "items": {
+            "type": "string"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Summary of the worktree configuration that was applied",
+        "properties": {
+          "projectName": {
+            "type": "string",
+            "description": "The project directory name used for the symlink"
+          },
+          "symlinkCreated": {
+            "type": "boolean",
+            "description": "Whether a new symlink was created"
+          },
+          "worktreesMigrated": {
+            "type": "number",
+            "description": "Number of existing worktrees that were migrated from the global directory"
+          },
+          "setupCommands": {
+            "type": "array",
+            "description": "The setup commands written to worktrees.json",
+            "items": {
+              "type": "string"
+            }
+          },
+          "gitignoreUpdated": {
+            "type": "boolean",
+            "description": "Whether .gitignore was created or updated"
+          }
+        },
+        "required": [
+          "projectName",
+          "symlinkCreated",
+          "worktreesMigrated",
+          "setupCommands",
+          "gitignoreUpdated"
+        ]
+      },
+      "throws": [
+        {
+          "title": "NotAGitRepoError",
+          "type": "object",
+          "description": "The target directory is not a git repository",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "NOT_A_GIT_REPO"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        {
+          "title": "MigrationError",
+          "type": "object",
+          "description": "Existing worktree contents could not be moved to the local directory",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "MIGRATION_FAILED"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "globalPath": {
+              "type": "string"
+            },
+            "localPath": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "globalPath",
+            "localPath"
+          ]
+        },
+        {
+          "title": "SymlinkConflictError",
+          "type": "object",
+          "description": "The global worktree path is already a symlink pointing to a different location",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "SYMLINK_CONFLICT"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "currentTarget": {
+              "type": "string"
+            },
+            "expectedTarget": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "currentTarget",
+            "expectedTarget"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "description": "Set up worktrees for current project with auto-detected setup commands",
+          "input": {},
+          "output": {
+            "projectName": "my-app",
+            "symlinkCreated": true,
+            "worktreesMigrated": 0,
+            "setupCommands": [
+              "npm install"
+            ],
+            "gitignoreUpdated": true
+          }
+        },
+        {
+          "description": "Set up worktrees with explicit setup commands",
+          "input": {
+            "setupCommands": [
+              "npm ci",
+              "promp i"
+            ]
+          },
+          "output": {
+            "projectName": "my-app",
+            "symlinkCreated": true,
+            "worktreesMigrated": 1,
+            "setupCommands": [
+              "npm ci",
+              "promp i"
+            ],
+            "gitignoreUpdated": true
+          }
+        }
+      ],
+      "metadata": {
+        "usesSkills": [
+          "setup-worktrees"
+        ]
+      }
+    },
+    {
+      "name": "create",
+      "description": "Create a new git worktree in the project-local .worktrees/ directory, optionally creating a new feature branch (via the detached-HEAD-first technique), and run worktrees.json setup hooks",
+      "prompt": "./prompts/create.md",
+      "parameters": [
+        {
+          "name": "branch",
+          "type": "string",
+          "description": "An existing branch name, tag, or commit SHA to check out in the worktree. Mutually exclusive with newBranch and detach.",
+          "required": false
+        },
+        {
+          "name": "newBranch",
+          "type": "string",
+          "description": "Name of a new feature branch to create in the worktree. Created with the detached-HEAD-first technique: the worktree is created detached, then the branch is created inside it, with automatic rollback if branch creation fails. Follow the feature/{environment}/{feature-name} convention where applicable. Mutually exclusive with branch and detach.",
+          "required": false
+        },
+        {
+          "name": "startPoint",
+          "type": "string",
+          "description": "Base commit/branch/tag the new branch or detached worktree starts from. Defaults to the current HEAD. Only meaningful with newBranch, detach, or the default (dir-named) branch mode.",
+          "required": false
+        },
+        {
+          "name": "detach",
+          "type": "boolean",
+          "description": "Create the worktree at a detached HEAD with no branch. Mutually exclusive with branch and newBranch.",
+          "required": false,
+          "default": false
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Short name for the worktree directory inside .worktrees/. Auto-derived from branch if not provided.",
+          "required": false
+        },
+        {
+          "name": "skipSetup",
+          "type": "boolean",
+          "description": "Skip running worktrees.json setup commands after creation.",
+          "required": false,
+          "default": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Details of the created worktree",
+        "properties": {
+          "worktreePath": {
+            "type": "string",
+            "description": "Full absolute path to the new worktree directory"
+          },
+          "worktreeName": {
+            "type": "string",
+            "description": "The directory name used inside .worktrees/"
+          },
+          "branch": {
+            "type": "string",
+            "description": "The branch checked out in the worktree"
+          },
+          "newBranch": {
+            "type": "boolean",
+            "description": "Whether a new branch was created"
+          },
+          "setupResults": {
+            "type": "array",
+            "description": "Results of each setup command that was run",
+            "items": {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "string"
+                },
+                "exitCode": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "worktreePath",
+          "worktreeName",
+          "branch",
+          "newBranch"
+        ]
+      },
+      "throws": [
+        {
+          "title": "WorktreesNotConfiguredError",
+          "type": "object",
+          "description": "The project does not have .worktrees/ set up with the symlink",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["WORKTREES_NOT_CONFIGURED"]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        },
+        {
+          "title": "WorktreeExistsError",
+          "type": "object",
+          "description": "A worktree directory with the requested name already exists",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["WORKTREE_EXISTS"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "existingPath": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "existingPath"]
+        },
+        {
+          "title": "BranchInUseError",
+          "type": "object",
+          "description": "The branch is already checked out in another worktree",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["BRANCH_IN_USE"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string"
+            },
+            "otherWorktree": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "branch", "otherWorktree"]
+        },
+        {
+          "title": "BranchExistsError",
+          "type": "object",
+          "description": "The requested new branch name already exists (the partial detached worktree is rolled back before this is returned)",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["BRANCH_EXISTS"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "branch"]
+        },
+        {
+          "title": "GitCommandError",
+          "type": "object",
+          "description": "The git worktree add command failed",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["GIT_COMMAND_FAILED"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "gitOutput": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "gitOutput"]
+        }
+      ],
+      "examples": [
+        {
+          "description": "Create a worktree on a new feature branch (detached-HEAD-first)",
+          "input": {
+            "newBranch": "feature/dev/new-thing"
+          },
+          "output": {
+            "worktreePath": "/Users/me/Sites/my-app/.worktrees/new-thing",
+            "worktreeName": "new-thing",
+            "branch": "feature/dev/new-thing",
+            "newBranch": true,
+            "setupResults": [
+              { "command": "npm install", "exitCode": 0 }
+            ]
+          }
+        },
+        {
+          "description": "Create a worktree from an existing branch",
+          "input": {
+            "branch": "feature/dev/my-feature"
+          },
+          "output": {
+            "worktreePath": "/Users/me/Sites/my-app/.worktrees/my-feature",
+            "worktreeName": "my-feature",
+            "branch": "feature/dev/my-feature",
+            "newBranch": false,
+            "setupResults": [
+              { "command": "npm install", "exitCode": 0 }
+            ]
+          }
+        },
+        {
+          "description": "Create a worktree with a custom name, skipping setup",
+          "input": {
+            "branch": "main",
+            "name": "experiment",
+            "skipSetup": true
+          },
+          "output": {
+            "worktreePath": "/Users/me/Sites/my-app/.worktrees/experiment",
+            "worktreeName": "experiment",
+            "branch": "main",
+            "newBranch": false
+          }
+        }
+      ],
+      "metadata": {
+        "usesSkills": [
+          "create-worktree"
+        ]
+      }
+    },
+    {
+      "name": "remove",
+      "description": "Remove a git worktree by name or path, cleaning up the directory and git metadata. Lists available worktrees if no name is provided.",
+      "prompt": "./prompts/remove.md",
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name or path of the worktree to remove. If omitted, lists available worktrees for selection.",
+          "required": false
+        },
+        {
+          "name": "force",
+          "type": "boolean",
+          "description": "Force removal even if the worktree has uncommitted changes.",
+          "required": false,
+          "default": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Details of the removed worktree",
+        "properties": {
+          "worktreePath": {
+            "type": "string",
+            "description": "Full path of the removed worktree"
+          },
+          "worktreeName": {
+            "type": "string",
+            "description": "The directory name that was removed"
+          },
+          "branch": {
+            "type": "string",
+            "description": "The branch that was checked out in the removed worktree"
+          },
+          "method": {
+            "type": "string",
+            "description": "How the removal was performed",
+            "enum": ["clean", "force", "manual+prune"]
+          }
+        },
+        "required": [
+          "worktreePath",
+          "worktreeName",
+          "branch",
+          "method"
+        ]
+      },
+      "throws": [
+        {
+          "title": "WorktreeNotFoundError",
+          "type": "object",
+          "description": "No worktree matches the provided name",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["WORKTREE_NOT_FOUND"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "searchedName": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "searchedName"]
+        },
+        {
+          "title": "MainWorktreeError",
+          "type": "object",
+          "description": "The user attempted to remove the main working tree",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["CANNOT_REMOVE_MAIN"]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        },
+        {
+          "title": "RemovalFailedError",
+          "type": "object",
+          "description": "The git worktree remove command failed even with --force",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["REMOVAL_FAILED"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "gitOutput": {
+              "type": "string"
+            },
+            "worktreePath": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "gitOutput", "worktreePath"]
+        }
+      ],
+      "examples": [
+        {
+          "description": "Remove a worktree by name",
+          "input": {
+            "name": "my-feature"
+          },
+          "output": {
+            "worktreePath": "/Users/me/Sites/my-app/.worktrees/my-feature",
+            "worktreeName": "my-feature",
+            "branch": "feature/dev/my-feature",
+            "method": "clean"
+          }
+        },
+        {
+          "description": "Force remove a worktree with uncommitted changes",
+          "input": {
+            "name": "experiment",
+            "force": true
+          },
+          "output": {
+            "worktreePath": "/Users/me/Sites/my-app/.worktrees/experiment",
+            "worktreeName": "experiment",
+            "branch": "main",
+            "method": "force"
+          }
+        }
+      ],
+      "metadata": {
+        "usesSkills": [
+          "remove-worktree"
+        ]
+      }
+    },
+    {
+      "name": "merge",
+      "description": "Merge a worktree's branch into a target branch, with optional worktree cleanup after successful merge",
+      "prompt": "./prompts/merge.md",
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name or path of the worktree whose branch will be merged. If omitted, lists available worktrees for selection.",
+          "required": false
+        },
+        {
+          "name": "targetBranch",
+          "type": "string",
+          "description": "The branch to merge into (e.g., 'main', 'develop'). Must be an existing branch.",
+          "required": true
+        },
+        {
+          "name": "noFastForward",
+          "type": "boolean",
+          "description": "Create a merge commit even when fast-forward is possible.",
+          "required": false,
+          "default": false
+        },
+        {
+          "name": "deleteAfterMerge",
+          "type": "boolean",
+          "description": "Remove the worktree after a successful merge.",
+          "required": false,
+          "default": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Details of the merge operation",
+        "properties": {
+          "sourceBranch": {
+            "type": "string",
+            "description": "The branch that was merged from (the worktree's branch)"
+          },
+          "targetBranch": {
+            "type": "string",
+            "description": "The branch that was merged into"
+          },
+          "mergeCommit": {
+            "type": "string",
+            "description": "The merge commit SHA, or null if fast-forward"
+          },
+          "fastForward": {
+            "type": "boolean",
+            "description": "Whether the merge was a fast-forward"
+          },
+          "worktreeRemoved": {
+            "type": "boolean",
+            "description": "Whether the worktree was removed after merge"
+          }
+        },
+        "required": [
+          "sourceBranch",
+          "targetBranch",
+          "fastForward",
+          "worktreeRemoved"
+        ]
+      },
+      "throws": [
+        {
+          "title": "WorktreeNotFoundError",
+          "type": "object",
+          "description": "No worktree matches the provided name",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["WORKTREE_NOT_FOUND"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "searchedName": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "searchedName"]
+        },
+        {
+          "title": "TargetBranchNotFoundError",
+          "type": "object",
+          "description": "The specified target branch does not exist",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["TARGET_BRANCH_NOT_FOUND"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "targetBranch": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "targetBranch"]
+        },
+        {
+          "title": "MergeConflictError",
+          "type": "object",
+          "description": "The merge produced conflicts requiring manual resolution",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["MERGE_CONFLICT"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "conflicts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of conflicting file paths"
+            },
+            "mergeLocation": {
+              "type": "string",
+              "description": "Path where the merge is in progress"
+            }
+          },
+          "required": ["code", "message", "conflicts", "mergeLocation"]
+        },
+        {
+          "title": "SameBranchError",
+          "type": "object",
+          "description": "The source and target branches are identical",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["SAME_BRANCH"]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        }
+      ],
+      "examples": [
+        {
+          "description": "Merge a feature worktree into main",
+          "input": {
+            "name": "my-feature",
+            "targetBranch": "main"
+          },
+          "output": {
+            "sourceBranch": "feature/dev/my-feature",
+            "targetBranch": "main",
+            "mergeCommit": "abc1234",
+            "fastForward": false,
+            "worktreeRemoved": false
+          }
+        },
+        {
+          "description": "Fast-forward merge and remove the worktree",
+          "input": {
+            "name": "hotfix",
+            "targetBranch": "main",
+            "deleteAfterMerge": true
+          },
+          "output": {
+            "sourceBranch": "fix/login-bug",
+            "targetBranch": "main",
+            "mergeCommit": null,
+            "fastForward": true,
+            "worktreeRemoved": true
+          }
+        }
+      ],
+      "metadata": {
+        "usesSkills": [
+          "merge-worktree"
+        ]
+      }
+    },
+    {
+      "name": "update",
+      "description": "Update a worktree's branch to include changes from another branch using merge or rebase",
+      "prompt": "./prompts/update.md",
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name or path of the worktree to update. If omitted, lists available worktrees for selection.",
+          "required": false
+        },
+        {
+          "name": "sourceBranch",
+          "type": "string",
+          "description": "The branch to pull changes from. Defaults to the repository's default branch (main or master).",
+          "required": false
+        },
+        {
+          "name": "strategy",
+          "type": "string",
+          "description": "How to incorporate changes: 'merge' creates a merge commit, 'rebase' replays commits on top of the source.",
+          "required": false,
+          "default": "rebase",
+          "enum": ["merge", "rebase"]
+        },
+        {
+          "name": "fetch",
+          "type": "boolean",
+          "description": "Fetch from remote before updating to ensure the source branch is current.",
+          "required": false,
+          "default": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Details of the update operation",
+        "properties": {
+          "worktreeName": {
+            "type": "string",
+            "description": "Name of the worktree that was updated"
+          },
+          "worktreeBranch": {
+            "type": "string",
+            "description": "The branch in the worktree"
+          },
+          "sourceBranch": {
+            "type": "string",
+            "description": "The branch changes were pulled from"
+          },
+          "strategy": {
+            "type": "string",
+            "description": "The strategy used",
+            "enum": ["merge", "rebase"]
+          },
+          "commitsIncorporated": {
+            "type": "number",
+            "description": "Number of new commits incorporated"
+          },
+          "stashRestored": {
+            "type": "boolean",
+            "description": "Whether uncommitted changes were stashed and restored"
+          }
+        },
+        "required": [
+          "worktreeName",
+          "worktreeBranch",
+          "sourceBranch",
+          "strategy",
+          "commitsIncorporated"
+        ]
+      },
+      "throws": [
+        {
+          "title": "WorktreeNotFoundError",
+          "type": "object",
+          "description": "No worktree matches the provided name",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["WORKTREE_NOT_FOUND"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "searchedName": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "searchedName"]
+        },
+        {
+          "title": "SourceBranchNotFoundError",
+          "type": "object",
+          "description": "The specified source branch does not exist",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["SOURCE_BRANCH_NOT_FOUND"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "sourceBranch": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "sourceBranch"]
+        },
+        {
+          "title": "MergeConflictError",
+          "type": "object",
+          "description": "The merge or rebase produced conflicts requiring manual resolution",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["MERGE_CONFLICT"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "strategy": {
+              "type": "string",
+              "enum": ["merge", "rebase"]
+            },
+            "conflicts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of conflicting file paths"
+            },
+            "worktreePath": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "strategy", "conflicts", "worktreePath"]
+        },
+        {
+          "title": "DetachedHeadError",
+          "type": "object",
+          "description": "The worktree is in detached HEAD state",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["DETACHED_HEAD"]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        }
+      ],
+      "examples": [
+        {
+          "description": "Rebase a feature worktree onto main (default)",
+          "input": {
+            "name": "my-feature"
+          },
+          "output": {
+            "worktreeName": "my-feature",
+            "worktreeBranch": "feature/dev/my-feature",
+            "sourceBranch": "main",
+            "strategy": "rebase",
+            "commitsIncorporated": 3,
+            "stashRestored": false
+          }
+        },
+        {
+          "description": "Merge develop into a worktree",
+          "input": {
+            "name": "my-feature",
+            "sourceBranch": "develop",
+            "strategy": "merge"
+          },
+          "output": {
+            "worktreeName": "my-feature",
+            "worktreeBranch": "feature/dev/my-feature",
+            "sourceBranch": "develop",
+            "strategy": "merge",
+            "commitsIncorporated": 5,
+            "stashRestored": true
+          }
+        }
+      ],
+      "metadata": {
+        "usesSkills": [
+          "update-worktree"
+        ]
+      }
+    },
+    {
+      "name": "switch",
+      "description": "Switch the active workspace to a different git worktree. Inside Cursor, uses the cursor-app-control MCP to redirect the UI; outside Cursor, prints the cd command for manual use.",
+      "prompt": "./prompts/switch.md",
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name, path, or branch of the worktree to switch to. If omitted, lists available worktrees for selection.",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Details of the worktree switch operation",
+        "properties": {
+          "worktreePath": {
+            "type": "string",
+            "description": "Full absolute path to the worktree that is now active"
+          },
+          "worktreeName": {
+            "type": "string",
+            "description": "The directory name of the new active worktree"
+          },
+          "branch": {
+            "type": "string",
+            "description": "The branch checked out in the new active worktree"
+          },
+          "method": {
+            "type": "string",
+            "description": "How the switch was performed",
+            "enum": ["cursor-mcp", "manual-cd"]
+          },
+          "previousPath": {
+            "type": "string",
+            "description": "The workspace root path before the switch"
+          }
+        },
+        "required": [
+          "worktreePath",
+          "worktreeName",
+          "branch",
+          "method"
+        ]
+      },
+      "throws": [
+        {
+          "title": "NoWorktreesError",
+          "type": "object",
+          "description": "The project has no additional worktrees to switch to",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["NO_WORKTREES"]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        },
+        {
+          "title": "WorktreeNotFoundError",
+          "type": "object",
+          "description": "No worktree matches the provided name, path, or branch",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["WORKTREE_NOT_FOUND"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "searchedName": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "searchedName"]
+        },
+        {
+          "title": "AlreadyOnWorktreeError",
+          "type": "object",
+          "description": "The current workspace is already the requested worktree",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["ALREADY_ON_WORKTREE"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "worktreePath": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "worktreePath"]
+        },
+        {
+          "title": "SwitchFailedError",
+          "type": "object",
+          "description": "The cursor-app-control MCP call to switch the workspace failed",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["SWITCH_FAILED"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "worktreePath": {
+              "type": "string"
+            },
+            "mcpError": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "worktreePath", "mcpError"]
+        }
+      ],
+      "examples": [
+        {
+          "description": "Switch to a worktree by name (inside Cursor)",
+          "input": {
+            "name": "my-feature"
+          },
+          "output": {
+            "worktreePath": "/Users/me/Sites/my-app/.worktrees/my-feature",
+            "worktreeName": "my-feature",
+            "branch": "feature/dev/my-feature",
+            "method": "cursor-mcp",
+            "previousPath": "/Users/me/Sites/my-app"
+          }
+        },
+        {
+          "description": "Switch by branch name when running outside Cursor",
+          "input": {
+            "name": "fix/login-bug"
+          },
+          "output": {
+            "worktreePath": "/Users/me/Sites/my-app/.worktrees/hotfix",
+            "worktreeName": "hotfix",
+            "branch": "fix/login-bug",
+            "method": "manual-cd",
+            "previousPath": "/Users/me/Sites/my-app"
+          }
+        }
+      ],
+      "metadata": {
+        "usesSkills": [
+          "switch-worktree"
+        ]
+      }
+    },
+    {
+      "name": "createAndSwitch",
+      "description": "Create a new git worktree (optionally on a new feature branch via the detached-HEAD-first technique), run worktrees.json setup hooks, and switch the active workspace to it in one flow",
+      "prompt": "./prompts/create-and-switch.md",
+      "parameters": [
+        {
+          "name": "newBranch",
+          "type": "string",
+          "description": "Name of a new feature branch to create in the worktree. Created with the detached-HEAD-first technique (with automatic rollback if branch creation fails). Follow the feature/{environment}/{feature-name} convention where applicable. Mutually exclusive with branch.",
+          "required": false
+        },
+        {
+          "name": "branch",
+          "type": "string",
+          "description": "An existing branch name, tag, or commit SHA to check out in the worktree. Mutually exclusive with newBranch.",
+          "required": false
+        },
+        {
+          "name": "startPoint",
+          "type": "string",
+          "description": "Base commit/branch/tag the new branch starts from. Defaults to the current HEAD. Only meaningful with newBranch.",
+          "required": false
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Short name for the worktree directory inside .worktrees/. Auto-derived from the branch if not provided.",
+          "required": false
+        },
+        {
+          "name": "skipSetup",
+          "type": "boolean",
+          "description": "Skip running worktrees.json setup commands after creation.",
+          "required": false,
+          "default": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "Details of the created worktree and the switch operation",
+        "properties": {
+          "worktreePath": {
+            "type": "string",
+            "description": "Full absolute path to the new worktree directory"
+          },
+          "worktreeName": {
+            "type": "string",
+            "description": "The directory name used inside .worktrees/"
+          },
+          "branch": {
+            "type": "string",
+            "description": "The branch checked out in the worktree"
+          },
+          "newBranch": {
+            "type": "boolean",
+            "description": "Whether a new branch was created"
+          },
+          "method": {
+            "type": "string",
+            "description": "How the switch was performed",
+            "enum": ["cursor-mcp", "manual-cd"]
+          },
+          "switched": {
+            "type": "boolean",
+            "description": "Whether the active workspace was switched to the new worktree"
+          }
+        },
+        "required": [
+          "worktreePath",
+          "worktreeName",
+          "branch",
+          "newBranch",
+          "switched"
+        ]
+      },
+      "throws": [
+        {
+          "title": "WorktreesNotConfiguredError",
+          "type": "object",
+          "description": "The project does not have .worktrees/ set up with the symlink",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["WORKTREES_NOT_CONFIGURED"]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message"]
+        },
+        {
+          "title": "BranchExistsError",
+          "type": "object",
+          "description": "The requested new branch name already exists (the partial detached worktree is rolled back before this is returned)",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["BRANCH_EXISTS"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "branch"]
+        },
+        {
+          "title": "SwitchFailedError",
+          "type": "object",
+          "description": "The worktree was created successfully but the cursor-app-control MCP call to switch failed. The worktree can still be entered manually.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["SWITCH_FAILED"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "worktreePath": {
+              "type": "string"
+            },
+            "mcpError": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "worktreePath", "mcpError"]
+        }
+      ],
+      "examples": [
+        {
+          "description": "Create a new feature branch worktree and switch to it (inside Cursor)",
+          "input": {
+            "newBranch": "feature/dev/payment-retry"
+          },
+          "output": {
+            "worktreePath": "/Users/me/Sites/my-app/.worktrees/payment-retry",
+            "worktreeName": "payment-retry",
+            "branch": "feature/dev/payment-retry",
+            "newBranch": true,
+            "method": "cursor-mcp",
+            "switched": true
+          }
+        },
+        {
+          "description": "Create a worktree from an existing branch and switch to it, outside Cursor",
+          "input": {
+            "branch": "feature/dev/existing-work",
+            "name": "review"
+          },
+          "output": {
+            "worktreePath": "/Users/me/Sites/my-app/.worktrees/review",
+            "worktreeName": "review",
+            "branch": "feature/dev/existing-work",
+            "newBranch": false,
+            "method": "manual-cd",
+            "switched": false
+          }
+        }
+      ],
+      "metadata": {
+        "usesSkills": [
+          "create-and-switch-worktree"
+        ]
+      }
+    }
+  ],
+  "skills": [
+    {
+      "name": "setup-worktrees",
+      "description": "Configures Cursor git worktrees for a project by creating a local .worktrees directory and symlinking it into ~/.cursor/worktrees/. Handles migrating existing worktrees, creating worktrees.json with setup commands, and updating .gitignore. Use when setting up worktrees for a new project, migrating worktrees to a project-local directory, or configuring worktree setup hooks.",
+      "skill": "./skills/setup-worktrees/SKILL.md"
+    },
+    {
+      "name": "create-worktree",
+      "description": "Creates a new Cursor git worktree from a branch or commit, places it in the project-local .worktrees/ directory, and runs worktrees.json setup commands. Use when the user wants to create a worktree, work on a branch in a separate directory, or spin up a parallel working copy.",
+      "skill": "./skills/create-worktree/SKILL.md"
+    },
+    {
+      "name": "remove-worktree",
+      "description": "Removes a Cursor git worktree by name or path, cleaning up the directory and git metadata. Supports listing available worktrees for interactive selection. Use when the user wants to remove a worktree, clean up old worktrees, or delete a parallel working copy.",
+      "skill": "./skills/remove-worktree/SKILL.md"
+    },
+    {
+      "name": "merge-worktree",
+      "description": "Merges a worktree's branch into a target branch. Validates clean state, locates the target branch checkout, performs the merge, and optionally removes the worktree afterward. Use when the user wants to merge worktree changes back into main, dev, or any other branch.",
+      "skill": "./skills/merge-worktree/SKILL.md"
+    },
+    {
+      "name": "update-worktree",
+      "description": "Updates a worktree's branch to include changes from another branch using merge or rebase. Handles stashing, conflict detection, and recovery. Use when the user wants to pull in latest main, sync a worktree, or rebase a worktree branch onto another branch.",
+      "skill": "./skills/update-worktree/SKILL.md"
+    },
+    {
+      "name": "switch-worktree",
+      "description": "Switches the active workspace to a different git worktree. When running inside Cursor, uses the cursor-app-control MCP server to redirect Cursor's UI and the default terminal cwd to the new worktree path. Outside of Cursor, prints the cd command for the user to run manually. Use when the user wants to switch worktrees, change to a different worktree, or move the active workspace to a parallel working copy.",
+      "skill": "./skills/switch-worktree/SKILL.md"
+    },
+    {
+      "name": "create-and-switch-worktree",
+      "description": "Creates a new Cursor git worktree (optionally on a new feature branch created with the detached-HEAD-first technique), runs worktrees.json setup commands, and then switches the active workspace to it. Use when the user wants to create a worktree and immediately start working in it.",
+      "skill": "./skills/create-and-switch-worktree/SKILL.md"
+    }
+  ]
+}

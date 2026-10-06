@@ -5,7 +5,7 @@ highlighter: shiki
 lineNumbers: false
 info: |
   ## LoanOps Agent
-  Internal copilot for mortgage-servicing care reps.
+  Internal AI platform for enterprise teams (any role).
 drawings:
   persist: false
 transition: slide-left
@@ -15,7 +15,7 @@ mdc: true
 
 # LoanOps Agent
 
-Internal AI copilot for mortgage-servicing care reps
+Internal AI platform — APIs, docs, grounded answers for any role
 
 <div class="pt-10 text-lg opacity-80">
   Policy-grounded · Tool-aware · Human-approved
