@@ -47,12 +47,13 @@ async def handle_search_sse_apis(
     if capability_block is not None:
         kg_block = await capability_block(query, limit)
     embed_fn = embed if embed is not None else _live_embed()
-    hits = await search_operations_with_embeddings(
+    hits, used_semantic = await search_operations_with_embeddings(
         catalog.operations,
         query,
         cache=service.openapi_embed_cache,
         limit=limit,
         embed=embed_fn,
+        hashes=service.openapi_embed_hashes,
     )
     if not hits and not kg_block:
         return "No matching SSE API operations."
@@ -60,7 +61,10 @@ async def handle_search_sse_apis(
     if kg_block:
         parts.append(kg_block)
     if hits:
-        parts.append("OpenAPI operations:\n" + "\n".join(summarize_operation(op) for op in hits))
+        header = "OpenAPI operations:"
+        if not used_semantic:
+            header = "(keyword search — embeddings unavailable)\n" + header
+        parts.append(header + "\n" + "\n".join(summarize_operation(op) for op in hits))
     return "\n\n".join(parts)
 
 

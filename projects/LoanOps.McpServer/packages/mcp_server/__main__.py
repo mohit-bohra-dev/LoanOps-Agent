@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import uvicorn
-from packages.common.settings import Settings
+from packages.common.settings import get_settings
 from packages.mcp_server.server import create_app
 
 
 def main() -> None:
-    cfg = Settings()
+    cfg = get_settings()
     uvicorn.run(create_app(cfg), host=cfg.mcp.host, port=cfg.mcp.port, log_level="info")
 
 

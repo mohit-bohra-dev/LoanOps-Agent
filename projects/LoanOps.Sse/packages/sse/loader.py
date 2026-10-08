@@ -39,14 +39,17 @@ class OpenApiCatalogService:
         bearer_token: str = "",
         fixture_path: str | None = None,
         timeout_seconds: float = 15.0,
+        openapi_embed_path: str | None = None,
     ) -> None:
         self.swagger_links = swagger_links or list(DEFAULT_SWAGGER_LINKS)
         self.api_base_url = api_base_url.rstrip("/")
         self.bearer_token = bearer_token
         self.fixture_path = fixture_path
         self.timeout_seconds = timeout_seconds
+        self.openapi_embed_path = openapi_embed_path
         self._catalog: OpenApiCatalog | None = None
         self.openapi_embed_cache: dict[str, list[float]] = {}
+        self.openapi_embed_hashes: dict[str, str] = {}
 
     def allowed_origins(self) -> list[str]:
         origins: set[str] = set()
@@ -61,13 +64,33 @@ class OpenApiCatalogService:
                 pass
         return sorted(origins)
 
+    def _seed_embeddings(self, catalog: OpenApiCatalog) -> None:
+        """Load OpenAPI embed sidecar into the in-process cache (hash-validated)."""
+        from packages.sse.semantic import load_openapi_index, seed_cache_from_index
+
+        self.openapi_embed_cache = {}
+        self.openapi_embed_hashes = {}
+        if not self.openapi_embed_path:
+            return
+        index = load_openapi_index(self.openapi_embed_path)
+        if not index:
+            return
+        seed_cache_from_index(
+            catalog.operations,
+            index,
+            self.openapi_embed_cache,
+            hashes=self.openapi_embed_hashes,
+        )
+
     async def load(self, *, refresh: bool = False) -> OpenApiCatalog:
         if self._catalog is not None and not refresh:
             return self._catalog
         if refresh:
             self.openapi_embed_cache = {}
+            self.openapi_embed_hashes = {}
         if self.fixture_path:
             self._catalog = self._load_fixture(Path(self.fixture_path))
+            self._seed_embeddings(self._catalog)
             return self._catalog
 
         sources: list[CatalogSource] = []
@@ -111,6 +134,7 @@ class OpenApiCatalogService:
             loaded_at=datetime.now(UTC).isoformat(),
             sources=sources,
         )
+        self._seed_embeddings(self._catalog)
         return self._catalog
 
     def _load_fixture(self, path: Path) -> OpenApiCatalog:

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 from packages.common.providers import AuditEvent, ToolCall, ToolResult
 from packages.common.settings import McpConfig, Settings
@@ -16,9 +18,10 @@ class _Op:
 
 
 class FakeClient:
-    def __init__(self, method: str = "get") -> None:
+    def __init__(self, method: str = "get", catalog: object | None = None) -> None:
         self.method = method
         self.calls: list[ToolCall] = []
+        self._catalog = catalog
 
     async def find_sse_operation(
         self,
@@ -35,6 +38,19 @@ class FakeClient:
     async def call(self, tool: ToolCall) -> ToolResult:
         self.calls.append(tool)
         return ToolResult(tool_name=tool.tool_name, success=True, data={"text": "ok"})
+
+    def capability_catalog(self) -> Any | None:
+        if self._catalog is None:
+            return None
+
+        class _Svc:
+            def __init__(self, cat: object) -> None:
+                self._cat = cat
+
+            def catalog(self) -> Any:
+                return self._cat
+
+        return _Svc(self._catalog)
 
 
 class FakeAudit:
@@ -204,11 +220,7 @@ async def test_capability_bind_sets_operation_id(monkeypatch: pytest.MonkeyPatch
                 permission="loan.read",
             )
 
-    monkeypatch.setattr(
-        "packages.mcp_server.server.catalog_from_settings",
-        lambda _s: _Cat(),
-    )
-    client = FakeClient(method="get")
+    client = FakeClient(method="get", catalog=_Cat())
     text = await execute_tool(
         name="call_sse_api",
         arguments={"capability_id": "get_loan_summary", "path_params": {"loan_id": "1"}},
@@ -222,10 +234,9 @@ async def test_capability_bind_sets_operation_id(monkeypatch: pytest.MonkeyPatch
     assert text == "ok"
     assert client.calls[0].parameters.get("operation_id") == "getLoanSummary"
 
+
 @pytest.mark.asyncio
-async def test_enforce_permissions_blocks_missing_perm(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+async def test_enforce_permissions_blocks_missing_perm() -> None:
     from packages.capability_kg.catalog import CapabilityRecord
     from packages.common.settings import CapabilityKgConfig
 
@@ -240,15 +251,11 @@ async def test_enforce_permissions_blocks_missing_perm(
                 permission="ViewLoanPayments",
             )
 
-    monkeypatch.setattr(
-        "packages.mcp_server.server.catalog_from_settings",
-        lambda _s: _Cat(),
-    )
     settings = Settings(
         mcp=McpConfig(auth_token="secret-token", role="system"),
         capability_kg=CapabilityKgConfig(enforce_permissions=True),
     )
-    client = FakeClient(method="get")
+    client = FakeClient(method="get", catalog=_Cat())
     with pytest.raises(PolicyError, match="Permission"):
         await execute_tool(
             name="call_sse_api",
@@ -270,3 +277,33 @@ def test_streamable_http_requires_bearer() -> None:
     with TestClient(app) as client:
         response = client.post("/mcp", json={"jsonrpc": "2.0", "id": 1, "method": "initialize"})
     assert response.status_code == 401
+
+
+def test_health_is_liveness() -> None:
+    app = create_app(
+        Settings(mcp=McpConfig(auth_token="secret-token", role="system", host="127.0.0.1"))
+    )
+    with TestClient(app) as client:
+        response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+
+
+def test_ready_returns_snapshot() -> None:
+    from packages.common.settings import SseConfig
+
+    app = create_app(
+        Settings(
+            mcp=McpConfig(auth_token="secret-token", role="system", host="127.0.0.1"),
+            sse=SseConfig(use_fixture=True, swagger_links=[]),
+        )
+    )
+    with TestClient(app) as client:
+        response = client.get("/ready")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ready"
+    assert "openapi" in body
+    assert "operation_count" in body["openapi"]
+    assert "eakg" in body
+    assert "warnings" in body

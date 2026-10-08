@@ -16,6 +16,8 @@ Use these instead of treating every open checkbox as equal priority.
 - [x] Product semantic on — `CAPABILITY_KG__SEMANTIC=true`; `search_sse_apis` / capability block returns NL hits (2026-10-04; embedder=`local_bge` matches sidecar)
 - [x] OpenAPI `search_sse_apis` uses embeddings (2026-10-06); EAKG vectors auto if `embeddings.json` exists
 - [x] Richer embed text (summary + HTTP path phrases) — “next payment due” ranks payment-schedule over random “due” ops (2026-10-04); re-run `python -m packages.eakg embed` after reindex
+- [x] Cursor→MCP hardening (review 5 Required) — shared GET-only policy, EAKG in Tools, catalog cache, OpenAPI sidecar CLI, `/ready` (ADR-022/023 Proposed) — 2026-04-08
+
 
 ### Next (EAKG feed)
 

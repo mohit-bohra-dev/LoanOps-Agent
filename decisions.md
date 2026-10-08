@@ -506,3 +506,58 @@ stack should serve engineers, PMs, ops, and others via role scopes.
 
 **Status:** Accepted 2026-10-04.
 
+---
+
+## ADR-022 — Read-only tool policy and EAKG tools live in LoanOps.Tools
+
+**Decision:** Enforce GET-only / no-body for `call_sse_api` in the execution
+core (`packages/tools/policy.py` + `ModularToolsClient.call` + fail-closed
+`invoke_sse_api`). MCP `execute_tool` keeps transport auth, role scope, capability
+bind, and audit, and reuses the shared read-only asserts. EAKG discovery tools
+(`search_capabilities`, `explain_capability`, `find_providers`, `impact_of_change`)
+are implemented in `packages/tools/eakg_tools.py` and dispatched by
+`ModularToolsClient`, not as private server helpers.
+
+**Context:** Cursor → MCP (Flow C) is the primary client. Policy only at the MCP
+door left modular/direct callers unprotected. EAKG logic in `server.py` made the
+MCP process own business logic that belongs with the other tools.
+
+**Alternatives:** Keep policy MCP-only; full `ToolRegistry` refactor in one pass.
+
+**Reasoning:** Defense-in-depth without an auth redesign. Thin MCP wrappers stay
+stable for Cursor `tools/list`. Full registry can follow later.
+
+**Implications:**
+- `ToolPolicyError` in Tools; MCP maps to `PolicyError`.
+- `invoke_sse_api` rejects non-GET/HEAD and never sends a JSON body.
+- Auth/identity/PII work remains deferred (see `docs/ARCHITECTURE_REVIEW_LAYER2.md` §8).
+
+**Status:** Proposed 2026-04-08.
+
+---
+
+## ADR-023 — Cached EAKG catalog + OpenAPI embedding sidecar
+
+**Decision:** Cache merged EAKG shards via `CapabilityCatalogService` (fingerprint
+on shard file mtimes/sizes). Persist OpenAPI operation embeddings at
+`<EAKG__SHARD_DIR>/enterprise/openapi_embeddings.json`. Semantic flag is
+`CAPABILITY_KG__SEMANTIC` **or** sidecar present (same rule for search and bind).
+Rebuild OpenAPI sidecar with `uv run python -m packages.sse.embed_openapi`.
+MCP `/health` is liveness; `/ready` reports catalog/EAKG/sidecar status.
+
+**Context:** Cursor tool calls were re-merging RDF and optionally embedding every
+OpenAPI op serially on cold start. Docs still described keyword-only search.
+
+**Alternatives:** Process-global singleton without fingerprint; Qdrant for OpenAPI
+vectors; keep in-memory-only embed cache.
+
+**Reasoning:** Matches existing EAKG `embeddings.json` pattern. No new env vars.
+Fingerprint invalidation is enough for local MCP demos.
+
+**Implications:**
+- Sidecar lives under gitignored `data/eakg/enterprise/`.
+- Keyword fallback on embed failure is labeled in `search_sse_apis` output.
+- Settings hot path uses `get_settings()` (`@lru_cache`).
+
+**Status:** Proposed 2026-04-08.
+

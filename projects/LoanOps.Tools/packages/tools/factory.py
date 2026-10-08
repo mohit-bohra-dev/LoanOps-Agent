@@ -9,7 +9,7 @@ from packages.common.providers.factory import (
     get_embedding_provider,
     get_vector_store_provider,
 )
-from packages.common.settings import Settings
+from packages.common.settings import Settings, get_settings
 from provider_contracts.tools_client import AbstractToolsClientProvider
 
 
@@ -22,6 +22,8 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
     from packages.docs.service import DocsService
     from packages.sse.fixture import FIXTURE_OPENAPI
     from packages.sse.loader import DEFAULT_SWAGGER_LINKS, OpenApiCatalogService
+    from packages.tools.capability import make_eakg_capability_search_block
+    from packages.tools.capability_catalog import CapabilityCatalogService
     from packages.tools.modular_tools import ModularToolsClient
 
     swagger_links = list(DEFAULT_SWAGGER_LINKS)
@@ -48,11 +50,15 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
     # (e.g. local Loan Services OpenAPI when live swagger needs auth).
     catalog_fixture = fixture_path if (cfg.sse.use_fixture or cfg.sse.fixture_path) else None
 
+    from packages.sse.semantic import openapi_embeddings_path
+
+    embed_sidecar = str(openapi_embeddings_path(cfg.eakg.shard_dir))
     sse = OpenApiCatalogService(
         swagger_links=swagger_links,
         api_base_url=cfg.sse.api_base_url,
         bearer_token=cfg.sse.api_key,
         fixture_path=catalog_fixture,
+        openapi_embed_path=embed_sidecar,
     )
     db = SqlServerClient(
         DbConfig(
@@ -70,12 +76,38 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
     except Exception:  # noqa: BLE001
         docs = None
 
+    kg = cfg.capability_kg
+    embed_query = None
+    if kg.enabled:
+
+        async def _embed(text: str) -> list[float]:
+            result = await get_embedding_provider().embed(text)
+            return list(result.vector)
+
+        from packages.tools.capability_catalog import use_semantic
+
+        if use_semantic(semantic_flag=kg.semantic, shard_dir=cfg.eakg.shard_dir):
+            embed_query = _embed
+
+    catalog_service = CapabilityCatalogService(
+        cfg.eakg.shard_dir,
+        namespace=kg.namespace,
+        approved_only=kg.approved_only,
+        semantic=kg.semantic,
+        embed_query=embed_query,
+        enabled=kg.enabled,
+    )
+    capability_block = make_eakg_capability_search_block(catalog_service)
+
     # Answers come from SSE OpenAPI (+ docs / optional SQL). No tools_api.
     return ModularToolsClient(
         sse=sse,
         db=db,
         docs=docs,
         role=role,
+        capability_block=capability_block,
+        catalog_service=catalog_service,
+        settings=cfg,
     )
 
 
@@ -105,7 +137,7 @@ def build_mcp_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClientPr
 @lru_cache(maxsize=1)
 def get_tools_client_provider() -> AbstractToolsClientProvider:
     """Return the configured tools client provider."""
-    cfg = Settings()
+    cfg = get_settings()
     # LAYER2-BP A2: branch modular vs mcp
     if cfg.tools_client.provider == "modular":
         return build_modular_tools_client(cfg, role=cfg.agent_role)

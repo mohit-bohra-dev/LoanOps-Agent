@@ -67,6 +67,18 @@ async def invoke_sse_api(
     assert_allowed_url(url, service.allowed_origins())
 
     method_u = method.upper()
+    if method_u not in ("GET", "HEAD"):
+        return InvokeResult(
+            ok=False,
+            status=0,
+            status_text="rejected",
+            url=url,
+            data=None,
+            error_message=f"invoke_sse_api only allows GET/HEAD, got {method_u}",
+            duration_ms=0.0,
+        )
+    # Read-only: never send a request body.
+    _ = body
     cache_key = f"sse:api:{method_u}:{url}"
     if cache is not None and method_u == "GET":
         hit = await cache.get(cache_key)
@@ -83,7 +95,6 @@ async def invoke_sse_api(
             method_u,
             url,
             headers=req_headers,
-            json=body if body is not None and method_u not in ("GET", "HEAD") else None,
         )
     duration = (time.perf_counter() - started) * 1000
     try:

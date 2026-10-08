@@ -473,9 +473,9 @@ RAG and a future MCP capability catalog should stay separate. `search_docs` answ
 | SQL write block | `classify_read_only` | Keyword net. Not on the default agent. |
 | Human approval flag | schema | Always true. Not enforced in the UI. |
 | Prompt injection | No dedicated detector | Tool results are concatenated into the next user message with no sandbox marker beyond the instruction text. |
-| Mutation policy | Intent keywords only | `call_sse_api` can still POST/PUT/DELETE if the model emits that method. The keyword gate does not see tool arguments. |
+| Mutation policy | Tools + MCP + invoke | `call_sse_api` is GET-only: `packages/tools/policy.py` in `ModularToolsClient`, MCP `execute_tool`, and fail-closed `invoke_sse_api` (ADR-022). |
 
-Before a future MCP tool call, keep the existing inbound PII step and the intent gate in the Agent API. Detokenize only inside the trust boundary (today: `_execute_tools`). After the call, keep outbound safety on the final answer, and add an explicit read-only method allow-list at the MCP server so a model cannot turn `call_sse_api` into a write. Audit the tool name, tokenized args, status, and latency on the server as well as in the agent turn record.
+MCP keeps transport auth, role scope, capability bind, and tool-call audit. EAKG discovery tools live in `packages/tools/eakg_tools.py` (dispatched by `ModularToolsClient`). Detokenize only inside the trust boundary (today: `_execute_tools` on the agent path). Auth/identity/PII hardening is deferred — see `docs/ARCHITECTURE_REVIEW_LAYER2.md` §8.
 
 ---
 
@@ -732,12 +732,12 @@ Authorization policies (scopes.py, intent router)
         ↓
 API Capability Catalog   (new; not Graphify, not the Qdrant "docs" namespace)
         ↓
-Semantic discovery       (search_sse_apis is keyword-only today)
+Semantic discovery       (OpenAPI embeddings + keyword blend; ADR-023)
         ↓
 MCP tool descriptors
 ```
 
-Today discovery is `search_operations`: token overlap on operation id, path, summary, tags, and parameter names. That function can remain the first catalog query. Semantic discovery and a capability catalog are a later phase. Graphify is the wrong store for it.
+Discovery: `search_sse_apis` blends OpenAPI embeddings (`packages/sse/semantic.py`, sidecar under `data/eakg/enterprise/openapi_embeddings.json`) with keyword overlap; falls back to labeled keyword search if embeddings are unavailable. EAKG capability block uses cached `CapabilityCatalogService` (fingerprint invalidation). Graphify remains the wrong store for request-time discovery.
 
 ## 22. Migration Plan
 

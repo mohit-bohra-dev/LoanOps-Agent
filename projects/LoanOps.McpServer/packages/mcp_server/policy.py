@@ -5,6 +5,10 @@ from __future__ import annotations
 import secrets
 from typing import Any
 
+from packages.tools.policy import ToolPolicyError
+from packages.tools.policy import assert_sse_read_only as _assert_sse_read_only
+from packages.tools.policy import body_present
+
 # Must include every read tool the MCP server exposes (SSE + docs + EAKG).
 _READ_ONLY_TOOLS = frozenset(
     {
@@ -46,10 +50,6 @@ def assert_tool_allowed(name: str, allowed: frozenset[str]) -> None:
         raise PolicyError(f"Tool '{name}' not allowed for current scope")
 
 
-def body_present(body: Any) -> bool:
-    return body not in (None, "", {}, [])
-
-
 def assert_sse_read_only(
     *,
     method_arg: str | None,
@@ -57,9 +57,21 @@ def assert_sse_read_only(
     resolved_method: str | None,
 ) -> None:
     """call_sse_api on the MCP server is GET-only. Fail closed if unresolved."""
-    if body_present(body):
-        raise PolicyError("call_sse_api body is not allowed")
-    if method_arg is not None and str(method_arg).strip().upper() != "GET":
-        raise PolicyError("call_sse_api method must be GET")
-    if resolved_method is None or resolved_method.lower() != "get":
-        raise PolicyError("call_sse_api only allows a resolved GET operation")
+    try:
+        _assert_sse_read_only(
+            method_arg=method_arg,
+            body=body,
+            resolved_method=resolved_method,
+        )
+    except ToolPolicyError as exc:
+        raise PolicyError(str(exc)) from exc
+
+
+__all__ = [
+    "AuthError",
+    "PolicyError",
+    "assert_sse_read_only",
+    "assert_tool_allowed",
+    "bearer_matches",
+    "body_present",
+]

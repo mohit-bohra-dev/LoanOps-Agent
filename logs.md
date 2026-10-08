@@ -1,3 +1,19 @@
+## [2026-04-08] — Cursor → MCP hardening (5 Required)
+
+**Session type:** Implementation
+
+**Completed:**
+- `get_settings()` cached; hot paths wired.
+- Shared GET-only policy in `packages/tools/policy.py` + `ModularToolsClient` + fail-closed `invoke_sse_api`; MCP reuses asserts (ADR-022 Proposed).
+- EAKG tools moved to `packages/tools/eakg_tools.py`; MCP `execute_tool` always `client.call`.
+- `CapabilityCatalogService` fingerprint cache; OpenAPI embed sidecar + `python -m packages.sse.embed_openapi` (ADR-023 Proposed).
+- MCP `/health` liveness + `/ready` snapshot.
+- Docs: Flow C first in `THREE_QUERY_FLOWS` / `DEBUG_LAYER2`; ARCHITECTURE + review doc updated.
+
+**Reason:** Execute architecture review active Required items (auth/PII/UI deferred).
+
+---
+
 ## [2026-10-06] — Embedding search for OpenAPI + EAKG
 
 **Session type:** Implementation

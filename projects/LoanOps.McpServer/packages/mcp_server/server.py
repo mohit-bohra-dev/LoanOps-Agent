@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import contextlib
-import json
 import time
 import uuid
 from contextvars import ContextVar
@@ -17,15 +16,14 @@ from mcp.server.fastmcp.exceptions import ToolError
 from mcp.types import ToolAnnotations
 from packages.common.providers import AuditEvent, ToolCall, ToolResult
 from packages.common.providers.factory import get_audit_sink_provider
-from packages.common.scopes import EAKG_TOOL_NAMES, tools_for_role
-from packages.common.settings import Settings
+from packages.common.scopes import tools_for_role
+from packages.common.settings import Settings, get_settings
 from packages.mcp_server.capability_authz import (
     allowed_permissions_for_role,
     assert_capability_permission,
 )
 from packages.mcp_server.capability_bind import (
     apply_capability_bind,
-    catalog_from_settings,
     resolve_binding,
 )
 from packages.mcp_server.policy import (
@@ -61,6 +59,10 @@ class _Op(Protocol):
     method: str
 
 
+class _CatalogSvc(Protocol):
+    def catalog(self) -> Any: ...
+
+
 class _Tools(Protocol):
     async def find_sse_operation(
         self,
@@ -71,6 +73,8 @@ class _Tools(Protocol):
     ) -> _Op | None: ...
 
     async def call(self, tool: ToolCall) -> ToolResult: ...
+
+    def capability_catalog(self) -> _CatalogSvc | None: ...
 
 
 class _Audit(Protocol):
@@ -134,58 +138,6 @@ def _meta() -> RequestMeta:
     return current
 
 
-async def _execute_eakg_tool(
-    name: str,
-    arguments: dict[str, Any],
-    settings: Settings,
-) -> str:
-    """Run EAKG query tools. When approved_only, read catalog/approved.ttl only."""
-    from pathlib import Path
-
-    from packages.capability_kg.store import load_graph
-    from packages.eakg.merge import merge_shards
-    from packages.eakg.query import (
-        explain_capability,
-        find_providers,
-        impact_of_change,
-        search_capabilities,
-    )
-
-    ns = settings.capability_kg.namespace
-    if settings.capability_kg.approved_only:
-        approved = Path(settings.eakg.shard_dir) / "catalog" / "approved.ttl"
-        if not approved.is_file():
-            return json.dumps([])
-        graph = load_graph(approved, namespace=ns)
-    else:
-        graph = merge_shards(settings.eakg.shard_dir, namespace=ns)
-
-    if name == "search_capabilities":
-        rows = search_capabilities(
-            graph,
-            str(arguments.get("query") or ""),
-            namespace=ns,
-            limit=int(arguments.get("limit") or 15),
-        )
-        return json.dumps(rows, indent=2)
-    if name == "explain_capability":
-        row = explain_capability(
-            graph,
-            str(arguments.get("capability_id") or ""),
-            namespace=ns,
-        )
-        return json.dumps(row or {"error": "not found"}, indent=2)
-    if name == "find_providers":
-        rows = find_providers(graph, str(arguments.get("query") or ""), namespace=ns)
-        return json.dumps(rows, indent=2)
-    if name == "impact_of_change":
-        rows = impact_of_change(graph, str(arguments.get("target") or ""), namespace=ns)
-        if settings.capability_kg.approved_only:
-            rows = [r for r in rows if r.get("review_status") == "approved"]
-        return json.dumps(rows, indent=2)
-    raise PolicyError(f"Unknown EAKG tool: {name}")
-
-
 async def execute_tool(
     *,
     name: str,
@@ -211,16 +163,10 @@ async def execute_tool(
         allowed = tools_for_role(settings.mcp.role)
         assert_tool_allowed(name, allowed)
 
-        if name in EAKG_TOOL_NAMES:
-            decision = "allowed"
-            full = await _execute_eakg_tool(name, call_args, settings)
-            success = True
-            summary = full[:500]
-            return full
-
         if name == "call_sse_api":
             # Gap 1: capability_id → catalog operation_id (flag / when id present).
-            catalog = catalog_from_settings(settings)
+            svc = client.capability_catalog()
+            catalog = svc.catalog() if svc is not None else None
             has_capability_id = bool(str(call_args.get("capability_id") or "").strip())
             if settings.capability_kg.require_capability_bind or has_capability_id:
                 if catalog is None:
@@ -316,7 +262,7 @@ async def execute_tool(
 
 def create_app(cfg: Settings | None = None) -> Starlette:
     """Streamable HTTP app. /health is public. /mcp requires MCP__AUTH_TOKEN."""
-    settings = cfg if cfg is not None else Settings()
+    settings = cfg if cfg is not None else get_settings()
     host = settings.mcp.host
     port = settings.mcp.port
     path = settings.mcp.path
@@ -466,13 +412,41 @@ def create_app(cfg: Settings | None = None) -> Starlette:
 
     @mcp.custom_route("/health", methods=["GET"])  # type: ignore[untyped-decorator]
     async def health(_request: Request) -> Response:
+        """Liveness: process is up (no dependency checks)."""
+        return JSONResponse({"status": "ok"})
+
+    @mcp.custom_route("/ready", methods=["GET"])  # type: ignore[untyped-decorator]
+    async def ready(_request: Request) -> Response:
+        """Readiness: tools client + OpenAPI catalog + EAKG shards (+ sidecar warnings)."""
         try:
-            client()
+            tools = client()
         except Exception as exc:  # noqa: BLE001
             return JSONResponse(
-                {"status": "not_ready", "detail": type(exc).__name__}, status_code=503
+                {
+                    "status": "not_ready",
+                    "detail": type(exc).__name__,
+                    "error": str(exc)[:500],
+                },
+                status_code=503,
             )
-        return JSONResponse({"status": "ok"})
+        snapshot_fn = getattr(tools, "readiness_snapshot", None)
+        if snapshot_fn is None:
+            return JSONResponse(
+                {"status": "ready", "warnings": ["readiness_snapshot_unavailable"]}
+            )
+        try:
+            snap = await snapshot_fn()
+        except Exception as exc:  # noqa: BLE001
+            return JSONResponse(
+                {
+                    "status": "not_ready",
+                    "detail": "catalog_load_failed",
+                    "error": str(exc)[:500],
+                },
+                status_code=503,
+            )
+        body = {"status": "ready", **snap}
+        return JSONResponse(body)
 
     app = mcp.streamable_http_app()
     app.add_middleware(CaptureHeadersMiddleware)

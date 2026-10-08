@@ -1780,6 +1780,7 @@ name = "loanops-tools"
 version = "0.1.0"
 source = { editable = "projects/LoanOps.Tools" }
 dependencies = [
+    { name = "loanops-capability-kg" },
     { name = "loanops-common" },
     { name = "loanops-db" },
     { name = "loanops-docs" },
@@ -1791,6 +1792,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "loanops-capability-kg", editable = "projects/LoanOps.CapabilityKg" },
     { name = "loanops-common", editable = "projects/LoanOps.Common" },
     { name = "loanops-db", editable = "projects/LoanOps.Db" },
     { name = "loanops-docs", editable = "projects/LoanOps.Docs" },

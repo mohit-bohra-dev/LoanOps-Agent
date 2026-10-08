@@ -48,15 +48,16 @@ from packages.common.providers.factory import (
     get_telemetry_provider,
     get_vector_store_provider,
 )
-from packages.common.settings import Settings
+from packages.common.settings import Settings, get_settings
 from packages.safety.middleware import evaluate_outbound, sanitize_inbound
 from packages.tools.factory import get_tools_client_provider
 
 
 def _agent_owns_vector_store() -> bool:
     """False when Qdrant runs in embedded path mode — Tools API owns the lock."""
-    path = Settings().vector_store.qdrant.path
-    return not (Settings().vector_store.provider == "qdrant" and path)
+    cfg = get_settings()
+    path = cfg.vector_store.qdrant.path
+    return not (cfg.vector_store.provider == "qdrant" and path)
 
 # ---------------------------------------------------------------------------
 # Version — read once at import time
@@ -221,9 +222,7 @@ async def chat(request: ChatRequest) -> StreamingResponse:
             safety_provider = get_content_safety_provider()
 
             # 1.5 PII handling — mode controlled by PII__MODE env var
-            from packages.common.settings import Settings
-
-            pii_mode = Settings().pii.mode
+            pii_mode = get_settings().pii.mode
 
             sanitize_result = await sanitize_inbound(request.message, pii_provider, audit_sink)
             pii_token_map: dict[str, str] = {}

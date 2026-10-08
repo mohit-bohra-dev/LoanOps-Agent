@@ -1,11 +1,12 @@
 """Single source of truth for all configuration.
 
-All application code reads config from Settings(). No direct os.environ calls
-outside this module.
+All application code reads config via get_settings() (or Settings() for
+one-off / test construction). No direct os.environ calls outside this module.
 """
 
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Any, Literal, Self
 
 from pydantic import BaseModel, Field, model_validator
@@ -358,3 +359,12 @@ class Settings(BaseSettings):
     capability_kg: CapabilityKgConfig = Field(default_factory=CapabilityKgConfig)
     eakg: EakgConfig = Field(default_factory=EakgConfig)
     agent_role: str = Field(default="system", validation_alias="AGENT_ROLE")
+
+
+@lru_cache(maxsize=1)
+def get_settings() -> Settings:
+    """Return a process-cached Settings instance (reads .env once).
+
+    Call ``get_settings.cache_clear()`` in tests after mutating env vars.
+    """
+    return Settings()

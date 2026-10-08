@@ -16,7 +16,7 @@ from packages.common.providers.base import ProviderConfigError
 from packages.common.providers.loan_data import AbstractLoanDataProvider
 from packages.common.providers.policy_source import AbstractPolicySourceProvider
 from packages.common.providers.session_store import AbstractSessionStoreProvider
-from packages.common.settings import Settings
+from packages.common.settings import Settings, get_settings
 
 # ---------------------------------------------------------------------------
 # Type imports (ABCs) â€” for return annotations only
@@ -33,10 +33,9 @@ from provider_contracts.telemetry import AbstractTelemetryProvider
 from provider_contracts.vector_store import AbstractVectorStoreProvider
 
 
-@lru_cache(maxsize=1)
 def _get_settings() -> Settings:
     """Return a cached Settings instance — reads .env exactly once per process."""
-    return Settings()
+    return get_settings()
 
 
 # ── Data Providers ─────────────────────────────────────────────────────────

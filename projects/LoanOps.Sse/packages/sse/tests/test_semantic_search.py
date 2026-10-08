@@ -2,10 +2,21 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from packages.sse.catalog import parse_openapi_document, search_operations
 from packages.sse.fixture import FIXTURE_OPENAPI
-from packages.sse.semantic import search_operations_semantic
+from packages.sse.semantic import (
+    OpenApiEmbeddingEntry,
+    load_openapi_index,
+    operation_text,
+    save_openapi_index,
+    search_operations_semantic,
+    search_operations_with_embeddings,
+    seed_cache_from_index,
+    text_hash,
+)
 
 
 async def _stub_embed(text: str) -> list[float]:
@@ -27,3 +38,57 @@ async def test_semantic_ranks_installment_to_payment_schedules() -> None:
     assert hits
     assert hits[0].operation_id == "getPaymentSchedules"
     assert cache
+
+
+def test_openapi_sidecar_round_trip(tmp_path: Path) -> None:
+    ops = parse_openapi_document(FIXTURE_OPENAPI, "fixture", "Fixture", "https://fixture.local")
+    entries: dict[str, OpenApiEmbeddingEntry] = {}
+    for op in ops:
+        text = operation_text(op)
+        entries[op.id] = OpenApiEmbeddingEntry(
+            id=op.id,
+            text=text,
+            text_hash=text_hash(text),
+            vector=[1.0, 0.0],
+        )
+    path = tmp_path / "openapi_embeddings.json"
+    save_openapi_index(path, entries)
+    loaded = load_openapi_index(path)
+    assert set(loaded) == set(entries)
+    assert loaded[ops[0].id].text_hash == entries[ops[0].id].text_hash
+
+
+def test_stale_hash_not_seeded(tmp_path: Path) -> None:
+    ops = parse_openapi_document(FIXTURE_OPENAPI, "fixture", "Fixture", "https://fixture.local")
+    op = ops[0]
+    text = operation_text(op)
+    entries = {
+        op.id: OpenApiEmbeddingEntry(
+            id=op.id,
+            text=text,
+            text_hash="deadbeefdeadbeef",
+            vector=[9.0, 9.0],
+        )
+    }
+    path = tmp_path / "openapi_embeddings.json"
+    save_openapi_index(path, entries)
+    index = load_openapi_index(path)
+    cache: dict[str, list[float]] = {}
+    hashes: dict[str, str] = {}
+    seed_cache_from_index(ops, index, cache, hashes=hashes)
+    assert op.id not in cache
+    assert hashes[op.id] == text_hash(text)
+
+
+@pytest.mark.asyncio
+async def test_embed_failure_returns_keyword_flag() -> None:
+    ops = parse_openapi_document(FIXTURE_OPENAPI, "fixture", "Fixture", "https://fixture.local")
+
+    async def _boom(_text: str) -> list[float]:
+        raise RuntimeError("embed down")
+
+    hits, used = await search_operations_with_embeddings(
+        ops, "loan", cache={}, limit=5, embed=_boom
+    )
+    assert used is False
+    assert hits

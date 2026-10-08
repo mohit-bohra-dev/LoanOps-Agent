@@ -10,6 +10,7 @@ dependencies = [
     "loanops-db",
     "loanops-wiki",
     "loanops-eakg",
+    "loanops-capability-kg",
     "mcp>=1.27.1",
 ]
 
