@@ -26,6 +26,7 @@ PKG_TO_DIST: dict[str, str] = {
     "sse": "loanops-sse",
     "capability_kg": "loanops-capability-kg",
     "eakg": "loanops-eakg",
+    "api_index": "loanops-api-index",
     "tools": "loanops-tools",
     "agent_core": "loanops-agent-core",
     "mcp_server": "loanops-mcp-server",

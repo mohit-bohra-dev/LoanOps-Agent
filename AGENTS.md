@@ -142,6 +142,7 @@ projects/
   LoanOps.Sse/            OpenAPI catalog + live invoke
   LoanOps.CapabilityKg/   RDF capability catalog
   LoanOps.Eakg/           enterprise capability KG
+  LoanOps.ApiIndex/       unified OpenAPI+EAKG ops, vector search (ADR-024)
   LoanOps.Tools/          ModularToolsClient + MCP client factories
   LoanOps.AgentCore/      MS Agent Framework turn loop
   LoanOps.McpServer/      Streamable HTTP MCP :8001

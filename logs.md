@@ -1,3 +1,16 @@
+## [2026-10-09] — Phase 2 started: LoanOps.ApiIndex
+
+**Session type:** Implementation
+
+**Completed:**
+- G4 approved. Commit Phase 1 (`1f906b2`).
+- Scaffold `projects/LoanOps.ApiIndex` (`loanops-api-index`). Workspace + Tools deps. `check_project_refs` OK.
+- `normalize_path` + OpenAPI↔EAKG join (`exact`/`suffix`/…). Tests: 3 passed. mypy clean.
+
+**Next:** `build_operations` over registry, `OperationResolver`, wire bind, mismatch report.
+
+---
+
 ## [2026-10-09] — Phase 1: spec cache, registry catalog, pgvector
 
 **Session type:** Implementation

@@ -17,6 +17,7 @@ prerelease-mode = "allow"
 members = [
     "loanops-agent-api",
     "loanops-agent-core",
+    "loanops-api-index",
     "loanops-capability-kg",
     "loanops-common",
     "loanops-db",
@@ -1614,6 +1615,25 @@ requires-dist = [
 ]
 
 [[package]]
+name = "loanops-api-index"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.ApiIndex" }
+dependencies = [
+    { name = "loanops-capability-kg" },
+    { name = "loanops-common" },
+    { name = "loanops-eakg" },
+    { name = "loanops-sse" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "loanops-capability-kg", editable = "projects/LoanOps.CapabilityKg" },
+    { name = "loanops-common", editable = "projects/LoanOps.Common" },
+    { name = "loanops-eakg", editable = "projects/LoanOps.Eakg" },
+    { name = "loanops-sse", editable = "projects/LoanOps.Sse" },
+]
+
+[[package]]
 name = "loanops-capability-kg"
 version = "0.1.0"
 source = { editable = "projects/LoanOps.CapabilityKg" }
@@ -1780,6 +1800,7 @@ name = "loanops-tools"
 version = "0.1.0"
 source = { editable = "projects/LoanOps.Tools" }
 dependencies = [
+    { name = "loanops-api-index" },
     { name = "loanops-capability-kg" },
     { name = "loanops-common" },
     { name = "loanops-db" },
@@ -1792,6 +1813,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "loanops-api-index", editable = "projects/LoanOps.ApiIndex" },
     { name = "loanops-capability-kg", editable = "projects/LoanOps.CapabilityKg" },
     { name = "loanops-common", editable = "projects/LoanOps.Common" },
     { name = "loanops-db", editable = "projects/LoanOps.Db" },
@@ -3810,6 +3832,7 @@ dependencies = [
     { name = "click" },
     { name = "loanops-agent-api" },
     { name = "loanops-agent-core" },
+    { name = "loanops-api-index" },
     { name = "loanops-capability-kg" },
     { name = "loanops-common" },
     { name = "loanops-db" },
@@ -3841,6 +3864,7 @@ requires-dist = [
     { name = "click", specifier = "<8.1.8" },
     { name = "loanops-agent-api", editable = "projects/LoanOps.AgentApi" },
     { name = "loanops-agent-core", editable = "projects/LoanOps.AgentCore" },
+    { name = "loanops-api-index", editable = "projects/LoanOps.ApiIndex" },
     { name = "loanops-capability-kg", editable = "projects/LoanOps.CapabilityKg" },
     { name = "loanops-common", editable = "projects/LoanOps.Common" },
     { name = "loanops-db", editable = "projects/LoanOps.Db" },

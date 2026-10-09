@@ -1,0 +1,21 @@
+[project]
+name = "loanops-api-index"
+version = "0.1.0"
+description = "Unified OpenAPI+EAKG operation index and search"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "loanops-common",
+    "loanops-sse",
+    "loanops-eakg",
+    "loanops-capability-kg",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["packages/api_index"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"packages/api_index" = "packages/api_index"

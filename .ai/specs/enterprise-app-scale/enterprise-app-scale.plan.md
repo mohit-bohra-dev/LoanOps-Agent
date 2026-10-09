@@ -46,10 +46,10 @@ todos:
     status: completed
   - id: p2-project-scaffold
     content: "Scaffold projects/LoanOps.ApiIndex (pyproject loanops-api-index, packages/api_index, tests); add to root workspace and LoanOps.Tools dependencies; keep check_project_refs green"
-    status: pending
+    status: completed
   - id: p2-normalize-join
     content: "Implement normalize_path and the exact/suffix/ambiguous/eakg_only/openapi_only join in packages/api_index/records.py per spec §3.1–3.2"
-    status: pending
+    status: completed
   - id: p2-unified-record
     content: "Implement UnifiedOperation, build_operations (public_id collision rules, read_only/callable rules) and atomic operations.json persistence with per-app inputs hashes"
     status: pending
