@@ -97,6 +97,25 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
     )
     capability_block = make_eakg_capability_search_block(catalog_service)
 
+    operation_catalog = None
+    try:
+        from packages.api_index.catalog import OperationCatalog
+        from packages.eakg.registry import RepositoryRegistry
+        from packages.eakg.store import ShardStore
+
+        registry = RepositoryRegistry(cfg.eakg.registry_path)
+        store = ShardStore(cfg.eakg.shard_dir)
+        caps = catalog_service.catalog() if catalog_service.enabled else None
+        operation_catalog = OperationCatalog.load_or_build(
+            registry,
+            store,
+            cfg.eakg.environment,
+            capabilities=caps,
+            force_build=mode == "registry",
+        )
+    except Exception:  # noqa: BLE001 — index is optional until shards exist
+        operation_catalog = None
+
     # Answers come from SSE OpenAPI (+ docs / optional SQL). No tools_api.
     return ModularToolsClient(
         sse=sse,
@@ -106,6 +125,7 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
         capability_block=capability_block,
         catalog_service=catalog_service,
         settings=cfg,
+        operation_catalog=operation_catalog,
     )
 
 

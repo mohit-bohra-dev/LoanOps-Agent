@@ -1,3 +1,18 @@
+## [2026-10-09] — Phase 2: unified ops, resolver, bind
+
+**Session type:** Implementation
+
+**Completed:**
+- `build_operations` + atomic `operations.json`; CLI `build` / `report`.
+- `OperationResolver` aliases; `find_operation` + bind map to `public_id`; non-read-only rejected.
+- `CapabilityRecord.application_id` from `belongsToApp` SPARQL.
+- Readiness `catalog_health`. Factory loads/builds OperationCatalog in registry mode.
+- Tests: ApiIndex + bind (15) green; mypy + `check_project_refs` green.
+
+**Not done:** `p2-quality-gates` (`make demo`). Phase 3 needs G5/G6.
+
+---
+
 ## [2026-10-09] — Phase 2 started: LoanOps.ApiIndex
 
 **Session type:** Implementation
@@ -7,7 +22,7 @@
 - Scaffold `projects/LoanOps.ApiIndex` (`loanops-api-index`). Workspace + Tools deps. `check_project_refs` OK.
 - `normalize_path` + OpenAPI↔EAKG join (`exact`/`suffix`/…). Tests: 3 passed. mypy clean.
 
-**Next:** `build_operations` over registry, `OperationResolver`, wire bind, mismatch report.
+**Next:** (done in session continuation)
 
 ---
 

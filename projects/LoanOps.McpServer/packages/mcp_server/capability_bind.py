@@ -1,4 +1,4 @@
-"""Capability-bound call_sse_api args: resolve capability_id → operation_id."""
+"""Capability-bound call_sse_api args: resolve capability_id → public_id."""
 
 from __future__ import annotations
 
@@ -17,6 +17,15 @@ class CapabilityLookup(Protocol):
     def get_capability(self, capability_id: str) -> CapabilityRecord | None: ...
 
 
+class OperationResolveLookup(Protocol):
+    def resolve(
+        self,
+        ref: str,
+        *,
+        application_id: str | None = None,
+    ) -> Any: ...
+
+
 @dataclass(frozen=True)
 class CapabilityBinding:
     """Resolved capability → SSE operation binding."""
@@ -25,12 +34,14 @@ class CapabilityBinding:
     operation_id: str
     read_only: bool | None
     permission: str | None
+    application_id: str | None = None
 
 
 def resolve_binding(
     catalog: CapabilityLookup,
     *,
     capability_id: str,
+    resolver: OperationResolveLookup | None = None,
 ) -> CapabilityBinding | None:
     """Map capability_id → binding. None when missing or no operation_id."""
     cid = capability_id.strip()
@@ -39,11 +50,37 @@ def resolve_binding(
     record = catalog.get_capability(cid)
     if record is None or not record.operation_id:
         return None
+
+    operation_id = record.operation_id
+    read_only = record.read_only
+    application_id = record.application_id
+
+    if resolver is not None:
+        result = resolver.resolve(record.operation_id, application_id=record.application_id)
+        kind = type(result).__name__
+        if kind == "Ambiguous":
+            detail = ", ".join(f"{pid} ({label})" for pid, label in result.candidates)
+            raise PolicyError(
+                f"capability '{cid}' is ambiguous across applications: {detail}"
+            )
+        if kind == "NotFound":
+            return None
+        if kind == "Resolved":
+            operation_id = result.public_id
+            read_only = result.read_only
+            application_id = result.record.application_id
+            if not result.read_only:
+                raise PolicyError(
+                    f"capability '{cid}' maps to a data-changing operation; "
+                    "not callable in this version"
+                )
+
     return CapabilityBinding(
         capability_id=record.id or cid,
-        operation_id=record.operation_id,
-        read_only=record.read_only,
+        operation_id=operation_id,
+        read_only=read_only,
         permission=record.permission,
+        application_id=application_id,
     )
 
 
@@ -60,7 +97,11 @@ def assert_call_matches_binding(
     """
     _ = path  # no path on CapabilityRecord; ignore client path for bind checks
     if operation_id is not None and str(operation_id).strip():
-        if str(operation_id).strip() != binding.operation_id:
+        client = str(operation_id).strip()
+        bound = binding.operation_id
+        # Allow legacy short ids when the bound value is application-qualified.
+        short = bound.split(":", 1)[-1]
+        if client != bound and client != short and client.lower() != bound.lower():
             raise PolicyError(
                 f"operation_id '{operation_id}' does not match capability "
                 f"'{binding.capability_id}' bound to '{binding.operation_id}'"
@@ -75,6 +116,7 @@ def apply_capability_bind(
     catalog: CapabilityLookup,
     *,
     require_bind: bool,
+    resolver: OperationResolveLookup | None = None,
 ) -> dict[str, Any]:
     """Rewrite call_sse_api args using capability_id when present.
 
@@ -90,7 +132,7 @@ def apply_capability_bind(
             raise PolicyError("call_sse_api requires capability_id when capability bind is required")
         return dict(call_args)
 
-    binding = resolve_binding(catalog, capability_id=capability_id)
+    binding = resolve_binding(catalog, capability_id=capability_id, resolver=resolver)
     if binding is None:
         raise PolicyError(f"Unknown or unbound capability_id: {capability_id}")
 
@@ -107,6 +149,8 @@ def apply_capability_bind(
     out = dict(call_args)
     out["capability_id"] = binding.capability_id
     out["operation_id"] = binding.operation_id
+    if binding.application_id:
+        out["application"] = binding.application_id
     if binding.read_only:
         out["method"] = "GET"
     return out

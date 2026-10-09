@@ -171,17 +171,23 @@ async def execute_tool(
             if settings.capability_kg.require_capability_bind or has_capability_id:
                 if catalog is None:
                     raise PolicyError("capability catalog unavailable for bind")
+                resolver = client.operation_resolver()
                 call_args = apply_capability_bind(
                     call_args,
                     catalog,
                     require_bind=settings.capability_kg.require_capability_bind,
+                    resolver=resolver,
                 )
 
             # Gap 2: requiresPermission from bound capability (flag-gated).
             required_perm: str | None = None
             cid = str(call_args.get("capability_id") or "").strip()
             if cid and catalog is not None:
-                binding = resolve_binding(catalog, capability_id=cid)
+                binding = resolve_binding(
+                    catalog,
+                    capability_id=cid,
+                    resolver=client.operation_resolver(),
+                )
                 if binding is not None:
                     required_perm = binding.permission
             assert_capability_permission(

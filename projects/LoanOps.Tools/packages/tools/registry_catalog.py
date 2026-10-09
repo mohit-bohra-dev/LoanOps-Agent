@@ -51,6 +51,12 @@ def catalog_fingerprint(cfg: Settings) -> tuple[tuple[str, int, int], ...]:
         if path.is_file():
             stat = path.stat()
             parts.append((str(path), stat.st_mtime_ns, stat.st_size))
+    from packages.api_index.paths import operations_path
+
+    ops_path = operations_path(cfg.eakg.shard_dir, env)
+    if ops_path.is_file():
+        stat = ops_path.stat()
+        parts.append((str(ops_path), stat.st_mtime_ns, stat.st_size))
     return tuple(parts)
 
 

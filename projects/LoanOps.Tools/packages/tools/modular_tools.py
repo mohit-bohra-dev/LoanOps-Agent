@@ -10,7 +10,8 @@ from packages.common.scopes import EAKG_TOOL_NAMES, tools_for_role, tools_for_sc
 from packages.common.settings import Settings, get_settings
 from packages.db.client import SqlServerClient
 from packages.docs.service import DocsService
-from packages.sse.catalog import find_operation
+from packages.api_index.catalog import OperationCatalog
+from packages.sse.catalog import AmbiguousOperationError, find_operation
 from packages.sse.loader import OpenApiCatalogService
 from packages.sse.tools import SSE_TOOL_NAMES, dispatch_sse_tool
 from packages.sse.types import ApiOperation
@@ -51,6 +52,7 @@ class ModularToolsClient(AbstractToolsClientProvider):
         capability_block: CapabilityBlock | None = eakg_capability_search_block,
         catalog_service: CapabilityCatalogService | None = None,
         settings: Settings | None = None,
+        operation_catalog: OperationCatalog | None = None,
     ) -> None:
         self._sse = sse
         self._db = db
@@ -59,6 +61,7 @@ class ModularToolsClient(AbstractToolsClientProvider):
         self._docs_root = docs_root or Path("data/sops")
         self._capability_block = capability_block
         self._catalog_service = catalog_service
+        self._operation_catalog = operation_catalog
         self._settings = settings
         self._catalog_fingerprint: tuple[tuple[str, int, int], ...] | None = None
         self._catalog_checked_at = 0.0
@@ -73,6 +76,15 @@ class ModularToolsClient(AbstractToolsClientProvider):
     def capability_catalog(self) -> CapabilityCatalogService | None:
         """Cached EAKG catalog service (for MCP bind / readiness)."""
         return self._catalog_service
+
+    def operation_resolver(self) -> Any | None:
+        """Unified operation resolver when the API index catalog is loaded."""
+        if self._operation_catalog is None:
+            return None
+        return self._operation_catalog.resolver
+
+    def operation_catalog(self) -> OperationCatalog | None:
+        return self._operation_catalog
 
     async def readiness_snapshot(self) -> dict[str, Any]:
         """Non-network readiness details for MCP /ready (no live SSE host probe)."""
@@ -114,6 +126,29 @@ class ModularToolsClient(AbstractToolsClientProvider):
             }
             if not svc.shard_dir.is_dir():
                 warnings.append("eakg_shard_dir_missing")
+        catalog_health: dict[str, Any] = {
+            "openapi_only": 0,
+            "eakg_only": 0,
+            "ambiguous": 0,
+            "capabilities_unbound": 0,
+            "operation_count": 0,
+        }
+        if self._operation_catalog is not None:
+            from packages.api_index.catalog import mismatch_report
+
+            report = mismatch_report(
+                self._operation_catalog.op_set,
+                svc.catalog() if svc is not None else None,
+            )
+            catalog_health = {
+                "openapi_only": len(report["openapi_only"]),
+                "eakg_only": len(report["eakg_only"]),
+                "ambiguous": len(report["ambiguous"]),
+                "capabilities_unbound": len(report["capabilities_unbound"]),
+                "operation_count": len(self._operation_catalog.ops),
+            }
+            if catalog_health["ambiguous"] or catalog_health["eakg_only"]:
+                warnings.append("api_index_join_gaps")
         return {
             "openapi": openapi,
             "openapi_sidecar": {
@@ -122,6 +157,7 @@ class ModularToolsClient(AbstractToolsClientProvider):
                 "coverage": coverage,
             },
             "eakg": eakg,
+            "catalog_health": catalog_health,
             "warnings": warnings,
         }
 
@@ -143,12 +179,16 @@ class ModularToolsClient(AbstractToolsClientProvider):
     ) -> ApiOperation | None:
         """Look up a catalog operation. Does not call the API."""
         catalog = await self._sse.load()
-        return find_operation(
-            catalog.operations,
-            operation_id=operation_id,
-            method=method,
-            path=path,
-        )
+        try:
+            return find_operation(
+                catalog.operations,
+                operation_id=operation_id,
+                method=method,
+                path=path,
+                resolver=self.operation_resolver(),
+            )
+        except AmbiguousOperationError as exc:
+            raise ToolPolicyError(str(exc)) from exc
 
     def _maybe_reload_catalog(self) -> None:
         if self._settings is None:
@@ -167,6 +207,22 @@ class ModularToolsClient(AbstractToolsClientProvider):
             return
         if current != self._catalog_fingerprint:
             self._sse.reload_registry()
+            if self._settings is not None:
+                from packages.api_index.catalog import OperationCatalog
+                from packages.eakg.registry import RepositoryRegistry
+                from packages.eakg.store import ShardStore
+
+                registry = RepositoryRegistry(self._settings.eakg.registry_path)
+                store = ShardStore(self._settings.eakg.shard_dir)
+                caps = None
+                if self._catalog_service is not None:
+                    caps = self._catalog_service.catalog()
+                self._operation_catalog = OperationCatalog.load_or_build(
+                    registry,
+                    store,
+                    self._settings.eakg.environment,
+                    capabilities=caps,
+                )
             self._catalog_fingerprint = current
 
     async def call(self, tool: ToolCall) -> ToolResult:

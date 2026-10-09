@@ -6,6 +6,7 @@ requires-python = ">=3.11,<3.13"
 dependencies = [
     "loanops-common",
     "loanops-tools",
+    "loanops-api-index",
     "loanops-eakg",
     "loanops-capability-kg",
     "mcp>=1.27.1",

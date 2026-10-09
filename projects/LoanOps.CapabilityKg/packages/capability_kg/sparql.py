@@ -17,7 +17,7 @@ _NS = _initns()
 # Shared projection: label/comment + op id/path + review metadata.
 _SELECT = (
     "SELECT ?capability ?label ?description ?operationId ?httpPath "
-    "?readOnly ?status ?permission"
+    "?readOnly ?status ?permission ?app"
 )
 _OP_OPTIONALS = """
       OPTIONAL { ?capability rdfs:comment ?description }
@@ -29,6 +29,11 @@ _OP_OPTIONALS = """
       OPTIONAL { ?capability loanops:hasReviewStatus ?status }
       OPTIONAL { ?capability loanops:requiresPermission ?perm .
                  ?perm rdfs:label ?permission }
+      OPTIONAL {
+        { ?capability loanops:belongsToApp ?app }
+        UNION
+        { ?capability loanops:implementedBy ?appOp . ?appOp loanops:belongsToApp ?app }
+      }
 """
 
 _Q_BY_LABEL_CONTAINS = prepareQuery(
@@ -174,6 +179,7 @@ def _row(binding: object) -> dict[str, str | bool | None]:
         "read_only": read_bool,
         "review_status": str(_get("status")) if _get("status") is not None else None,
         "permission": str(_get("permission")) if _get("permission") is not None else None,
+        "application_uri": str(_get("app")) if _get("app") is not None else None,
     }
 
 

@@ -1736,6 +1736,7 @@ name = "loanops-mcp-server"
 version = "0.1.0"
 source = { editable = "projects/LoanOps.McpServer" }
 dependencies = [
+    { name = "loanops-api-index" },
     { name = "loanops-capability-kg" },
     { name = "loanops-common" },
     { name = "loanops-eakg" },
@@ -1746,6 +1747,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "loanops-api-index", editable = "projects/LoanOps.ApiIndex" },
     { name = "loanops-capability-kg", editable = "projects/LoanOps.CapabilityKg" },
     { name = "loanops-common", editable = "projects/LoanOps.Common" },
     { name = "loanops-eakg", editable = "projects/LoanOps.Eakg" },

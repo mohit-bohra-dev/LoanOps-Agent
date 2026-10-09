@@ -34,6 +34,7 @@ class CapabilityRecord:
     permission: str | None
     uri: str | None = None
     http_path: str | None = None
+    application_id: str | None = None
 
     def summary_line(self) -> str:
         bits = [f"- capability: {self.id}"]
@@ -52,9 +53,22 @@ class CapabilityRecord:
         return "\n".join(bits)
 
 
+def _app_id_from_uri(uri: str | None) -> str | None:
+    if not uri:
+        return None
+    local = uri.rsplit("/", 1)[-1].rsplit("#", 1)[-1]
+    if local.startswith("app_"):
+        return local[4:] or None
+    return local or None
+
+
 def _to_record(row: dict[str, str | bool | None]) -> CapabilityRecord:
     read = row.get("read_only")
     read_bool = read if isinstance(read, bool) else None
+    app_raw = row.get("application_id")
+    app_id = str(app_raw) if isinstance(app_raw, str) and app_raw else _app_id_from_uri(
+        str(row["application_uri"]) if row.get("application_uri") is not None else None
+    )
     return CapabilityRecord(
         id=str(row.get("id") or ""),
         description=str(row["description"]) if row.get("description") is not None else None,
@@ -64,6 +78,7 @@ def _to_record(row: dict[str, str | bool | None]) -> CapabilityRecord:
         permission=str(row["permission"]) if row.get("permission") is not None else None,
         uri=str(row["uri"]) if row.get("uri") is not None else None,
         http_path=str(row["http_path"]) if row.get("http_path") is not None else None,
+        application_id=app_id,
     )
 
 

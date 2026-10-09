@@ -120,3 +120,93 @@ def test_non_get_method_raises() -> None:
             catalog,
             require_bind=False,
         )
+
+
+def test_resolver_maps_to_public_id() -> None:
+    from packages.api_index.records import UnifiedOperation
+    from packages.api_index.resolver import OperationResolver
+
+    catalog = _StubCatalog(
+        {
+            "get_loan_summary": CapabilityRecord(
+                id="get_loan_summary",
+                description="Get loan summary",
+                operation_id="GetLoanSummary",
+                read_only=True,
+                review_status="approved",
+                permission="loan.read",
+                application_id="loanservices",
+            )
+        }
+    )
+    resolver = OperationResolver(
+        [
+            UnifiedOperation(
+                uid="loanservices|GET|/api/loans/{}/summary",
+                public_id="loanservices:getLoanSummary",
+                application_id="loanservices",
+                application_label="Loan Services",
+                environment="local",
+                method="get",
+                path="/api/Loans/{loan_id}/Summary",
+                normalized_path="/api/loans/{}/summary",
+                read_only=True,
+                callable=True,
+                eakg_operation_key="GetLoanSummary",
+                join="suffix",
+            )
+        ]
+    )
+    out = apply_capability_bind(
+        {"capability_id": "get_loan_summary", "path_params": {"loan_id": "L-1"}},
+        catalog,
+        require_bind=False,
+        resolver=resolver,
+    )
+    assert out["operation_id"] == "loanservices:getLoanSummary"
+    assert out["application"] == "loanservices"
+    assert out["method"] == "GET"
+
+
+def test_resolver_rejects_non_read_only() -> None:
+    from packages.api_index.records import UnifiedOperation
+    from packages.api_index.resolver import OperationResolver
+
+    catalog = _StubCatalog(
+        {
+            "start_plan": CapabilityRecord(
+                id="start_plan",
+                description="Start a plan",
+                operation_id="startPlan",
+                read_only=False,
+                review_status="approved",
+                permission="loan.write",
+                application_id="loanservices",
+            )
+        }
+    )
+    resolver = OperationResolver(
+        [
+            UnifiedOperation(
+                uid="loanservices|POST|/api/plans",
+                public_id="loanservices:startPlan",
+                application_id="loanservices",
+                application_label="Loan Services",
+                environment="local",
+                method="post",
+                path="/api/plans",
+                normalized_path="/api/plans",
+                read_only=False,
+                callable=False,
+                eakg_operation_key="startPlan",
+                join="exact",
+            )
+        ]
+    )
+    with pytest.raises(PolicyError, match="data-changing"):
+        apply_capability_bind(
+            {"capability_id": "start_plan"},
+            catalog,
+            require_bind=False,
+            resolver=resolver,
+        )

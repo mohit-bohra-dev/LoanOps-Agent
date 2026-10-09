@@ -25,7 +25,9 @@ def _parse_parameters(raw: list[Any]) -> list[ApiParameter]:
         location = item.get("in")
         if not isinstance(name, str) or location not in ("path", "query", "header", "cookie"):
             continue
-        schema = item.get("schema") if isinstance(item.get("schema"), dict) else {}
+        raw_schema = item.get("schema")
+        schema: dict[str, Any] = raw_schema if isinstance(raw_schema, dict) else {}
+        schema_type = schema.get("type")
         params.append(
             ApiParameter(
                 name=name,
@@ -34,7 +36,7 @@ def _parse_parameters(raw: list[Any]) -> list[ApiParameter]:
                 description=item.get("description")
                 if isinstance(item.get("description"), str)
                 else None,
-                schema_type=schema.get("type") if isinstance(schema.get("type"), str) else None,
+                schema_type=schema_type if isinstance(schema_type, str) else None,
             )
         )
     return params
@@ -45,7 +47,8 @@ def _extract_server_url(doc: dict[str, Any], fallback_base: str) -> str | None:
     if isinstance(servers, list) and servers:
         first = servers[0]
         if isinstance(first, dict) and isinstance(first.get("url"), str) and first["url"].strip():
-            return urljoin(fallback_base + "/", first["url"]).rstrip("/")
+            joined: str = urljoin(fallback_base + "/", str(first["url"])).rstrip("/")
+            return joined
     host = doc.get("host")
     if isinstance(host, str):
         schemes = doc.get("schemes")
@@ -84,12 +87,24 @@ def parse_openapi_document(
             if isinstance(op_raw.get("parameters"), list):
                 params.extend(_parse_parameters(op_raw["parameters"]))
             tags = [t for t in op_raw.get("tags", []) if isinstance(t, str)]
+            # GET/HEAD: ignore Swagger 2 `consumes` so legitimate reads stay callable.
+            has_body = op_raw.get("requestBody") is not None
+            params_raw = op_raw.get("parameters")
+            if method in {"get", "head"}:
+                if isinstance(params_raw, list):
+                    has_body = has_body or any(
+                        isinstance(p, dict) and p.get("in") in {"body", "formData"}
+                        for p in params_raw
+                    )
+            elif "consumes" in op_raw:
+                has_body = True
+            http_method: Any = method
             operations.append(
                 ApiOperation(
                     id=f"{source_id}:{stable}",
                     source_id=source_id,
                     source_label=source_label,
-                    method=method,  # type: ignore[arg-type]
+                    method=http_method,
                     path=path_key,
                     operation_id=op_id,
                     summary=op_raw.get("summary")
@@ -100,13 +115,16 @@ def parse_openapi_document(
                     else None,
                     tags=tags,
                     parameters=params,
-                    has_request_body=op_raw.get("requestBody") is not None
-                    or "consumes" in op_raw,
+                    has_request_body=has_body,
                     server_url=server_url,
                     source_base_url=fallback_base.rstrip("/"),
                 )
             )
     return operations
+
+
+class AmbiguousOperationError(ValueError):
+    """Raised when an operation_id matches more than one unified record."""
 
 
 def find_operation(
@@ -115,8 +133,38 @@ def find_operation(
     operation_id: str | None = None,
     method: str | None = None,
     path: str | None = None,
+    resolver: Any | None = None,
 ) -> ApiOperation | None:
     by_id = (operation_id or "").strip()
+    if by_id and resolver is not None:
+        result = resolver.resolve(by_id)
+        kind = type(result).__name__
+        if kind == "Resolved":
+            public_id = result.public_id
+            for op in catalog_ops:
+                if op.id == public_id or op.id.lower() == public_id.lower():
+                    return op
+            rec = result.record
+            return ApiOperation(
+                id=rec.public_id,
+                source_id=rec.application_id,
+                source_label=rec.application_label,
+                method=rec.method,
+                path=rec.path,
+                operation_id=rec.public_id.split(":", 1)[-1],
+                summary=rec.summary,
+                description=rec.description,
+                tags=list(rec.tags),
+                parameters=list(rec.parameters),
+                has_request_body=rec.has_request_body,
+                server_url=rec.server_url,
+                source_base_url=rec.source_base_url,
+            )
+        if kind == "Ambiguous":
+            detail = ", ".join(f"{pid} ({label})" for pid, label in result.candidates)
+            raise AmbiguousOperationError(
+                f"ambiguous operation '{by_id}': {detail} — pass the application-qualified id"
+            )
     if by_id:
         for op in catalog_ops:
             if (

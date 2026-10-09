@@ -52,22 +52,22 @@ todos:
     status: completed
   - id: p2-unified-record
     content: "Implement UnifiedOperation, build_operations (public_id collision rules, read_only/callable rules) and atomic operations.json persistence with per-app inputs hashes"
-    status: pending
+    status: completed
   - id: p2-capability-app-id
-    content: "Add application_id to CapabilityRecord and populate it in packages/eakg/merge.py from the source shard repo"
-    status: pending
+    content: "Add application_id to CapabilityRecord from belongsToApp SPARQL (spec §8.2; merge.py unchanged)"
+    status: completed
   - id: p2-resolver
     content: "Implement OperationResolver alias map (spec §3.3) and OperationCatalog runtime loader with fingerprint; make sse.catalog.find_operation delegate to the resolver and raise ambiguous errors"
-    status: pending
+    status: completed
   - id: p2-bind-fix
     content: "Update mcp_server/capability_bind.py so resolve_binding maps capability operation_id to the unified public_id (with application_id) and rejects non-read-only capabilities"
-    status: pending
+    status: completed
   - id: p2-mismatch-report
     content: "Add 'python -m packages.api_index report' and catalog_health counters in readiness_snapshot (openapi_only, eakg_only, ambiguous, capabilities_unbound)"
-    status: pending
+    status: completed
   - id: p2-tests
     content: "Add P2 tests from spec §14.1 (normalize table, join cases incl. /{id}/Summary vs /api/Loans/{loan_id}/Summary, resolver aliases and ambiguity, bind fix, report)"
-    status: pending
+    status: completed
   - id: p2-quality-gates
     content: "Run mypy --strict, pytest, check_project_refs, grep gates, make demo smoke and graphify update for Phase 2"
     status: pending
@@ -404,4 +404,5 @@ Invoke-RestMethod http://127.0.0.1:8001/ready
 - 2026-10-09: G1–G3 approved by starting Phase 1 (repo owner). ADR-024 Accepted. Done: settings, registry schema, mapping, validate, TAAC import. Next: spec cache, onboard wire, catalog-from-cache.
 - 2026-10-09: API index store is pgvector (`VECTOR_STORE__PROVIDER=pgvector` in `.env.example`, ADR-024, spec D6). `VectorStoreConfig.provider` default stays `qdrant` so a machine without Postgres still boots the old demo. Spec cache, onboard/`spec-refresh`/`sync_nightly`, registry catalog (no swagger at boot), local fixtures, and tests are in. `p1-quality-gates` still open (`make demo`, contract suite, grep gates).
 - 2026-10-09: G4 approved (repo owner). Phase 2 starts: scaffold `projects/LoanOps.ApiIndex`.
+- 2026-10-09: Phase 2 core done — `build_operations` → `operations.json`, `OperationResolver`, bind → `public_id`, `CapabilityRecord.application_id` via `belongsToApp`, `api_index report` / `build`, readiness `catalog_health`. `p2-quality-gates` still open (`make demo`).
 - Approval decisions for G1–G10: (record here).
