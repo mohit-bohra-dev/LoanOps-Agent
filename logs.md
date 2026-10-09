@@ -1,3 +1,17 @@
+## [2026-10-09] — MCP discovery answer gaps
+
+**Session type:** Fix (TESTX chat review)
+
+**Completed:**
+- `format_search_outcome`: `backend:` always first; `invoke` GET-only (not HEAD); `params: none in cached spec`
+- EAKG: `search_capabilities` prefers GET + `non_get_omitted`; `find_providers` keeps all methods; `mcp_invoke` = GET only
+- MCP tool descriptions match those contracts
+- Review findings from ecc-code-reviewer + ecc-architect addressed; MCP `:8001` restarted
+
+**Not done:** real query-parameter names. Local fixtures come from `interface.json` (path tokens only). Needs a swagger refresh.
+
+---
+
 ## [2026-10-09] — GraphRAG review recorded (ADR-025)
 
 **Session type:** Docs / decision

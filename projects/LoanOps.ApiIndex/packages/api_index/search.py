@@ -514,7 +514,7 @@ def format_search_outcome(outcome: SearchOutcome, query: str) -> str:
     """Render SearchOutcome for search_sse_apis tool text."""
     if not outcome.hits:
         return "No matching SSE API operations."
-    lines: list[str] = []
+    lines: list[str] = [f"backend: {outcome.backend}"]
     if not outcome.confident:
         lines.append(
             f'No confident match for "{query}" — the operations below are the closest, '
@@ -526,6 +526,15 @@ def format_search_outcome(outcome: SearchOutcome, query: str) -> str:
         api = unified_to_api_operation(hit.record)
         from packages.sse.catalog import summarize_operation
 
-        lines.append(summarize_operation(api))
+        block = summarize_operation(api)
+        method = (api.method or "").lower()
+        # Match assert_sse_read_only: call_sse_api accepts resolved GET only.
+        if method == "get":
+            block += "\n  invoke: call_sse_api"
+        else:
+            block += "\n  invoke: not via call_sse_api (GET-only)"
+        if not api.parameters:
+            block += "\n  params: none in cached spec"
+        lines.append(block)
     return "\n".join(lines)
 

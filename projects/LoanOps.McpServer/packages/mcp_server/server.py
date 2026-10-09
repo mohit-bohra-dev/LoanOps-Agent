@@ -317,10 +317,15 @@ def create_app(cfg: Settings | None = None) -> Starlette:
     @mcp.tool(
         name="search_sse_apis",
         description=(
-            "Search SSE OpenAPI catalogs by keywords. Prefer this before call_sse_api. "
-            "Optional application (app id) and permission filters narrow results. "
-            "When the tool reports no confident match, say no matching operation was "
-            "found rather than guessing."
+            "Search SSE OpenAPI operations. Look for the line `backend: vector_index`, "
+            "`backend: sidecar`, or `backend: keyword` — repeat that label; do not call "
+            "it keyword search unless that line says keyword. Each hit has "
+            "invoke: call_sse_api (GET only) or invoke: not via call_sse_api "
+            "(GET-only). Pass only call_sse_api hits to call_sse_api. "
+            "params: none in cached spec means the spec cache has no parameters, "
+            "not that the live API has none. Optional application and permission "
+            "filters narrow results. When the tool reports no confident match, say "
+            "no matching operation was found rather than guessing."
         ),
         annotations=_READ_ONLY,
     )
@@ -400,8 +405,10 @@ def create_app(cfg: Settings | None = None) -> Starlette:
     @mcp.tool(
         name="search_capabilities",
         description=(
-            "Search the enterprise capability knowledge graph by keyword. "
-            "Returns capabilities with provenance when available."
+            "Search the enterprise capability knowledge graph for invoke discovery. "
+            "GET hits are preferred; non-GET are omitted when any GET exists "
+            "(non_get_omitted counts dropped writes). mcp_invoke true means "
+            "call_sse_api can run it. Provenance included when available."
         ),
         annotations=_READ_ONLY,
     )
@@ -421,7 +428,11 @@ def create_app(cfg: Settings | None = None) -> Starlette:
 
     @mcp.tool(
         name="find_providers",
-        description="Which application/API provides a capability or operation name.",
+        description=(
+            "Which application/API provides a capability or operation name. "
+            "Returns all methods (including POST). mcp_invoke true means "
+            "call_sse_api can run it; false is discovery-only."
+        ),
         annotations=_READ_ONLY,
     )
     async def find_providers_tool(query: str) -> str:

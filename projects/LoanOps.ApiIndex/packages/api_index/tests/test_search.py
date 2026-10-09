@@ -13,6 +13,8 @@ from packages.api_index.keyword_index import KeywordIndex
 from packages.api_index.records import OperationSet, UnifiedOperation, normalize_path, uid
 from packages.api_index.search import (
     ApiSearchService,
+    SearchHit,
+    SearchOutcome,
     _MIN_CONFIDENT_SCORE,
     backend_header,
     format_search_outcome,
@@ -259,6 +261,60 @@ async def test_no_confident_match_header(tmp_path: Path) -> None:
         out.hits[0].score = _MIN_CONFIDENT_SCORE - 0.01
         text2 = format_search_outcome(out, "zzzznotanoperation")
         assert "No confident match" in text2
+
+
+def test_format_states_backend_invoke_and_missing_params() -> None:
+    op = _op(
+        app="escrow",
+        public="escrow:GetLatest",
+        path="/api/EscrowAnalysis/GetLatest",
+        summary="latest analysis",
+    )
+    write = _op(
+        app="escrow",
+        public="escrow:Perform",
+        path="/api/SingleEscrowAnalysis/Perform",
+        summary="run analysis",
+        method="post",
+        read_only=False,
+    )
+    head = _op(
+        app="escrow",
+        public="escrow:HeadLatest",
+        path="/api/EscrowAnalysis/HeadLatest",
+        summary="head probe",
+        method="head",
+        read_only=True,
+    )
+    text = format_search_outcome(
+        SearchOutcome(
+            hits=[
+                SearchHit(record=op, score=0.9),
+                SearchHit(record=write, score=0.4),
+                SearchHit(record=head, score=0.3),
+            ],
+            backend="vector_index",
+            confident=True,
+        ),
+        "escrow analysis",
+    )
+    assert text.startswith("backend: vector_index")
+    assert "invoke: call_sse_api" in text
+    assert "invoke: not via call_sse_api (GET-only)" in text
+    assert "params: none in cached spec" in text
+    # HEAD must not be labeled callable (policy is GET-only).
+    assert text.count("invoke: not via call_sse_api (GET-only)") >= 2
+
+    weak = format_search_outcome(
+        SearchOutcome(
+            hits=[SearchHit(record=op, score=0.2)],
+            backend="vector_index",
+            confident=False,
+        ),
+        "zzzz",
+    )
+    assert weak.startswith("backend: vector_index")
+    assert "No confident match" in weak
 
 
 @pytest.mark.asyncio

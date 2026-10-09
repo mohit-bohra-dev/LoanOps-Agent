@@ -105,6 +105,8 @@ def _operation_fields(
             row[str(p).rsplit("/", 1)[-1]] = str(o)
         evidence.append(row)
     result["evidence"] = evidence
+    # Match call_sse_api policy: resolved GET only (HEAD rejected).
+    result["mcp_invoke"] = str(result.get("http_method") or "").upper() == "GET"
     return result
 
 
@@ -166,13 +168,13 @@ def explain_capability(
     return result
 
 
-def search_capabilities(
+def _search_capability_rows(
     g: Graph,
     query: str,
     *,
     namespace: str = DEFAULT_NAMESPACE,
-    limit: int = 20,
 ) -> list[dict[str, Any]]:
+    """Score-ranked capability/operation rows (all HTTP methods)."""
     ns = loanops_ns(namespace)
     q, tokens = _query_tokens(query)
     scored: list[tuple[int, dict[str, Any]]] = []
@@ -208,7 +210,25 @@ def search_capabilities(
         _add(score, _explain_from_operation(g, op, namespace=namespace, capability_id=oid or path))
 
     scored.sort(key=lambda t: (t[0], str(t[1].get("id") or "")))
-    return [row for _, row in scored[:limit]]
+    return [row for _, row in scored]
+
+
+def search_capabilities(
+    g: Graph,
+    query: str,
+    *,
+    namespace: str = DEFAULT_NAMESPACE,
+    limit: int = 20,
+) -> list[dict[str, Any]]:
+    """Invoke-oriented search: prefer GET when any GET hit exists."""
+    rows = _search_capability_rows(g, query, namespace=namespace)
+    reads = [row for row in rows if str(row.get("http_method") or "").upper() == "GET"]
+    chosen = reads if reads else rows
+    out = chosen[:limit]
+    omitted = len(rows) - len(reads) if reads else 0
+    if omitted > 0 and out:
+        out[0] = {**out[0], "non_get_omitted": omitted}
+    return out
 
 
 def find_providers(
@@ -217,10 +237,11 @@ def find_providers(
     *,
     namespace: str = DEFAULT_NAMESPACE,
 ) -> list[dict[str, Any]]:
+    """Discovery/impact: all methods. mcp_invoke marks call_sse_api eligibility."""
     explained = explain_capability(g, capability_or_op, namespace=namespace)
     if explained and explained.get("application"):
         return [explained]
-    return search_capabilities(g, capability_or_op, namespace=namespace, limit=10)
+    return _search_capability_rows(g, capability_or_op, namespace=namespace)[:10]
 
 
 def impact_of_change(
