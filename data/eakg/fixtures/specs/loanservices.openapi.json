@@ -1,13 +1,5521 @@
 {
   "openapi": "3.0.3",
-  "info": {"title": "Loan Services (synthetic)", "version": "1.0.0"},
+  "info": {
+    "title": "Loan Services (from EAKG interface)",
+    "version": "1.0.0"
+  },
   "paths": {
-    "/api/Loans/{loan_id}/Summary": {
+    "/": {
+      "put": {
+        "operationId": "DelinquencyUpdate",
+        "summary": "DelinquencyUpdate (DelinquenciesController)",
+        "tags": [
+          "DelinquenciesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
       "get": {
-        "operationId": "getLoanSummary",
-        "summary": "Get loan summary",
+        "operationId": "GetByReadRequest",
+        "summary": "GetByReadRequest (EscrowDisbursementTransactionsController)",
+        "tags": [
+          "EscrowDisbursementTransactionsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "operationId": "ExecuteCommand",
+        "summary": "ExecuteCommand (RedisConsoleController)",
+        "tags": [
+          "RedisConsoleController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AcceptTermsAndConditions": {
+      "put": {
+        "operationId": "UpdateTermsOfAcceptance",
+        "summary": "UpdateTermsOfAcceptance (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/BorrowerContactException": {
+      "put": {
+        "operationId": "UpdateBorrowerContactException",
+        "summary": "UpdateBorrowerContactException (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetAcceptedTermsAndConditions": {
+      "get": {
+        "operationId": "GetBorrowerTermsOfAcceptanceAsync",
+        "summary": "GetBorrowerTermsOfAcceptanceAsync (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/GetTermsOfAcceptanceByAcceptanceId": {
+      "get": {
+        "operationId": "GetTermsOfAcceptanceByAcceptanceId",
+        "summary": "GetTermsOfAcceptanceByAcceptanceId (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/LoanStatusRulesPersist": {
+      "post": {
+        "operationId": "UpdateLoanStatusBar",
+        "summary": "UpdateLoanStatusBar (LoanStatusesController)",
+        "tags": [
+          "LoanStatusesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Loans/InspectionSuppression/ResetScheduledToComplete": {
+      "get": {
+        "operationId": "ResetScheduledToComplete",
+        "summary": "ResetScheduledToComplete (InspectionSuppressionController)",
+        "tags": [
+          "InspectionSuppressionController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Loans/InspectionSuppression/ResetScheduledToPending": {
+      "get": {
+        "operationId": "ResetScheduledToPending",
+        "summary": "ResetScheduledToPending (InspectionSuppressionController)",
+        "tags": [
+          "InspectionSuppressionController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Loans/{LoanId}/GetAttorneyByLoanId": {
+      "get": {
+        "operationId": "GetAttorneyByLoanId",
+        "summary": "GetAttorneyByLoanId (AttorneyController)",
+        "tags": [
+          "AttorneyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
         "parameters": [
-          {"name": "loan_id", "in": "path", "required": true, "schema": {"type": "string"}}
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/Loans/{LoanId}/SetAttorneyByLoanId": {
+      "put": {
+        "operationId": "SetAttorneyByLoanId",
+        "summary": "SetAttorneyByLoanId (AttorneyController)",
+        "tags": [
+          "AttorneyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Loans/{id}/InspectionSuppression/Recalculate": {
+      "post": {
+        "operationId": "Recalculate",
+        "summary": "Recalculate (InspectionSuppressionController)",
+        "tags": [
+          "InspectionSuppressionController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ParentLoanMappingTypeSet": {
+      "post": {
+        "operationId": "ParentLoanMappingTypeSet",
+        "summary": "ParentLoanMappingTypeSet (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/PaymentHierarchyPlanGet": {
+      "get": {
+        "operationId": "GetPaymentHierarchyPlan",
+        "summary": "GetPaymentHierarchyPlan (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/PaymentHierarchyPlanSet": {
+      "post": {
+        "operationId": "PaymentHierarchyPlanSet",
+        "summary": "PaymentHierarchyPlanSet (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/RenoManagementSet": {
+      "post": {
+        "operationId": "RenoManagementSet",
+        "summary": "RenoManagementSet (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/UpdateLoanContactRestriction": {
+      "put": {
+        "operationId": "UpdateCeaseAndDesist",
+        "summary": "UpdateCeaseAndDesist (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Validations": {
+      "post": {
+        "operationId": "GetServicingTransfersValidation",
+        "summary": "GetServicingTransfersValidation (ServicingTransfersController)",
+        "tags": [
+          "ServicingTransfersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/[action]": {
+      "put": {
+        "operationId": "UpdateBorrowerEmail",
+        "summary": "UpdateBorrowerEmail (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "DeleteBorrowerEmail",
+        "summary": "DeleteBorrowerEmail (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GetBorrowersByLast4SSNAndZipCode",
+        "summary": "GetBorrowersByLast4SSNAndZipCode (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "UpdateOriginalLoan",
+        "summary": "UpdateOriginalLoan (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ArmIndexValue": {
+      "put": {
+        "operationId": "ArmIndexValueUpdate",
+        "summary": "ArmIndexValueUpdate (ArmIndexValueController)",
+        "tags": [
+          "ArmIndexValueController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "ArmIndexValueDelete",
+        "summary": "ArmIndexValueDelete (ArmIndexValueController)",
+        "tags": [
+          "ArmIndexValueController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ArmInterestRate": {
+      "put": {
+        "operationId": "ArmInterestRateUpdate",
+        "summary": "ArmInterestRateUpdate (ArmInterestRateController)",
+        "tags": [
+          "ArmInterestRateController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AssistanceProgramEndDateCalculate": {
+      "get": {
+        "operationId": "GetAssistanceProgramEndDateCalculate",
+        "summary": "GetAssistanceProgramEndDateCalculate (AssistanceProgramEnrollmentController)",
+        "tags": [
+          "AssistanceProgramEnrollmentController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/AssistanceProgramEngagement": {
+      "put": {
+        "operationId": "PutAssistanceProgramEngagement",
+        "summary": "PutAssistanceProgramEngagement (AssistanceProgramEngagementController)",
+        "tags": [
+          "AssistanceProgramEngagementController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AssistanceProgramEnrollment": {
+      "put": {
+        "operationId": "PutAssistanceProgramEnrollment",
+        "summary": "PutAssistanceProgramEnrollment (AssistanceProgramEnrollmentController)",
+        "tags": [
+          "AssistanceProgramEnrollmentController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/BorrowerRelationship/GetByClientContact": {
+      "get": {
+        "operationId": "GetBorrowerRelationshipByClientContactId",
+        "summary": "GetBorrowerRelationshipByClientContactId (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/BorrowerRelationship/SetContactAssociation": {
+      "put": {
+        "operationId": "SetContactAssociation",
+        "summary": "SetContactAssociation (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Borrowers/{BorrowerId}/LoanSummary": {
+      "get": {
+        "operationId": "GetLoanSummaryByBorrowerId",
+        "summary": "GetLoanSummaryByBorrowerId (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "BorrowerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/BuydownSubsidy": {
+      "put": {
+        "operationId": "Put",
+        "summary": "Put (BuydownSubsidyController)",
+        "tags": [
+          "BuydownSubsidyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "Delete",
+        "summary": "Delete (BuydownSubsidyController)",
+        "tags": [
+          "BuydownSubsidyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/BuyoutSummaryBatch": {
+      "post": {
+        "operationId": "GetBuyoutSummaryBatch",
+        "summary": "GetBuyoutSummaryBatch (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Cache": {
+      "get": {
+        "operationId": "Get_2",
+        "summary": "Get (CacheController)",
+        "tags": [
+          "CacheController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "Delete_2",
+        "summary": "Delete (CacheController)",
+        "tags": [
+          "CacheController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Cache/Delete": {
+      "post": {
+        "operationId": "DeleteByPost",
+        "summary": "DeleteByPost (CacheController)",
+        "tags": [
+          "CacheController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Cache/[action]": {
+      "post": {
+        "operationId": "DeleteFinTran",
+        "summary": "DeleteFinTran (CacheController)",
+        "tags": [
+          "CacheController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Cache/{LoanId}/DeleteCashInclude": {
+      "post": {
+        "operationId": "DeleteCashInclude",
+        "summary": "DeleteCashInclude (CacheController)",
+        "tags": [
+          "CacheController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ContactAttemptsBulkUpload/[action]": {
+      "get": {
+        "operationId": "TriggerContactAttemptsBulkHangfireJob",
+        "summary": "TriggerContactAttemptsBulkHangfireJob (ContactAttemptsBulkController)",
+        "tags": [
+          "ContactAttemptsBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/DoorKnockBulkUpload/[action]": {
+      "get": {
+        "operationId": "TriggerDoorKnockBulkHangfireJob",
+        "summary": "TriggerDoorKnockBulkHangfireJob (DoorKnockBulkController)",
+        "tags": [
+          "DoorKnockBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Draws": {
+      "get": {
+        "operationId": "Get_3",
+        "summary": "Get (DrawsController)",
+        "tags": [
+          "DrawsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/EventTriggers/RecalculatePaymentSchedule": {
+      "put": {
+        "operationId": "UpdateByMasterFileChangedMessage",
+        "summary": "UpdateByMasterFileChangedMessage (PaymentSchedulesController)",
+        "tags": [
+          "PaymentSchedulesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/FeeWaiveReason": {
+      "post": {
+        "operationId": "UpdateFeeWaiveReason",
+        "summary": "UpdateFeeWaiveReason (FeeWaiveReasonController)",
+        "tags": [
+          "FeeWaiveReasonController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/FloodDetermination": {
+      "put": {
+        "operationId": "PropertyFloodDeterminationUpdate",
+        "summary": "PropertyFloodDeterminationUpdate (FloodDeterminationController)",
+        "tags": [
+          "FloodDeterminationController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/GetLoanServicingTransferUpdateBatch": {
+      "post": {
+        "operationId": "GetLoanServicingTransferUpdateBatch",
+        "summary": "GetLoanServicingTransferUpdateBatch (LoanServicingTransfersController)",
+        "tags": [
+          "LoanServicingTransfersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/HomeEquity/Draws": {
+      "get": {
+        "operationId": "GetAllDraws",
+        "summary": "GetAllDraws (DrawsController)",
+        "tags": [
+          "DrawsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/HomeEquity/{id}": {
+      "get": {
+        "operationId": "Get_5",
+        "summary": "Get (HomeEquityController)",
+        "tags": [
+          "HomeEquityController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "PatchAsync",
+        "summary": "PatchAsync (HomeEquityController)",
+        "tags": [
+          "HomeEquityController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/HomeEquity/{id}/Draws": {
+      "get": {
+        "operationId": "GetDrawsByLoanIdAsync",
+        "summary": "GetDrawsByLoanIdAsync (DrawsController)",
+        "tags": [
+          "DrawsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/InvestorPool": {
+      "post": {
+        "operationId": "InvestorPoolUpdate",
+        "summary": "InvestorPoolUpdate (TransferHistoryController)",
+        "tags": [
+          "TransferHistoryController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/InvestorTransferBatch": {
+      "post": {
+        "operationId": "GetInvestorTransferBatch",
+        "summary": "GetInvestorTransferBatch (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LAFAClaimsSettlementBulkCreate/TriggerLAFAClaimsSettlementHangfireJob": {
+      "get": {
+        "operationId": "TriggerLAFAClaimsSettlementHangfireJob",
+        "summary": "TriggerLAFAClaimsSettlementHangfireJob (LAFAClaimsSettlementBulkController)",
+        "tags": [
+          "LAFAClaimsSettlementBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/LAFAClaimsSettlementUpdateBulk/TriggerLAFAUpdateRequestBulkHangfireJob": {
+      "get": {
+        "operationId": "TriggerLAFAUpdateRequestBulkHangfireJob",
+        "summary": "TriggerLAFAUpdateRequestBulkHangfireJob (LAFAClaimsSettlementBulkController)",
+        "tags": [
+          "LAFAClaimsSettlementBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/LAFACreateNewModAdjBulk/[action]": {
+      "get": {
+        "operationId": "TriggerLAFACreateNewModAdjBulkHangfireJob",
+        "summary": "TriggerLAFACreateNewModAdjBulkHangfireJob (LAFACreateNewModAdjBulkController)",
+        "tags": [
+          "LAFACreateNewModAdjBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/LAFACreateRepaymentPlanBulk/TriggerLAFACreateRequesBulkHangfireJob": {
+      "get": {
+        "operationId": "TriggerLAFACreateRequesBulkHangfireJob",
+        "summary": "TriggerLAFACreateRequesBulkHangfireJob (LAFARepaymentPlanBulkController)",
+        "tags": [
+          "LAFARepaymentPlanBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/LAFACreateRepaymentPlanUpdateBulk/TriggerLAFAUpdateRequestBulkHangfireJob": {
+      "get": {
+        "operationId": "TriggerLAFAUpdateRequestBulkHangfireJob_2",
+        "summary": "TriggerLAFAUpdateRequestBulkHangfireJob (LAFARepaymentPlanBulkController)",
+        "tags": [
+          "LAFARepaymentPlanBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/LAFACreateTaxResearchTasksBulk/[action]": {
+      "get": {
+        "operationId": "TriggerLAFACreateTaxResearchTasksBulkHangfireJob",
+        "summary": "TriggerLAFACreateTaxResearchTasksBulkHangfireJob (LAFACreateTaxResearchTasksBulkController)",
+        "tags": [
+          "LAFACreateTaxResearchTasksBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/LAFAMortgageAssistanceFundsBulkCreate/[action]": {
+      "get": {
+        "operationId": "TriggerLAFAMAFBulkCreateHangfireJob",
+        "summary": "TriggerLAFAMAFBulkCreateHangfireJob (LAFARequestHardestHitFundsController)",
+        "tags": [
+          "LAFARequestHardestHitFundsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/LAFAMortgageAssistanceFundsBulkUpdate/[action]": {
+      "get": {
+        "operationId": "TriggerLAFAMAFBulkUpdateHangfireJob",
+        "summary": "TriggerLAFAMAFBulkUpdateHangfireJob (LAFARequestHardestHitFundsController)",
+        "tags": [
+          "LAFARequestHardestHitFundsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/LAFANonCashTransactionUpdatesBulk/[action]": {
+      "get": {
+        "operationId": "TriggerLafaNonCashTransactionUpdatesBulkUpload",
+        "summary": "TriggerLafaNonCashTransactionUpdatesBulkUpload (LAFANonCashTransactionUpdatesBulkController)",
+        "tags": [
+          "LAFANonCashTransactionUpdatesBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/LoanPreference": {
+      "put": {
+        "operationId": "UpdateLoanPreference",
+        "summary": "UpdateLoanPreference (LoanPreferenceController)",
+        "tags": [
+          "LoanPreferenceController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "DeleteLoanPreference",
+        "summary": "DeleteLoanPreference (LoanPreferenceController)",
+        "tags": [
+          "LoanPreferenceController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loan/{LoanId}/GetOrganizationServicersByLoanId": {
+      "get": {
+        "operationId": "GetOrganizationServicersByLoanId",
+        "summary": "GetOrganizationServicersByLoanId (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/LoanAddress": {
+      "get": {
+        "operationId": "GetByLoanAddressLoanId",
+        "summary": "GetByLoanAddressLoanId (LoanAddressController)",
+        "tags": [
+          "LoanAddressController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "UpdateLoanAddress",
+        "summary": "UpdateLoanAddress (LoanAddressController)",
+        "tags": [
+          "LoanAddressController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loan/{id}/LoanPreference": {
+      "get": {
+        "operationId": "GetLoanPreferenceByLoanId",
+        "summary": "GetLoanPreferenceByLoanId (LoanPreferenceController)",
+        "tags": [
+          "LoanPreferenceController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/ServicingTransfer": {
+      "get": {
+        "operationId": "GetByLoanId_12",
+        "summary": "GetByLoanId (ServicingTransfersController)",
+        "tags": [
+          "ServicingTransfersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/SpecialLoan": {
+      "get": {
+        "operationId": "GetBySpecialLoanId",
+        "summary": "GetBySpecialLoanId (SpecialLoansController)",
+        "tags": [
+          "SpecialLoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "UpdateSpecialLoan",
+        "summary": "UpdateSpecialLoan (SpecialLoansController)",
+        "tags": [
+          "SpecialLoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loan/{id}/SplitInterest": {
+      "get": {
+        "operationId": "GetSplitInterestById",
+        "summary": "GetSplitInterestById (SplitInterestController)",
+        "tags": [
+          "SplitInterestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/SplitInterestPayment": {
+      "get": {
+        "operationId": "GetSplitInterestPaymentById",
+        "summary": "GetSplitInterestPaymentById (SplitInterestController)",
+        "tags": [
+          "SplitInterestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/SuccessorInInterest": {
+      "get": {
+        "operationId": "GetBySuccessorInInterestLoanId",
+        "summary": "GetBySuccessorInInterestLoanId (SuccessorInInterestController)",
+        "tags": [
+          "SuccessorInInterestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "UpdateSuccessorInInterest",
+        "summary": "UpdateSuccessorInInterest (SuccessorInInterestController)",
+        "tags": [
+          "SuccessorInInterestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LoanPrepaymentPenalty": {
+      "put": {
+        "operationId": "LoanPrepaymentPenaltyUpdate",
+        "summary": "LoanPrepaymentPenaltyUpdate (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LoanStatuses/UpdateLoanStatusSNSStatusToComplete": {
+      "post": {
+        "operationId": "UpdateLoanStatusSNSStatusToComplete",
+        "summary": "UpdateLoanStatusSNSStatusToComplete (LoanStatusesController)",
+        "tags": [
+          "LoanStatusesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LoanStatuses/UpdateQualifiedAssumptionStatus": {
+      "post": {
+        "operationId": "UpdateQualifiedAssumptionStatus",
+        "summary": "UpdateQualifiedAssumptionStatus (LoanStatusesController)",
+        "tags": [
+          "LoanStatusesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans": {
+      "get": {
+        "operationId": "GetTransactionsIdAsync",
+        "summary": "GetTransactionsIdAsync (TransactionsController)",
+        "tags": [
+          "TransactionsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Loans/Balances": {
+      "post": {
+        "operationId": "GetBalances",
+        "summary": "GetBalances (LoanBalancesController)",
+        "tags": [
+          "LoanBalancesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/BorrowerCreditScore": {
+      "put": {
+        "operationId": "LoanSuppressionUpdate",
+        "summary": "LoanSuppressionUpdate (BorrowerCreditScoreController)",
+        "tags": [
+          "BorrowerCreditScoreController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/ContactAttempts/BulkUpload": {
+      "post": {
+        "operationId": "BulkUploadContactAttemptsAsync",
+        "summary": "BulkUploadContactAttemptsAsync (ContactAttemptsBulkController)",
+        "tags": [
+          "ContactAttemptsBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/Deferment": {
+      "post": {
+        "operationId": "GetAsync",
+        "summary": "GetAsync (LoanDefermentController)",
+        "tags": [
+          "LoanDefermentController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/DoorKnock/BulkUpload": {
+      "post": {
+        "operationId": "BulkUploadDoorKnockAsync",
+        "summary": "BulkUploadDoorKnockAsync (DoorKnockBulkController)",
+        "tags": [
+          "DoorKnockBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/GetBorrowerAssociations": {
+      "get": {
+        "operationId": "GetBorrowerAssociationAsync",
+        "summary": "GetBorrowerAssociationAsync (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Loans/LAFAClaimsSettlementCreate/BulkUpload": {
+      "post": {
+        "operationId": "BulkUploadLAFAClaimsSettlementCreateAsync",
+        "summary": "BulkUploadLAFAClaimsSettlementCreateAsync (LAFAClaimsSettlementBulkController)",
+        "tags": [
+          "LAFAClaimsSettlementBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/LAFAClaimsSettlementUpdate/BulkUpload": {
+      "post": {
+        "operationId": "BulkUploadLAFAClaimsSettlementUpdateAsync",
+        "summary": "BulkUploadLAFAClaimsSettlementUpdateAsync (LAFAClaimsSettlementBulkController)",
+        "tags": [
+          "LAFAClaimsSettlementBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/LAFACreateRepaymentPlan/BulkUpload": {
+      "post": {
+        "operationId": "BulkUploadLAFARepaymentPlanCreateAsync",
+        "summary": "BulkUploadLAFARepaymentPlanCreateAsync (LAFARepaymentPlanBulkController)",
+        "tags": [
+          "LAFARepaymentPlanBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/LAFACreateRepaymentPlanUpdate/BulkUpload": {
+      "post": {
+        "operationId": "BulkUploadLAFARepaymentPlanUpdateAsync",
+        "summary": "BulkUploadLAFARepaymentPlanUpdateAsync (LAFARepaymentPlanBulkController)",
+        "tags": [
+          "LAFARepaymentPlanBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/LAFANewModificationAdjustment/BulkUpload": {
+      "post": {
+        "operationId": "BulkUploadLAFANewModificationAdjustmentAsync",
+        "summary": "BulkUploadLAFANewModificationAdjustmentAsync (LAFACreateNewModAdjBulkController)",
+        "tags": [
+          "LAFACreateNewModAdjBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/LAFATaxResearchTasks/BulkUpload": {
+      "post": {
+        "operationId": "BulkUploadLAFATaxResearchTasksAsync",
+        "summary": "BulkUploadLAFATaxResearchTasksAsync (LAFACreateTaxResearchTasksBulkController)",
+        "tags": [
+          "LAFACreateTaxResearchTasksBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/LafaNonCashtransaction/BulkUpload": {
+      "post": {
+        "operationId": "BulkUpload",
+        "summary": "BulkUpload (LAFANonCashTransactionUpdatesBulkController)",
+        "tags": [
+          "LAFANonCashTransactionUpdatesBulkController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/PriorityMessageNotes/BulkUpload": {
+      "post": {
+        "operationId": "BulkUploadPriorityMessageNotesAsync",
+        "summary": "BulkUploadPriorityMessageNotesAsync (PriorityMessagingNoteBulkUploadController)",
+        "tags": [
+          "PriorityMessagingNoteBulkUploadController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/SkipTracing/BulkUpload": {
+      "post": {
+        "operationId": "BulkUploadSkipTracingAsync",
+        "summary": "BulkUploadSkipTracingAsync (NotesAndCommentsBulkUploadController)",
+        "tags": [
+          "NotesAndCommentsBulkUploadController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/TransferHistory": {
+      "put": {
+        "operationId": "TransferHistoryUpdate",
+        "summary": "TransferHistoryUpdate (TransferHistoryController)",
+        "tags": [
+          "TransferHistoryController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/{LoanId}/BorrowerSummary": {
+      "get": {
+        "operationId": "GetBorrowerSummary",
+        "summary": "GetBorrowerSummary (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{LoanId}/DeleteBorrower": {
+      "delete": {
+        "operationId": "DeleteBorrower",
+        "summary": "DeleteBorrower (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{LoanId}/GetBorrowerRelationship": {
+      "get": {
+        "operationId": "GetBorrowerRelationshipByLoanId",
+        "summary": "GetBorrowerRelationshipByLoanId (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{LoanId}/GetLoanContactRestriction": {
+      "get": {
+        "operationId": "GetCeaseAndDesist",
+        "summary": "GetCeaseAndDesist (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/ArmInterestRate": {
+      "get": {
+        "operationId": "GetByLoanId",
+        "summary": "GetByLoanId (ArmInterestRateController)",
+        "tags": [
+          "ArmInterestRateController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "ArmInterestRateUpdateV2",
+        "summary": "ArmInterestRateUpdateV2 (ArmInterestRateController)",
+        "tags": [
+          "ArmInterestRateController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "ArmInterestRateDelete",
+        "summary": "ArmInterestRateDelete (ArmInterestRateController)",
+        "tags": [
+          "ArmInterestRateController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/ArmLoanLastUpdated": {
+      "get": {
+        "operationId": "GetByLoanIdPrdType",
+        "summary": "GetByLoanIdPrdType (ArmInterestRateController)",
+        "tags": [
+          "ArmInterestRateController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/ArmLoanProductType": {
+      "get": {
+        "operationId": "GetByLoanId_2",
+        "summary": "GetByLoanId (ArmLoanProductTypeController)",
+        "tags": [
+          "ArmLoanProductTypeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/Balances": {
+      "get": {
+        "operationId": "GetByBalanceType",
+        "summary": "GetByBalanceType (LoanBalancesController)",
+        "tags": [
+          "LoanBalancesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/Balances/TotalAmountDue": {
+      "get": {
+        "operationId": "GetTotalAmountDue",
+        "summary": "GetTotalAmountDue (LoanBalancesController)",
+        "tags": [
+          "LoanBalancesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/Boarding": {
+      "get": {
+        "operationId": "GetByLoanIdV2",
+        "summary": "GetByLoanIdV2 (BoardingsController)",
+        "tags": [
+          "BoardingsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/Borrowers": {
+      "get": {
+        "operationId": "GetByLoanId_3",
+        "summary": "GetByLoanId (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/BuydownSubsidies": {
+      "get": {
+        "operationId": "GetBuydownSubsidiesAsync",
+        "summary": "GetBuydownSubsidiesAsync (BuydownSubsidyController)",
+        "tags": [
+          "BuydownSubsidyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/BuydownSubsidy": {
+      "get": {
+        "operationId": "GetBuydownSubsidyByLoanIdAsync",
+        "summary": "GetBuydownSubsidyByLoanIdAsync (BuydownSubsidyController)",
+        "tags": [
+          "BuydownSubsidyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "Put_2",
+        "summary": "Put (BuydownSubsidyController)",
+        "tags": [
+          "BuydownSubsidyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "DeleteV2",
+        "summary": "DeleteV2 (BuydownSubsidyController)",
+        "tags": [
+          "BuydownSubsidyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/Cache": {
+      "get": {
+        "operationId": "GetByLoanId_4",
+        "summary": "GetByLoanId (CacheController)",
+        "tags": [
+          "CacheController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/Contacts": {
+      "get": {
+        "operationId": "GetByLoanId_8",
+        "summary": "GetByLoanId (LoanContactController)",
+        "tags": [
+          "LoanContactController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "SetByLoanId",
+        "summary": "SetByLoanId (LoanContactController)",
+        "tags": [
+          "LoanContactController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/{id}/CorporateAdvanceTransactions": {
+      "get": {
+        "operationId": "GetByLoanId_5",
+        "summary": "GetByLoanId (CorporateAdvanceTransactionsController)",
+        "tags": [
+          "CorporateAdvanceTransactionsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/DeleteCache": {
+      "get": {
+        "operationId": "DeleteAllForLoan",
+        "summary": "DeleteAllForLoan (CacheController)",
+        "tags": [
+          "CacheController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/Deliquencies": {
+      "put": {
+        "operationId": "DelinquencyUpdate_2",
+        "summary": "DelinquencyUpdate (DelinquenciesController)",
+        "tags": [
+          "DelinquenciesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/{id}/FeeTransactions": {
+      "get": {
+        "operationId": "GetByLoanId_6",
+        "summary": "GetByLoanId (FeeTransactionsController)",
+        "tags": [
+          "FeeTransactionsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/Foreclosure": {
+      "get": {
+        "operationId": "GetByLoanId_7",
+        "summary": "GetByLoanId (ForeclosuresController)",
+        "tags": [
+          "ForeclosuresController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/LoanStatusBar": {
+      "get": {
+        "operationId": "GetLoanStatusBarByLoanId",
+        "summary": "GetLoanStatusBarByLoanId (LoanStatusesController)",
+        "tags": [
+          "LoanStatusesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/LoanStatusParameter": {
+      "get": {
+        "operationId": "GetLoanStatusParameterByLoanId",
+        "summary": "GetLoanStatusParameterByLoanId (LoanStatusesController)",
+        "tags": [
+          "LoanStatusesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/LoanStatuses": {
+      "get": {
+        "operationId": "GetByLoanId_9",
+        "summary": "GetByLoanId (LoanStatusesController)",
+        "tags": [
+          "LoanStatusesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/LoanStatuses/Recalculate": {
+      "post": {
+        "operationId": "RecalculateAsync",
+        "summary": "RecalculateAsync (LoanStatusesController)",
+        "tags": [
+          "LoanStatusesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/{id}/LoanStatuses/Stops": {
+      "post": {
+        "operationId": "UpdateProcessStopsAsync",
+        "summary": "UpdateProcessStopsAsync (LoanStatusesController)",
+        "tags": [
+          "LoanStatusesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/{id}/MERS": {
+      "get": {
+        "operationId": "GetByLoanIdAsync",
+        "summary": "GetByLoanIdAsync (MERSController)",
+        "tags": [
+          "MERSController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "UpdateAsync_2",
+        "summary": "UpdateAsync (MERSController)",
+        "tags": [
+          "MERSController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/{id}/Notes/PriorServicer": {
+      "get": {
+        "operationId": "GetPriorServicerNotes",
+        "summary": "GetPriorServicerNotes (PriorServicerNotesController)",
+        "tags": [
+          "PriorServicerNotesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/Notes/Priorities": {
+      "post": {
+        "operationId": "SetPriorityMessageNoteAsync",
+        "summary": "SetPriorityMessageNoteAsync (PriorityMessagingNotesController)",
+        "tags": [
+          "PriorityMessagingNotesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "GetPriorityMessagingNoteAsync",
+        "summary": "GetPriorityMessagingNoteAsync (PriorityMessagingNotesController)",
+        "tags": [
+          "PriorityMessagingNotesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/PaymentChangeHistories": {
+      "put": {
+        "operationId": "Put_4",
+        "summary": "Put (PaymentChangeHistoriesController)",
+        "tags": [
+          "PaymentChangeHistoriesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "PostBatch",
+        "summary": "PostBatch (PaymentChangeHistoriesController)",
+        "tags": [
+          "PaymentChangeHistoriesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "GetByLoanId_10",
+        "summary": "GetByLoanId (PaymentChangeHistoriesController)",
+        "tags": [
+          "PaymentChangeHistoriesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/PaymentSchedules": {
+      "get": {
+        "operationId": "GetByLoanId_11",
+        "summary": "GetByLoanId (PaymentSchedulesController)",
+        "tags": [
+          "PaymentSchedulesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/PaymentSupplementBreakdown": {
+      "post": {
+        "operationId": "GetPaymentSupplementBreakdown",
+        "summary": "GetPaymentSupplementBreakdown (PaymentChangeHistoriesController)",
+        "tags": [
+          "PaymentChangeHistoriesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/{id}/PaymentSupplementTransaction": {
+      "post": {
+        "operationId": "GetPaymentSupplementTransaction",
+        "summary": "GetPaymentSupplementTransaction (PaymentChangeHistoriesController)",
+        "tags": [
+          "PaymentChangeHistoriesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/{id}/PriorServicerTransactionHistories": {
+      "get": {
+        "operationId": "GetPriorServicerTransactionHistoryByLoanId",
+        "summary": "GetPriorServicerTransactionHistoryByLoanId (TransactionHistoriesController)",
+        "tags": [
+          "TransactionHistoriesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/StatusHistories": {
+      "get": {
+        "operationId": "GetByLoanId_13",
+        "summary": "GetByLoanId (StatusHistoriesController)",
+        "tags": [
+          "StatusHistoriesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/StepRate": {
+      "get": {
+        "operationId": "GetStepRateByLoanIdAsync",
+        "summary": "GetStepRateByLoanIdAsync (StepRateController)",
+        "tags": [
+          "StepRateController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "StepRateUpdate_2",
+        "summary": "StepRateUpdate (StepRateController)",
+        "tags": [
+          "StepRateController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loans/{id}/TransactionAmountSum": {
+      "get": {
+        "operationId": "GetTransactionAmountTotal",
+        "summary": "GetTransactionAmountTotal (TransactionsController)",
+        "tags": [
+          "TransactionsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/TransactionHistories": {
+      "get": {
+        "operationId": "GetByLoanId_14",
+        "summary": "GetByLoanId (TransactionHistoriesController)",
+        "tags": [
+          "TransactionHistoriesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/Transactions": {
+      "post": {
+        "operationId": "Post",
+        "summary": "Post (TransactionsController)",
+        "tags": [
+          "TransactionsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "GetAllTransactionsIdAsync",
+        "summary": "GetAllTransactionsIdAsync (TransactionsController)",
+        "tags": [
+          "TransactionsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loans/{id}/TransactionsBatch": {
+      "post": {
+        "operationId": "PostBatch_2",
+        "summary": "PostBatch (TransactionsController)",
+        "tags": [
+          "TransactionsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MERS": {
+      "put": {
+        "operationId": "UpdateAsync",
+        "summary": "UpdateAsync (MERSController)",
+        "tags": [
+          "MERSController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ModificationUpdate": {
+      "put": {
+        "operationId": "ModificationUpdate",
+        "summary": "ModificationUpdate (ModificationsController)",
+        "tags": [
+          "ModificationsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/NotesAndCommentsBulkUpload/[action]": {
+      "get": {
+        "operationId": "TriggerNotesAndCommentsBulkHangfireJob",
+        "summary": "TriggerNotesAndCommentsBulkHangfireJob (NotesAndCommentsBulkUploadController)",
+        "tags": [
+          "NotesAndCommentsBulkUploadController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/OnlineMortgageAssistanceApplication": {
+      "post": {
+        "operationId": "GetAsync_2",
+        "summary": "GetAsync (OnlineMortgageAssistanceApplicationController)",
+        "tags": [
+          "OnlineMortgageAssistanceApplicationController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Organization/GetOrganizationContactHistory": {
+      "post": {
+        "operationId": "GetOrganizationContactHistory",
+        "summary": "GetOrganizationContactHistory (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Organization/OrganizationAdditionalNMLSCodeSet": {
+      "put": {
+        "operationId": "OrganizationAdditionalNMLSCodeSet",
+        "summary": "OrganizationAdditionalNMLSCodeSet (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Organization/OrganizationAddressSet": {
+      "put": {
+        "operationId": "OrganizationAddressSet",
+        "summary": "OrganizationAddressSet (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Organization/OrganizationClientInformationDetailSet": {
+      "put": {
+        "operationId": "OrganizationClientInformationDetailSet",
+        "summary": "OrganizationClientInformationDetailSet (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Organization/OrganizationClientInformationSet": {
+      "put": {
+        "operationId": "OrganizationClientInformationSet",
+        "summary": "OrganizationClientInformationSet (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Organization/OrganizationContactDetailSet": {
+      "put": {
+        "operationId": "OrganizationContactDetailSet",
+        "summary": "OrganizationContactDetailSet (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Organization/OrganizationContactIdentifierSet": {
+      "put": {
+        "operationId": "OrganizationContactIdentifierSet",
+        "summary": "OrganizationContactIdentifierSet (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Organization/OrganizationContactSet": {
+      "put": {
+        "operationId": "OrganizationContactSet",
+        "summary": "OrganizationContactSet (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Organization/OrganizationEmailSet": {
+      "put": {
+        "operationId": "OrganizationEmailSet",
+        "summary": "OrganizationEmailSet (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Organization/OrganizationPhoneSet": {
+      "put": {
+        "operationId": "OrganizationPhoneSet",
+        "summary": "OrganizationPhoneSet (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Organization/OrganizationServicerSet": {
+      "put": {
+        "operationId": "OrganizationServicerSet",
+        "summary": "OrganizationServicerSet (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Organization/OrganizationSet": {
+      "put": {
+        "operationId": "OrganizationSet",
+        "summary": "OrganizationSet (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Organization/OrganizationWebSet": {
+      "put": {
+        "operationId": "OrganizationWebSet",
+        "summary": "OrganizationWebSet (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Organization/OrganizationWorkingHoursSet": {
+      "put": {
+        "operationId": "OrganizationWorkingHoursSet",
+        "summary": "OrganizationWorkingHoursSet (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/OrganizationServicer/GetAllSubservicers": {
+      "get": {
+        "operationId": "GetAllSubservicers",
+        "summary": "GetAllSubservicers (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/OrganizationServicer/GetDefaultServicerLogoFilePath": {
+      "get": {
+        "operationId": "GetDefaultServicerLogoFilePath",
+        "summary": "GetDefaultServicerLogoFilePath (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/OrganizationServicer/Search": {
+      "get": {
+        "operationId": "OrganizationServicerSearch",
+        "summary": "OrganizationServicerSearch (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/OrganizationServicer/{MSRCode}/GetOrganizationServicersByMortgageServicingRightCode": {
+      "get": {
+        "operationId": "GetOrganizationServicersByMortgageServicingRightCode",
+        "summary": "GetOrganizationServicersByMortgageServicingRightCode (OrganizationServicerController)",
+        "tags": [
+          "OrganizationServicerController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "MSRCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/PDMSummaryFinanceBatch": {
+      "post": {
+        "operationId": "GetPDMSummaryFinanceBatch",
+        "summary": "GetPDMSummaryFinanceBatch (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PaymentSupplement": {
+      "put": {
+        "operationId": "PaymentSupplementUpdate",
+        "summary": "PaymentSupplementUpdate (PaymentSupplementController)",
+        "tags": [
+          "PaymentSupplementController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PaymentSupplement/GetChangeHistoryNextBatch": {
+      "post": {
+        "operationId": "GetChangeHistoryNextBatch",
+        "summary": "GetChangeHistoryNextBatch (PaymentSupplementController)",
+        "tags": [
+          "PaymentSupplementController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PaymentSupplement/UpdatePaymentSupplementChangeHistoryJob": {
+      "put": {
+        "operationId": "UpdatePaymentSupplementChangeHistoryJob",
+        "summary": "UpdatePaymentSupplementChangeHistoryJob (PaymentSupplementController)",
+        "tags": [
+          "PaymentSupplementController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PaymentSupplement/{loanId}/PaymentSupplementByLoanId": {
+      "get": {
+        "operationId": "GetPaymentSupplementByLoanIdAsync",
+        "summary": "GetPaymentSupplementByLoanIdAsync (PaymentSupplementController)",
+        "tags": [
+          "PaymentSupplementController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/PaymentSupplement/{paymentSupplementId}/PaymentSupplementById": {
+      "get": {
+        "operationId": "GetPaymentSupplementByIdAsync",
+        "summary": "GetPaymentSupplementByIdAsync (PaymentSupplementController)",
+        "tags": [
+          "PaymentSupplementController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "paymentSupplementId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/PaymentSupplement/{paymentSupplementLookUpCategory}/PaymentSupplementLookUp": {
+      "get": {
+        "operationId": "GetPaymentSupplementLookUpValuesAsync",
+        "summary": "GetPaymentSupplementLookUpValuesAsync (PaymentSupplementController)",
+        "tags": [
+          "PaymentSupplementController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "paymentSupplementLookUpCategory",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Ping": {
+      "get": {
+        "operationId": "Get_8",
+        "summary": "Get (PingController)",
+        "tags": [
+          "PingController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PostMissingFinancialTransactionsToSNS": {
+      "post": {
+        "operationId": "PostMissingFinancialTransactionsToSNS",
+        "summary": "PostMissingFinancialTransactionsToSNS (ScheduledJobsController)",
+        "tags": [
+          "ScheduledJobsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PrepaymentPenaltyPeriodSchedule": {
+      "put": {
+        "operationId": "PrepaymentPenaltyPeriodScheduleUpdate",
+        "summary": "PrepaymentPenaltyPeriodScheduleUpdate (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PriorityMessagingNoteBulkUpload/[action]": {
+      "get": {
+        "operationId": "TriggerPriorityMessagingNoteBulkHangfireJob",
+        "summary": "TriggerPriorityMessagingNoteBulkHangfireJob (PriorityMessagingNoteBulkUploadController)",
+        "tags": [
+          "PriorityMessagingNoteBulkUploadController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/RNRSummaryBatch": {
+      "post": {
+        "operationId": "GetRNRSummaryBatch",
+        "summary": "GetRNRSummaryBatch (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/SearchBar": {
+      "post": {
+        "operationId": "SearchBar",
+        "summary": "SearchBar (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ServiceTransfers/{id}": {
+      "patch": {
+        "operationId": "PatchServiceTransfersSummary",
+        "summary": "PatchServiceTransfersSummary (ServiceTransfersController)",
+        "tags": [
+          "ServiceTransfersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ServicingTransferSummary": {
+      "get": {
+        "operationId": "ServicingTransferSummary",
+        "summary": "ServicingTransferSummary (ServicingTransfersController)",
+        "tags": [
+          "ServicingTransfersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SetLoanServicingTransferUpdateBatch": {
+      "post": {
+        "operationId": "SetLoanServicingTransferUpdateBatch",
+        "summary": "SetLoanServicingTransferUpdateBatch (LoanServicingTransfersController)",
+        "tags": [
+          "LoanServicingTransfersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/StepRate": {
+      "put": {
+        "operationId": "StepRateUpdate",
+        "summary": "StepRateUpdate (StepRateController)",
+        "tags": [
+          "StepRateController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/StopFlagsBulkUpload/[action]": {
+      "get": {
+        "operationId": "TriggerProcessBulkStopFlagsHangfireJob",
+        "summary": "TriggerProcessBulkStopFlagsHangfireJob (StopFlagsBulkUploadController)",
+        "tags": [
+          "StopFlagsBulkUploadController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Stops/UpdateBulk": {
+      "post": {
+        "operationId": "BulkUploadProcessStopsAsync",
+        "summary": "BulkUploadProcessStopsAsync (StopFlagsBulkUploadController)",
+        "tags": [
+          "StopFlagsBulkUploadController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/SuccessorInInterest": {
+      "delete": {
+        "operationId": "Delete_3",
+        "summary": "Delete (SuccessorInInterestController)",
+        "tags": [
+          "SuccessorInInterestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TransactCodeGroupCode": {
+      "get": {
+        "operationId": "GetTransactCodeGroupCode",
+        "summary": "GetTransactCodeGroupCode (TransactCodesController)",
+        "tags": [
+          "TransactCodesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TransactCodeUpdate": {
+      "put": {
+        "operationId": "TransactCodeUpdate",
+        "summary": "TransactCodeUpdate (TransactCodesController)",
+        "tags": [
+          "TransactCodesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TransactCodes": {
+      "get": {
+        "operationId": "Get_10",
+        "summary": "Get (TransactCodesController)",
+        "tags": [
+          "TransactCodesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TransactCodes/{id:int}": {
+      "get": {
+        "operationId": "Get_11",
+        "summary": "Get (TransactCodesController)",
+        "tags": [
+          "TransactCodesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id:int",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/TransactCodesInfo": {
+      "get": {
+        "operationId": "GetAll",
+        "summary": "GetAll (TransactCodesController)",
+        "tags": [
+          "TransactCodesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "operationId": "GetTransactCodesInfo",
+        "summary": "GetTransactCodesInfo (TransactCodesController)",
+        "tags": [
+          "TransactCodesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Utils/[action]": {
+      "get": {
+        "operationId": "GetEncryptedValue",
+        "summary": "GetEncryptedValue (UtilsController)",
+        "tags": [
+          "UtilsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "SendTestSqsMessage",
+        "summary": "SendTestSqsMessage (UtilsController)",
+        "tags": [
+          "UtilsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/[action]": {
+      "get": {
+        "operationId": "GetCountryCodes",
+        "summary": "GetCountryCodes (LoanAddressController)",
+        "tags": [
+          "LoanAddressController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/getLoanServicingTransfersByServicingTransferId/{servicingTransferId}": {
+      "get": {
+        "operationId": "GetByServicingTransferId",
+        "summary": "GetByServicingTransferId (LoanServicingTransfersController)",
+        "tags": [
+          "LoanServicingTransfersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "servicingTransferId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{BorrowerId}/BorrowerSummary": {
+      "get": {
+        "operationId": "GetBorrowerSummaryByBorrowerId",
+        "summary": "GetBorrowerSummaryByBorrowerId (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "BorrowerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{BorrowerId}/GetBorrowerContactRule": {
+      "get": {
+        "operationId": "GetBorrowerContactRule",
+        "summary": "GetBorrowerContactRule (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "BorrowerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{BorrowerId}/GetBorrowerContactRules": {
+      "get": {
+        "operationId": "GetBorrowerContactRules",
+        "summary": "GetBorrowerContactRules (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "BorrowerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{BorrowerId}/GetBorrowerEmail": {
+      "get": {
+        "operationId": "GetBorrowerEmailAsync",
+        "summary": "GetBorrowerEmailAsync (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "BorrowerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{BorrowerId}/GetBorrowerRelationship": {
+      "get": {
+        "operationId": "GetBorrowerRelationshipByBorrowerId",
+        "summary": "GetBorrowerRelationshipByBorrowerId (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "BorrowerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{BorrowerId}/[action]": {
+      "put": {
+        "operationId": "UpdateBorrower",
+        "summary": "UpdateBorrower (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "BorrowerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "GetBorrowerPhoneAsync",
+        "summary": "GetBorrowerPhoneAsync (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "BorrowerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "UpdateBorrowerNameFromOCR",
+        "summary": "UpdateBorrowerNameFromOCR (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "BorrowerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{LoanId}/BorrowerNameBeforeAssumption": {
+      "get": {
+        "operationId": "GetBorrowerNameBeforeAssumption",
+        "summary": "GetBorrowerNameBeforeAssumption (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{LoanId}/ContactSummary": {
+      "get": {
+        "operationId": "GetContactSummary",
+        "summary": "GetContactSummary (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{LoanId}/Entity": {
+      "put": {
+        "operationId": "UpdateBorrowerEntity",
+        "summary": "UpdateBorrowerEntity (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{LoanId}/EscrowMortgageInsurance": {
+      "get": {
+        "operationId": "GetEscrowMortgageInsurance",
+        "summary": "GetEscrowMortgageInsurance (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{LoanId}/PMIRatio": {
+      "get": {
+        "operationId": "GetPMIRatio",
+        "summary": "GetPMIRatio (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{LoanId}/PaymentHistoryPattern": {
+      "put": {
+        "operationId": "UpdatePaymentHistoryPattern",
+        "summary": "UpdatePaymentHistoryPattern (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "GetPaymentHistoryPattern",
+        "summary": "GetPaymentHistoryPattern (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{LoanId}/PrepaymentPenalty": {
+      "get": {
+        "operationId": "GetPrepaymentPenalty",
+        "summary": "GetPrepaymentPenalty (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{LoanId}/ThirdPartyLoan": {
+      "get": {
+        "operationId": "GetThirdPartyLoan",
+        "summary": "GetThirdPartyLoan (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "UpdateThirdPartyLoan",
+        "summary": "UpdateThirdPartyLoan (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{LoanId}/ThirdPartyLoanHistories": {
+      "get": {
+        "operationId": "GetThirdPartyLoanHistories",
+        "summary": "GetThirdPartyLoanHistories (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{LoanId}/ThirdPartyServicerHistories": {
+      "get": {
+        "operationId": "GetThirdPartyServicerHistories",
+        "summary": "GetThirdPartyServicerHistories (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{PhoneNumber}/GetBorrowersByPhoneNumber": {
+      "get": {
+        "operationId": "GetBorrowersByPhoneNumber",
+        "summary": "GetBorrowersByPhoneNumber (BorrowersController)",
+        "tags": [
+          "BorrowersController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "PhoneNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{id}": {
+      "get": {
+        "operationId": "Get",
+        "summary": "Get (BoardingsController)",
+        "tags": [
+          "BoardingsController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{id}/DoorKnockData": {
+      "get": {
+        "operationId": "GetDoorKnockData",
+        "summary": "GetDoorKnockData (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{id}/Exists": {
+      "get": {
+        "operationId": "Exists",
+        "summary": "Exists (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{id}/LastCustomerWebsiteAccess": {
+      "post": {
+        "operationId": "UpdateLastCustomerWebsiteAccessToLoan",
+        "summary": "UpdateLastCustomerWebsiteAccessToLoan (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "GetLastCustomerWebsiteAccess",
+        "summary": "GetLastCustomerWebsiteAccess (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{id}/Payoff": {
+      "get": {
+        "operationId": "GetPayoff",
+        "summary": "GetPayoff (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{id}/QualifyingAssumptions": {
+      "delete": {
+        "operationId": "ResetLoanDataForQualifyingAssumption",
+        "summary": "ResetLoanDataForQualifyingAssumption (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{id}/Summary": {
+      "get": {
+        "operationId": "GetLoanSummary",
+        "summary": "GetLoanSummary (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "PatchLoanSummary",
+        "summary": "PatchLoanSummary (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{id}/[action]": {
+      "get": {
+        "operationId": "RenoManagementGet",
+        "summary": "RenoManagementGet (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{loanId}/PDMLoanSummary": {
+      "get": {
+        "operationId": "GetPDMLoanSummary",
+        "summary": "GetPDMLoanSummary (LoansController)",
+        "tags": [
+          "LoansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       }
     }

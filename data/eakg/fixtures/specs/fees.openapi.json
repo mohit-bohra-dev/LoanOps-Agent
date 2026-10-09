@@ -1,14 +1,5102 @@
 {
   "openapi": "3.0.3",
-  "info": {"title": "Fees (synthetic)", "version": "1.0.0"},
+  "info": {
+    "title": "Fees (from EAKG interface)",
+    "version": "1.0.0"
+  },
   "paths": {
-    "/api/fees/{id}": {
+    "/api/ApplyPendingWorkflowChanges": {
       "get": {
-        "operationId": "getFees",
-        "summary": "Get fees for a loan",
+        "operationId": "ApplyPendingWorkflowChanges",
+        "summary": "ApplyPendingWorkflowChanges (FeeWorkflowController)",
+        "tags": [
+          "FeeWorkflowController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Authorization/Roles": {
+      "get": {
+        "operationId": "GetRoles",
+        "summary": "GetRoles (AuthorizationController)",
+        "tags": [
+          "AuthorizationController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/BulkFee/BulkClearFeesAndAdvances": {
+      "post": {
+        "operationId": "BulkClearFeesAndAdvances",
+        "summary": "BulkClearFeesAndAdvances (BulkFeeController)",
+        "tags": [
+          "BulkFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/BulkFee/BulkClearFeesAndAdvances/Results/{batchIdPerBulkAPIRequest}": {
+      "get": {
+        "operationId": "GetBulkClearFeesAndAdvancesResults",
+        "summary": "GetBulkClearFeesAndAdvancesResults (BulkFeeController)",
+        "tags": [
+          "BulkFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
         "parameters": [
-          {"name": "id", "in": "path", "required": true, "schema": {"type": "string"}}
+          {
+            "name": "batchIdPerBulkAPIRequest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
+      }
+    },
+    "/api/BulkFee/BulkClearFeesAndAdvances/Status/{batchIdPerBulkAPIRequest}": {
+      "get": {
+        "operationId": "GetBulkClearFeesAndAdvancesStatus",
+        "summary": "GetBulkClearFeesAndAdvancesStatus (BulkFeeController)",
+        "tags": [
+          "BulkFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "batchIdPerBulkAPIRequest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/BulkFee/GenerateTestData": {
+      "get": {
+        "operationId": "GenerateTestData",
+        "summary": "GenerateTestData (BulkFeeController)",
+        "tags": [
+          "BulkFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ChangeHistory/{matrixName}": {
+      "post": {
+        "operationId": "GetChangeHistory",
+        "summary": "GetChangeHistory (MatrixComplianceAuditController)",
+        "tags": [
+          "MatrixComplianceAuditController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "matrixName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ClearOutBalancesForServiceReleasedLoan": {
+      "post": {
+        "operationId": "ClearOutBalancesForServiceReleasedLoan",
+        "summary": "ClearOutBalancesForServiceReleasedLoan (TransactionHistoryController)",
+        "tags": [
+          "TransactionHistoryController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ClearWorkflowApprovalQueue": {
+      "post": {
+        "operationId": "ClearWorkflowApprovalQueue",
+        "summary": "ClearWorkflowApprovalQueue (FeeWorkflowController)",
+        "tags": [
+          "FeeWorkflowController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ComplianceException/Get": {
+      "post": {
+        "operationId": "GetMatrix",
+        "summary": "GetMatrix (ComplianceExceptionController)",
+        "tags": [
+          "ComplianceExceptionController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ComplianceException/GetSummary": {
+      "get": {
+        "operationId": "GetExceptionSummary",
+        "summary": "GetExceptionSummary (ComplianceExceptionController)",
+        "tags": [
+          "ComplianceExceptionController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DisbursementRequest/CancelBulkDisbursementUpload": {
+      "get": {
+        "operationId": "CancelBulkDisbursementUpload",
+        "summary": "CancelBulkDisbursementUpload (DisbursementRequestController)",
+        "tags": [
+          "DisbursementRequestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DisbursementRequest/CancelDisbursementRequest": {
+      "post": {
+        "operationId": "CancelDisbursementRequest",
+        "summary": "CancelDisbursementRequest (DisbursementRequestController)",
+        "tags": [
+          "DisbursementRequestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DisbursementRequest/CancelDisbursementRequests": {
+      "post": {
+        "operationId": "CancelDisbursementRequests",
+        "summary": "CancelDisbursementRequests (DisbursementRequestController)",
+        "tags": [
+          "DisbursementRequestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DisbursementRequest/GetDailyDisbursementRequest": {
+      "post": {
+        "operationId": "GetDailyDisbursementRequest",
+        "summary": "GetDailyDisbursementRequest (DisbursementRequestController)",
+        "tags": [
+          "DisbursementRequestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DisbursementRequest/GetDailyDisbursementRequestExportToPDF": {
+      "post": {
+        "operationId": "GetDailyDisbursementRequestExportToPDF",
+        "summary": "GetDailyDisbursementRequestExportToPDF (DisbursementRequestController)",
+        "tags": [
+          "DisbursementRequestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DisbursementRequest/GetDisbursementRequestById": {
+      "get": {
+        "operationId": "GetDisbursementRequestById",
+        "summary": "GetDisbursementRequestById (DisbursementRequestController)",
+        "tags": [
+          "DisbursementRequestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DisbursementRequest/GetPayeeAddressByPayeeId": {
+      "get": {
+        "operationId": "GetPayeeAddressByPayeeId",
+        "summary": "GetPayeeAddressByPayeeId (DisbursementRequestController)",
+        "tags": [
+          "DisbursementRequestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DisbursementRequest/GetPayees": {
+      "get": {
+        "operationId": "GetPayees",
+        "summary": "GetPayees (DisbursementRequestController)",
+        "tags": [
+          "DisbursementRequestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DisbursementRequest/SaveManualDisbursementRequest": {
+      "post": {
+        "operationId": "SaveManualDisbursementRequest",
+        "summary": "SaveManualDisbursementRequest (DisbursementRequestController)",
+        "tags": [
+          "DisbursementRequestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DisbursementRequest/TriggerBulkUploadFileProcessing": {
+      "get": {
+        "operationId": "TriggerBulkUploadFileProcessing",
+        "summary": "TriggerBulkUploadFileProcessing (DisbursementRequestController)",
+        "tags": [
+          "DisbursementRequestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DisbursementRequest/TriggerBulkUploadHangfireJob": {
+      "get": {
+        "operationId": "TriggerBulkUploadHangfireJob",
+        "summary": "TriggerBulkUploadHangfireJob (DisbursementRequestController)",
+        "tags": [
+          "DisbursementRequestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DisbursementRequest/TriggerRetryFailedTransactions": {
+      "get": {
+        "operationId": "TriggerRetryFailedTransactions",
+        "summary": "TriggerRetryFailedTransactions (DisbursementRequestController)",
+        "tags": [
+          "DisbursementRequestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DisbursementRequest/UpdateManualDisbursementRequest": {
+      "post": {
+        "operationId": "UpdateManualDisbursementRequest",
+        "summary": "UpdateManualDisbursementRequest (DisbursementRequestController)",
+        "tags": [
+          "DisbursementRequestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DisbursementRequest/ValidateLoanNumber": {
+      "post": {
+        "operationId": "ValidateLoanNumber",
+        "summary": "ValidateLoanNumber (DisbursementRequestController)",
+        "tags": [
+          "DisbursementRequestController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Employee/GetAllByDivision/{division}": {
+      "get": {
+        "operationId": "GetAll",
+        "summary": "GetAll (EmployeeController)",
+        "tags": [
+          "EmployeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "division",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Employee/GetGroupsByRole/{roleName}": {
+      "get": {
+        "operationId": "GetGroupsByRole",
+        "summary": "GetGroupsByRole (EmployeeController)",
+        "tags": [
+          "EmployeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "roleName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Employee/GetUser/{id}": {
+      "get": {
+        "operationId": "GetUser",
+        "summary": "GetUser (EmployeeController)",
+        "tags": [
+          "EmployeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Employee/GetUserByUserName/{userName}": {
+      "get": {
+        "operationId": "GetUser_2",
+        "summary": "GetUser (EmployeeController)",
+        "tags": [
+          "EmployeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "userName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Employee/GetUsersByGroup/{groupName}": {
+      "get": {
+        "operationId": "GetUsersByGroup",
+        "summary": "GetUsersByGroup (EmployeeController)",
+        "tags": [
+          "EmployeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "groupName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Fee/Adjust": {
+      "post": {
+        "operationId": "AdjustFee",
+        "summary": "AdjustFee (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/AdjustFee": {
+      "post": {
+        "operationId": "AdjustFee_2",
+        "summary": "AdjustFee (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/Assess": {
+      "post": {
+        "operationId": "AssessFee",
+        "summary": "AssessFee (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/AssessFee": {
+      "post": {
+        "operationId": "AssessFee_2",
+        "summary": "AssessFee (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/CalculateFee": {
+      "get": {
+        "operationId": "CalculateFee",
+        "summary": "CalculateFee (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/CheckDuplicateRecordingFees": {
+      "post": {
+        "operationId": "CheckDuplicateRecordingFees",
+        "summary": "CheckDuplicateRecordingFees (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/CheckDuplicateServiceAdvanceFees": {
+      "post": {
+        "operationId": "CheckDuplicateServiceAdvanceFees",
+        "summary": "CheckDuplicateServiceAdvanceFees (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/GetActiveLegacyCode": {
+      "get": {
+        "operationId": "GetActiveLegacyCode",
+        "summary": "GetActiveLegacyCode (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/GetAllExceptionTypes": {
+      "get": {
+        "operationId": "GetAllExceptionTypes",
+        "summary": "GetAllExceptionTypes (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/GetAllFeeTransactionGroupCode": {
+      "get": {
+        "operationId": "GetAllFeeTransactionGroupCode",
+        "summary": "GetAllFeeTransactionGroupCode (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/GetAllRecordingFee": {
+      "get": {
+        "operationId": "GetAllRecordingFee",
+        "summary": "GetAllRecordingFee (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/GetAssessAdjustFeeRequestsDetails": {
+      "get": {
+        "operationId": "GetAssessAdjustFeeRequest",
+        "summary": "GetAssessAdjustFeeRequest (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/GetFee": {
+      "get": {
+        "operationId": "GetFee",
+        "summary": "GetFee (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/GetFeeChangeHistory/{MasterFeeId}/{DetailFeeId}": {
+      "get": {
+        "operationId": "GetFeeChangeHistory",
+        "summary": "GetFeeChangeHistory (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "MasterFeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "DetailFeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Fee/GetFeeChangeHistoryByMasterFeeId": {
+      "post": {
+        "operationId": "GetFeeChangeHistory_3",
+        "summary": "GetFeeChangeHistory (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/GetFeeChangeHistoryByMasterFeeId/{MasterFeeId}": {
+      "get": {
+        "operationId": "GetFeeChangeHistory_2",
+        "summary": "GetFeeChangeHistory (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "MasterFeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Fee/GetFeeDetailById/{MasterFeeId}/{DetailFeeId}": {
+      "get": {
+        "operationId": "GetFeeDetail",
+        "summary": "GetFeeDetail (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "MasterFeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "DetailFeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Fee/GetFeeMasterMatrixByFeeTypeId/{FeeTypeId}": {
+      "get": {
+        "operationId": "GetFeeMasterMatrix",
+        "summary": "GetFeeMasterMatrix (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "FeeTypeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Fee/GetFeeMatrix": {
+      "post": {
+        "operationId": "GetFeeMatrix_2",
+        "summary": "GetFeeMatrix (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/GetFeeMatrix/{FeeIDDescription}": {
+      "get": {
+        "operationId": "GetFeeMatrix",
+        "summary": "GetFeeMatrix (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "FeeIDDescription",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Fee/GetFeeforMI": {
+      "get": {
+        "operationId": "GetOriginalValueValidationForMI",
+        "summary": "GetOriginalValueValidationForMI (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/GetFeesByTemplate": {
+      "get": {
+        "operationId": "GetTemplateFees",
+        "summary": "GetTemplateFees (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/GetGoodThroughDateByTemplate": {
+      "post": {
+        "operationId": "GoodThroughDateByTempalte",
+        "summary": "GoodThroughDateByTempalte (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/GetLSandAPFeesbyTemplate": {
+      "post": {
+        "operationId": "GetLSandAPFeesbyTemplate",
+        "summary": "GetLSandAPFeesbyTemplate (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/GetPrepaymentPenaltyAmount": {
+      "get": {
+        "operationId": "GetPrepaymentPenaltyAmount",
+        "summary": "GetPrepaymentPenaltyAmount (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/GetPrepaymentPenaltyContract": {
+      "get": {
+        "operationId": "GetPrepaymentPenaltyContract",
+        "summary": "GetPrepaymentPenaltyContract (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/GetRecordingFeeByFeeId/{feeId}": {
+      "get": {
+        "operationId": "GetRecordingFeeByFeeId",
+        "summary": "GetRecordingFeeByFeeId (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "feeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Fee/GetServicingAdvanceExcelExport/Get": {
+      "get": {
+        "operationId": "GetServicingAdvanceExcelExport",
+        "summary": "GetServicingAdvanceExcelExport (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/GetServicingAdvanceMatrix": {
+      "get": {
+        "operationId": "GetServicingAdvanceMatrix",
+        "summary": "GetServicingAdvanceMatrix (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/GetServicingAdvanceMatrixByGroup/{FeeGroup}": {
+      "get": {
+        "operationId": "GetServicingAdvanceMatrixByGroup",
+        "summary": "GetServicingAdvanceMatrixByGroup (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "FeeGroup",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Fee/GetTemplateFeesRequestResponse": {
+      "get": {
+        "operationId": "GetTemplateFeesRequestResponse",
+        "summary": "GetTemplateFeesRequestResponse (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/IsDuplicateFeeLegacyCode": {
+      "get": {
+        "operationId": "IsDuplicateFeeLegacyCode",
+        "summary": "IsDuplicateFeeLegacyCode (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/LateChargeAutoAssessAndAdjustPosting": {
+      "post": {
+        "operationId": "LateChargeAutoAssessAndAdjustPosting",
+        "summary": "LateChargeAutoAssessAndAdjustPosting (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/LateChargeAutoAssessAndAdjustRules": {
+      "post": {
+        "operationId": "LateChargeAutoAssessAndAdjustRules",
+        "summary": "LateChargeAutoAssessAndAdjustRules (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/LateChargeSchemaAutoAssessAndAdjustRules": {
+      "post": {
+        "operationId": "LateChargeSchemaAutoAssessAndAdjustRules",
+        "summary": "LateChargeSchemaAutoAssessAndAdjustRules (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/MarkReqeustsCompleteAfterLFNProcess": {
+      "post": {
+        "operationId": "MarkReqeustsCompleteAfterLFNProcess",
+        "summary": "MarkReqeustsCompleteAfterLFNProcess (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/PublishMessages": {
+      "post": {
+        "operationId": "PublishMessages",
+        "summary": "PublishMessages (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/ReadServicingAdvanceMatrixByGroup": {
+      "post": {
+        "operationId": "GetServicingAdvanceMatrix_2",
+        "summary": "GetServicingAdvanceMatrix (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/RecordingFeeApprovalsHangfire": {
+      "post": {
+        "operationId": "RecordingFeeApprovalsHangfire",
+        "summary": "RecordingFeeApprovalsHangfire (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/RecordingFeeBulkApprovalsAsync": {
+      "post": {
+        "operationId": "RecordingFeeBulkApprovalsAsync",
+        "summary": "RecordingFeeBulkApprovalsAsync (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/RecordingFeeBulkApprovalsAsyncFromHangfire": {
+      "post": {
+        "operationId": "RecordingFeeBulkApprovalsAsyncFromHangfire",
+        "summary": "RecordingFeeBulkApprovalsAsyncFromHangfire (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Fee/RetryFailedFeeTransactions": {
+      "get": {
+        "operationId": "RetryFailedFeeTransactions",
+        "summary": "RetryFailedFeeTransactions (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Fee/UpdateFeeDetail": {
+      "post": {
+        "operationId": "UpdateFeeDetail",
+        "summary": "UpdateFeeDetail (FeeController)",
+        "tags": [
+          "FeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/FeeMaster/GetAll": {
+      "get": {
+        "operationId": "GetAllFeeMaster",
+        "summary": "GetAllFeeMaster (FeeMasterController)",
+        "tags": [
+          "FeeMasterController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/FeeMaster/GetAll/{feeTypeId}": {
+      "get": {
+        "operationId": "GetAllFeeMaster_2",
+        "summary": "GetAllFeeMaster (FeeMasterController)",
+        "tags": [
+          "FeeMasterController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "feeTypeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/FeeMaster/GetAllActiveAndInactive": {
+      "get": {
+        "operationId": "GetAllActiveAndInactive",
+        "summary": "GetAllActiveAndInactive (FeeMasterController)",
+        "tags": [
+          "FeeMasterController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/FeeMaster/GetAssessedFeesForUI": {
+      "get": {
+        "operationId": "GetAssessedFeesForUI",
+        "summary": "GetAssessedFeesForUI (FeeMasterController)",
+        "tags": [
+          "FeeMasterController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/FeeMaster/Update": {
+      "post": {
+        "operationId": "UpdateFeeMaster",
+        "summary": "UpdateFeeMaster (FeeMasterController)",
+        "tags": [
+          "FeeMasterController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/FeeMaster/UpdateFeeActiveFlag": {
+      "post": {
+        "operationId": "UpdateFeeActiveFlag",
+        "summary": "UpdateFeeActiveFlag (FeeMasterController)",
+        "tags": [
+          "FeeMasterController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/FeeMaster/UpsertFeeMaster": {
+      "post": {
+        "operationId": "FeeMasterUpsert",
+        "summary": "FeeMasterUpsert (FeeMasterController)",
+        "tags": [
+          "FeeMasterController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/FirstLevelApprovalAction": {
+      "get": {
+        "operationId": "FirstLevelApprovalAction",
+        "summary": "FirstLevelApprovalAction (FeeWorkflowController)",
+        "tags": [
+          "FeeWorkflowController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/GetAssessedFeeTransactions/{loanId}/{LatestNumberOfMonths}": {
+      "get": {
+        "operationId": "GetAssessedFeeTransactions",
+        "summary": "GetAssessedFeeTransactions (TransactionHistoryController)",
+        "tags": [
+          "TransactionHistoryController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "LatestNumberOfMonths",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/GetAssessedFeeTransactionsAggregation/{loanId}": {
+      "get": {
+        "operationId": "GetAssessedFeeTransactionsAggregation",
+        "summary": "GetAssessedFeeTransactionsAggregation (TransactionHistoryController)",
+        "tags": [
+          "TransactionHistoryController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/GetChangeDetails": {
+      "get": {
+        "operationId": "GetChangeDetails",
+        "summary": "GetChangeDetails (FeeWorkflowController)",
+        "tags": [
+          "FeeWorkflowController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/GetFeeApprovalWorfklowDetails/{id}": {
+      "get": {
+        "operationId": "GetFeeApprovalWorfklowDetails",
+        "summary": "GetFeeApprovalWorfklowDetails (FeeWorkflowController)",
+        "tags": [
+          "FeeWorkflowController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/GetMyApprovals": {
+      "post": {
+        "operationId": "GetMyApprovals",
+        "summary": "GetMyApprovals (FeeWorkflowController)",
+        "tags": [
+          "FeeWorkflowController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/GetNonCashFeeTransactions/{loanId}": {
+      "get": {
+        "operationId": "GetReasonType",
+        "summary": "GetReasonType (TransactionHistoryController)",
+        "tags": [
+          "TransactionHistoryController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/GetPrepaymentPenaltyData": {
+      "get": {
+        "operationId": "GetPrepaymentPenaltyData",
+        "summary": "GetPrepaymentPenaltyData (PrepaymentPenaltyController)",
+        "tags": [
+          "PrepaymentPenaltyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/GetRequestForApproverQueueByWorkflowId/{WorkflowInstanceKey}": {
+      "get": {
+        "operationId": "GetRequestForApproverQueueByWorkflowId",
+        "summary": "GetRequestForApproverQueueByWorkflowId (FeeWorkflowController)",
+        "tags": [
+          "FeeWorkflowController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "WorkflowInstanceKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/GetSearchTransactions": {
+      "post": {
+        "operationId": "GetSearchTransactions",
+        "summary": "GetSearchTransactions (SearchTransactionController)",
+        "tags": [
+          "SearchTransactionController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/GetServiceAdvanceAggregateByLoanId/{LoanId}": {
+      "get": {
+        "operationId": "GetServiceAdvanceAggregateByLoanId",
+        "summary": "GetServiceAdvanceAggregateByLoanId (TransactionHistoryController)",
+        "tags": [
+          "TransactionHistoryController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/GetServiceAdvanceAggregationForServiceRelease/{LoanId}": {
+      "get": {
+        "operationId": "GetServiceAdvanceAggregationForServiceRelease",
+        "summary": "GetServiceAdvanceAggregationForServiceRelease (TransactionHistoryController)",
+        "tags": [
+          "TransactionHistoryController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/GetServicingAdvanceTransactionsByLoanId": {
+      "post": {
+        "operationId": "GetServicingAdvanceTransactionsByLoanId",
+        "summary": "GetServicingAdvanceTransactionsByLoanId (TransactionHistoryController)",
+        "tags": [
+          "TransactionHistoryController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/GetTransactionQeueue/{WorkflowKey}": {
+      "get": {
+        "operationId": "GetTransantionDetails",
+        "summary": "GetTransantionDetails (FeeWorkflowController)",
+        "tags": [
+          "FeeWorkflowController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "WorkflowKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/GetWorkFlowApproversByFeeMaster/{feeMasterId}": {
+      "get": {
+        "operationId": "GetWorkFlowApproversByFeeMaster",
+        "summary": "GetWorkFlowApproversByFeeMaster (FeeWorkflowController)",
+        "tags": [
+          "FeeWorkflowController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "feeMasterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/HelocFeeCalculated/ChangeHistory": {
+      "post": {
+        "operationId": "GetHelocFeeCalculatedChangeHistory",
+        "summary": "GetHelocFeeCalculatedChangeHistory (HelocFeeDetailController)",
+        "tags": [
+          "HelocFeeDetailController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ImportExport/BulkUploadAssessAndAdjustHangfire": {
+      "post": {
+        "operationId": "BulkUploadAssessAndAdjustHangfire",
+        "summary": "BulkUploadAssessAndAdjustHangfire (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ImportExport/BulkUploadAssessAndAdjustLoanToExcludeHangfire": {
+      "post": {
+        "operationId": "BulkUploadAssessAndAdjustLoanToExcludeHangfire",
+        "summary": "BulkUploadAssessAndAdjustLoanToExcludeHangfire (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ImportExport/BulkUploadLateChargeFactorOverridesHangfire": {
+      "post": {
+        "operationId": "BulkUploadLateChargeFactorOverridesHangfire",
+        "summary": "BulkUploadLateChargeFactorOverridesHangfire (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ImportExport/BulkUploadReclassHangfire": {
+      "post": {
+        "operationId": "BulkUploadReclassHangfire",
+        "summary": "BulkUploadReclassHangfire (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ImportExport/BulkUploadRecordingFee": {
+      "post": {
+        "operationId": "BulkUploadRecordingFee",
+        "summary": "BulkUploadRecordingFee (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ImportExport/DownloadAFile": {
+      "get": {
+        "operationId": "DownloadAFile",
+        "summary": "DownloadAFile (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/GetAllImportLogsByImportType": {
+      "get": {
+        "operationId": "GetAllImportLogsByImportType",
+        "summary": "GetAllImportLogsByImportType (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/GetBulkRecordingFeeCompareResult": {
+      "get": {
+        "operationId": "GetBulkRecordingFeeCompareResult",
+        "summary": "GetBulkRecordingFeeCompareResult (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/GetImportExceptionsForAssessAndAdjust": {
+      "get": {
+        "operationId": "GetImportExceptionsForAssessAndAdjust",
+        "summary": "GetImportExceptionsForAssessAndAdjust (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/GetImportExceptionsForAssessAndAdjustLoanToExclude": {
+      "get": {
+        "operationId": "GetImportExceptionsForAssessAndAdjustLoanToExclude",
+        "summary": "GetImportExceptionsForAssessAndAdjustLoanToExclude (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/GetImportExceptionsForLateCharge": {
+      "get": {
+        "operationId": "GetImportExceptionsForLateCharge",
+        "summary": "GetImportExceptionsForLateCharge (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/GetImportExceptionsForManualAssessAndAdjust": {
+      "get": {
+        "operationId": "GetImportExceptionsForManualAssessAndAdjust",
+        "summary": "GetImportExceptionsForManualAssessAndAdjust (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/GetImportExceptionsForManualCorporateAdvance": {
+      "get": {
+        "operationId": "GetImportExceptionsForManualCorporateAdvance",
+        "summary": "GetImportExceptionsForManualCorporateAdvance (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/GetImportExceptionsForReclass": {
+      "get": {
+        "operationId": "GetImportExceptionsForReclass",
+        "summary": "GetImportExceptionsForReclass (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/GetImportExceptionsForRecordingFee": {
+      "get": {
+        "operationId": "GetImportExceptionsForRecordingFee",
+        "summary": "GetImportExceptionsForRecordingFee (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/GetImportLogs": {
+      "get": {
+        "operationId": "GetImportLogs",
+        "summary": "GetImportLogs (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/GetImportLogsByImportType": {
+      "get": {
+        "operationId": "GetImportLogsByImportType",
+        "summary": "GetImportLogsByImportType (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/GetLoanServicingLog": {
+      "get": {
+        "operationId": "GetLoanServicingLog",
+        "summary": "GetLoanServicingLog (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/IsDuplicateFileName": {
+      "get": {
+        "operationId": "IsDuplicateFileName",
+        "summary": "IsDuplicateFileName (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/ManualAssessAndAdjustBulkUploadHangfire": {
+      "post": {
+        "operationId": "ManualAssessAndAdjustBulkUploadHangfire",
+        "summary": "ManualAssessAndAdjustBulkUploadHangfire (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ImportExport/ManualCorporateAdvanceBulkUploadHangfire": {
+      "post": {
+        "operationId": "ManualCorporateAdvanceBulkUploadHangfire",
+        "summary": "ManualCorporateAdvanceBulkUploadHangfire (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ImportExport/RetryFailedReclassTransactions": {
+      "get": {
+        "operationId": "RetryFailedReclassTransactions",
+        "summary": "RetryFailedReclassTransactions (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/ReviewRecordingFeeExcelExport": {
+      "get": {
+        "operationId": "ReviewRecordingFeeExcelExport",
+        "summary": "ReviewRecordingFeeExcelExport (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/SaveImportException": {
+      "post": {
+        "operationId": "SaveImportException",
+        "summary": "SaveImportException (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ImportExport/SaveImportLog": {
+      "post": {
+        "operationId": "SaveImportLog",
+        "summary": "SaveImportLog (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ImportExport/TriggerCorporateAdvanceAcquisitionFileProcessing": {
+      "get": {
+        "operationId": "TriggerCorporateAdvanceAcquisitionFileProcessing",
+        "summary": "TriggerCorporateAdvanceAcquisitionFileProcessing (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ImportExport/TriggerCorporateServiceReleaseFileProcessing": {
+      "get": {
+        "operationId": "TriggerCorporateServiceReleaseFileProcessing",
+        "summary": "TriggerCorporateServiceReleaseFileProcessing (ImportExportController)",
+        "tags": [
+          "ImportExportController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/LatchargeAutoAssessAdjustLoanToExclude/Update": {
+      "post": {
+        "operationId": "UpdateLatchargeAutoAssessAdjustLoanToExclude",
+        "summary": "UpdateLatchargeAutoAssessAdjustLoanToExclude (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/IsComplianceInPendingReview": {
+      "get": {
+        "operationId": "IsComplianceInPendingReview",
+        "summary": "IsComplianceInPendingReview (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeFactor/Get": {
+      "post": {
+        "operationId": "GetLageChargeFactor",
+        "summary": "GetLageChargeFactor (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeFactor/GetByDateRange": {
+      "get": {
+        "operationId": "GetLageChargeFactorCalculated",
+        "summary": "GetLageChargeFactorCalculated (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeFactor/GetByDateRangeWithPaging": {
+      "post": {
+        "operationId": "GetLateChargeFactors",
+        "summary": "GetLateChargeFactors (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeFactorCalculated/Update": {
+      "post": {
+        "operationId": "UpdateLateChargeFactorCalculated",
+        "summary": "UpdateLateChargeFactorCalculated (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeFactorLoans/Get": {
+      "post": {
+        "operationId": "GetLateChargeFactorLoans",
+        "summary": "GetLateChargeFactorLoans (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeHelocStateCompliance/Get": {
+      "post": {
+        "operationId": "LateChargeHelocStateFee",
+        "summary": "LateChargeHelocStateFee (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeHelocStateCompliance/Update": {
+      "post": {
+        "operationId": "UpdateLateChargeHelocStateFee",
+        "summary": "UpdateLateChargeHelocStateFee (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeInsurerCompliance/Get": {
+      "post": {
+        "operationId": "LateChargeInsurerFee",
+        "summary": "LateChargeInsurerFee (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeInsurerCompliance/Update": {
+      "post": {
+        "operationId": "UpdateLateChargeInsurerFee",
+        "summary": "UpdateLateChargeInsurerFee (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeInvestorCompliance/Get": {
+      "post": {
+        "operationId": "LateChargeInvestorFee",
+        "summary": "LateChargeInvestorFee (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeInvestorCompliance/Update": {
+      "post": {
+        "operationId": "UpdateLateChargeInvestorFee",
+        "summary": "UpdateLateChargeInvestorFee (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeStateCompliance/Get": {
+      "post": {
+        "operationId": "LateChargeStateFee",
+        "summary": "LateChargeStateFee (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeStateCompliance/Update": {
+      "post": {
+        "operationId": "UpdateLateChargeStateFee",
+        "summary": "UpdateLateChargeStateFee (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeStateCompliance/Validate": {
+      "post": {
+        "operationId": "ValidateLateChargeStateFee",
+        "summary": "ValidateLateChargeStateFee (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeStateComplianceAndConditionExcelExport/Get/{helocFlag}": {
+      "post": {
+        "operationId": "LateChargeStateFeeAndConditionExcelExport",
+        "summary": "LateChargeStateFeeAndConditionExcelExport (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "helocFlag",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeStateCondition/Delete": {
+      "post": {
+        "operationId": "DeleteLateChargeStateFee",
+        "summary": "DeleteLateChargeStateFee (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeStateCondition/Update": {
+      "post": {
+        "operationId": "UpdateLateChargeStateFee_2",
+        "summary": "UpdateLateChargeStateFee (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateCharge/LateChargeStateCondition/{lateChargeStateComplianceId}/GetAll": {
+      "get": {
+        "operationId": "GetAllLateChargeStateConditions",
+        "summary": "GetAllLateChargeStateConditions (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "lateChargeStateComplianceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/LateChargeFactor/ChangeHistory": {
+      "post": {
+        "operationId": "GetLateChargeFactorChangeHistory",
+        "summary": "GetLateChargeFactorChangeHistory (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateChargeHelocStateCompliance/ChangeHistory": {
+      "post": {
+        "operationId": "GetHelocStateChangeHistory",
+        "summary": "GetHelocStateChangeHistory (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateChargeInsurerCompliance/ChangeHistory": {
+      "post": {
+        "operationId": "GetLateChargeInsurerChangeHistory",
+        "summary": "GetLateChargeInsurerChangeHistory (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateChargeInvestorCompliance/ChangeHistory": {
+      "post": {
+        "operationId": "GetInvestorChangeHistory",
+        "summary": "GetInvestorChangeHistory (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/LateChargeStateCompliance/ChangeHistory": {
+      "post": {
+        "operationId": "GetStateChangeHistory",
+        "summary": "GetStateChangeHistory (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loan/{id}/CurrentDraftFee": {
+      "get": {
+        "operationId": "GetByLoan",
+        "summary": "GetByLoan (CurrentDraftFeeController)",
+        "tags": [
+          "CurrentDraftFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/DebitCardPaymentFee": {
+      "get": {
+        "operationId": "GetByLoan_2",
+        "summary": "GetByLoan (DebitCardPaymentFeeController)",
+        "tags": [
+          "DebitCardPaymentFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/HELOCEarlyClosureFee": {
+      "get": {
+        "operationId": "GetByLoan_3",
+        "summary": "GetByLoan (HELOCEarlyClosureFeeController)",
+        "tags": [
+          "HELOCEarlyClosureFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/LateCharge": {
+      "get": {
+        "operationId": "GetByLoan_4",
+        "summary": "GetByLoan (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/LateChargeFactorCalculated": {
+      "get": {
+        "operationId": "GetFactorByLoan",
+        "summary": "GetFactorByLoan (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/LateChargeSSECalc": {
+      "get": {
+        "operationId": "GetByLoanSSECalc",
+        "summary": "GetByLoanSSECalc (LateChargeController)",
+        "tags": [
+          "LateChargeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/NonSufficientFundsFee": {
+      "get": {
+        "operationId": "GetByLoan_5",
+        "summary": "GetByLoan (NonSufficientFundsFeeController)",
+        "tags": [
+          "NonSufficientFundsFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/PartialReleaseCost": {
+      "get": {
+        "operationId": "GetPartialReleaseCost",
+        "summary": "GetPartialReleaseCost (FlatFeeController)",
+        "tags": [
+          "FlatFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/Payoff/EstimatedFees": {
+      "get": {
+        "operationId": "GetEstimatedFee",
+        "summary": "GetEstimatedFee (PayoffProcessFeeController)",
+        "tags": [
+          "PayoffProcessFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/Payoff/FeeSummary": {
+      "get": {
+        "operationId": "GetFeeSummary",
+        "summary": "GetFeeSummary (PayoffProcessFeeController)",
+        "tags": [
+          "PayoffProcessFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/PayoffDemandStatementFee": {
+      "get": {
+        "operationId": "GetByLoan_6",
+        "summary": "GetByLoan (PayoffDemandStatementFeeController)",
+        "tags": [
+          "PayoffDemandStatementFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/PrepaymentPenaltyPeriodSchedule": {
+      "get": {
+        "operationId": "GetPrepaymentPenaltyPeriodSchedule",
+        "summary": "GetPrepaymentPenaltyPeriodSchedule (PrepaymentPenaltyController)",
+        "tags": [
+          "PrepaymentPenaltyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "SavePrepaymentPenaltyPeriodSchedule",
+        "summary": "SavePrepaymentPenaltyPeriodSchedule (PrepaymentPenaltyController)",
+        "tags": [
+          "PrepaymentPenaltyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loan/{id}/PrepaymentPenaltyTermsCalculated": {
+      "get": {
+        "operationId": "GetPrepaymentPenaltyTermsCalculated",
+        "summary": "GetPrepaymentPenaltyTermsCalculated (PrepaymentPenaltyController)",
+        "tags": [
+          "PrepaymentPenaltyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "SavePrepaymentPenaltyTermsCalculated",
+        "summary": "SavePrepaymentPenaltyTermsCalculated (PrepaymentPenaltyController)",
+        "tags": [
+          "PrepaymentPenaltyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loan/{id}/PrincipalRecastFee": {
+      "get": {
+        "operationId": "GetPrincipalRecastFee",
+        "summary": "GetPrincipalRecastFee (FlatFeeController)",
+        "tags": [
+          "FlatFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/QualifiedAssumption": {
+      "get": {
+        "operationId": "GetByLoan_7",
+        "summary": "GetByLoan (QualifiedAssumptionFeeController)",
+        "tags": [
+          "QualifiedAssumptionFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/RecordingFee": {
+      "get": {
+        "operationId": "GetByLoan_8",
+        "summary": "GetByLoan (RecordingFeeController)",
+        "tags": [
+          "RecordingFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/ReleaseCost": {
+      "get": {
+        "operationId": "GetByLoan_9",
+        "summary": "GetByLoan (ReleaseCostController)",
+        "tags": [
+          "ReleaseCostController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/SetHelocFeeDetail": {
+      "get": {
+        "operationId": "GetHelocFeeDetail",
+        "summary": "GetHelocFeeDetail (HelocFeeDetailController)",
+        "tags": [
+          "HelocFeeDetailController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "SetHelocFeeDetail",
+        "summary": "SetHelocFeeDetail (HelocFeeDetailController)",
+        "tags": [
+          "HelocFeeDetailController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Loan/{id}/SimpleAssumption": {
+      "get": {
+        "operationId": "GetByLoan_10",
+        "summary": "GetByLoan (SimpleAssumptionFeeController)",
+        "tags": [
+          "SimpleAssumptionFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/SimpleAssumptionFee": {
+      "get": {
+        "operationId": "GetSimpleAssumptionFee",
+        "summary": "GetSimpleAssumptionFee (FlatFeeController)",
+        "tags": [
+          "FlatFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Loan/{id}/SubordinationFee": {
+      "get": {
+        "operationId": "GetSubordinationFee",
+        "summary": "GetSubordinationFee (FlatFeeController)",
+        "tags": [
+          "FlatFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Lookup/AccountingTreatments": {
+      "get": {
+        "operationId": "GetAccountingTreatmentTypes",
+        "summary": "GetAccountingTreatmentTypes (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/CalculationBaseMethods/{isHeloc}": {
+      "get": {
+        "operationId": "GetCalculationBaseMethods",
+        "summary": "GetCalculationBaseMethods (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "isHeloc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Lookup/ClearHangfireJobByName": {
+      "get": {
+        "operationId": "ClearHangfireJob",
+        "summary": "ClearHangfireJob (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/ClearHangfireJobs": {
+      "get": {
+        "operationId": "ClearHangfireJobs",
+        "summary": "ClearHangfireJobs (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/Counties": {
+      "get": {
+        "operationId": "GetCounty_2",
+        "summary": "GetCounty (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/CreateStateCIR": {
+      "post": {
+        "operationId": "CreateStateCIR",
+        "summary": "CreateStateCIR (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Lookup/FeeAndLegacyValue": {
+      "get": {
+        "operationId": "GetFeeAndLegacyValue",
+        "summary": "GetFeeAndLegacyValue (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/FeeCategories": {
+      "get": {
+        "operationId": "GetFeeCategoryType",
+        "summary": "GetFeeCategoryType (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/FeeHangFireJobs": {
+      "get": {
+        "operationId": "GetFeeHangfireJob",
+        "summary": "GetFeeHangfireJob (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/FeeRecoverabilityOptionTypes": {
+      "get": {
+        "operationId": "GetFeeRecoverabilityOptionTypes",
+        "summary": "GetFeeRecoverabilityOptionTypes (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/GetAllStateCIR": {
+      "get": {
+        "operationId": "GetAllStateCIR",
+        "summary": "GetAllStateCIR (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/GetFeeCategoryTypeNames": {
+      "get": {
+        "operationId": "GetFeeCategoryTypeNames",
+        "summary": "GetFeeCategoryTypeNames (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/GetFeeReason": {
+      "get": {
+        "operationId": "GetFeeReason",
+        "summary": "GetFeeReason (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/GetFeeReasonCategoryRecoverability": {
+      "get": {
+        "operationId": "GetFeeReasonCategoryRecoverability",
+        "summary": "GetFeeReasonCategoryRecoverability (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/GetFeeShortNames/{feeCategoryTypeId}": {
+      "get": {
+        "operationId": "GetFeeShortNames",
+        "summary": "GetFeeShortNames (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "feeCategoryTypeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Lookup/GetReclassFeeRecoverabilityOptionTypes": {
+      "get": {
+        "operationId": "GetReclassFeeRecoverabilityOptionTypes",
+        "summary": "GetReclassFeeRecoverabilityOptionTypes (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/IsHangfireJobRunning": {
+      "get": {
+        "operationId": "IsHangfireJobRunning",
+        "summary": "IsHangfireJobRunning (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/LogSampleError": {
+      "post": {
+        "operationId": "LogSampleError",
+        "summary": "LogSampleError (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Lookup/ProcessingProfiles": {
+      "get": {
+        "operationId": "GetProcessingProfiles",
+        "summary": "GetProcessingProfiles (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/RefreshFeeHangFireJobs": {
+      "post": {
+        "operationId": "RefreshFeeHangfireJobs",
+        "summary": "RefreshFeeHangfireJobs (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Lookup/State/{usStateId}/Counties": {
+      "get": {
+        "operationId": "GetCounty",
+        "summary": "GetCounty (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "usStateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Lookup/StateConditions": {
+      "get": {
+        "operationId": "GetStateConditions",
+        "summary": "GetStateConditions (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Lookup/UpdateStateCIR": {
+      "post": {
+        "operationId": "UpdateStateCIR",
+        "summary": "UpdateStateCIR (LookupController)",
+        "tags": [
+          "LookupController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MatrixComplianceAudit/SubmitAudit": {
+      "post": {
+        "operationId": "SubmitAudit",
+        "summary": "SubmitAudit (MatrixComplianceAuditController)",
+        "tags": [
+          "MatrixComplianceAuditController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MatrixComplianceAudit/{matrixName}": {
+      "get": {
+        "operationId": "GetAuditMatrix",
+        "summary": "GetAuditMatrix (MatrixComplianceAuditController)",
+        "tags": [
+          "MatrixComplianceAuditController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "matrixName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/MatrixComplianceAudit/{matrixName}/GetRecord/{recordId}": {
+      "get": {
+        "operationId": "GetRecord",
+        "summary": "GetRecord (MatrixComplianceAuditController)",
+        "tags": [
+          "MatrixComplianceAuditController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "matrixName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/MatrixComplianceAudit/{matrixName}/LastAudit": {
+      "get": {
+        "operationId": "GetLastAudit",
+        "summary": "GetLastAudit (MatrixComplianceAuditController)",
+        "tags": [
+          "MatrixComplianceAuditController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "matrixName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Notes/GetLegacyNoteWorkstationCodes": {
+      "get": {
+        "operationId": "GetLegacyNoteWorkstationCodes",
+        "summary": "GetLegacyNoteWorkstationCodes (NotesController)",
+        "tags": [
+          "NotesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Notes/GetNotesByReclassRequestId/{RequestId}": {
+      "get": {
+        "operationId": "GetNotes",
+        "summary": "GetNotes (NotesController)",
+        "tags": [
+          "NotesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "RequestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Notes/SaveNote": {
+      "post": {
+        "operationId": "SaveNote",
+        "summary": "SaveNote (NotesController)",
+        "tags": [
+          "NotesController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Notification/PublishMessage": {
+      "post": {
+        "operationId": "PublishMessage",
+        "summary": "PublishMessage (NotificationController)",
+        "tags": [
+          "NotificationController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Post203KBalanceAdjustment": {
+      "post": {
+        "operationId": "Post203KBalanceAdjustment",
+        "summary": "Post203KBalanceAdjustment (TransactionHistoryController)",
+        "tags": [
+          "TransactionHistoryController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PrepaymentCompliance/PrepaymentComplianceExcelExport/Get": {
+      "post": {
+        "operationId": "PrepaymentComplianceExport",
+        "summary": "PrepaymentComplianceExport (PrepaymentProgramComplianceController)",
+        "tags": [
+          "PrepaymentProgramComplianceController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PrepaymentCompliance/Program/Get": {
+      "post": {
+        "operationId": "GetPrepaymentProgramCompliance",
+        "summary": "GetPrepaymentProgramCompliance (PrepaymentProgramComplianceController)",
+        "tags": [
+          "PrepaymentProgramComplianceController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PrepaymentPenalty/CalculateForReversalRepost": {
+      "post": {
+        "operationId": "CalculatePrepaymentPenaltyForReversalRepost",
+        "summary": "CalculatePrepaymentPenaltyForReversalRepost (PrepaymentPenaltyController)",
+        "tags": [
+          "PrepaymentPenaltyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PrepaymentPenalty/PrepaymentPenaltyFeeStateCompliance/Get": {
+      "post": {
+        "operationId": "GetPrepaymentStateCompliance",
+        "summary": "GetPrepaymentStateCompliance (PrepaymentProgramComplianceController)",
+        "tags": [
+          "PrepaymentProgramComplianceController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PrepaymentProgramCompliance/ChangeHistory": {
+      "post": {
+        "operationId": "GetStateChangeHistory_2",
+        "summary": "GetStateChangeHistory (PrepaymentProgramComplianceController)",
+        "tags": [
+          "PrepaymentProgramComplianceController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PrepaymentProgramCompliance/PrepaymentComplianceupdate/Update": {
+      "post": {
+        "operationId": "SavePrepaymentProgramCompliance",
+        "summary": "SavePrepaymentProgramCompliance (PrepaymentProgramComplianceController)",
+        "tags": [
+          "PrepaymentProgramComplianceController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Prepaymentpenalty/ChangeHistory": {
+      "post": {
+        "operationId": "GetPrepaymentPenaltyTermsChangeHistory",
+        "summary": "GetPrepaymentPenaltyTermsChangeHistory (PrepaymentProgramComplianceController)",
+        "tags": [
+          "PrepaymentProgramComplianceController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Prepaymentpenalty/PrepaymentpenaltyExcelExport/Get": {
+      "post": {
+        "operationId": "GetPrepaymentStateComplianceExport",
+        "summary": "GetPrepaymentStateComplianceExport (PrepaymentProgramComplianceController)",
+        "tags": [
+          "PrepaymentProgramComplianceController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Prepaymentpenalty/PrepaymentpenaltyStateCondition/Update": {
+      "post": {
+        "operationId": "UpdatePrepaymentStateCondition",
+        "summary": "UpdatePrepaymentStateCondition (PrepaymentProgramComplianceController)",
+        "tags": [
+          "PrepaymentProgramComplianceController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Reclass/DocTypes": {
+      "get": {
+        "operationId": "GetDocTypes",
+        "summary": "GetDocTypes (ReclassController)",
+        "tags": [
+          "ReclassController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Reclass/DownLoadFileByFileId/{fileId}": {
+      "get": {
+        "operationId": "DownLoad",
+        "summary": "DownLoad (ReclassController)",
+        "tags": [
+          "ReclassController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Reclass/DownLoadFiles/{lafaRequestId}": {
+      "get": {
+        "operationId": "DownLoadFile",
+        "summary": "DownLoadFile (ReclassController)",
+        "tags": [
+          "ReclassController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "lafaRequestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Reclass/GetAllRequests": {
+      "post": {
+        "operationId": "GetAllRequests",
+        "summary": "GetAllRequests (ReclassController)",
+        "tags": [
+          "ReclassController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Reclass/GetReclassRequestHistory/{LoanId}": {
+      "get": {
+        "operationId": "GetReclassRequestHistory",
+        "summary": "GetReclassRequestHistory (ReclassController)",
+        "tags": [
+          "ReclassController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Reclass/GetReclassRequestHistoryForQueue/{LafaRequestId}": {
+      "get": {
+        "operationId": "GetReclassRequestHistoryForQueue",
+        "summary": "GetReclassRequestHistoryForQueue (ReclassController)",
+        "tags": [
+          "ReclassController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LafaRequestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Reclass/GetTransactCodeDetails/{transactionShortName}": {
+      "get": {
+        "operationId": "GetTransactCodeDetails",
+        "summary": "GetTransactCodeDetails (ReclassController)",
+        "tags": [
+          "ReclassController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "transactionShortName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Reclass/ReclassRequest/Create": {
+      "post": {
+        "operationId": "CreateReclassRequest",
+        "summary": "CreateReclassRequest (ReclassController)",
+        "tags": [
+          "ReclassController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Reclass/ReclassRequest/MarkReqeustsCompleteAfterLFNProcess": {
+      "post": {
+        "operationId": "MarkReqeustsCompleteAfterLFNProcess_2",
+        "summary": "MarkReqeustsCompleteAfterLFNProcess (ReclassController)",
+        "tags": [
+          "ReclassController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Reclass/ReclassRequest/SaveUploadedFile": {
+      "post": {
+        "operationId": "SaveUploadedFile",
+        "summary": "SaveUploadedFile (ReclassController)",
+        "tags": [
+          "ReclassController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Reclass/ReclassRequest/SyncReclassStatusFromLAFA": {
+      "post": {
+        "operationId": "SyncReclassStatusFromLAFA",
+        "summary": "SyncReclassStatusFromLAFA (ReclassController)",
+        "tags": [
+          "ReclassController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Reclass/ReclassRequest/UploadAFile": {
+      "post": {
+        "operationId": "UploadAFile",
+        "summary": "UploadAFile (ReclassController)",
+        "tags": [
+          "ReclassController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Reclass/ReclassRequestByLafaRequestId/{lafaRequestId}": {
+      "get": {
+        "operationId": "GetReclassRequestByLafaRequestId",
+        "summary": "GetReclassRequestByLafaRequestId (ReclassController)",
+        "tags": [
+          "ReclassController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "lafaRequestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/Reclass/ReclassRequestByLoanId/{LoanId}": {
+      "get": {
+        "operationId": "GetReclassRequestByLoanId",
+        "summary": "GetReclassRequestByLoanId (ReclassController)",
+        "tags": [
+          "ReclassController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "LoanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/SSEiClearInvoice/SubmitInvoicesForFailedRecords": {
+      "get": {
+        "operationId": "SubmitInvoicesForFailedRecords",
+        "summary": "SubmitInvoicesForFailedRecords (SSEiClearInvoiceController)",
+        "tags": [
+          "SSEiClearInvoiceController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SSEiClearInvoice/SubmitInvoicesForPayment": {
+      "get": {
+        "operationId": "SubmitInvoicesForPayment",
+        "summary": "SubmitInvoicesForPayment (SSEiClearInvoiceController)",
+        "tags": [
+          "SSEiClearInvoiceController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SecondLevelApprovalAction": {
+      "get": {
+        "operationId": "SecondLevelApprovalAction",
+        "summary": "SecondLevelApprovalAction (FeeWorkflowController)",
+        "tags": [
+          "FeeWorkflowController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StartApprovalWorkflow": {
+      "get": {
+        "operationId": "StartApprovalWorkflow",
+        "summary": "StartApprovalWorkflow (FeeWorkflowController)",
+        "tags": [
+          "FeeWorkflowController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/UpdateFeeApprovers": {
+      "post": {
+        "operationId": "UpdateFeeApprovers",
+        "summary": "UpdateFeeApprovers (FeeWorkflowController)",
+        "tags": [
+          "FeeWorkflowController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/UpdateRequestToApproverQueue": {
+      "post": {
+        "operationId": "UpdateRequestToApproverQueue",
+        "summary": "UpdateRequestToApproverQueue (FeeWorkflowController)",
+        "tags": [
+          "FeeWorkflowController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/WaiveReason/CheckDuplicateWaiveReason": {
+      "post": {
+        "operationId": "CheckDuplicateWaiveReason",
+        "summary": "CheckDuplicateWaiveReason (WaiveReasonController)",
+        "tags": [
+          "WaiveReasonController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/WaiveReason/GetAllWaiveReasons": {
+      "get": {
+        "operationId": "GetAllWaiveReasons",
+        "summary": "GetAllWaiveReasons (WaiveReasonController)",
+        "tags": [
+          "WaiveReasonController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/WaiveReason/GetChangHistory": {
+      "post": {
+        "operationId": "GetChangHistory",
+        "summary": "GetChangHistory (WaiveReasonController)",
+        "tags": [
+          "WaiveReasonController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/WaiveReason/GetLevels": {
+      "get": {
+        "operationId": "GetLevels",
+        "summary": "GetLevels (WaiveReasonController)",
+        "tags": [
+          "WaiveReasonController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/WaiveReason/GetWaiveReasonsByFeeId": {
+      "get": {
+        "operationId": "GetWaiveReasonsByFeeMasterId",
+        "summary": "GetWaiveReasonsByFeeMasterId (WaiveReasonController)",
+        "tags": [
+          "WaiveReasonController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/WaiveReason/SaveWaiveReasons/{feeId}": {
+      "post": {
+        "operationId": "SaveWaiveReasons",
+        "summary": "SaveWaiveReasons (WaiveReasonController)",
+        "tags": [
+          "WaiveReasonController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "name": "feeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/WebPaymentConvenienceFee": {
+      "get": {
+        "operationId": "GetByLoan_11",
+        "summary": "GetByLoan (WebPaymentConvenienceFeeController)",
+        "tags": [
+          "WebPaymentConvenienceFeeController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/prepaymentpenalty/GetLatestComment": {
+      "get": {
+        "operationId": "GetLatestPrepaymentPenaltyComment",
+        "summary": "GetLatestPrepaymentPenaltyComment (PrepaymentPenaltyController)",
+        "tags": [
+          "PrepaymentPenaltyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/prepaymentpenalty/SaveComment": {
+      "post": {
+        "operationId": "SavePrepaymentPenaltyComment",
+        "summary": "SavePrepaymentPenaltyComment (PrepaymentPenaltyController)",
+        "tags": [
+          "PrepaymentPenaltyController"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
       }
     }
   }

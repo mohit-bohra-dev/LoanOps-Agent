@@ -623,3 +623,40 @@ fixtures, Qdrant in Docker, and a static-token broker).
 
 **Status:** Accepted 2026-10-09. Implemented through Phase 6 (docs).
 
+---
+
+## ADR-025 — GraphRAG: do not add
+
+**Decision:** Do not add GraphRAG (LLM entity/relation extraction, community
+summaries, graph-aware doc retrieval). Policy answers stay flat vector RAG
+(`search_docs`). Graph questions about apps and capabilities stay on EAKG.
+Full write-up: `docs/GRAPHRAG_REVIEW.md`.
+
+**Context:** Asked whether GraphRAG should be added on top of docs RAG, EAKG,
+and the ApiIndex pgvector store. SOP corpus measured 2026-10-09: 60 markdown
+files, ~339 KB. Golden set ~50 items, no global-summary questions.
+
+**Alternatives:**
+- GraphRAG now — rejected. Community summaries have no `policy:` source, so
+  they fail the citation rule and citation-coverage 1.0. Local 8B extraction
+  is non-deterministic (eval moves between index runs). Corpus is an order of
+  magnitude too small. A graph store would be a new Provider Protocol.
+- Wire the existing reranker into `DocsService.search` — preferred next step.
+  `get_reranker_provider()` already exists and is unused by docs search.
+- Hybrid keyword + vector plus path/front-matter metadata — same shape as
+  ApiIndex, no LLM.
+- Deterministic doc-link file (markdown links, SOP → capability id), one-hop
+  expand, each neighbour still a citable chunk.
+
+**Reasoning:** EAKG already answers cross-app and impact questions. GraphRAG's
+remaining value is multi-hop over a large interlinked doc corpus, which this
+repo does not have. Citations require source text, not generated summaries.
+
+**Revisit when any two hold:** corpus past ~2,000 docs or ~20k chunks; 20+
+global/multi-policy golden items still fail faithfulness ≥ 0.85 after the
+three alternatives ship; source becomes dense narrative (runbooks,
+postmortems); summaries can cite back to source chunks with a pinned
+extraction model.
+
+**Status:** Deferred 2026-10-09. Recommendation recorded. Not a build.
+

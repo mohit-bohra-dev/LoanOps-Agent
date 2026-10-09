@@ -460,6 +460,8 @@ Two pipelines exist. Only one is on the agent path.
 
 RAG and a future MCP capability catalog should stay separate. `search_docs` answers policy questions. MCP tool discovery should describe callable APIs. Mixing them will make the model treat SOP chunks as operations.
 
+GraphRAG (entity extraction, community summaries, graph retrieval over SOPs) is **not** in scope. ADR-025; write-up `docs/GRAPHRAG_REVIEW.md`. EAKG remains the graph for capabilities and cross-app impact.
+
 ---
 
 ## 12. Safety

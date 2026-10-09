@@ -1,3 +1,33 @@
+## [2026-10-09] — GraphRAG review recorded (ADR-025)
+
+**Session type:** Docs / decision
+
+**Completed:**
+- `docs/GRAPHRAG_REVIEW.md` — verdict, evidence, alternatives, revisit triggers
+- ADR-025 in `decisions.md` (Deferred): do not add GraphRAG
+- Pointer from `ARCHITECTURE.md` §11
+
+**Reason:** User asked to save the GraphRAG recommendation.
+
+---
+
+## [2026-10-09] — Part 1 local enable: escrow / fees / loanservices + pgvector
+
+**Session type:** Ops / local enable (enterprise-app-scale)
+
+**Completed:**
+- `provider_contracts` `PgVectorProvider`: `CAST(:x AS vector|jsonb)` for asyncpg; dim probe via `format_type` (pgvector `atttypmod` is dims, not typmod-4)
+- Expanded local fixtures from shard `interface.json` (`scripts/_gen_local_openapi_from_interface.py`) — escrow/fees/loanservices
+- Postgres `loanops` + `refresh all --env local`: **625** callable GETs embedded (`vs_api_ops_local_47084b1c`); apps 374/140/111
+- Search smoke (`vector_index`): escrow / fees / loanservices queries hit correct apps
+- Idempotent second refresh: embedded=0, unchanged=625
+
+**Config (local `.env`):** `VECTOR_STORE__PROVIDER=pgvector`, `API_INDEX__ENABLED=true`, `CREDENTIALS__STATIC_SHARED_APPS=["escrow","fees","loanservices"]`
+
+**Open:** restart MCP/Agent API to pick up `.env`; live JWT smoke when tokens available; commit CAST/typmod fix in `provider_contracts` when ready.
+
+---
+
 ## [2026-10-09] — Phase 6: documentation + graph upkeep
 
 **Session type:** Docs / bookkeeping (enterprise-app-scale P6)
