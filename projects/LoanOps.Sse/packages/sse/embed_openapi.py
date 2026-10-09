@@ -11,7 +11,7 @@ import sys
 
 from packages.common.providers.factory import get_embedding_provider
 from packages.common.settings import get_settings
-from packages.sse.loader import DEFAULT_SWAGGER_LINKS, OpenApiCatalogService
+from packages.sse.loader import DEFAULT_SWAGGER_LINKS, OpenApiCatalogService, resolve_swagger_links
 from packages.sse.semantic import (
     OpenApiEmbeddingEntry,
     openapi_embeddings_path,
@@ -23,12 +23,9 @@ from packages.sse.semantic import (
 
 async def _main() -> int:
     cfg = get_settings()
-    swagger_links = list(DEFAULT_SWAGGER_LINKS)
-    if cfg.sse.swagger_links:
-        swagger_links = [
-            {"id": link.id, "label": link.label, "url": link.url}
-            for link in cfg.sse.swagger_links
-        ]
+    swagger_links = resolve_swagger_links(cfg.sse.swagger_links, cfg.sse.swagger_urls) or list(
+        DEFAULT_SWAGGER_LINKS
+    )
     fixture_path = cfg.sse.fixture_path or None
     if cfg.sse.use_fixture and not fixture_path:
         fixture_path = "data/sse-fixture-openapi.json"

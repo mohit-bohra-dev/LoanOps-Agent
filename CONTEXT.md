@@ -67,7 +67,7 @@
 | `EMBEDDING__PROVIDER` | `local_bge` | `local_bge` / `aoai` |
 | `EMBEDDING__AOAI__ENDPOINT` | `""` | Azure embedding endpoint |
 | `EMBEDDING__AOAI__DEPLOYMENT` | `text-embedding-3-large` | Azure embedding deployment |
-| `VECTOR_STORE__PROVIDER` | `qdrant` | `qdrant` / `ai_search` |
+| `VECTOR_STORE__PROVIDER` | `pgvector` | `pgvector` (API index) / `qdrant` / `ai_search` |
 | `VECTOR_STORE__QDRANT__URL` | `http://localhost:6333` | Qdrant endpoint |
 | `VECTOR_STORE__QDRANT__COLLECTION` | `sops` | Qdrant collection name |
 | `VECTOR_STORE__AI_SEARCH__ENDPOINT` | `""` | AI Search endpoint |
@@ -106,7 +106,9 @@
 | `EAKG__REVIEW_STALE_DAYS` | `14` | Weekly audit stale-proposal age |
 | `EAKG__TAAC_FIXTURE_PATH` | `data/eakg/fixtures/taac-client-config.redacted.json` | Redacted TAAC for CI |
 | `EAKG__EXTRACTOR` | `auto` | `auto`\|`roslyn`\|`regex` — Roslyn primary (D5) |
-| `SSE__USE_FIXTURE` | `true` | Local OpenAPI fixture vs live swagger |
+| `EAKG__ENVIRONMENT` | `local` | Registry env: `local` \| `dev` \| `stage` \| `prod` |
+| `SSE__CATALOG_SOURCE` | `auto` | `auto` \| `registry` \| `swagger_links` \| `fixture`. `auto`: explicit swagger links, else registry with a usable spec, else fixture |
+| `SSE__USE_FIXTURE` | `true` | Legacy fixture switch. Does not override an explicit `SSE__CATALOG_SOURCE` |
 | `SSE__API_BASE_URL` | (see `.env.example`) | Default SSE host allow-list base |
 | `SSE__API_KEY` | `""` | Bearer for live Loan Services / SSE apps |
 | `SSE__SWAGGER_LINKS` | `[]` | JSON list of `{id,label,url}` swagger sources |

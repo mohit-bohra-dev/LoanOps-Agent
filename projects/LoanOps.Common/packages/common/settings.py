@@ -262,6 +262,9 @@ class SseConfig(BaseModel):
     swagger_links: list[SwaggerLinkConfig] = Field(default_factory=list)
     # Shorthand: list of swagger URLs only (ids derived from hostname)
     swagger_urls: list[str] = Field(default_factory=list)
+    # auto | registry | swagger_links | fixture. auto prefers an explicit
+    # swagger list, then a registry that has a usable spec, then the fixture.
+    catalog_source: Literal["auto", "registry", "swagger_links", "fixture"] = "auto"
 
 
 class SqlServerConfig(BaseModel):
@@ -319,6 +322,7 @@ class EakgConfig(BaseModel):
     registry_path: str = "data/eakg/registry/repositories.yaml"
     shard_dir: str = "data/eakg"
     gitlab_host: str = "gitlab.pnmac.com"
+    environment: Literal["local", "dev", "stage", "prod"] = "local"
     openapi_mode: Literal["static", "hybrid", "live"] = "hybrid"
     live_spec_token: str = ""
     confidence_threshold: float = 0.85

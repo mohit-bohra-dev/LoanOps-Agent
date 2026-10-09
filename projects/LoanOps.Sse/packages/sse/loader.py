@@ -12,6 +12,46 @@ import httpx
 from packages.sse.catalog import origin_of, parse_openapi_document
 from packages.sse.types import CatalogSource, OpenApiCatalog
 
+CatalogMode = str
+
+
+def resolve_swagger_links(swagger_links: list[Any], swagger_urls: list[str]) -> list[dict[str, str]]:
+    """Named links win. URL-only list becomes ids from the hostname."""
+    if swagger_links:
+        return [
+            {"id": str(link.id), "label": str(link.label), "url": str(link.url)}
+            if not isinstance(link, dict)
+            else {"id": str(link["id"]), "label": str(link["label"]), "url": str(link["url"])}
+            for link in swagger_links
+        ]
+    from urllib.parse import urlparse
+
+    links: list[dict[str, str]] = []
+    for i, url in enumerate(swagger_urls):
+        host = urlparse(url).hostname or f"app-{i}"
+        slug = host.split(".")[0].replace("-", "_")
+        links.append({"id": slug, "label": host, "url": url})
+    return links
+
+
+def resolve_catalog_source(
+    catalog_source: str,
+    *,
+    has_swagger_links: bool,
+    registry_has_spec: bool,
+    use_fixture: bool,
+) -> CatalogMode:
+    """auto: explicit swagger list, else registry with a spec, else fixture."""
+    if catalog_source in {"registry", "swagger_links", "fixture"}:
+        return catalog_source
+    if has_swagger_links:
+        return "swagger_links"
+    if registry_has_spec:
+        return "registry"
+    if use_fixture:
+        return "fixture"
+    return "registry"
+
 DEFAULT_SWAGGER_LINKS: list[dict[str, str]] = [
     {
         "id": "pennedocs-dev",
@@ -40,6 +80,8 @@ class OpenApiCatalogService:
         fixture_path: str | None = None,
         timeout_seconds: float = 15.0,
         openapi_embed_path: str | None = None,
+        registry_specs: list[dict[str, Any]] | None = None,
+        reload_specs: Any | None = None,
     ) -> None:
         self.swagger_links = swagger_links or list(DEFAULT_SWAGGER_LINKS)
         self.api_base_url = api_base_url.rstrip("/")
@@ -47,9 +89,20 @@ class OpenApiCatalogService:
         self.fixture_path = fixture_path
         self.timeout_seconds = timeout_seconds
         self.openapi_embed_path = openapi_embed_path
+        self.registry_specs = registry_specs
+        self._reload_specs = reload_specs
         self._catalog: OpenApiCatalog | None = None
         self.openapi_embed_cache: dict[str, list[float]] = {}
         self.openapi_embed_hashes: dict[str, str] = {}
+
+    def reload_registry(self) -> None:
+        """Re-read cached specs from disk and drop the in-memory catalog."""
+        if self._reload_specs is None:
+            return
+        loaded = self._reload_specs()
+        if isinstance(loaded, list):
+            self.registry_specs = loaded
+            self._catalog = None
 
     def allowed_origins(self) -> list[str]:
         origins: set[str] = set()
@@ -88,6 +141,10 @@ class OpenApiCatalogService:
         if refresh:
             self.openapi_embed_cache = {}
             self.openapi_embed_hashes = {}
+        if self.registry_specs is not None:
+            self._catalog = self._load_registry_specs()
+            self._seed_embeddings(self._catalog)
+            return self._catalog
         if self.fixture_path:
             self._catalog = self._load_fixture(Path(self.fixture_path))
             self._seed_embeddings(self._catalog)
@@ -136,6 +193,43 @@ class OpenApiCatalogService:
         )
         self._seed_embeddings(self._catalog)
         return self._catalog
+
+    def _load_registry_specs(self) -> OpenApiCatalog:
+        """Build the catalog from cached documents. Does not open a network client."""
+        sources: list[CatalogSource] = []
+        operations = []
+        for spec in self.registry_specs or []:
+            doc = spec.get("document")
+            source_id = str(spec.get("source_id") or "")
+            label = str(spec.get("label") or source_id)
+            base = str(spec.get("base_url") or "")
+            error = spec.get("error")
+            if not isinstance(doc, dict):
+                sources.append(
+                    CatalogSource(
+                        id=source_id,
+                        label=label,
+                        url=base,
+                        operation_count=0,
+                        error=str(error or "no cached spec"),
+                    )
+                )
+                continue
+            ops = parse_openapi_document(doc, source_id, label, base)
+            operations.extend(ops)
+            sources.append(
+                CatalogSource(
+                    id=source_id,
+                    label=label,
+                    url=base,
+                    operation_count=len(ops),
+                )
+            )
+        return OpenApiCatalog(
+            operations=operations,
+            loaded_at=datetime.now(UTC).isoformat(),
+            sources=sources,
+        )
 
     def _load_fixture(self, path: Path) -> OpenApiCatalog:
         raw: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))

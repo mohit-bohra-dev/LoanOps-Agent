@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import httpx
 from packages.eakg.models import RepoInterface
@@ -19,6 +19,56 @@ SPEC_CANDIDATES = (
     "/openapi/v1.json",
     "/swagger/FF/swagger.json",
 )
+
+
+def _same_origin(left: str, right: str) -> bool:
+    a, b = urlparse(left), urlparse(right)
+    return (a.scheme, a.netloc) == (b.scheme, b.netloc) and bool(a.netloc)
+
+
+async def fetch_spec_with_source(
+    base_url: str,
+    token: str = "",
+    *,
+    paths: tuple[str, ...] | list[str] = SPEC_CANDIDATES,
+    timeout: float = 20.0,
+    transport: httpx.AsyncBaseTransport | None = None,
+) -> tuple[dict[str, Any] | None, str | None, str | None]:
+    """GET a spec. Follow at most 3 redirects, and only on the same origin."""
+    headers: dict[str, str] = {"Accept": "application/json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    candidates = tuple(p for p in paths if p) or SPEC_CANDIDATES
+    async with httpx.AsyncClient(
+        timeout=timeout,
+        follow_redirects=False,
+        headers=headers,
+        transport=transport,
+    ) as client:
+        for path in candidates:
+            url = urljoin(base_url.rstrip("/") + "/", path.lstrip("/"))
+            for _hop in range(4):
+                try:
+                    resp = await client.get(url)
+                except httpx.HTTPError as exc:
+                    return None, url, str(exc)
+                if resp.status_code in {301, 302, 303, 307, 308}:
+                    loc = resp.headers.get("location") or ""
+                    nxt = urljoin(url, loc)
+                    if not loc or not _same_origin(base_url, nxt):
+                        return None, url, f"redirect left origin: {nxt}"
+                    url = nxt
+                    continue
+                if resp.status_code != 200:
+                    break
+                try:
+                    data = resp.json()
+                except json.JSONDecodeError:
+                    break
+                if isinstance(data, dict) and ("paths" in data or "openapi" in data or "swagger" in data):
+                    return data, url, None
+                break
+    return None, None, "no OpenAPI document at candidate paths"
 
 
 async def fetch_spec(
@@ -64,17 +114,21 @@ async def enrich_interface(
     base_url: str = "",
     token: str = "",
     fixture_path: str = "",
+    spec: dict[str, Any] | None = None,
 ) -> RepoInterface:
     from packages.eakg.graph_build import enrich_operations_from_openapi
 
     if mode == "static":
         return iface
 
+    if spec is not None:
+        store.write_openapi_cache(iface.repository_id, iface.commit_sha, spec)
+        return enrich_operations_from_openapi(iface, spec)
+
     cached = store.read_openapi_cache(iface.repository_id, iface.commit_sha)
     if cached:
         return enrich_operations_from_openapi(iface, cached)
 
-    spec: dict[str, Any] | None = None
     if fixture_path:
         spec = load_fixture_spec(fixture_path)
     if spec is None and mode in {"hybrid", "live"} and base_url:

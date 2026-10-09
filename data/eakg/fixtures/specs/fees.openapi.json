@@ -1,0 +1,15 @@
+{
+  "openapi": "3.0.3",
+  "info": {"title": "Fees (synthetic)", "version": "1.0.0"},
+  "paths": {
+    "/api/fees/{id}": {
+      "get": {
+        "operationId": "getFees",
+        "summary": "Get fees for a loan",
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "schema": {"type": "string"}}
+        ]
+      }
+    }
+  }
+}

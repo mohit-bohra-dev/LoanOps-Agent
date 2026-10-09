@@ -20,6 +20,11 @@ repositories:
   detector_versions: {}
   shard_path: repos/escrow
   api_project_path: src/Escrow.Api
+  service_url_key: EscrowManagerApiUrl
+  environments:
+    local:
+      base_url: http://127.0.0.1:9101
+      spec_fixture: data/eakg/fixtures/specs/escrow.openapi.json
 - repository_id: fees
   application: Fees
   application_id: fees
@@ -41,6 +46,11 @@ repositories:
   detector_versions: {}
   shard_path: repos/fees
   api_project_path: src/Fees.WebApi
+  service_url_key: FeesApiUrl
+  environments:
+    local:
+      base_url: http://127.0.0.1:9102
+      spec_fixture: data/eakg/fixtures/specs/fees.openapi.json
 - repository_id: loanservices
   application: Loan Services
   application_id: loanservices
@@ -60,3 +70,8 @@ repositories:
   detector_versions: {}
   shard_path: repos/loanservices
   api_project_path: src/LoanServices.WebApi
+  service_url_key: LoanServicesUrl
+  environments:
+    local:
+      base_url: http://127.0.0.1:9103
+      spec_fixture: data/eakg/fixtures/specs/loanservices.openapi.json

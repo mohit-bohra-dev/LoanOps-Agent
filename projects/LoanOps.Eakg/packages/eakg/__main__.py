@@ -10,6 +10,8 @@ import sys
 from packages.common.settings import Settings
 from packages.eakg.onboard import onboard_repository, rebuild_cross_app
 from packages.eakg.registry import RepositoryRegistry
+from packages.eakg.registry_import import import_taac
+from packages.eakg.registry_validate import validate_registry
 from packages.eakg.review import (
     decide,
     list_pending,
@@ -91,11 +93,52 @@ def main(argv: list[str] | None = None) -> int:
         help="RDF local name, e.g. op_loanservices_GetLoanSummary_GET",
     )
 
+    p_registry = sub.add_parser("registry", help="Validate or import the application mapping")
+    reg_sub = p_registry.add_subparsers(dest="registry_cmd", required=True)
+    p_val = reg_sub.add_parser("validate", help="Print registry issues as JSON")
+    p_val.add_argument("--env", default="")
+    p_imp = reg_sub.add_parser("import-taac", help="Fill blank base URLs from TAAC ServiceUrls")
+    p_imp.add_argument("--env", required=True)
+    p_imp.add_argument("--path", default="")
+    p_imp.add_argument("--dry-run", action="store_true")
+
+    p_refresh = sub.add_parser("spec-refresh", help="Refresh cached OpenAPI specs for the active environment")
+    p_refresh.add_argument("--env", default="")
+
     args = parser.parse_args(argv)
     cfg = Settings()
     registry = RepositoryRegistry(cfg.eakg.registry_path)
     store = ShardStore(cfg.eakg.shard_dir)
     store.ensure_layout()
+
+    if args.cmd == "registry":
+        if args.registry_cmd == "validate":
+            issues = validate_registry(registry)
+            payload = {
+                app: [issue.__dict__ for issue in rows]
+                for app, rows in issues.items()
+                if rows and (not args.env or any(i.environment in (None, args.env) for i in rows))
+            }
+            print(json.dumps(payload, indent=2))
+            blocking = any(i.severity == "blocking" for rows in issues.values() for i in rows)
+            return 2 if blocking else 0
+        taac_path = args.path or cfg.eakg.taac_fixture_path
+        report = import_taac(registry, taac_path, args.env, dry_run=args.dry_run)
+        print(json.dumps(report.to_dict(), indent=2))
+        return 0
+
+    if args.cmd == "spec-refresh":
+        from packages.eakg.spec_cache import refresh_all
+
+        env = args.env or cfg.eakg.environment
+
+        async def _no_token(_application_id: str, _audience: str) -> str:
+            return ""
+
+        report = asyncio.run(refresh_all(registry, env, store, _no_token))
+        failed = any(row.get("status") != "ok" for row in report.values())
+        print(json.dumps(report, indent=2))
+        return 2 if failed else 0
 
     if args.cmd == "register":
         rec = registry.register(

@@ -45,6 +45,18 @@ async def onboard_repository(
     store.ensure_layout()
     report: dict[str, Any] = {"repository_id": record.repository_id, "stages": []}
 
+    if not record.git_url.strip():
+        from packages.eakg.spec_cache import refresh_spec
+
+        async def _no_token(_application_id: str, _audience: str) -> str:
+            return ""
+
+        pointer = await refresh_spec(record, cfg.eakg.environment, store, _no_token)
+        index_status = "indexed" if pointer.get("status") == "ok" else "failed"
+        registry.set_status(record.repository_id, index_status=index_status)  # type: ignore[arg-type]
+        report["stages"].append({"spec": pointer.get("status")})
+        return report
+
     with RepoLock(Path(cfg.eakg.workspace_dir) / ".locks", record.repository_id):
         # access
         if local_path is None and not skip_clone:
@@ -124,13 +136,26 @@ async def onboard_repository(
         iface = iface_obj
         details = details_obj
 
-        # openapi hybrid
+        # openapi hybrid — spec comes from the cache, not a live fetch inside enrich
+        from packages.eakg.spec_cache import read_current_spec, refresh_spec
+
+        async def _token(_application_id: str, _audience: str) -> str:
+            return cfg.eakg.live_spec_token
+
+        env = cfg.eakg.environment
+        pointer = await refresh_spec(record, env, store, _token)
+        doc, _cached_pointer = read_current_spec(store, record.repository_id, env)
+        target = record.environments.get(env)
         iface = await enrich_interface(
             iface,
             store,
             mode=cfg.eakg.openapi_mode,
+            base_url=target.base_url if target is not None else "",
             token=cfg.eakg.live_spec_token,
+            fixture_path=target.spec_fixture if target is not None else "",
+            spec=doc,
         )
+        report["stages"].append({"spec": pointer.get("status")})
         report["stages"].append(
             {
                 "extract": {

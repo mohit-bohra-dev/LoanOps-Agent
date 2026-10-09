@@ -60,6 +60,8 @@ class ModularToolsClient(AbstractToolsClientProvider):
         self._capability_block = capability_block
         self._catalog_service = catalog_service
         self._settings = settings
+        self._catalog_fingerprint: tuple[tuple[str, int, int], ...] | None = None
+        self._catalog_checked_at = 0.0
         self._allowed = (
             tools_for_scopes(scopes) if scopes is not None else tools_for_role(role)
         )
@@ -148,8 +150,28 @@ class ModularToolsClient(AbstractToolsClientProvider):
             path=path,
         )
 
+    def _maybe_reload_catalog(self) -> None:
+        if self._settings is None:
+            return
+        import time
+
+        now = time.monotonic()
+        if now - self._catalog_checked_at < 5.0:
+            return
+        self._catalog_checked_at = now
+        from packages.tools.registry_catalog import catalog_fingerprint
+
+        current = catalog_fingerprint(self._settings)
+        if self._catalog_fingerprint is None:
+            self._catalog_fingerprint = current
+            return
+        if current != self._catalog_fingerprint:
+            self._sse.reload_registry()
+            self._catalog_fingerprint = current
+
     async def call(self, tool: ToolCall) -> ToolResult:
         # LAYER2-BP A5: in-process helpers (Agent modular OR MCP server)
+        self._maybe_reload_catalog()
         name = tool.tool_name
         if name not in self._allowed:
             return self._err(name, f"Tool '{name}' not allowed for current scope")

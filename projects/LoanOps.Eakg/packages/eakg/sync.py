@@ -44,8 +44,16 @@ async def sync_nightly(*, settings: Settings | None = None) -> dict[str, object]
     cfg = settings or Settings()
     registry = RepositoryRegistry(cfg.eakg.registry_path)
     store = ShardStore(cfg.eakg.shard_dir)
+    from packages.eakg.spec_cache import refresh_all
+
+    async def _no_token(_application_id: str, _audience: str) -> str:
+        return ""
+
+    spec_report = await refresh_all(registry, cfg.eakg.environment, store, _no_token)
     updated: list[str] = []
     for rec in registry.list():
+        if not rec.git_url.strip():
+            continue
         head = remote_head(rec.git_url, host=cfg.eakg.gitlab_host, branch=rec.default_branch)
         if head and head == rec.last_indexed_commit:
             continue
@@ -73,6 +81,7 @@ async def sync_nightly(*, settings: Settings | None = None) -> dict[str, object]
     approved = auto_approve_structural(store, confidence_threshold=1.0)
     published = publish_approved_catalog(store)
     return {
+        "spec_refresh": spec_report,
         "updated_repos": updated,
         "cross_app": cross,
         "auto_approved_edges": approved,

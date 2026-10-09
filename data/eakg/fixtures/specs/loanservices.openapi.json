@@ -1,0 +1,15 @@
+{
+  "openapi": "3.0.3",
+  "info": {"title": "Loan Services (synthetic)", "version": "1.0.0"},
+  "paths": {
+    "/api/Loans/{loan_id}/Summary": {
+      "get": {
+        "operationId": "getLoanSummary",
+        "summary": "Get loan summary",
+        "parameters": [
+          {"name": "loan_id", "in": "path", "required": true, "schema": {"type": "string"}}
+        ]
+      }
+    }
+  }
+}

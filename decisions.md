@@ -561,3 +561,60 @@ Fingerprint invalidation is enough for local MCP demos.
 
 **Status:** Proposed 2026-04-08.
 
+---
+
+## ADR-024 — Enterprise app scale: registry-driven API catalog (30+ apps)
+
+**Decision:** The EAKG repository registry is the single source of truth for
+which applications LoanOps can discover and call. Each registry entry carries
+per-environment base URLs and an auth audience (seeded from TAAC
+`ServiceUrls` / API `Identifier`). OpenAPI specs are fetched and cached by the
+onboarding pipeline only; the MCP process builds its SSE catalog from cached
+specs and makes no swagger requests at start-up. EAKG capabilities and OpenAPI
+operations merge into one operation record keyed by
+`application|METHOD|normalized_path`, embedded at index time and stored in the pgvector implementation of the
+vector store provider (`VECTOR_STORE__PROVIDER=pgvector`, namespace per
+environment). Qdrant stays a supported adapter, not the API-index default. Outbound credentials are
+resolved per application through a new `CredentialBroker` provider protocol;
+the concrete auth model (Auth0 M2M per destination, on-behalf-of, or static
+token) stays pluggable and is not decided here. `SSE__SWAGGER_LINKS` /
+`SSE__SWAGGER_URLS` remain as a local-development override only.
+
+**Context:** Target is 30+ enterprise applications, not a POC. Today the app
+list lives in two places (`repositories.yaml` with 3 apps, and
+`SSE__SWAGGER_LINKS`), MCP fetches each swagger serially at first load, one
+`SSE__API_KEY` is sent to every host, OpenAPI vectors live in a JSON sidecar
+ranked by a Python loop, and EAKG ids (`GetLoanSummary`) differ from SSE catalog
+ids (`loanservices:getLoanSummary`) so capability bind fails. Onboarding calls
+`enrich_interface` without a `base_url`, so live spec fetch never runs there.
+Smoke test 2026-10-08: discovery worked, all live GETs returned 401.
+
+**Alternatives:**
+- Keep adding links to `SSE__SWAGGER_LINKS` (serial boot fetch, one bearer,
+  second app list — rejected).
+- Qdrant for the API index (supported adapter, but the product index is
+  pgvector, matching Plaisse wiki and the existing provider).
+- Keep JSON sidecar (ADR-023) and Python ranking (fine below ~1k operations;
+  no metadata filters, not shared across processes).
+- Decide Auth0 M2M now (premature; auth program parked in
+  `docs/ARCHITECTURE_REVIEW_LAYER2.md` §8).
+
+**Reasoning:** Reuses existing parts (registry, TAAC ingest, `fetch_spec`,
+shard OpenAPI cache, vector store + secrets providers). Moves all slow,
+failure-prone work to the pipeline, isolates per-app failures, fixes the
+capability/OpenAPI id split, and keeps local-first (`make demo` works with
+fixtures, Qdrant in Docker, and a static-token broker).
+
+**Implications:**
+- Supersedes the OpenAPI sidecar part of ADR-023 once the vector index ships;
+  the sidecar stays as the fallback when the vector store is unavailable.
+- New settings and env vars (registry URL/audience fields, broker selection,
+  index namespace) — require approval before implementation.
+- New provider protocol `CredentialBroker` (11th category) with a static-token
+  implementation for local; contract tests required.
+- Host allow-list is derived from the registry, not from swagger links.
+- `/ready` reports per-app status (indexed, spec age, credential check).
+- Delivery tracked in `.ai/specs/enterprise-app-scale/`.
+
+**Status:** Accepted 2026-10-09. Implementation of Phase 1 started on repo-owner direction.
+

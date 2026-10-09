@@ -1,3 +1,89 @@
+## [2026-10-09] — Phase 1: spec cache, registry catalog, pgvector
+
+**Session type:** Implementation
+
+**Completed:**
+- Cached OpenAPI under `repos/<id>/openapi/<env>/` (`refresh_spec`, last-good pointer, `spec-refresh`, nightly `refresh_all`).
+- MCP catalog in registry mode reads those files. No swagger HTTP at boot. Fingerprint reload every 5s.
+- Synthetic local specs for escrow, fees, loanservices.
+- API index target is pgvector (`.env.example`, ADR-024, spec D6). Settings default stays `qdrant`.
+
+**Not done:** `p1-quality-gates` (`make demo`, provider contract suite). Phase 3 is the actual upsert into `vs_*`.
+
+**Reason:** Continue Phase 1. User chose pgvector for the API index.
+
+---
+
+## [2026-10-09] — Phase 1 started: application mapping
+
+**Session type:** Implementation
+
+**Completed:**
+- ADR-024 Accepted. G1–G3 treated as approved by starting Phase 1.
+- `EAKG__ENVIRONMENT`, `SSE__CATALOG_SOURCE` in settings, `.env.example`, `CONTEXT.md`.
+- Registry row is the source↔address mapping (`git_url`, `service_url_key`, `environments`).
+- `registry validate` and `registry import-taac` (fills a blank URL, never writes `git_url`).
+- Tests: `projects/LoanOps.Eakg/packages/eakg/tests/test_registry_env.py` (6 passed).
+
+**Not done:** spec cache, onboard wiring, catalog-from-cache, local fixtures, full Phase 1 gates.
+
+**Reason:** User said plan and start working on enterprise-app-scale.
+
+---
+
+## [2026-10-08] — Spec: enterprise app scale (30+ apps)
+
+**Session type:** Design
+
+**Completed:**
+- ADR-024 Proposed in `decisions.md` (registry-driven catalog, pipeline specs, vector index, pluggable `CredentialBroker`).
+- Spec package `.ai/specs/enterprise-app-scale/` (story, spec, plan, README).
+- Design review `.ai/working/spec-design-reviews/enterprise-app-scale-1.md` failed at 3.8 (2 must-fix, 16 should-fix). Fixes applied in spec + plan (demo runs registry mode; raw method+path needs `application`; remaining RC-003–RC-018).
+
+**Not started:** implementation. Phase 1 waits on G1–G3 approval (repo owner until a product owner is named).
+
+**Reason:** User wants LoanOps to support 30+ enterprise apps, not a POC. Auth model stays undecided and pluggable.
+
+---
+
+## [2026-10-08] — EAKG-only Cursor MCP query (no SSE invoke)
+
+**Session type:** Validation
+
+**Query:** “Which app provides GetLoanSummary? Explain it.” (no loan id / no `call_sse_api`)
+
+| Tool | Args | Result |
+|------|------|--------|
+| `search_capabilities` | `query=loan summary`, `limit=5` | Top: `GetLoanSummary` → app `loanservices`, `GET /{id}/Summary`, evidence `LoansController.cs:235` (roslyn, conf 0.97) |
+| `find_providers` | `query=GetLoanSummary` | Same: provider `loanservices` |
+| `explain_capability` | `capability_id=GetLoanSummary` | Full card: op, path, code_unit, evidence, authz_source=`unknown` |
+
+**Verdict:** **PASS** — answered from EAKG shards only; no live SSE / no 401 path.
+
+**Reason:** User asked to test a query where only EAKG required.
+
+---
+
+## [2026-10-08] — Flow C Cursor-chat smoke (3 parallel subagents)
+
+**Session type:** Validation
+
+**Setup:** Authenticated `user-loanops` MCP (`mcp_auth`). Spun 3 local `generalPurpose` subagents in parallel (Flow C: Cursor → MCP `:8001` → `search_sse_apis` → `call_sse_api`). Demo loan `1000002245` from `docs/06-demo-queries-100245.md`.
+
+| # | Query | Subagent | Discovery | Invoke URL | HTTP | Verdict |
+|---|-------|----------|-----------|------------|------|---------|
+| 1 | Show me the loan summary for 1000002245 | [Loan summary](71cf61f3-dfdb-4ae1-93e2-bf81cd5bed9c) | `loanservices:getLoanSummary` | `…/api/Loans/1000002245/Summary` | 401 | PARTIAL |
+| 2 | What are the payment schedules for loan 1000002245? | [Payment schedules](caafad12-e96a-4f2b-b4da-e7783f12117b) | `loanservices:getPaymentSchedules` | `…/api/Loans/1000002245/PaymentSchedules` | 401 | PARTIAL |
+| 3 | Get escrow details for loan 1000002245 | [Escrow details](bb0c933b-8a81-4665-b95c-0154f0fff9dc) | `loanservices:getEscrows` | `…/api/Loans/1000002245/Escrows` | 401 | PARTIAL |
+
+**Worked:** MCP namespace ready; search (OpenAPI + EAKG) found correct ops; GET-only invoke hit right LoanServices DEV URLs (~170–200 ms).  
+**Failed:** All three live calls **401** — SSE/LoanServices bearer not accepted (refresh `SSE__API_KEY` / MCP process env).  
+**Note:** Q1 `capability_id=get_loan_summary` and bare `operation_id=GetLoanSummary` rejected (“only allows a resolved GET operation”); catalog id `loanservices:…` required.
+
+**Reason:** User asked to test 3 Cursor-chat queries via subagents and record everything.
+
+---
+
 ## [2026-04-08] — Cursor → MCP hardening (5 Required)
 
 **Session type:** Implementation

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
 from packages.eakg.models import AccessStatus, IndexStatus, utc_now_iso
@@ -21,6 +21,60 @@ VALID_INDEX = frozenset(
     }
 )
 VALID_ACCESS = frozenset({"ok", "no_access", "auth_required"})
+EnvironmentName = Literal["local", "dev", "stage", "prod"]
+Lifecycle = Literal["registered", "active", "degraded", "retired"]
+VALID_ENV = frozenset({"local", "dev", "stage", "prod"})
+VALID_LIFECYCLE = frozenset({"registered", "active", "degraded", "retired"})
+
+
+def _lifecycle(value: object) -> Lifecycle:
+    text = str(value or "active")
+    if text not in VALID_LIFECYCLE:
+        return "active"
+    return text  # type: ignore[return-value]
+
+
+def _environments(value: object) -> dict[str, AppEnvironment]:
+    if not isinstance(value, dict):
+        return {}
+    out: dict[str, AppEnvironment] = {}
+    for key, raw in value.items():
+        if isinstance(raw, dict):
+            out[str(key)] = AppEnvironment.from_dict(raw)
+    return out
+
+
+@dataclass
+class AppEnvironment:
+    """Live address for one application in one environment (FR-022)."""
+
+    base_url: str
+    auth_audience: str = ""
+    spec_path: str = ""
+    spec_fixture: str = ""
+    enabled: bool = True
+
+    def to_dict(self) -> dict[str, Any]:
+        data = asdict(self)
+        if data["auth_audience"] == "":
+            del data["auth_audience"]
+        if data["spec_path"] == "":
+            del data["spec_path"]
+        if data["spec_fixture"] == "":
+            del data["spec_fixture"]
+        if data["enabled"] is True:
+            del data["enabled"]
+        return data
+
+    @classmethod
+    def from_dict(cls, raw: dict[str, Any]) -> AppEnvironment:
+        return cls(
+            base_url=str(raw.get("base_url") or ""),
+            auth_audience=str(raw.get("auth_audience") or ""),
+            spec_path=str(raw.get("spec_path") or ""),
+            spec_fixture=str(raw.get("spec_fixture") or ""),
+            enabled=bool(raw.get("enabled", True)),
+        )
 
 
 @dataclass
@@ -28,7 +82,7 @@ class RepositoryRecord:
     repository_id: str
     application: str
     application_id: str
-    git_url: str
+    git_url: str = ""
     default_branch: str = "main"
     gitlab_project_id: int | None = None
     team: str = ""
@@ -43,9 +97,23 @@ class RepositoryRecord:
     detector_versions: dict[str, str] = field(default_factory=dict)
     shard_path: str = ""
     api_project_path: str = ""  # e.g. src/Fees.WebApi
+    lifecycle: Lifecycle = "active"
+    service_url_key: str = ""
+    environments: dict[str, AppEnvironment] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        data = asdict(self)
+        data["environments"] = {
+            key: env.to_dict() if isinstance(env, AppEnvironment) else AppEnvironment.from_dict(env).to_dict()
+            for key, env in self.environments.items()
+        }
+        if not data["environments"]:
+            del data["environments"]
+        if data.get("lifecycle") == "active":
+            del data["lifecycle"]
+        if not data.get("service_url_key"):
+            del data["service_url_key"]
+        return data
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> RepositoryRecord:
@@ -59,7 +127,7 @@ class RepositoryRecord:
             repository_id=str(raw["repository_id"]),
             application=str(raw.get("application") or raw["repository_id"]),
             application_id=str(raw.get("application_id") or raw["repository_id"]),
-            git_url=str(raw["git_url"]),
+            git_url=str(raw.get("git_url") or ""),
             default_branch=str(raw.get("default_branch") or "main"),
             gitlab_project_id=(
                 int(raw["gitlab_project_id"]) if raw.get("gitlab_project_id") is not None else None
@@ -76,6 +144,9 @@ class RepositoryRecord:
             detector_versions=dict(raw.get("detector_versions") or {}),
             shard_path=str(raw.get("shard_path") or ""),
             api_project_path=str(raw.get("api_project_path") or ""),
+            lifecycle=_lifecycle(raw.get("lifecycle")),
+            service_url_key=str(raw.get("service_url_key") or ""),
+            environments=_environments(raw.get("environments")),
         )
 
 
@@ -106,6 +177,23 @@ class RepositoryRegistry:
             yaml.safe_dump(payload, sort_keys=False, allow_unicode=True),
             encoding="utf-8",
         )
+
+    def list_active(self, environment: str) -> list[RepositoryRecord]:
+        """Apps callable in this environment: not retired, env enabled, no blocking issues."""
+        from packages.eakg.registry_validate import blocking_issues, validate_registry
+
+        issues = validate_registry(self)
+        active: list[RepositoryRecord] = []
+        for record in self._records.values():
+            if record.lifecycle == "retired":
+                continue
+            env = record.environments.get(environment)
+            if env is None or not env.enabled:
+                continue
+            if blocking_issues(record, environment, issues):
+                continue
+            active.append(record)
+        return active
 
     def list(self) -> list[RepositoryRecord]:
         return list(self._records.values())

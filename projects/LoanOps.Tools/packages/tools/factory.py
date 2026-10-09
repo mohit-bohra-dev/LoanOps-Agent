@@ -21,24 +21,16 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
     from packages.db.client import DbConfig, SqlServerClient
     from packages.docs.service import DocsService
     from packages.sse.fixture import FIXTURE_OPENAPI
-    from packages.sse.loader import DEFAULT_SWAGGER_LINKS, OpenApiCatalogService
+    from packages.sse.loader import DEFAULT_SWAGGER_LINKS, OpenApiCatalogService, resolve_swagger_links
+    from packages.tools.registry_catalog import build_registry_specs, catalog_mode
     from packages.tools.capability import make_eakg_capability_search_block
     from packages.tools.capability_catalog import CapabilityCatalogService
     from packages.tools.modular_tools import ModularToolsClient
 
-    swagger_links = list(DEFAULT_SWAGGER_LINKS)
-    if cfg.sse.swagger_links:
-        swagger_links = [
-            {"id": link.id, "label": link.label, "url": link.url} for link in cfg.sse.swagger_links
-        ]
-    elif cfg.sse.swagger_urls:
-        from urllib.parse import urlparse
-
-        swagger_links = []
-        for i, u in enumerate(cfg.sse.swagger_urls):
-            host = urlparse(u).hostname or f"app-{i}"
-            slug = host.split(".")[0].replace("-", "_")
-            swagger_links.append({"id": slug, "label": host, "url": u})
+    swagger_links = resolve_swagger_links(cfg.sse.swagger_links, cfg.sse.swagger_urls)
+    if not swagger_links:
+        swagger_links = list(DEFAULT_SWAGGER_LINKS)
+    mode = catalog_mode(cfg)
 
     fixture_path = cfg.sse.fixture_path or None
     if cfg.sse.use_fixture and not fixture_path:
@@ -49,6 +41,10 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
     # Catalog-only fixture: use_fixture=false but fixture_path set
     # (e.g. local Loan Services OpenAPI when live swagger needs auth).
     catalog_fixture = fixture_path if (cfg.sse.use_fixture or cfg.sse.fixture_path) else None
+    if mode == "registry":
+        catalog_fixture = None
+    elif mode == "swagger_links":
+        catalog_fixture = None
 
     from packages.sse.semantic import openapi_embeddings_path
 
@@ -59,6 +55,8 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
         bearer_token=cfg.sse.api_key,
         fixture_path=catalog_fixture,
         openapi_embed_path=embed_sidecar,
+        registry_specs=build_registry_specs(cfg) if mode == "registry" else None,
+        reload_specs=(lambda: build_registry_specs(cfg)) if mode == "registry" else None,
     )
     db = SqlServerClient(
         DbConfig(
