@@ -1,0 +1,515 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Scale Escrow App 01 (synthetic)",
+    "version": "1.0.0",
+    "description": "Synthetic scale fixture \u2014 no production data"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:9201"
+    }
+  ],
+  "paths": {
+    "/api/shared/getSharedResource0/{id}": {
+      "get": {
+        "operationId": "getSharedResource0",
+        "summary": "Synthetic getSharedResource0 for scaleapp01",
+        "tags": [
+          "escrow",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/shared/getSharedResource1/{id}": {
+      "get": {
+        "operationId": "getSharedResource1",
+        "summary": "Synthetic getSharedResource1 for scaleapp01",
+        "tags": [
+          "payment",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/shared/getSharedResource2/{id}": {
+      "get": {
+        "operationId": "getSharedResource2",
+        "summary": "Synthetic getSharedResource2 for scaleapp01",
+        "tags": [
+          "schedule",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/shared/getSharedResource3/{id}": {
+      "get": {
+        "operationId": "getSharedResource3",
+        "summary": "Synthetic getSharedResource3 for scaleapp01",
+        "tags": [
+          "balance",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/tax/{id}/v4": {
+      "get": {
+        "operationId": "fetchTaxEvent4",
+        "summary": "Synthetic fetchTaxEvent4 for scaleapp01",
+        "tags": [
+          "tax",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/insurance/{id}/v5": {
+      "get": {
+        "operationId": "queryInsuranceBatch5",
+        "summary": "Synthetic queryInsuranceBatch5 for scaleapp01",
+        "tags": [
+          "insurance",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/document/{id}/v6": {
+      "get": {
+        "operationId": "readDocumentReport6",
+        "summary": "Synthetic readDocumentReport6 for scaleapp01",
+        "tags": [
+          "document",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/statement/{id}/v7": {
+      "get": {
+        "operationId": "checkStatementLoan7",
+        "summary": "Synthetic checkStatementLoan7 for scaleapp01",
+        "tags": [
+          "statement",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/disbursement/{id}/v8": {
+      "get": {
+        "operationId": "statusDisbursementAccount8",
+        "summary": "Synthetic statusDisbursementAccount8 for scaleapp01",
+        "tags": [
+          "disbursement",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/modification/{id}/v9": {
+      "get": {
+        "operationId": "getModificationItem9",
+        "summary": "Synthetic getModificationItem9 for scaleapp01",
+        "tags": [
+          "modification",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/forbearance/{id}/v10": {
+      "get": {
+        "operationId": "listForbearanceRecord10",
+        "summary": "Synthetic listForbearanceRecord10 for scaleapp01",
+        "tags": [
+          "forbearance",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/impound/{id}/v11": {
+      "get": {
+        "operationId": "searchImpoundDetail11",
+        "summary": "Synthetic searchImpoundDetail11 for scaleapp01",
+        "tags": [
+          "impound",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/hazard/{id}/v12": {
+      "get": {
+        "operationId": "findHazardSummary12",
+        "summary": "Synthetic findHazardSummary12 for scaleapp01",
+        "tags": [
+          "hazard",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/flood/{id}/v13": {
+      "get": {
+        "operationId": "lookupFloodHistory13",
+        "summary": "Synthetic lookupFloodHistory13 for scaleapp01",
+        "tags": [
+          "flood",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/appraisal/{id}/v14": {
+      "get": {
+        "operationId": "fetchAppraisalEvent14",
+        "summary": "Synthetic fetchAppraisalEvent14 for scaleapp01",
+        "tags": [
+          "appraisal",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/title/{id}/v15": {
+      "get": {
+        "operationId": "queryTitleBatch15",
+        "summary": "Synthetic queryTitleBatch15 for scaleapp01",
+        "tags": [
+          "title",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/closing/{id}/v16": {
+      "get": {
+        "operationId": "readClosingReport16",
+        "summary": "Synthetic readClosingReport16 for scaleapp01",
+        "tags": [
+          "closing",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/servicing/{id}/v17": {
+      "get": {
+        "operationId": "checkServicingLoan17",
+        "summary": "Synthetic checkServicingLoan17 for scaleapp01",
+        "tags": [
+          "servicing",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/transfer/{id}/v18": {
+      "get": {
+        "operationId": "statusTransferAccount18",
+        "summary": "Synthetic statusTransferAccount18 for scaleapp01",
+        "tags": [
+          "transfer",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/api/scaleapp01/fees/{id}/v19": {
+      "get": {
+        "operationId": "getFeesItem19",
+        "summary": "Synthetic getFeesItem19 for scaleapp01",
+        "tags": [
+          "fees",
+          "scaleapp01"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    }
+  }
+}

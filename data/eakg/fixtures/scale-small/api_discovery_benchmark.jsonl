@@ -1,0 +1,40 @@
+{"id": "xapp-getSharedResource0-scaleapp00", "query": "call getSharedResource0 on Scale Fees App 00", "expected_public_ids": ["scaleapp00:getSharedResource0"], "application_id": "scaleapp00", "kind": "cross_app_same_name"}
+{"id": "xapp-getSharedResource0-scaleapp01", "query": "call getSharedResource0 on Scale Escrow App 01", "expected_public_ids": ["scaleapp01:getSharedResource0"], "application_id": "scaleapp01", "kind": "cross_app_same_name"}
+{"id": "xapp-getSharedResource0-scaleapp02", "query": "call getSharedResource0 on Scale Payment App 02", "expected_public_ids": ["scaleapp02:getSharedResource0"], "application_id": "scaleapp02", "kind": "cross_app_same_name"}
+{"id": "xapp-getSharedResource1-scaleapp00", "query": "call getSharedResource1 on Scale Fees App 00", "expected_public_ids": ["scaleapp00:getSharedResource1"], "application_id": "scaleapp00", "kind": "cross_app_same_name"}
+{"id": "xapp-getSharedResource1-scaleapp01", "query": "call getSharedResource1 on Scale Escrow App 01", "expected_public_ids": ["scaleapp01:getSharedResource1"], "application_id": "scaleapp01", "kind": "cross_app_same_name"}
+{"id": "xapp-getSharedResource1-scaleapp02", "query": "call getSharedResource1 on Scale Payment App 02", "expected_public_ids": ["scaleapp02:getSharedResource1"], "application_id": "scaleapp02", "kind": "cross_app_same_name"}
+{"id": "xapp-getSharedResource2-scaleapp00", "query": "call getSharedResource2 on Scale Fees App 00", "expected_public_ids": ["scaleapp00:getSharedResource2"], "application_id": "scaleapp00", "kind": "cross_app_same_name"}
+{"id": "xapp-getSharedResource2-scaleapp01", "query": "call getSharedResource2 on Scale Escrow App 01", "expected_public_ids": ["scaleapp01:getSharedResource2"], "application_id": "scaleapp01", "kind": "cross_app_same_name"}
+{"id": "xapp-getSharedResource2-scaleapp02", "query": "call getSharedResource2 on Scale Payment App 02", "expected_public_ids": ["scaleapp02:getSharedResource2"], "application_id": "scaleapp02", "kind": "cross_app_same_name"}
+{"id": "xapp-getSharedResource3-scaleapp00", "query": "call getSharedResource3 on Scale Fees App 00", "expected_public_ids": ["scaleapp00:getSharedResource3"], "application_id": "scaleapp00", "kind": "cross_app_same_name"}
+{"id": "xapp-getSharedResource3-scaleapp01", "query": "call getSharedResource3 on Scale Escrow App 01", "expected_public_ids": ["scaleapp01:getSharedResource3"], "application_id": "scaleapp01", "kind": "cross_app_same_name"}
+{"id": "xapp-getSharedResource3-scaleapp02", "query": "call getSharedResource3 on Scale Payment App 02", "expected_public_ids": ["scaleapp02:getSharedResource3"], "application_id": "scaleapp02", "kind": "cross_app_same_name"}
+{"id": "q-scaleapp02-7", "query": "read disbursement event for Scale Payment App 02", "expected_public_ids": ["scaleapp02:statusDisbursementRecord7"], "application_id": "scaleapp02", "kind": "unique"}
+{"id": "q-scaleapp01-4", "query": "lookup tax detail for Scale Escrow App 01", "expected_public_ids": ["scaleapp01:fetchTaxEvent4"], "application_id": "scaleapp01", "kind": "unique"}
+{"id": "q-scaleapp00-17", "query": "read closing event for Scale Fees App 00", "expected_public_ids": ["scaleapp00:readClosingEvent17"], "application_id": "scaleapp00", "kind": "unique"}
+{"id": "q-scaleapp00-18", "query": "check servicing batch for Scale Fees App 00", "expected_public_ids": ["scaleapp00:checkServicingBatch18"], "application_id": "scaleapp00", "kind": "unique"}
+{"id": "q-scaleapp01-7", "query": "read statement event for Scale Escrow App 01", "expected_public_ids": ["scaleapp01:checkStatementLoan7"], "application_id": "scaleapp01", "kind": "unique"}
+{"id": "q-scaleapp04-19", "query": "status schedule report for Scale Balance App 04", "expected_public_ids": ["scaleapp04:findScheduleAccount19"], "application_id": "scaleapp04", "kind": "unique"}
+{"id": "q-scaleapp00-17", "query": "read closing event for Scale Fees App 00", "expected_public_ids": ["scaleapp00:readClosingEvent17"], "application_id": "scaleapp00", "kind": "unique"}
+{"id": "q-scaleapp01-17", "query": "read servicing event for Scale Escrow App 01", "expected_public_ids": ["scaleapp01:checkServicingLoan17"], "application_id": "scaleapp01", "kind": "unique"}
+{"id": "q-scaleapp03-7", "query": "read modification event for Scale Schedule App 03", "expected_public_ids": ["scaleapp03:getModificationHistory7"], "application_id": "scaleapp03", "kind": "unique"}
+{"id": "q-scaleapp03-18", "query": "check escrow batch for Scale Schedule App 03", "expected_public_ids": ["scaleapp03:listEscrowEvent18"], "application_id": "scaleapp03", "kind": "unique"}
+{"id": "q-scaleapp01-13", "query": "find flood record for Scale Escrow App 01", "expected_public_ids": ["scaleapp01:lookupFloodHistory13"], "application_id": "scaleapp01", "kind": "unique"}
+{"id": "q-scaleapp02-8", "query": "check modification batch for Scale Payment App 02", "expected_public_ids": ["scaleapp02:getModificationDetail8"], "application_id": "scaleapp02", "kind": "unique"}
+{"id": "q-scaleapp01-6", "query": "query document history for Scale Escrow App 01", "expected_public_ids": ["scaleapp01:readDocumentReport6"], "application_id": "scaleapp01", "kind": "unique"}
+{"id": "q-scaleapp00-12", "query": "search impound item for Scale Fees App 00", "expected_public_ids": ["scaleapp00:searchImpoundItem12"], "application_id": "scaleapp00", "kind": "unique"}
+{"id": "q-scaleapp00-11", "query": "list forbearance account for Scale Fees App 00", "expected_public_ids": ["scaleapp00:listForbearanceAccount11"], "application_id": "scaleapp00", "kind": "unique"}
+{"id": "q-scaleapp02-19", "query": "status escrow report for Scale Payment App 02", "expected_public_ids": ["scaleapp02:listEscrowSummary19"], "application_id": "scaleapp02", "kind": "unique"}
+{"id": "q-scaleapp03-17", "query": "read fees event for Scale Schedule App 03", "expected_public_ids": ["scaleapp03:getFeesHistory17"], "application_id": "scaleapp03", "kind": "unique"}
+{"id": "q-scaleapp00-12", "query": "search impound item for Scale Fees App 00", "expected_public_ids": ["scaleapp00:searchImpoundItem12"], "application_id": "scaleapp00", "kind": "unique"}
+{"id": "q-scaleapp00-17", "query": "read closing event for Scale Fees App 00", "expected_public_ids": ["scaleapp00:readClosingEvent17"], "application_id": "scaleapp00", "kind": "unique"}
+{"id": "q-scaleapp02-19", "query": "status escrow report for Scale Payment App 02", "expected_public_ids": ["scaleapp02:listEscrowSummary19"], "application_id": "scaleapp02", "kind": "unique"}
+{"id": "q-scaleapp02-18", "query": "check fees batch for Scale Payment App 02", "expected_public_ids": ["scaleapp02:getFeesDetail18"], "application_id": "scaleapp02", "kind": "unique"}
+{"id": "q-scaleapp00-7", "query": "read document event for Scale Fees App 00", "expected_public_ids": ["scaleapp00:readDocumentEvent7"], "application_id": "scaleapp00", "kind": "unique"}
+{"id": "q-scaleapp03-8", "query": "check forbearance batch for Scale Schedule App 03", "expected_public_ids": ["scaleapp03:listForbearanceEvent8"], "application_id": "scaleapp03", "kind": "unique"}
+{"id": "q-scaleapp03-11", "query": "list flood account for Scale Schedule App 03", "expected_public_ids": ["scaleapp03:lookupFloodLoan11"], "application_id": "scaleapp03", "kind": "unique"}
+{"id": "q-scaleapp01-11", "query": "list impound account for Scale Escrow App 01", "expected_public_ids": ["scaleapp01:searchImpoundDetail11"], "application_id": "scaleapp01", "kind": "unique"}
+{"id": "q-scaleapp02-6", "query": "query statement history for Scale Payment App 02", "expected_public_ids": ["scaleapp02:checkStatementItem6"], "application_id": "scaleapp02", "kind": "unique"}
+{"id": "q-scaleapp04-5", "query": "fetch disbursement summary for Scale Balance App 04", "expected_public_ids": ["scaleapp04:statusDisbursementEvent5"], "application_id": "scaleapp04", "kind": "unique"}
+{"id": "q-scaleapp04-7", "query": "read forbearance event for Scale Balance App 04", "expected_public_ids": ["scaleapp04:listForbearanceReport7"], "application_id": "scaleapp04", "kind": "unique"}

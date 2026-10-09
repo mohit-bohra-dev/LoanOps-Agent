@@ -6,6 +6,8 @@ from functools import lru_cache
 
 from packages.common.providers.base import ProviderConfigError
 from packages.common.providers.factory import (
+    get_audit_sink_provider,
+    get_credential_broker,
     get_embedding_provider,
     get_vector_store_provider,
 )
@@ -22,7 +24,12 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
     from packages.docs.service import DocsService
     from packages.sse.fixture import FIXTURE_OPENAPI
     from packages.sse.loader import DEFAULT_SWAGGER_LINKS, OpenApiCatalogService, resolve_swagger_links
-    from packages.tools.registry_catalog import build_registry_specs, catalog_mode
+    from packages.api_index.breaker import InMemoryBreaker
+    from packages.tools.registry_catalog import (
+        build_app_targets,
+        build_registry_specs,
+        catalog_mode,
+    )
     from packages.tools.capability import make_eakg_capability_search_block
     from packages.tools.capability_catalog import CapabilityCatalogService
     from packages.tools.modular_tools import ModularToolsClient
@@ -31,6 +38,7 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
     if not swagger_links:
         swagger_links = list(DEFAULT_SWAGGER_LINKS)
     mode = catalog_mode(cfg)
+    registry_mode = mode == "registry"
 
     fixture_path = cfg.sse.fixture_path or None
     if cfg.sse.use_fixture and not fixture_path:
@@ -52,12 +60,23 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
     sse = OpenApiCatalogService(
         swagger_links=swagger_links,
         api_base_url=cfg.sse.api_base_url,
-        bearer_token=cfg.sse.api_key,
+        bearer_token=cfg.sse.api_key if not registry_mode else "",
         fixture_path=catalog_fixture,
         openapi_embed_path=embed_sidecar,
-        registry_specs=build_registry_specs(cfg) if mode == "registry" else None,
-        reload_specs=(lambda: build_registry_specs(cfg)) if mode == "registry" else None,
+        registry_specs=build_registry_specs(cfg) if registry_mode else None,
+        reload_specs=(lambda: build_registry_specs(cfg)) if registry_mode else None,
+        app_targets=(lambda: build_app_targets(cfg)) if registry_mode else None,
+        registry_mode=registry_mode,
     )
+    credentials = get_credential_broker()
+    breaker = InMemoryBreaker()
+    from packages.sse.invoke_outcomes import LastInvokeRing
+
+    invoke_ring = LastInvokeRing()
+    try:
+        audit = get_audit_sink_provider()
+    except Exception:  # noqa: BLE001
+        audit = None
     db = SqlServerClient(
         DbConfig(
             server=cfg.sql_server.server,
@@ -116,6 +135,38 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
     except Exception:  # noqa: BLE001 — index is optional until shards exist
         operation_catalog = None
 
+    api_search = None
+    if cfg.api_index.enabled and operation_catalog is not None:
+        try:
+            from packages.api_index.paths import manifest_path, sidecar_path
+            from packages.api_index.search import ApiSearchService
+
+            vs = None
+            emb = None
+            try:
+                vs = get_vector_store_provider()
+            except Exception:  # noqa: BLE001 — search falls back to sidecar/keyword
+                vs = None
+            try:
+                emb = get_embedding_provider()
+            except Exception:  # noqa: BLE001
+                emb = None
+            api_search = ApiSearchService(
+                operations=operation_catalog.ops,
+                keyword_index=operation_catalog.keyword_index,
+                vector_store=vs,
+                embedder=emb,
+                environment=cfg.eakg.environment,
+                namespace_prefix=cfg.api_index.namespace_prefix,
+                app_shortlist_size=cfg.api_index.app_shortlist_size,
+                manifest_path=manifest_path(cfg.eakg.shard_dir, cfg.eakg.environment),
+                sidecar_path=sidecar_path(cfg.eakg.shard_dir, cfg.eakg.environment),
+                allowed_permissions=frozenset(cfg.capability_kg.allowed_permissions),
+                enforce_permissions=cfg.capability_kg.enforce_permissions,
+            )
+        except Exception:  # noqa: BLE001 — keep legacy search path
+            api_search = None
+
     # Answers come from SSE OpenAPI (+ docs / optional SQL). No tools_api.
     return ModularToolsClient(
         sse=sse,
@@ -126,6 +177,12 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
         catalog_service=catalog_service,
         settings=cfg,
         operation_catalog=operation_catalog,
+        api_search=api_search,
+        credentials=credentials,
+        breaker=breaker,
+        audit=audit,
+        registry_mode=registry_mode,
+        invoke_ring=invoke_ring,
     )
 
 

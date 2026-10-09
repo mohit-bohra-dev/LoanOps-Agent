@@ -32,10 +32,21 @@ from packages.common.providers.content_safety import (
 from packages.common.providers.embedding import EmbeddingProvider, EmbeddingResult
 
 # ── Factory functions ────────────────────────────────────────────────────
+from packages.common.providers.credential_broker import (
+    AbstractCredentialBroker,
+    AccessToken,
+    CredentialCheck,
+    CredentialDenied,
+    CredentialError,
+    CredentialNotConfigured,
+    CredentialUnavailable,
+    Principal,
+)
 from packages.common.providers.factory import (
     get_audit_sink_provider,
     get_chat_provider,
     get_content_safety_provider,
+    get_credential_broker,
     get_embedding_provider,
     get_pii_provider,
     get_prompt_store_provider,
@@ -104,4 +115,13 @@ __all__ = [
     "get_telemetry_provider",
     "get_prompt_store_provider",
     "get_session_store_provider",
+    "get_credential_broker",
+    "AbstractCredentialBroker",
+    "AccessToken",
+    "Principal",
+    "CredentialCheck",
+    "CredentialError",
+    "CredentialNotConfigured",
+    "CredentialDenied",
+    "CredentialUnavailable",
 ]

@@ -190,10 +190,10 @@ def search_capabilities(
         paths: list[str] = []
         oids: list[str] = []
         for _, _, op in g.triples((s, ns[PRED_IMPLEMENTED_BY], None)):
-            for _, _, path in g.triples((op, ns[PRED_HTTP_PATH], None)):
-                paths.append(str(path))
-            for _, _, oid in g.triples((op, ns[PRED_OPERATION_ID], None)):
-                oids.append(str(oid))
+            for _, _, path_node in g.triples((op, ns[PRED_HTTP_PATH], None)):
+                paths.append(str(path_node))
+            for _, _, oid_node in g.triples((op, ns[PRED_OPERATION_ID], None)):
+                oids.append(str(oid_node))
         score = _score_match(q, tokens, label, str(s), *paths, *oids)
         if score is None:
             continue

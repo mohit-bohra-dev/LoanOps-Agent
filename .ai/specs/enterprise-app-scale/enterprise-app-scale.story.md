@@ -302,24 +302,24 @@ These may be considered for future iterations.
 ## Open Questions
 
 1. **Q**: Which access model will be used — a service identity per application, acting on behalf of the signed-in user, or a mix per application?  
-   **Status**: open  
-   **Answer**: —
+   **Status**: resolved-for-execution (2026-10-09)  
+   **Answer**: Ship Static + Mock CredentialBroker (service/M2M per app audience) for P4. Non-static / OBO deferred until product decides; does not block this deliverable.
 
 2. **Q**: Are the proposed targets acceptable — readiness under 10 s, discovery p95 under 1.5 s, correct operation in the top 5 for 90% of benchmark questions?  
-   **Status**: open  
-   **Answer**: —
+   **Status**: resolved-for-execution (2026-10-09)  
+   **Answer**: Yes — G9/G10 approved. Targets locked: ready <10s, discovery p95 <1.5s, top-5 ≥90%.
 
 3. **Q**: How often should the catalog refresh, and after how long should an application's operation description be flagged as stale?  
-   **Status**: open  
-   **Answer**: —
+   **Status**: resolved-for-execution (2026-10-09)  
+   **Answer**: Nightly schedule + stale=48h placeholders per spec §14.4 / §15 (G9).
 
 4. **Q**: How long must audit records and question history be kept, and which regulations apply?  
-   **Status**: open  
-   **Answer**: —
+   **Status**: deferred  
+   **Answer**: Unchanged existing retention for this deliverable; not required for P3–P5 functional code.
 
 5. **Q**: Should per-user permission filtering (Story 8) reflect the user's own entitlements in each application, or the assistant's access to that application?  
-   **Status**: open  
-   **Answer**: — (depends on Q1)
+   **Status**: resolved-for-execution (2026-10-09)  
+   **Answer**: Assistant allow-set via `CAPABILITY_KG__ALLOWED_PERMISSIONS` (current placeholder) until Q1 settles user entitlements.
 
 ---
 

@@ -52,6 +52,9 @@ class FakeClient:
 
         return _Svc(self._catalog)
 
+    def operation_resolver(self) -> Any | None:
+        return None
+
 
 class FakeAudit:
     def __init__(self) -> None:

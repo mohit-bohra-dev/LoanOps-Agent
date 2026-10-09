@@ -18,10 +18,17 @@ _SKIP_PATH_SEGS = frozenset({"api", "v1", "v2", "v3", "v4", "internal", "externa
 
 
 class _CapLike(Protocol):
-    id: str
-    description: str | None
-    operation_id: str | None
-    http_path: str | None
+    @property
+    def id(self) -> str: ...
+
+    @property
+    def description(self) -> str | None: ...
+
+    @property
+    def operation_id(self) -> str | None: ...
+
+    @property
+    def http_path(self) -> str | None: ...
 
 
 @dataclass(frozen=True)

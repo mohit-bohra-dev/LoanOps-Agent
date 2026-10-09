@@ -9,26 +9,13 @@ from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, Field
 
-from packages.sse.catalog import _slugify, parse_openapi_document
+from packages.sse.catalog import _slugify, normalize_path, parse_openapi_document
 from packages.sse.types import ApiParameter, HttpMethod
 
 Environment = Literal["local", "dev", "stage", "prod"]
 JoinKind = Literal["exact", "suffix", "openapi_only", "eakg_only", "ambiguous"]
 
-_PARAM = re.compile(r"^\{[^}]*\}$|^:[A-Za-z_]\w*$")
 _ALIAS_KEY = re.compile(r"[^a-z0-9]")
-
-
-def normalize_path(path: str, *, controller: str | None = None) -> str:
-    """Collapse path templates to a join key. Spec §3.1."""
-    raw = path.split("?", 1)[0].strip()
-    segs = [s for s in raw.replace("\\", "/").split("/") if s]
-    out: list[str] = []
-    for seg in segs:
-        if seg == "[controller]" and controller:
-            seg = controller.removesuffix("Controller")
-        out.append("{}" if _PARAM.match(seg) else seg.lower())
-    return "/" + "/".join(out)
 
 
 def uid(application_id: str, method: str, normalized: str) -> str:

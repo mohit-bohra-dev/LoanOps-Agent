@@ -1,6 +1,6 @@
 # Servicing Agent — Task Tracker
 
-> **Current focus:** General internal AI platform (ADR-021) — MCP consumer (`TOOLS_CLIENT__PROVIDER=mcp`); EAKG feeds tools; any role via scopes (Gemini skipped)
+> **Current focus:** Enterprise app scale (ADR-024) shipped P1–P6 — registry catalog, ApiIndex, CredentialBroker, per-app health; product path still MCP (`TOOLS_CLIENT__PROVIDER=mcp`)
 
 ## Backlog buckets (C6)
 
@@ -35,7 +35,8 @@ Use these instead of treating every open checkbox as equal priority.
 - [ ] Graphify offline enrichment into RDF (Phase 10)
 - [ ] Human review workflow UI — **D8:** both CLI + Web UI (CLI live; UI still to build)
 - [ ] ARD implement (Phase 14) — after 11–12; draft `docs/ARD_RESOURCE_CHOICE.md`
-- [ ] Full OBO / RBAC / `requiresPermission` at MCP invoke — **D7:** `SSE__API_KEY` = Subservicing Auth0 M2M (all APIs); later auto-fetch → user OBO → RBAC
+- [ ] Full OBO / RBAC / `requiresPermission` at MCP invoke — **D7 / OQ-1:** static `CredentialBroker` + optional `CREDENTIALS__STATIC_SHARED_APPS` / `APP_TOKEN_*` shipped (ADR-024); later auto-fetch → user OBO → RBAC
+- [x] Enterprise app scale P1–P6 (ADR-024) — see **Step 17** (2026-10-09)
 - [ ] Full wiki specialist port
 - [ ] CI grep gate: no concrete imports outside providers/
 - [ ] ~~AWS image cutover~~ **deferred — local testing only**
@@ -194,4 +195,15 @@ Use these instead of treating every open checkbox as equal priority.
 - [x] Swagger export ask + extractor upgrade design + registry onboard guide (point 5 docs)
 - [x] Cleanup C1–C6 (gitignore dated graphify backups; committed-vs-local doc; backlog buckets)
 - [ ] Static analyzer / repo #4 / validation evidence → see **Backlog buckets**
+
+## Step 17 — Enterprise app scale (ADR-024 / `.ai/specs/enterprise-app-scale/`)
+
+- [x] **P1** Registry schema + env mapping, validate/import-taac, spec cache, catalog-from-cache (no boot network), local fixtures
+- [x] **P2** `LoanOps.ApiIndex`: unified operations, resolver, capability bind → `public_id`, mismatch report, `/ready` catalog_health
+- [x] **P3** Vector index + keyword index + two-stage `ApiSearchService` (`API_INDEX__ENABLED`); refresh CLI; provider_contracts any-of filter
+- [x] **P4** `CredentialBroker` (`get_credential_broker` 14th `get_*`); per-app invoke, origin bind, audit `sse.live_read` (live JWT smoke skipped — see logs.md)
+- [x] **P5** Per-app health, metrics, optional scheduler, scale fixture + `-m scale` suite
+- [x] **P6** Docs: TASKS, logs, ARCHITECTURE, AGENTS, CONTEXT, decisions; `graphify update .`
+- [ ] Operator follow-up: live SC-006 smoke with per-app `APP_TOKEN_*` when tokens available
+- [ ] Enable `API_INDEX__ENABLED=true` in shared envs after index build; non-static broker when OQ-1 decided
 

@@ -336,6 +336,25 @@ class EakgConfig(BaseModel):
     taac_fixture_path: str = "data/eakg/fixtures/taac-client-config.redacted.json"
 
 
+class ApiIndexConfig(BaseModel):
+    """Unified OpenAPI+EAKG vector index (ADR-024 / enterprise-app-scale P3+)."""
+
+    enabled: bool = False
+    namespace_prefix: str = "api_ops"
+    app_shortlist_size: int = Field(default=5, ge=1, le=20)
+    # Phase 5 (G9) — defaults safe; scheduler off until rolled out.
+    stale_after_hours: int = 48
+    scheduler_enabled: bool = False
+
+
+class CredentialsConfig(BaseModel):
+    """Per-app credential broker (enterprise-app-scale P4 / G8)."""
+
+    provider: Literal["static", "mock"] = "static"
+    # App ids allowed to receive SSE__API_KEY as a shared bearer (NFR-010).
+    static_shared_apps: list[str] = Field(default_factory=list)
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -362,6 +381,8 @@ class Settings(BaseSettings):
     mcp: McpConfig = Field(default_factory=McpConfig)
     capability_kg: CapabilityKgConfig = Field(default_factory=CapabilityKgConfig)
     eakg: EakgConfig = Field(default_factory=EakgConfig)
+    api_index: ApiIndexConfig = Field(default_factory=ApiIndexConfig)
+    credentials: CredentialsConfig = Field(default_factory=CredentialsConfig)
     agent_role: str = Field(default="system", validation_alias="AGENT_ROLE")
 
 

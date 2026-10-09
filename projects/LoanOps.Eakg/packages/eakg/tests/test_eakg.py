@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 from packages.eakg.detectors import EnterpriseIndex, run_detectors
@@ -57,13 +58,14 @@ def test_extract_fees_packages_and_routes() -> None:
         commit_sha="abc",
         api_project_path="src/Fees.WebApi",
     )
-    pkgs = {p.package_id for p in details["packages"]}  # type: ignore[index]
+    detail = cast(dict[str, Any], details)
+    pkgs = {p.package_id for p in detail["packages"]}
     assert "PNMAC.LoanServices.Client" in pkgs
     assert "PNMAC.LoanServices.Domain" in pkgs
-    assert any(r.composed_path.startswith("/api/Loans/") for r in details["routes"])  # type: ignore[index]
+    assert any(r.composed_path.startswith("/api/Loans/") for r in detail["routes"])
     assert "LoanServicesUrl" in iface.service_url_keys
     assert "LoanServicesContext" in iface.connection_keys
-    assert any("FinancialTransactionPosted" in t.topic_value for t in details["topics"])  # type: ignore[index]
+    assert any("FinancialTransactionPosted" in t.topic_value for t in detail["topics"])
 
 
 def test_extract_loanservices_proxy_and_ops() -> None:
@@ -75,8 +77,9 @@ def test_extract_loanservices_proxy_and_ops() -> None:
         api_project_path="src/LoanServices.WebApi",
         extractor="regex",
     )
-    assert any(p.class_name == "EscrowApiProxy" for p in details["proxies"])  # type: ignore[index]
-    actions = {o.action for o in details["operations"]}  # type: ignore[index]
+    detail = cast(dict[str, Any], details)
+    assert any(p.class_name == "EscrowApiProxy" for p in detail["proxies"])
+    actions = {o.action for o in detail["operations"]}
     assert "GetLoanSummary" in actions
     assert "GetPaymentSchedules" in actions
 
@@ -95,13 +98,14 @@ def test_extract_loanservices_roslyn_ops() -> None:
         api_project_path="src/LoanServices.WebApi",
         extractor="roslyn",
     )
-    assert details.get("extractor") == "dotnet_roslyn"
-    actions = {o.action for o in details["operations"]}  # type: ignore[index]
+    detail = cast(dict[str, Any], details)
+    assert detail.get("extractor") == "dotnet_roslyn"
+    actions = {o.action for o in detail["operations"]}
     assert "GetLoanSummary" in actions
     assert "GetPaymentSchedules" in actions
-    ops = details["operations"]
+    ops = detail["operations"]
     assert isinstance(ops, list) and ops
-    assert ops[0].evidence[0].detector_id == "dotnet_roslyn"  # type: ignore[index]
+    assert ops[0].evidence[0].detector_id == "dotnet_roslyn"
 
 
 def test_extract_escrow_authorize() -> None:
@@ -112,7 +116,7 @@ def test_extract_escrow_authorize() -> None:
         commit_sha="ghi",
         api_project_path="src/Escrow.Api",
     )
-    ops = details["operations"]  # type: ignore[index]
+    ops = cast(dict[str, Any], details)["operations"]
     assert ops
     assert ops[0].authz_source in {"attribute", "class-level"}
     assert ops[0].authz_policy is not None
@@ -167,7 +171,7 @@ async def test_pilot_onboard_and_cross_app(tmp_path: Path) -> None:
         url_key_to_app=load_service_url_map(TAAC),
         connection_key_to_catalog={"LoanServicesContext": "LoanServicing"},
         catalog_owner_app={"loanservicing": "loanservices"},
-        interfaces={k: v for k, v in ifaces.items() if v is not None},  # type: ignore[misc]
+        interfaces={k: v for k, v in ifaces.items() if v is not None},
     )
     fees = ifaces["fees"]
     assert fees is not None
@@ -336,7 +340,9 @@ def test_registry_seed_file() -> None:
     reg = RepositoryRegistry(ROOT / "data" / "eakg" / "registry" / "repositories.yaml")
     ids = {r.repository_id for r in reg.list()}
     assert ids == {"escrow", "fees", "loanservices"}
-    assert reg.get("fees") and reg.get("fees").gitlab_project_id == 15921
+    fees = reg.get("fees")
+    assert fees is not None
+    assert fees.gitlab_project_id == 15921
 
 
 def test_repo4_registry_only(tmp_path: Path) -> None:

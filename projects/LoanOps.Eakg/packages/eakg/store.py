@@ -81,7 +81,8 @@ class ShardStore:
         path = self.repo_dir(repository_id) / "manifest.json"
         if not path.is_file():
             return None
-        return json.loads(path.read_text(encoding="utf-8"))
+        raw: object = json.loads(path.read_text(encoding="utf-8"))
+        return raw if isinstance(raw, dict) else None
 
     def write_cross_app(self, graph: Graph) -> Path:
         self.enterprise_root.mkdir(parents=True, exist_ok=True)
@@ -149,4 +150,5 @@ class ShardStore:
         path = self.repo_dir(repository_id) / "openapi" / f"{commit[:12]}.json"
         if not path.is_file():
             return None
-        return json.loads(path.read_text(encoding="utf-8"))
+        raw: object = json.loads(path.read_text(encoding="utf-8"))
+        return raw if isinstance(raw, dict) else None

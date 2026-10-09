@@ -99,13 +99,16 @@ async def refresh_spec(
     doc: dict[str, Any] | None = None
     url: str | None = None
     err: str | None = None
+    credential: str | None = None
     if target.spec_fixture:
         doc = load_fixture_spec(target.spec_fixture)
         url = target.spec_fixture
         if doc is None:
             err = f"fixture missing: {target.spec_fixture}"
+        credential = "configured"
     else:
         token = await token_source(record.application_id, target.auth_audience)
+        credential = "configured" if token else "missing"
         paths = (target.spec_path,) if target.spec_path else ()
         doc, url, err = await fetch_spec_with_source(
             target.base_url,
@@ -132,6 +135,7 @@ async def refresh_spec(
             "last_error": None,
             "operation_count": count,
             "changed": digest != previous.get("spec_hash"),
+            "credential": credential,
         }
     else:
         pointer = {
@@ -140,6 +144,7 @@ async def refresh_spec(
             "status": "failed",
             "last_error": (err or "invalid spec")[:300],
             "last_attempt_at": _now(),
+            "credential": credential,
         }
     _write_json(pointer_path(store, record.repository_id, environment), pointer)
     return pointer

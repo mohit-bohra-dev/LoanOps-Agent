@@ -40,6 +40,7 @@ from packages.common.providers.factory import (
     get_audit_sink_provider,
     get_chat_provider,
     get_content_safety_provider,
+    get_credential_broker,
     get_embedding_provider,
     get_pii_provider,
     get_prompt_store_provider,
@@ -84,6 +85,7 @@ _PROVIDER_FACTORIES: list[tuple[str, Any]] = [
     ("audit_sink", get_audit_sink_provider),
     ("secrets", get_secrets_provider),
     ("telemetry", get_telemetry_provider),
+    ("credential_broker", get_credential_broker),
     ("tools_client", get_tools_client_provider),
     ("prompt_store", get_prompt_store_provider),
     ("session_store", get_session_store_provider),
@@ -111,9 +113,35 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:  # noqa: ARG001
         with contextlib.suppress(Exception):
             factory()  # Individual provider failures surface in /health; don't abort boot.
 
+    # Prime per-app credential presence (P4) via tools client (owns registry access).
+    try:
+        get_credential_broker()
+        tools = get_tools_client_provider()
+        ensure = getattr(tools, "ensure_broker_primed", None)
+        if callable(ensure):
+            await ensure()
+    except Exception:  # noqa: BLE001
+        pass
+
+    # Optional in-process nightly refresh (API_INDEX__SCHEDULER_ENABLED).
+    try:
+        tools = get_tools_client_provider()
+        start_sched = getattr(tools, "ensure_scheduler_started", None)
+        if callable(start_sched):
+            start_sched()
+    except Exception:  # noqa: BLE001
+        pass
+
     yield
 
     # Flush audit sink on graceful shutdown.
+    try:
+        tools = get_tools_client_provider()
+        stop_sched = getattr(tools, "stop_scheduler", None)
+        if callable(stop_sched):
+            await stop_sched()
+    except Exception:  # noqa: BLE001
+        pass
     try:
         audit = get_audit_sink_provider()
         await audit.flush()

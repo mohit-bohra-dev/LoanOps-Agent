@@ -15,7 +15,7 @@ LoanOps is an **internal AI platform for any enterprise user** (ADR-021): discov
 **Product path:** `TOOLS_CLIENT__PROVIDER=mcp` → Streamable HTTP MCP on `:8001` (ADR-011/013) → `ModularToolsClient` / SSE / EAKG inside the MCP process.  
 **Rollback / single-process demo:** `TOOLS_CLIENT__PROVIDER=modular` (in-process tools, no MCP hop).
 
-Live loan facts come from SSE REST APIs (OpenAPI/swagger + `httpx`), with service Bearer `SSE__API_KEY` (D7: Subservicing Auth0 M2M). Policy text from docs vector search when configured. UI sidebar can call one SSE op via custom `/mcp/tools` JSON wrapper (not the MCP protocol).
+Live loan facts come from SSE REST APIs (OpenAPI + `httpx`). **ADR-024 (shipped):** the EAKG registry is the app list; OpenAPI specs are pipeline-cached (no swagger fetch at MCP boot in registry mode); search uses two-stage vector+keyword when `API_INDEX__ENABLED=true` (else ADR-023 sidecar); each live read resolves a token via `CredentialBroker` (`get_credential_broker`) with per-app origin binding. Shared `SSE__API_KEY` is only for apps listed in `CREDENTIALS__STATIC_SHARED_APPS`. Policy text from docs vector search when configured. UI sidebar can call one SSE op via custom `/mcp/tools` JSON wrapper (not the MCP protocol).
 
 `apps/tools_api` is gone. Legacy `RestApiLoanProvider` / `DATA__LOAN_API__*` remain for probes/tests only.
 
@@ -36,13 +36,14 @@ LoanOps-Agent/
     LoanOps.Tools/packages/tools/      Modular + MCP tools client factories
     LoanOps.McpServer/packages/mcp_server/
     LoanOps.Sse/packages/sse/
+    LoanOps.ApiIndex/packages/api_index/  Unified ops, vector index, two-stage search (ADR-024)
     LoanOps.Docs/packages/docs/
     LoanOps.Rag/packages/rag/
     LoanOps.Db/packages/db/
     LoanOps.Wiki/packages/wiki/
     LoanOps.Safety/packages/safety/
     LoanOps.Eval/packages/eval/
-    LoanOps.Common/packages/common/    Settings, schemas, provider factories
+    LoanOps.Common/packages/common/    Settings, schemas, provider factories (incl. CredentialBroker)
     LoanOps.CapabilityKg/packages/capability_kg/
     LoanOps.Eakg/packages/eakg/
   provider_contracts/     Sibling repo (editable path dep)
@@ -719,25 +720,35 @@ api_mapping:
 
 Do not generate one MCP tool per OpenAPI operation in the first milestone. One `call_sse_api` plus search/list keeps the tool count at four. A per-operation explosion is Phase 6.
 
-## 21. API Discovery — Future Phase
+## 21. API Discovery — Enterprise scale (ADR-024)
 
-Keep this separate from the first MCP server.
+Shipped in `.ai/specs/enterprise-app-scale/` (P1–P5). Pipeline vs runtime:
 
 ```text
-OpenAPI (SSE__SWAGGER_LINKS)
-Source of packages/sse (invoke, catalog)
-Tests (packages/sse/tests)
-API documentation
-Authorization policies (scopes.py, intent router)
-        ↓
-API Capability Catalog   (new; not Graphify, not the Qdrant "docs" namespace)
-        ↓
-Semantic discovery       (OpenAPI embeddings + keyword blend; ADR-023)
-        ↓
-MCP tool descriptors
+PIPELINE
+  repositories.yaml ─► spec refresh (per app) ─► openapi/<env>/current.json
+       ─► build_operations → operations.json ─► reindex → VectorStore api_ops_<env>_<model8>
+       (+ JSON sidecar fallback under enterprise/)
+
+RUNTIME (MCP / Agent)
+  registry catalog from cached specs (no swagger HTTP at boot)
+       ─► ApiSearchService (two-stage) when API_INDEX__ENABLED
+          else ADR-023 sidecar / keyword (packages/sse/semantic.py)
+       ─► OperationResolver → public_id (app:operationId)
+       ─► invoke_sse_api(CredentialBroker, AppTarget, breaker)
+       ─► /ready per-app (spec age, indexed, credential, last outcome)
 ```
 
-Discovery: `search_sse_apis` blends OpenAPI embeddings (`packages/sse/semantic.py`, sidecar under `data/eakg/enterprise/openapi_embeddings.json`) with keyword overlap; falls back to labeled keyword search if embeddings are unavailable. EAKG capability block uses cached `CapabilityCatalogService` (fingerprint invalidation). Graphify remains the wrong store for request-time discovery.
+| Piece | Where |
+|---|---|
+| Registry + env mapping + validate/import | `packages/eakg/registry*.py`, `spec_cache.py` |
+| Catalog source selection | `SSE__CATALOG_SOURCE` / `packages/tools/registry_catalog.py` |
+| Unified ops + resolver + report | `packages/api_index/{records,catalog,resolver}.py` |
+| Index + two-stage search + refresh CLI | `packages/api_index/{indexer,keyword_index,search,refresh}.py` |
+| Per-app credentials | `packages/common/providers/credential_broker.py` → `get_credential_broker()` |
+| Per-app health / scheduler | `packages/api_index/{health,scheduler}.py` |
+
+`SSE__SWAGGER_LINKS` remains a local-dev override only. EAKG capability block still uses `CapabilityCatalogService` (fingerprint invalidation). Graphify remains the wrong store for request-time discovery. When `API_INDEX__ENABLED=true`, the vector index is primary discovery; the OpenAPI embedding sidecar (ADR-023) stays as fallback when the vector store is unavailable.
 
 ## 22. Migration Plan
 

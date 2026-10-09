@@ -6,20 +6,23 @@ from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
+from packages.common.providers.credential_broker import AbstractCredentialBroker
 from packages.common.scopes import EAKG_TOOL_NAMES, tools_for_role, tools_for_scopes
 from packages.common.settings import Settings, get_settings
 from packages.db.client import SqlServerClient
 from packages.docs.service import DocsService
 from packages.api_index.catalog import OperationCatalog
 from packages.sse.catalog import AmbiguousOperationError, find_operation
+from packages.sse.invoke_outcomes import LastInvokeRing
 from packages.sse.loader import OpenApiCatalogService
 from packages.sse.tools import SSE_TOOL_NAMES, dispatch_sse_tool
-from packages.sse.types import ApiOperation
+from packages.sse.types import ApiOperation, BreakerRegistry
 from packages.tools.capability import eakg_capability_search_block
 from packages.tools.capability_catalog import CapabilityCatalogService
 from packages.tools.eakg_tools import dispatch_eakg_tool
 from packages.tools.policy import ToolPolicyError, assert_sse_read_only, body_present
 from packages.wiki.tools import WIKI_TOOL_NAMES, dispatch_wiki_tool
+from provider_contracts.audit_sink import AbstractAuditSinkProvider
 from provider_contracts.tools_client import ToolCall, ToolResult
 from provider_contracts.tools_client._base import AbstractToolsClientProvider
 
@@ -53,6 +56,12 @@ class ModularToolsClient(AbstractToolsClientProvider):
         catalog_service: CapabilityCatalogService | None = None,
         settings: Settings | None = None,
         operation_catalog: OperationCatalog | None = None,
+        api_search: Any | None = None,
+        credentials: AbstractCredentialBroker | None = None,
+        breaker: BreakerRegistry | None = None,
+        audit: AbstractAuditSinkProvider | None = None,
+        registry_mode: bool = False,
+        invoke_ring: LastInvokeRing | None = None,
     ) -> None:
         self._sse = sse
         self._db = db
@@ -62,7 +71,15 @@ class ModularToolsClient(AbstractToolsClientProvider):
         self._capability_block = capability_block
         self._catalog_service = catalog_service
         self._operation_catalog = operation_catalog
+        self._api_search = api_search
         self._settings = settings
+        self._credentials = credentials
+        self._breaker = breaker
+        self._audit = audit
+        self._registry_mode = registry_mode
+        self._invoke_ring = invoke_ring or LastInvokeRing()
+        self._broker_primed = False
+        self._primed_apps: set[str] = set()
         self._catalog_fingerprint: tuple[tuple[str, int, int], ...] | None = None
         self._catalog_checked_at = 0.0
         self._allowed = (
@@ -87,9 +104,14 @@ class ModularToolsClient(AbstractToolsClientProvider):
         return self._operation_catalog
 
     async def readiness_snapshot(self) -> dict[str, Any]:
-        """Non-network readiness details for MCP /ready (no live SSE host probe)."""
+        """Per-app /ready body (spec §5.2); 200 when catalog loaded."""
         from pathlib import Path
 
+        import time
+
+        from packages.api_index.health import AppHealthService
+
+        started = time.perf_counter()
         warnings: list[str] = []
         catalog = await self._sse.load()
         source_errors = [
@@ -99,67 +121,51 @@ class ModularToolsClient(AbstractToolsClientProvider):
         ]
         if source_errors:
             warnings.append("openapi_source_errors")
-        openapi = {
+        sidecar_path = self._sse.openapi_embed_path
+        sidecar_present = bool(sidecar_path and Path(sidecar_path).is_file())
+        if not sidecar_present:
+            warnings.append("openapi_embed_sidecar_missing")
+        svc = self._catalog_service
+        if svc is not None and svc.enabled and not svc.shard_dir.is_dir():
+            warnings.append("eakg_shard_dir_missing")
+
+        settings = self._settings if self._settings is not None else get_settings()
+        caps = svc.catalog() if svc is not None and svc.enabled else None
+        health = AppHealthService(
+            settings=settings,
+            op_set=self._operation_catalog.op_set if self._operation_catalog else None,
+            credentials=self._credentials,
+            breaker=self._breaker,
+            invoke_ring=self._invoke_ring,
+            capabilities=caps,
+        )
+        snap = await health.snapshot(environment=settings.eakg.environment)
+        body = snap.model_dump(mode="json")
+        merged_warnings = list(dict.fromkeys([*body.get("warnings", []), *warnings]))
+        body["warnings"] = merged_warnings
+        # Legacy diagnostic fields (non-authoritative).
+        body["openapi"] = {
             "operation_count": len(catalog.operations),
             "source_count": len(catalog.sources),
             "source_errors": source_errors,
             "embed_cache_size": len(self._sse.openapi_embed_cache),
         }
-        sidecar_path = self._sse.openapi_embed_path
-        sidecar_present = bool(sidecar_path and Path(sidecar_path).is_file())
-        coverage = 0.0
-        if catalog.operations and sidecar_present:
-            coverage = round(
-                len(self._sse.openapi_embed_cache) / len(catalog.operations), 3
-            )
-        if not sidecar_present:
-            warnings.append("openapi_embed_sidecar_missing")
-        eakg: dict[str, Any] = {"enabled": False}
-        svc = self._catalog_service
-        if svc is not None and svc.enabled:
-            eakg = {
-                "enabled": True,
-                "shard_dir": str(svc.shard_dir),
-                "shard_dir_exists": svc.shard_dir.is_dir(),
-                "fingerprint_files": len(svc.fingerprint()),
-                "capability_count": svc.capability_count(),
-            }
-            if not svc.shard_dir.is_dir():
-                warnings.append("eakg_shard_dir_missing")
-        catalog_health: dict[str, Any] = {
-            "openapi_only": 0,
-            "eakg_only": 0,
-            "ambiguous": 0,
-            "capabilities_unbound": 0,
-            "operation_count": 0,
+        body["openapi_sidecar"] = {
+            "path": sidecar_path,
+            "present": sidecar_present,
+            "coverage": body.get("index", {}).get("coverage", 0.0),
         }
-        if self._operation_catalog is not None:
-            from packages.api_index.catalog import mismatch_report
+        try:
+            from packages.api_index.metrics import record_metric
 
-            report = mismatch_report(
-                self._operation_catalog.op_set,
-                svc.catalog() if svc is not None else None,
+            await record_metric(
+                "api_index.catalog.load_ms",
+                (time.perf_counter() - started) * 1000.0,
+                unit="ms",
             )
-            catalog_health = {
-                "openapi_only": len(report["openapi_only"]),
-                "eakg_only": len(report["eakg_only"]),
-                "ambiguous": len(report["ambiguous"]),
-                "capabilities_unbound": len(report["capabilities_unbound"]),
-                "operation_count": len(self._operation_catalog.ops),
-            }
-            if catalog_health["ambiguous"] or catalog_health["eakg_only"]:
-                warnings.append("api_index_join_gaps")
-        return {
-            "openapi": openapi,
-            "openapi_sidecar": {
-                "path": sidecar_path,
-                "present": sidecar_present,
-                "coverage": coverage,
-            },
-            "eakg": eakg,
-            "catalog_health": catalog_health,
-            "warnings": warnings,
-        }
+        except Exception:  # noqa: BLE001
+            pass
+        return body
 
     def _ok(self, name: str, text: str) -> ToolResult:
         return ToolResult(tool_name=name, success=True, data={"text": text})
@@ -189,6 +195,43 @@ class ModularToolsClient(AbstractToolsClientProvider):
             )
         except AmbiguousOperationError as exc:
             raise ToolPolicyError(str(exc)) from exc
+
+    def _active_app_ids(self) -> list[str]:
+        if self._settings is None:
+            return list(self._sse.app_targets().keys())
+        from packages.eakg.registry import RepositoryRegistry
+
+        registry = RepositoryRegistry(self._settings.eakg.registry_path)
+        return [r.application_id for r in registry.list_active(self._settings.eakg.environment)]
+
+    async def ensure_broker_primed(self) -> None:
+        """Prime credential presence for active apps (startup + hot-reload)."""
+        if self._credentials is None:
+            return
+        app_ids = self._active_app_ids()
+        new_apps = [a for a in app_ids if a not in self._primed_apps]
+        if not self._broker_primed or new_apps:
+            await self._credentials.prime(app_ids if not self._broker_primed else new_apps)
+            self._primed_apps.update(app_ids)
+            self._broker_primed = True
+
+    def ensure_scheduler_started(self) -> None:
+        """Start optional in-process nightly refresh when configured."""
+        settings = self._settings if self._settings is not None else get_settings()
+        from packages.api_index.scheduler import ensure_scheduler_started
+
+        ensure_scheduler_started(
+            environment=settings.eakg.environment,
+            nightly_hour=settings.eakg.nightly_hour,
+            workspace_dir=settings.eakg.workspace_dir,
+            enabled=settings.api_index.scheduler_enabled,
+        )
+
+    async def stop_scheduler(self) -> None:
+        """Cancel in-process nightly scheduler (shutdown)."""
+        from packages.api_index.scheduler import stop_scheduler
+
+        await stop_scheduler()
 
     def _maybe_reload_catalog(self) -> None:
         if self._settings is None:
@@ -223,11 +266,21 @@ class ModularToolsClient(AbstractToolsClientProvider):
                     self._settings.eakg.environment,
                     capabilities=caps,
                 )
+                if self._api_search is not None and self._operation_catalog is not None:
+                    invalidate = getattr(self._api_search, "invalidate_catalog", None)
+                    if callable(invalidate):
+                        invalidate(
+                            self._operation_catalog.ops,
+                            self._operation_catalog.keyword_index,
+                        )
             self._catalog_fingerprint = current
+            # New apps after reload need re-prime (async path in call()).
+            self._broker_primed = False
 
     async def call(self, tool: ToolCall) -> ToolResult:
         # LAYER2-BP A5: in-process helpers (Agent modular OR MCP server)
         self._maybe_reload_catalog()
+        await self.ensure_broker_primed()
         name = tool.tool_name
         if name not in self._allowed:
             return self._err(name, f"Tool '{name}' not allowed for current scope")
@@ -245,6 +298,13 @@ class ModularToolsClient(AbstractToolsClientProvider):
                     args,
                     cache=self._cache,
                     capability_block=self._capability_block,
+                    api_search=self._api_search,
+                    credentials=self._credentials,
+                    breaker=self._breaker,
+                    audit=self._audit,
+                    resolver=self.operation_resolver(),
+                    registry_mode=self._registry_mode,
+                    invoke_ring=self._invoke_ring,
                 )
                 return self._ok(name, text)
             if name in EAKG_TOOL_NAMES:

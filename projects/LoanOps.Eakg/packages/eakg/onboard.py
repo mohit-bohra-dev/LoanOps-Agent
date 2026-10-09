@@ -137,21 +137,24 @@ async def onboard_repository(
         details = details_obj
 
         # openapi hybrid — spec comes from the cache, not a live fetch inside enrich
+        from packages.common.providers.credential_broker import broker_token_source
+        from packages.common.providers.factory import get_credential_broker
         from packages.eakg.spec_cache import read_current_spec, refresh_spec
 
-        async def _token(_application_id: str, _audience: str) -> str:
-            return cfg.eakg.live_spec_token
-
         env = cfg.eakg.environment
-        pointer = await refresh_spec(record, env, store, _token)
+        token_source = broker_token_source(get_credential_broker())
+        pointer = await refresh_spec(record, env, store, token_source)
         doc, _cached_pointer = read_current_spec(store, record.repository_id, env)
         target = record.environments.get(env)
+        fetch_token = ""
+        if target is not None:
+            fetch_token = await token_source(record.application_id, target.auth_audience)
         iface = await enrich_interface(
             iface,
             store,
             mode=cfg.eakg.openapi_mode,
             base_url=target.base_url if target is not None else "",
-            token=cfg.eakg.live_spec_token,
+            token=fetch_token,
             fixture_path=target.spec_fixture if target is not None else "",
             spec=doc,
         )

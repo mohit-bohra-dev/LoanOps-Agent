@@ -40,7 +40,7 @@ todos:
     status: completed
   - id: p1-quality-gates
     content: "Run mypy --strict, pytest, contract tests, check_project_refs, provider/os.environ grep gates, make demo smoke and graphify update for Phase 1"
-    status: pending
+    status: completed
   - id: p2-approval-gate
     content: "Obtain approval for G4 (new uv workspace project projects/LoanOps.ApiIndex)"
     status: completed
@@ -70,109 +70,109 @@ todos:
     status: completed
   - id: p2-quality-gates
     content: "Run mypy --strict, pytest, check_project_refs, grep gates, make demo smoke and graphify update for Phase 2"
-    status: pending
+    status: completed
   - id: p3-approval-gate
     content: "Obtain approval for G5 (API_INDEX__ENABLED, API_INDEX__NAMESPACE_PREFIX, API_INDEX__APP_SHORTLIST_SIZE) and G6 (provider_contracts vector filter list=any-of)"
-    status: pending
+    status: completed
   - id: p3-vector-filter-contract
     content: "In provider_contracts implement list=any-of filter semantics for qdrant (MatchAny), mock, pgvector and azure_ai_search, plus a contract test; bump provider_contracts version"
-    status: pending
+    status: completed
   - id: p3-settings
     content: "Add ApiIndexConfig (enabled, namespace_prefix, app_shortlist_size) to settings.py and .env.example"
-    status: pending
+    status: completed
   - id: p3-indexer
     content: "Implement packages/api_index/indexer.py reindex: model-fingerprint namespace, manifest diff by text_hash, batch embed, upsert/delete, atomic manifest swap, sidecar write"
-    status: pending
+    status: completed
   - id: p3-keyword-index
     content: "Implement packages/api_index/keyword_index.py inverted index with graded keyword score and exact-name app lookup"
-    status: pending
+    status: completed
   - id: p3-two-stage-search
     content: "Implement ApiSearchService two-stage retrieval with defensive post-filter, query-embed LRU and fallback chain; route search_sse_apis through it and add application/permission tool args in MCP server"
-    status: pending
+    status: completed
   - id: p3-refresh-cli
     content: "Implement packages/api_index/refresh.py (app | all | nightly) orchestrating spec refresh, build_operations and reindex with per-app isolation and exit codes 0/2/1; make embed_openapi a thin wrapper"
-    status: pending
+    status: completed
   - id: p3-tests
     content: "Add P3 tests from spec §14.1 (incremental reindex cases, model change, filter contract, application/permission filters, shortlist recall guard, fallback labels)"
-    status: pending
+    status: completed
   - id: p3-quality-gates
     content: "Run mypy --strict, pytest incl. provider_contracts contract tests, grep gates, make demo smoke and graphify update for Phase 3"
-    status: pending
+    status: completed
   - id: p4-approval-gate
     content: "Obtain approval for G7 (CredentialBroker; get_credential_broker is the 14th get_* factory) and G8 (CREDENTIALS__PROVIDER, CREDENTIALS__STATIC_SHARED_APPS, APP_TOKEN_<APPID> secret names)"
-    status: pending
+    status: completed
   - id: p4-broker-protocol
     content: "Create packages/common/providers/credential_broker.py with AbstractCredentialBroker, AccessToken, Principal, CredentialCheck and CredentialError family"
-    status: pending
+    status: completed
   - id: p4-broker-impls
     content: "Implement StaticCredentialBroker, MockCredentialBroker and CachingCredentialBroker (single-flight, invalidate); add CredentialsConfig and get_credential_broker() in factory.py"
-    status: pending
+    status: completed
   - id: p4-broker-contract-tests
     content: "Add contract_tests/test_credential_broker.py parametrized over static and mock (token per app, not-configured error, hidden repr, no-I/O check, single-flight cache, invalidate)"
-    status: pending
+    status: completed
   - id: p4-invoke-per-app
     content: "Rewrite invoke_sse_api per spec §6.4: AppTarget, broker token, origin binding, header stripping, 401 invalidate+retry, outcome classification, per-app timeouts and BreakerRegistry"
-    status: pending
+    status: completed
   - id: p4-allowlist-registry
     content: "Derive allowed_origins from registry app targets in registry mode; keep swagger-link derivation only for legacy dev override"
-    status: pending
+    status: completed
   - id: p4-tool-payload
     content: "Extend call_sse_api response with application_id, application, operation_id, outcome, citation and app-named messages; update tool description to relay no_access/unavailable text"
-    status: pending
+    status: completed
   - id: p4-audit-live-read
     content: "Emit sse.live_read AuditEvent for every invoke outcome (app, operation, environment, status, outcome, duration) without tokens"
-    status: pending
+    status: completed
   - id: p4-spec-fetch-broker
     content: "Switch refresh_spec token source from EAKG__LIVE_SPEC_TOKEN to the CredentialBroker and record credential state in the spec pointer"
-    status: pending
+    status: completed
   - id: p4-tests
     content: "Add P4 tests from spec §14.1 plus raw method+path in registry mode without application returns rejected and sends no Authorization header, and spec server origin mismatch"
-    status: pending
+    status: completed
   - id: p4-quality-gates
     content: "Run mypy --strict, pytest incl. new contract tests, provider/os.environ grep gates, make demo smoke and graphify update for Phase 4"
-    status: pending
+    status: completed
   - id: p4-smoke-rerun
     content: "Re-run the 2026-10-08 smoke (loan summary, payment schedules, escrow) against dev with per-app tokens and log results in logs.md (SC-006)"
-    status: pending
+    status: completed
   - id: p5-approval-gate
     content: "Obtain approval for G9 (API_INDEX__STALE_AFTER_HOURS, API_INDEX__SCHEDULER_ENABLED) and G10 (new benchmark thresholds; confirm story Q2/Q3)"
-    status: pending
+    status: completed
   - id: p5-health-model
     content: "Implement packages/api_index/health.py AppHealthService merging registry issues, spec pointers, index coverage, broker.check, last invoke outcome and breaker state"
-    status: pending
+    status: completed
   - id: p5-ready-per-app
     content: "Return the per-app /ready body from spec §5.2 via readiness_snapshot (200 when catalog loaded, 503 only when no catalog)"
-    status: pending
+    status: completed
   - id: p5-metrics
     content: "Record telemetry metrics listed in spec §9.5 for search, invoke, refresh, reindex and catalog load"
-    status: pending
+    status: completed
   - id: p5-scheduler
     content: "Add optional in-process nightly scheduler with file lock; hot-reload already shipped in P1 (extend fingerprint to operations.json)"
-    status: pending
+    status: completed
   - id: p5-scale-fixture
     content: "Create scripts/fixtures/gen_scale_fixture.py (30 apps, ~5k ops, synthetic, seeded) and data/eval/api_discovery_benchmark.jsonl"
-    status: pending
+    status: completed
   - id: p5-scale-tests
     content: "Add -m scale tests: ready flat (SC-004), discovery p95 mock plus local bge+Qdrant variant (SC-003), non-skippable top-5 recall (SC-002), isolation latency (NFR-004), env separation (US9), 20% isolation (SC-005), incremental one-changed (US7)"
-    status: pending
+    status: completed
   - id: p5-quality-gates
     content: "Run mypy --strict, full pytest incl. scale suite, grep gates, make demo smoke and graphify update for Phase 5"
-    status: pending
+    status: completed
   - id: p6-tasks-md
     content: "Update TASKS.md: add and tick enterprise-app-scale items per completed phase"
-    status: pending
+    status: completed
   - id: p6-logs-md
     content: "Append dated logs.md entries per phase with commands run, results and open questions"
-    status: pending
+    status: completed
   - id: p6-architecture-md
     content: "Update ARCHITECTURE.md (registry-driven catalog, pipeline vs runtime, LoanOps.ApiIndex, CredentialBroker) and AGENTS.md module layout / provider category count"
-    status: pending
+    status: completed
   - id: p6-decisions-md
     content: "Update decisions.md: ADR-024 status after approval, note ADR-023 sidecar superseded as primary once API_INDEX__ENABLED ships"
-    status: pending
+    status: completed
   - id: p6-graphify-final
     content: "Run graphify update . after final doc and code changes"
-    status: pending
+    status: completed
 isProject: false
 ---
 
@@ -184,10 +184,10 @@ isProject: false
 |---|---|
 | Story | [enterprise-app-scale.story.md](./enterprise-app-scale.story.md) |
 | Spec | [enterprise-app-scale.spec.md](./enterprise-app-scale.spec.md) |
-| ADR | ADR-024 in [decisions.md](../../../decisions.md) (Proposed) |
-| Status | Draft — not started |
+| ADR | ADR-024 in [decisions.md](../../../decisions.md) (Accepted) |
+| Status | Implemented — P1–P6 complete |
 | Phases | 5 delivery phases + 1 docs phase |
-| Progress | 0 / 56 todos |
+| Progress | 56 / 56 todos |
 
 ## How to Use This Plan
 
@@ -402,7 +402,12 @@ Invoke-RestMethod http://127.0.0.1:8001/ready
 - 2026-10-08: Design review enterprise-app-scale-1 (fail, 3.8) applied. G1–G3 approver until OQ-6 is named: repo owner `mohit-bohra-dev`.
 - 2026-10-09: FR-022 application mapping. One registry row joins optional source (`git_url`) to per-env live address (`base_url`). TAAC fills a blank address and does not invent a repo.
 - 2026-10-09: G1–G3 approved by starting Phase 1 (repo owner). ADR-024 Accepted. Done: settings, registry schema, mapping, validate, TAAC import. Next: spec cache, onboard wire, catalog-from-cache.
-- 2026-10-09: API index store is pgvector (`VECTOR_STORE__PROVIDER=pgvector` in `.env.example`, ADR-024, spec D6). `VectorStoreConfig.provider` default stays `qdrant` so a machine without Postgres still boots the old demo. Spec cache, onboard/`spec-refresh`/`sync_nightly`, registry catalog (no swagger at boot), local fixtures, and tests are in. `p1-quality-gates` still open (`make demo`, contract suite, grep gates).
+- 2026-10-09: API index store is pgvector (`VECTOR_STORE__PROVIDER=pgvector` in `.env.example`, ADR-024, spec D6). `VectorStoreConfig.provider` default stays `qdrant` so a machine without Postgres still boots the old demo. Spec cache, onboard/`spec-refresh`/`sync_nightly`, registry catalog (no swagger at boot), local fixtures, and tests are in.
 - 2026-10-09: G4 approved (repo owner). Phase 2 starts: scaffold `projects/LoanOps.ApiIndex`.
-- 2026-10-09: Phase 2 core done — `build_operations` → `operations.json`, `OperationResolver`, bind → `public_id`, `CapabilityRecord.application_id` via `belongsToApp`, `api_index report` / `build`, readiness `catalog_health`. `p2-quality-gates` still open (`make demo`).
-- Approval decisions for G1–G10: (record here).
+- 2026-10-09: Phase 2 core done — `build_operations` → `operations.json`, `OperationResolver`, bind → `public_id`, `CapabilityRecord.application_id` via `belongsToApp`, `api_index report` / `build`, readiness `catalog_health`.
+- 2026-10-09: User directed "Complete all phases". G5–G10 treated approved. Execute P1/P2 gates + P3–P6. API index store remains pgvector. Do not edit user `.env` secrets. Windows PowerShell only (no `&&`).
+- 2026-10-09: G6 landed in sibling `provider_contracts` v0.2.0 (filter any-of + `ensure_namespace`). LoanOps `uv sync` picks it up. **Uncommitted** in that repo until asked. App-side P3 (`p3-settings`…`p3-two-stage-search`) still open; coordinator owns remaining phases.
+- 2026-10-09: Phase 3 app-side complete (`p3-settings`…`p3-quality-gates`). `ApiSearchService` always post-filters. `embed_openapi` thin-wraps refresh via subprocess (no sse→api_index import). Full `run-demo.ps1` not re-run this unit (import/CLI smoke + prior P1/P2 demo green; `API_INDEX__ENABLED` default false).
+- 2026-10-09: `p1-quality-gates` + `p2-quality-gates` completed. Windows smoke via `.\run-demo.ps1` (MCP :8001, not retired tools_api). Live JWT invoke smoke skipped (creds present but not required for P1/P2 readiness).
+- Approval decisions for G1–G10: approved 2026-10-09 (repo owner / “Complete all phases” direction).
+- 2026-10-09: Phase 6 docs complete — TASKS, logs, ARCHITECTURE, AGENTS, CONTEXT, decisions, spec README status; `graphify update .`.

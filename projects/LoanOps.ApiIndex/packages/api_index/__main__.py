@@ -74,9 +74,35 @@ def main(argv: list[str] | None = None) -> int:
         return 2 if gaps else 0
 
     if args.cmd == "health":
-        _ = args.probe
-        print(json.dumps({"environment": env, "apps": {}, "status": "scaffold"}, indent=2))
-        return 0
+        import asyncio
+
+        from packages.api_index.catalog import OperationCatalog
+        from packages.api_index.health import AppHealthService
+        from packages.common.providers.factory import get_credential_broker
+
+        catalog = OperationCatalog.load_or_build(
+            registry, store, env, capabilities=caps, force_build=False
+        )
+        broker = None
+        try:
+            broker = get_credential_broker()
+        except Exception:  # noqa: BLE001
+            broker = None
+        service = AppHealthService(
+            settings=cfg,
+            registry=registry,
+            store=store,
+            op_set=catalog.op_set,
+            credentials=broker,
+            capabilities=caps,
+        )
+        snap = asyncio.run(service.snapshot(environment=env))
+        payload = snap.model_dump(mode="json")
+        if args.probe:
+            payload["probe"] = "not_run"  # network probe reserved for operators
+        print(json.dumps(payload, indent=2))
+        degraded = int(snap.summary.get("degraded") or 0)
+        return 2 if degraded else 0
     return 1
 
 

@@ -13,6 +13,7 @@ from __future__ import annotations
 from functools import lru_cache
 
 from packages.common.providers.base import ProviderConfigError
+from packages.common.providers.credential_broker import AbstractCredentialBroker
 from packages.common.providers.loan_data import AbstractLoanDataProvider
 from packages.common.providers.policy_source import AbstractPolicySourceProvider
 from packages.common.providers.session_store import AbstractSessionStoreProvider
@@ -221,10 +222,14 @@ def get_vector_store_provider() -> AbstractVectorStoreProvider:
     if cfg.vector_store.provider == "qdrant":
         from provider_contracts.vector_store.qdrant import QdrantVectorStoreProvider
 
+        if cfg.vector_store.qdrant.path:
+            raise ProviderConfigError(
+                "VECTOR_STORE__QDRANT__PATH is no longer supported; "
+                "use a Qdrant server URL (VECTOR_STORE__QDRANT__URL)"
+            )
         return QdrantVectorStoreProvider(
             url=cfg.vector_store.qdrant.url,
             collection=cfg.vector_store.qdrant.collection,
-            path=cfg.vector_store.qdrant.path,
         )
     if cfg.vector_store.provider == "ai_search":
         from provider_contracts.vector_store.azure_ai_search import (
@@ -331,6 +336,10 @@ def get_telemetry_provider() -> AbstractTelemetryProvider:
     if cfg.telemetry.provider == "langfuse":
         from provider_contracts.telemetry.langfuse import LangfuseTelemetryProvider
 
+        if cfg.telemetry.langfuse is None:
+            raise ProviderConfigError(
+                "TELEMETRY__LANGFUSE config section is required for 'langfuse' provider"
+            )
         return LangfuseTelemetryProvider(
             public_key=cfg.telemetry.langfuse.public_key,
             secret_key=cfg.telemetry.langfuse.secret_key,
@@ -393,3 +402,27 @@ def get_reranker_provider() -> AbstractRerankerProvider:
 
         return SentenceTransformerRerankerProvider(model_name=cfg.reranker.model)
     raise ProviderConfigError(f"Unknown re-ranker provider: {cfg.reranker.provider}")
+
+
+# ── Credential broker (14th get_*) ─────────────────────────────────────────
+@lru_cache(maxsize=1)
+def get_credential_broker() -> AbstractCredentialBroker:
+    """Return the configured credential broker (CREDENTIALS__PROVIDER)."""
+    cfg = _get_settings()
+    from packages.common.providers.credential_broker import (
+        CachingCredentialBroker,
+        MockCredentialBroker,
+        StaticCredentialBroker,
+    )
+
+    if cfg.credentials.provider == "static":
+        return CachingCredentialBroker(
+            StaticCredentialBroker(
+                get_secrets_provider(),
+                shared_token=cfg.sse.api_key,
+                shared_apps=set(cfg.credentials.static_shared_apps),
+            )
+        )
+    if cfg.credentials.provider == "mock":
+        return CachingCredentialBroker(MockCredentialBroker({}))
+    raise ProviderConfigError(f"Unknown credentials provider: {cfg.credentials.provider}")

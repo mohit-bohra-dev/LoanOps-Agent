@@ -1,0 +1,11 @@
+{
+  "apps": 5,
+  "ops_per_app": 20,
+  "operations": 100,
+  "seed": 42,
+  "questions": 40,
+  "cross_app_pairs": 4,
+  "out_dir": "data\\eakg\\fixtures\\scale-small",
+  "registry": "data\\eakg\\fixtures\\scale-small\\repositories.yaml",
+  "benchmark": "data\\eakg\\fixtures\\scale-small\\api_discovery_benchmark.jsonl"
+}

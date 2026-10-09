@@ -76,6 +76,8 @@ class _Tools(Protocol):
 
     def capability_catalog(self) -> _CatalogSvc | None: ...
 
+    def operation_resolver(self) -> Any | None: ...
+
 
 class _Audit(Protocol):
     async def emit(self, event: AuditEvent) -> None: ...
@@ -314,12 +316,27 @@ def create_app(cfg: Settings | None = None) -> Starlette:
 
     @mcp.tool(
         name="search_sse_apis",
-        description=("Search SSE OpenAPI catalogs by keywords. Prefer this before call_sse_api."),
+        description=(
+            "Search SSE OpenAPI catalogs by keywords. Prefer this before call_sse_api. "
+            "Optional application (app id) and permission filters narrow results. "
+            "When the tool reports no confident match, say no matching operation was "
+            "found rather than guessing."
+        ),
         annotations=_READ_ONLY,
     )
-    async def search_sse_apis(query: str, limit: int = 15) -> str:
+    async def search_sse_apis(
+        query: str,
+        limit: int = 15,
+        application: str | None = None,
+        permission: str | None = None,
+    ) -> str:
         # LAYER2-BP C1: MCP tool wrapper (Cursor/Agent hop) — same pattern on call_sse_api below
-        return await _run("search_sse_apis", {"query": query, "limit": limit})
+        args: dict[str, Any] = {"query": query, "limit": limit}
+        if application is not None:
+            args["application"] = application
+        if permission is not None:
+            args["permission"] = permission
+        return await _run("search_sse_apis", args)
 
     @mcp.tool(
         name="list_sse_apis",
@@ -341,7 +358,10 @@ def create_app(cfg: Settings | None = None) -> Starlette:
         description=(
             "Invoke a GET SSE REST operation. Prefer capability_id from "
             "search_capabilities (binds operation_id). Else operation_id or "
-            "method+path. Non-GET methods and bodies are rejected."
+            "method+path (registry mode requires application with raw method+path). "
+            "Non-GET methods and bodies are rejected. If outcome is no_access or "
+            "unavailable, tell the user the error text as-is and continue with "
+            "parts of the answer that do not depend on that application."
         ),
         annotations=_READ_ONLY,
     )
@@ -350,6 +370,7 @@ def create_app(cfg: Settings | None = None) -> Starlette:
         operation_id: str | None = None,
         method: str | None = None,
         path: str | None = None,
+        application: str | None = None,
         path_params: dict[str, Any] | None = None,
         query: dict[str, Any] | None = None,
         body: dict[str, Any] | None = None,
@@ -359,6 +380,7 @@ def create_app(cfg: Settings | None = None) -> Starlette:
             "operation_id": operation_id,
             "method": method,
             "path": path,
+            "application": application,
             "path_params": path_params,
             "query": query,
             "body": body,
@@ -423,7 +445,18 @@ def create_app(cfg: Settings | None = None) -> Starlette:
 
     @mcp.custom_route("/ready", methods=["GET"])  # type: ignore[untyped-decorator]
     async def ready(_request: Request) -> Response:
-        """Readiness: tools client + OpenAPI catalog + EAKG shards (+ sidecar warnings)."""
+        """Readiness: per-app body (spec §5.2). 503 only when catalog cannot load."""
+        try:
+            from packages.api_index.scheduler import ensure_scheduler_started
+
+            ensure_scheduler_started(
+                environment=settings.eakg.environment,
+                nightly_hour=settings.eakg.nightly_hour,
+                workspace_dir=settings.eakg.workspace_dir,
+                enabled=settings.api_index.scheduler_enabled,
+            )
+        except Exception:  # noqa: BLE001
+            pass
         try:
             tools = client()
         except Exception as exc:  # noqa: BLE001
@@ -449,6 +482,22 @@ def create_app(cfg: Settings | None = None) -> Starlette:
                     "detail": "catalog_load_failed",
                     "error": str(exc)[:500],
                 },
+                status_code=503,
+            )
+        # 503 only when no catalog could be built (zero ops and zero sources).
+        openapi = snap.get("openapi") if isinstance(snap, dict) else None
+        catalog = snap.get("catalog") if isinstance(snap, dict) else None
+        ops = 0
+        if isinstance(catalog, dict):
+            ops = int(catalog.get("operations") or 0)
+        if ops == 0 and isinstance(openapi, dict):
+            ops = int(openapi.get("operation_count") or 0)
+        sources = 0
+        if isinstance(openapi, dict):
+            sources = int(openapi.get("source_count") or 0)
+        if ops == 0 and sources == 0:
+            return JSONResponse(
+                {"status": "not_ready", "detail": "no_catalog", **snap},
                 status_code=503,
             )
         body = {"status": "ready", **snap}

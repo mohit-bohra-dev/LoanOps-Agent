@@ -559,7 +559,10 @@ Fingerprint invalidation is enough for local MCP demos.
 - Keyword fallback on embed failure is labeled in `search_sse_apis` output.
 - Settings hot path uses `get_settings()` (`@lru_cache`).
 
-**Status:** Proposed 2026-04-08.
+**Status:** Proposed 2026-04-08. **Superseded as primary OpenAPI discovery** once
+`API_INDEX__ENABLED=true` (ADR-024 vector index). Sidecar remains the labeled
+fallback when the vector store is unavailable; `embed_openapi` thin-wraps
+`packages.api_index.refresh` (`--sidecar-only`).
 
 ---
 
@@ -606,15 +609,17 @@ capability/OpenAPI id split, and keeps local-first (`make demo` works with
 fixtures, Qdrant in Docker, and a static-token broker).
 
 **Implications:**
-- Supersedes the OpenAPI sidecar part of ADR-023 once the vector index ships;
-  the sidecar stays as the fallback when the vector store is unavailable.
-- New settings and env vars (registry URL/audience fields, broker selection,
-  index namespace) — require approval before implementation.
-- New provider protocol `CredentialBroker` (11th category) with a static-token
-  implementation for local; contract tests required.
+- Supersedes the OpenAPI sidecar part of ADR-023 as **primary** discovery when
+  `API_INDEX__ENABLED=true`; the sidecar stays as the fallback when the vector
+  store is unavailable.
+- Settings / env: `EAKG__ENVIRONMENT`, `SSE__CATALOG_SOURCE`, `API_INDEX__*`,
+  `CREDENTIALS__*` (G1–G10 approved 2026-10-09).
+- New provider protocol `CredentialBroker` with static + mock + caching;
+  `get_credential_broker()` is the 14th `get_*` in
+  `packages/common/providers/factory.py`; contract tests required.
 - Host allow-list is derived from the registry, not from swagger links.
 - `/ready` reports per-app status (indexed, spec age, credential check).
-- Delivery tracked in `.ai/specs/enterprise-app-scale/`.
+- Delivery tracked in `.ai/specs/enterprise-app-scale/` (P1–P6 complete 2026-10-09).
 
-**Status:** Accepted 2026-10-09. Implementation of Phase 1 started on repo-owner direction.
+**Status:** Accepted 2026-10-09. Implemented through Phase 6 (docs).
 

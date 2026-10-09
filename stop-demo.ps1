@@ -10,7 +10,7 @@ function Stop-PortListeners {
     foreach ($port in $Ports) {
         $conns = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue
         if (-not $conns) {
-            Write-Host "Port $port: nothing listening" -ForegroundColor DarkGray
+            Write-Host "Port ${port}: nothing listening" -ForegroundColor DarkGray
             continue
         }
         $procIds = $conns.OwningProcess | Select-Object -Unique

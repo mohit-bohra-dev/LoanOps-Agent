@@ -89,7 +89,7 @@ def auto_approve_structural(
         conf = None
         for _, _, o in g.triples((s, ns["confidence"], None)):
             try:
-                conf = float(o)
+                conf = float(str(o))
             except Exception:  # noqa: BLE001
                 conf = None
         status = None
@@ -150,7 +150,7 @@ def review_pilot_edges(
         kind = str(next(g.objects(s, ns[PRED_RELATIONSHIP_KIND]), "") or "")
         status = str(next(g.objects(s, ns[PRED_REVIEW_STATUS]), "") or "")
         try:
-            conf = float(next(g.objects(s, ns[PRED_CONFIDENCE]), 0) or 0)
+            conf = float(str(next(g.objects(s, ns[PRED_CONFIDENCE]), 0) or 0))
         except Exception:  # noqa: BLE001
             conf = 0.0
         fr = _app_tail(str(next(g.objects(s, ns[PRED_FROM_APP]), "") or ""))

@@ -109,8 +109,16 @@
 | `EAKG__ENVIRONMENT` | `local` | Registry env: `local` \| `dev` \| `stage` \| `prod` |
 | `SSE__CATALOG_SOURCE` | `auto` | `auto` \| `registry` \| `swagger_links` \| `fixture`. `auto`: explicit swagger links, else registry with a usable spec, else fixture |
 | `SSE__USE_FIXTURE` | `true` | Legacy fixture switch. Does not override an explicit `SSE__CATALOG_SOURCE` |
+| `API_INDEX__ENABLED` | `false` | When true, `search_sse_apis` uses `ApiSearchService` (two-stage vector+keyword). Default keeps sidecar/keyword path |
+| `API_INDEX__NAMESPACE_PREFIX` | `api_ops` | Vector namespace prefix → `api_ops_<env>_<model8>` |
+| `API_INDEX__APP_SHORTLIST_SIZE` | `5` | Stage-1 app shortlist size (1–20; hard cap 8 with keyword-exact apps) |
+| `API_INDEX__STALE_AFTER_HOURS` | `48` | Spec/index age threshold for `/ready` per-app `stale` |
+| `API_INDEX__SCHEDULER_ENABLED` | `false` | Optional in-process nightly refresh (file lock); prod prefers external cron → `python -m packages.api_index.refresh nightly` |
 | `SSE__API_BASE_URL` | (see `.env.example`) | Default SSE host allow-list base |
-| `SSE__API_KEY` | `""` | Bearer for live Loan Services / SSE apps |
+| `SSE__API_KEY` | `""` | Shared bearer for static broker apps listed in `CREDENTIALS__STATIC_SHARED_APPS`; not sent to every host |
+| `CREDENTIALS__PROVIDER` | `static` | `static` \| `mock` — `get_credential_broker()` (14th `get_*` in common factory) |
+| `CREDENTIALS__STATIC_SHARED_APPS` | `[]` | JSON list of app ids allowed to use `SSE__API_KEY` |
+| `APP_TOKEN_<APPID>` | unset | Per-app secret via SecretsProvider (e.g. `APP_TOKEN_FEES`) |
 | `SSE__SWAGGER_LINKS` | `[]` | JSON list of `{id,label,url}` swagger sources |
 | `PROMPT_STORE__PROVIDER` | `file` | `file` / `promptflow` |
 | `PROMPT_STORE__FILE_BASE_DIR` | `./docs` | Prompt file directory |
@@ -138,23 +146,29 @@
 ```
 packages/common/providers/<name>.py  → re-exports Protocol from provider_contracts
 packages/common/providers/factory.py → get_<name>_provider() → reads Settings → returns impl
-packages/common/providers/testing.py → re-exports all 10 InMemory mocks
+packages/common/providers/testing.py → re-exports InMemory mocks
 ```
 
-### The 10 provider categories
+### Provider categories
 
-| # | Category | Local impl | Azure impl | Factory function |
-|---|----------|-----------|------------|------------------|
-| 1 | `chat` | Ollama (Llama 3.1 8B) | Azure OpenAI GPT-4o | `get_chat_provider()` |
-| 2 | `embedding` | SentenceTransformers (bge-small) | Azure OpenAI text-embedding-3-large | `get_embedding_provider()` |
-| 3 | `vector_store` | Qdrant | Azure AI Search | `get_vector_store_provider()` |
+`packages/common/providers/factory.py` exposes **14** `get_*` factories (incl. `get_credential_broker`). `get_tools_client_provider()` lives in `packages/tools/factory.py`.
+
+| # | Category | Local impl | Azure / cloud | Factory function |
+|---|----------|-----------|---------------|------------------|
+| 1 | `chat` | Ollama (Llama 3.1 8B) | Azure OpenAI GPT-4o / Bedrock | `get_chat_provider()` |
+| 2 | `embedding` | SentenceTransformers (bge-small) | Azure OpenAI / Bedrock | `get_embedding_provider()` |
+| 3 | `vector_store` | Qdrant (default); API index prefers pgvector | Azure AI Search / Qdrant Cloud | `get_vector_store_provider()` |
 | 4 | `pii` | Presidio Analyzer + Anonymizer | Same | `get_pii_provider()` |
 | 5 | `content_safety` | Rule-based stub | Azure AI Content Safety | `get_content_safety_provider()` |
 | 6 | `audit_sink` | JSONL file | App Insights + ADLS | `get_audit_sink_provider()` |
 | 7 | `secrets` | `.env` file | Key Vault + Managed Identity | `get_secrets_provider()` |
-| 8 | `telemetry` | Console (structlog) | App Insights | `get_telemetry_provider()` |
-| 9 | `tools_client` | HTTP (httpx + Bearer) | Same + mTLS | `get_tools_client_provider()` |
+| 8 | `telemetry` | Console (structlog) | App Insights / Langfuse | `get_telemetry_provider()` |
+| 9 | `tools_client` | Modular / MCP HTTP | Same | `get_tools_client_provider()` (Tools) |
 | 10 | `prompt_store` | File (.md reader) | Prompt Flow | `get_prompt_store_provider()` |
+| 11 | `session_store` | In-memory / file | Postgres | `get_session_store_provider()` |
+| 12 | `reranker` | Local / none | Cloud rerank | `get_reranker_provider()` |
+| 13 | `loan_data` / `policy_source` | Mock / local | Live APIs | `get_loan_data_provider()` / `get_policy_source_provider()` |
+| 14 | `credential_broker` | Static / Mock (+ cache) | Pluggable (OQ-1) | `get_credential_broker()` |
 
 ### Rules
 - **No concrete imports** outside `packages/common/providers/`
@@ -330,6 +344,20 @@ rg "from packages.common.providers.*import" apps/ packages/agent_core packages/r
 
 # Check no direct os.environ leaks
 rg -n "os\.environ|os\.getenv" --include="*.py" . | rg -v "settings\.py|tests/"
+
+# Registry validate / TAAC dry-run (PowerShell-friendly; no &&)
+uv run python -m packages.eakg registry validate --env local
+uv run python -m packages.eakg registry import-taac --env dev --dry-run
+
+# Build unified ops + (re)index; sidecar-only skip vector store
+uv run python -m packages.api_index.refresh all --env local
+uv run python -m packages.api_index report --env local --json
+
+# Scale suite (CI default small; full 30×170)
+uv run pytest projects/LoanOps.ApiIndex -m scale --scale-profile=small
+
+# Ready snapshot (MCP up)
+Invoke-RestMethod http://127.0.0.1:8001/ready
 ```
 
 ---
@@ -357,6 +385,7 @@ projects/
   LoanOps.Safety/     [DONE — Step 7] PII + content-safety
   LoanOps.CapabilityKg/ [DONE]        RDF capability catalog
   LoanOps.Eakg/       [DONE]          Enterprise capability KG
+  LoanOps.ApiIndex/   [DONE]          Unified ops + vector search (ADR-024)
   LoanOps.Eval/       [PARTIAL]       validate_data done; Step 8 pending
 ```
 

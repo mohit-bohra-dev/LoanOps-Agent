@@ -100,7 +100,7 @@ def test_auto_prefers_registry_when_a_spec_exists() -> None:
 
 @pytest.mark.asyncio
 async def test_reload_registry_swaps_cached_spec() -> None:
-    first = {
+    first: dict[str, object] = {
         "source_id": "fees",
         "label": "Fees",
         "base_url": "http://127.0.0.1:9102",
@@ -109,14 +109,14 @@ async def test_reload_registry_swaps_cached_spec() -> None:
             "paths": {"/api/fees": {"get": {"operationId": "getFees"}}},
         },
     }
-    second = {
+    second: dict[str, object] = {
         **first,
         "document": {
             "openapi": "3.0.3",
             "paths": {"/api/fees/{id}": {"get": {"operationId": "getFeeById"}}},
         },
     }
-    current = {"specs": [first]}
+    current: dict[str, list[dict[str, object]]] = {"specs": [first]}
 
     def _reload() -> list[dict[str, object]]:
         return list(current["specs"])

@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 from packages.eakg.models import AccessStatus, IndexStatus, utc_now_iso
 
 VALID_INDEX = frozenset(

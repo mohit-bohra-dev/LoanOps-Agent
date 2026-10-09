@@ -123,8 +123,8 @@ def main(argv: list[str] | None = None) -> int:
             blocking = any(i.severity == "blocking" for rows in issues.values() for i in rows)
             return 2 if blocking else 0
         taac_path = args.path or cfg.eakg.taac_fixture_path
-        report = import_taac(registry, taac_path, args.env, dry_run=args.dry_run)
-        print(json.dumps(report.to_dict(), indent=2))
+        taac_report = import_taac(registry, taac_path, args.env, dry_run=args.dry_run)
+        print(json.dumps(taac_report.to_dict(), indent=2))
         return 0
 
     if args.cmd == "spec-refresh":
@@ -135,13 +135,13 @@ def main(argv: list[str] | None = None) -> int:
         async def _no_token(_application_id: str, _audience: str) -> str:
             return ""
 
-        report = asyncio.run(refresh_all(registry, env, store, _no_token))
-        failed = any(row.get("status") != "ok" for row in report.values())
-        print(json.dumps(report, indent=2))
+        refresh_report = asyncio.run(refresh_all(registry, env, store, _no_token))
+        failed = any(row.get("status") != "ok" for row in refresh_report.values())
+        print(json.dumps(refresh_report, indent=2))
         return 2 if failed else 0
 
     if args.cmd == "register":
-        rec = registry.register(
+        registered = registry.register(
             repository_id=args.id,
             application=args.application,
             git_url=args.git_url,
@@ -150,19 +150,19 @@ def main(argv: list[str] | None = None) -> int:
             team=args.team,
             api_project_path=args.api_project_path,
         )
-        print(json.dumps(rec.to_dict(), indent=2))
+        print(json.dumps(registered.to_dict(), indent=2))
         return 0
 
     if args.cmd == "onboard":
-        rec = registry.get(args.id)
-        if rec is None:
+        onboard_rec = registry.get(args.id)
+        if onboard_rec is None:
             print(f"unknown repository: {args.id}", file=sys.stderr)
             return 1
         result = asyncio.run(
             onboard_repository(
                 registry,
                 store,
-                rec,
+                onboard_rec,
                 settings=cfg,
                 local_path=args.local_path or None,
                 run_semantic=bool(args.semantic),
@@ -284,14 +284,16 @@ def main(argv: list[str] | None = None) -> int:
 
         g = merge_shards(store.root, namespace=ns)
         if args.mode == "search":
-            rows = search_capabilities(g, args.needle, namespace=ns, limit=args.limit)
+            query_payload: object = search_capabilities(
+                g, args.needle, namespace=ns, limit=args.limit
+            )
         elif args.mode == "find":
-            rows = find_providers(g, args.needle, namespace=ns)
+            query_payload = find_providers(g, args.needle, namespace=ns)
         elif args.mode == "explain":
-            rows = explain_capability(g, args.needle, namespace=ns)
+            query_payload = explain_capability(g, args.needle, namespace=ns)
         else:
-            rows = impact_of_change(g, args.needle, namespace=ns)
-        print(json.dumps(rows, indent=2, default=str))
+            query_payload = impact_of_change(g, args.needle, namespace=ns)
+        print(json.dumps(query_payload, indent=2, default=str))
         return 0
 
     return 1

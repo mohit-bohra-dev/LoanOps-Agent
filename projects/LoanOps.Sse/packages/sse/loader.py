@@ -9,8 +9,10 @@ from typing import Any
 from urllib.parse import urlparse
 
 import httpx
+from collections.abc import Callable
+
 from packages.sse.catalog import origin_of, parse_openapi_document
-from packages.sse.types import CatalogSource, OpenApiCatalog
+from packages.sse.types import AppTarget, CatalogSource, OpenApiCatalog
 
 CatalogMode = str
 
@@ -82,6 +84,8 @@ class OpenApiCatalogService:
         openapi_embed_path: str | None = None,
         registry_specs: list[dict[str, Any]] | None = None,
         reload_specs: Any | None = None,
+        app_targets: Callable[[], dict[str, AppTarget]] | None = None,
+        registry_mode: bool = False,
     ) -> None:
         self.swagger_links = swagger_links or list(DEFAULT_SWAGGER_LINKS)
         self.api_base_url = api_base_url.rstrip("/")
@@ -91,6 +95,8 @@ class OpenApiCatalogService:
         self.openapi_embed_path = openapi_embed_path
         self.registry_specs = registry_specs
         self._reload_specs = reload_specs
+        self._app_targets = app_targets
+        self.registry_mode = registry_mode or registry_specs is not None
         self._catalog: OpenApiCatalog | None = None
         self.openapi_embed_cache: dict[str, list[float]] = {}
         self.openapi_embed_hashes: dict[str, str] = {}
@@ -104,7 +110,28 @@ class OpenApiCatalogService:
             self.registry_specs = loaded
             self._catalog = None
 
+    def app_targets(self) -> dict[str, AppTarget]:
+        if self._app_targets is None:
+            return {}
+        return self._app_targets()
+
+    def target_for(self, application_id: str) -> AppTarget | None:
+        targets = self.app_targets()
+        hit = targets.get(application_id)
+        if hit is not None:
+            return hit
+        # Allow match by label (case-insensitive) for ergonomics.
+        needle = application_id.strip().lower()
+        for target in targets.values():
+            if target.application_id.lower() == needle or target.label.lower() == needle:
+                return target
+        return None
+
     def allowed_origins(self) -> list[str]:
+        if self.registry_mode:
+            targets = self.app_targets()
+            if targets:
+                return sorted({t.origin for t in targets.values()})
         origins: set[str] = set()
         try:
             origins.add(origin_of(self.api_base_url))

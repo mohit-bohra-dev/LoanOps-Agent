@@ -1,3 +1,113 @@
+## [2026-10-09] — Phase 6: documentation + graph upkeep
+
+**Session type:** Docs / bookkeeping (enterprise-app-scale P6)
+
+**Completed:**
+- `TASKS.md` Step 17 — P1–P6 ticked; backlog pointer + operator follow-ups
+- `ARCHITECTURE.md` — registry-driven catalog, pipeline vs runtime, LoanOps.ApiIndex, CredentialBroker, two-stage search, per-app `/ready` (ADR-024)
+- `AGENTS.md` — `get_credential_broker` as 14th common `get_*`; provider category list; ApiIndex already in module layout
+- `CONTEXT.md` — `API_INDEX__STALE_AFTER_HOURS` / `SCHEDULER_ENABLED`; ApiIndex + credential one-liners; module layout + provider row
+- `decisions.md` — ADR-024 Accepted (confirmed); ADR-023 OpenAPI sidecar noted superseded as **primary** when `API_INDEX__ENABLED=true` (sidecar remains fallback)
+- Spec README status table P1–P6 → Completed; plan `p6-*` → completed
+- `graphify update .`
+
+**P3–P5:** already logged above this entry (vector index, CredentialBroker, health/scale). No product code changes this phase.
+
+**Open / follow-up:** live SC-006 JWT smoke when per-app tokens available; enable `API_INDEX__ENABLED` in shared envs after index build; OQ-1 non-static broker.
+
+**Plan:** all `p6-*` → completed. Spec delivery todos 56/56 completed (operator follow-ups outside plan).
+
+---
+
+## [2026-10-09] — Phase 5: health, metrics, scheduler, scale suite
+
+**Session type:** Implementation (enterprise-app-scale P5)
+
+**Completed:**
+- `AppHealthService` (`health.py`): registry issues, spec pointers/stale (48h), index coverage, `broker.check`, last-invoke ring, breaker `state_of`
+- `/ready` §5.2 body via `ModularToolsClient.readiness_snapshot`; MCP 503 only when no catalog
+- Metrics §9.5: `api_index.search.*`, `sse.invoke.*`, `api_index.refresh.duration_ms`, `api_index.reindex.embedded`, `api_index.catalog.load_ms`
+- Scheduler §9.6: `scheduler.py` + file lock `api_index_refresh`; Agent API/MCP start via tools client when `API_INDEX__SCHEDULER_ENABLED`
+- `scripts/fixtures/gen_scale_fixture.py` (seeded synthetic, default 30×170); `data/eval/api_discovery_benchmark.jsonl` (120 Q)
+- `-m scale` tests (`test_scale.py`): SC-002–005, ready flat, isolation, env separation, incremental, scheduler lock; `--scale-profile=small|full`
+- Gates: mypy --strict (P5 modules), pytest api_index+invoke (45p/1s scale small), check_project_refs OK, graphify update
+- Demo: skipped full `run-demo.ps1` this unit (scale/fixture tests cover health+ready path)
+
+**Scale sizing:** CI default `--scale-profile=small` (5×20); full 30×170 via `--scale-profile=full`. `test_top5_recall` uses mock embed+exact indexed text (non-skippable); `test_discovery_p95_local` skips when bge/Qdrant server unavailable.
+
+**Assumptions:** stale=48h / nightly placeholders (G9/G10); thresholds ready&lt;10s, discovery p95&lt;1.5s, top-5≥90%; hot-reload fingerprint already includes operations.json from P1/P2.
+
+**Plan:** all `p5-*` → completed.
+
+---
+
+## [2026-10-09] — Phase 4: CredentialBroker + per-app invoke
+
+**Session type:** Implementation (enterprise-app-scale P4)
+
+**Completed:**
+- `credential_broker.py`: AbstractCredentialBroker, AccessToken, Principal, CredentialCheck, CredentialError family; Static/Mock/Caching (single-flight + invalidate)
+- `CredentialsConfig` + `get_credential_broker()` (14th `get_*`); `.env.example` / CONTEXT rows
+- Contract tests `test_credential_broker.py`; invoke rewrite §6.4 (AppTarget, origin bind, header strip, 401 retry, outcomes, breaker, audit `sse.live_read`)
+- `resolve_invoke_target`; registry `allowed_origins` / `build_app_targets`; call payload fields + MCP tool description
+- Spec refresh via broker (`broker_token_source`); pointer `credential` field; ModularToolsClient primes broker
+- `BreakerRegistry` Protocol in `sse/types.py`; `InMemoryBreaker` open/half_open in `api_index/breaker.py`
+- Tests: `test_invoke_per_app.py` (§14.1 P4) — 25 broker+invoke green; broader sse/tools 41 passed
+- Gates: mypy --strict (P4 modules), check_project_refs OK, os.environ gate clean, `graphify update .`
+- Demo: skipped full `run-demo.ps1` this unit (fixture/local tests cover invoke path)
+
+**Skipped:** `p4-smoke-rerun` live JWT SC-006 against real dev — no per-app `APP_TOKEN_*` / operator JWT path exercised; fixture SC-006 named `no_access` covered in `test_invoke_per_app.py`. Log for operator re-run when tokens available.
+
+**Assumptions:** Static+Mock M2M only (OBO deferred); legacy swagger/fixture still uses `service.bearer_token` when no target; `normalize_path` moved to `sse/catalog.py` (api_index re-exports).
+
+**Plan:** all `p4-*` → completed (smoke = skipped-with-note).
+
+---
+
+## [2026-10-09] — Phase 3: vector index + two-stage search
+
+**Session type:** Implementation (enterprise-app-scale P3)
+
+**Completed:**
+- `ApiIndexConfig` (`API_INDEX__ENABLED` / `NAMESPACE_PREFIX` / `APP_SHORTLIST_SIZE`) in settings + `.env.example` + CONTEXT.md
+- `indexer.reindex`: model-fingerprint namespace, manifest text_hash diff, batch embed, upsert/delete, atomic manifest, sidecar
+- `KeywordIndex` graded score + exact-name apps
+- `ApiSearchService` two-stage + always post-filter + query-embed LRU + sidecar/keyword fallback
+- Wire: factory builds search when enabled; MCP `search_sse_apis` gains `application` / `permission`; sse.tools duck-types (no api_index import)
+- `refresh` CLI `app|all|nightly`; `embed_openapi` → subprocess `refresh all --sidecar-only`
+- Tests: `test_indexer.py`, `test_search.py` (§14.1 P3); provider_contracts vector contracts already green (G6)
+- Gates: mypy --strict, pytest ApiIndex+contracts (34p/2s), check_project_refs, graphify update
+- Demo: skipped full `run-demo.ps1` this unit; Settings/CLI smoke after `uv sync --reinstall-package`
+
+**Assumptions:** interim refresh token = `EAKG__LIVE_SPEC_TOKEN` passthrough (audience-gated interim deferred); sidecar-only skips vector store; P5 ApiIndex fields present with defaults.
+
+**Plan:** all `p3-*` → completed (approval + vector-filter were already done).
+
+---
+
+## [2026-10-09] — P1/P2 quality gates closed
+
+**Session type:** Quality gates (enterprise-app-scale)
+
+**Gates (tier: repo-scripts / DoD):**
+- `uv run mypy --strict` on Common/Sse/Eakg/ApiIndex/Tools/McpServer — pass (fixed 40→0)
+- pytest P1/P2 + contract_tests — 128 passed
+- `check_project_refs` — OK (15 projects)
+- provider concrete-import / `os.environ` grep — pass (Protocols + factory/testing only; no os.environ outside settings)
+- Windows smoke `.\run-demo.ps1` — MCP/Agent/Web UP; `/ready` registry mode `source_count=3`, `source_errors=[]`
+- Live JWT invoke smoke — skipped (SSE__API_KEY present; not required for P1/P2 readiness)
+- `graphify update .` — rebuilt
+
+**Fixes during gates:**
+- mypy: factory Qdrant `path` removed (provider_contracts), Langfuse None guard, `_Tools.operation_resolver`, eakg typing
+- `run-demo.ps1` → `python -m packages.mcp_server` (tools_api gone); child env forces `SSE__CATALOG_SOURCE=registry` / `EAKG__ENVIRONMENT=local`
+- `stop-demo.ps1` `${port}:` parse fix
+- `uv sync --reinstall-package` for stale site-packages `packages/sse`
+
+**Plan:** `p1-quality-gates`, `p2-quality-gates` → completed.
+
+---
+
 ## [2026-10-09] — Phase 2: unified ops, resolver, bind
 
 **Session type:** Implementation
@@ -9,7 +119,7 @@
 - Readiness `catalog_health`. Factory loads/builds OperationCatalog in registry mode.
 - Tests: ApiIndex + bind (15) green; mypy + `check_project_refs` green.
 
-**Not done:** `p2-quality-gates` (`make demo`). Phase 3 needs G5/G6.
+**Not done (at time of entry):** `p2-quality-gates` — closed in later gate session above.
 
 ---
 

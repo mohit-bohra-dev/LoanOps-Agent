@@ -9,6 +9,19 @@ from urllib.parse import urljoin, urlparse
 from packages.sse.types import ApiOperation, ApiParameter
 
 _ALLOWED: set[str] = {"get", "post", "put", "patch", "delete", "head", "options"}
+_PARAM = re.compile(r"^\{[^}]*\}$|^:[A-Za-z_]\w*$")
+
+
+def normalize_path(path: str, *, controller: str | None = None) -> str:
+    """Collapse path templates to a join key (spec §3.1). Shared with api_index."""
+    raw = path.split("?", 1)[0].strip()
+    segs = [s for s in raw.replace("\\", "/").split("/") if s]
+    out: list[str] = []
+    for seg in segs:
+        if seg == "[controller]" and controller:
+            seg = controller.removesuffix("Controller")
+        out.append("{}" if _PARAM.match(seg) else seg.lower())
+    return "/" + "/".join(out)
 
 
 def _slugify(value: str) -> str:

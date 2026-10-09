@@ -1,0 +1,106 @@
+repositories:
+- repository_id: scaleapp00
+  application: Scale Fees App 00
+  application_id: scaleapp00
+  git_url: https://example.invalid/scale/scaleapp00.git
+  default_branch: main
+  gitlab_project_id: 90000
+  team: synthetic/scale
+  owner: synthetic/scale
+  technology: dotnet-aspnetcore
+  index_status: indexed
+  access_status: ok
+  visibility: private
+  deployables:
+  - scaleapp00.Api
+  shard_path: repos/scaleapp00
+  api_project_path: src/scaleapp00.Api
+  service_url_key: scaleapp00Url
+  environments:
+    local:
+      base_url: http://127.0.0.1:9200
+      spec_fixture: data/eakg/fixtures/scale-small/specs/scaleapp00.openapi.json
+- repository_id: scaleapp01
+  application: Scale Escrow App 01
+  application_id: scaleapp01
+  git_url: https://example.invalid/scale/scaleapp01.git
+  default_branch: main
+  gitlab_project_id: 90001
+  team: synthetic/scale
+  owner: synthetic/scale
+  technology: dotnet-aspnetcore
+  index_status: indexed
+  access_status: ok
+  visibility: private
+  deployables:
+  - scaleapp01.Api
+  shard_path: repos/scaleapp01
+  api_project_path: src/scaleapp01.Api
+  service_url_key: scaleapp01Url
+  environments:
+    local:
+      base_url: http://127.0.0.1:9201
+      spec_fixture: data/eakg/fixtures/scale-small/specs/scaleapp01.openapi.json
+- repository_id: scaleapp02
+  application: Scale Payment App 02
+  application_id: scaleapp02
+  git_url: https://example.invalid/scale/scaleapp02.git
+  default_branch: main
+  gitlab_project_id: 90002
+  team: synthetic/scale
+  owner: synthetic/scale
+  technology: dotnet-aspnetcore
+  index_status: indexed
+  access_status: ok
+  visibility: private
+  deployables:
+  - scaleapp02.Api
+  shard_path: repos/scaleapp02
+  api_project_path: src/scaleapp02.Api
+  service_url_key: scaleapp02Url
+  environments:
+    local:
+      base_url: http://127.0.0.1:9202
+      spec_fixture: data/eakg/fixtures/scale-small/specs/scaleapp02.openapi.json
+- repository_id: scaleapp03
+  application: Scale Schedule App 03
+  application_id: scaleapp03
+  git_url: https://example.invalid/scale/scaleapp03.git
+  default_branch: main
+  gitlab_project_id: 90003
+  team: synthetic/scale
+  owner: synthetic/scale
+  technology: dotnet-aspnetcore
+  index_status: indexed
+  access_status: ok
+  visibility: private
+  deployables:
+  - scaleapp03.Api
+  shard_path: repos/scaleapp03
+  api_project_path: src/scaleapp03.Api
+  service_url_key: scaleapp03Url
+  environments:
+    local:
+      base_url: http://127.0.0.1:9203
+      spec_fixture: data/eakg/fixtures/scale-small/specs/scaleapp03.openapi.json
+- repository_id: scaleapp04
+  application: Scale Balance App 04
+  application_id: scaleapp04
+  git_url: https://example.invalid/scale/scaleapp04.git
+  default_branch: main
+  gitlab_project_id: 90004
+  team: synthetic/scale
+  owner: synthetic/scale
+  technology: dotnet-aspnetcore
+  index_status: indexed
+  access_status: ok
+  visibility: private
+  deployables:
+  - scaleapp04.Api
+  shard_path: repos/scaleapp04
+  api_project_path: src/scaleapp04.Api
+  service_url_key: scaleapp04Url
+  environments:
+    local:
+      base_url: http://127.0.0.1:9204
+      spec_fixture: data/eakg/fixtures/scale-small/specs/scaleapp04.openapi.json

@@ -10,7 +10,9 @@ from packages.eakg.openapi_enrich import load_fixture_spec
 from packages.eakg.registry import RepositoryRegistry
 from packages.eakg.spec_cache import read_current_spec
 from packages.eakg.store import ShardStore
+from packages.sse.catalog import origin_of
 from packages.sse.loader import resolve_catalog_source
+from packages.sse.types import AppTarget
 
 
 def registry_has_usable_spec(cfg: Settings) -> bool:
@@ -82,3 +84,28 @@ def build_registry_specs(cfg: Settings) -> list[dict[str, Any]]:
             }
         )
     return specs
+
+
+def build_app_targets(cfg: Settings) -> dict[str, AppTarget]:
+    """Per-app invoke targets from the registry (allow-list + origin binding)."""
+    registry = RepositoryRegistry(cfg.eakg.registry_path)
+    env = cfg.eakg.environment
+    out: dict[str, AppTarget] = {}
+    for record in registry.list_active(env):
+        env_target = record.environments[env]
+        base = env_target.base_url.rstrip("/")
+        if not base:
+            continue
+        try:
+            origin = origin_of(base)
+        except Exception:  # noqa: BLE001
+            continue
+        out[record.application_id] = AppTarget(
+            application_id=record.application_id,
+            label=record.application,
+            environment=env,
+            base_url=base,
+            origin=origin,
+            audience=env_target.auth_audience or "",
+        )
+    return out
