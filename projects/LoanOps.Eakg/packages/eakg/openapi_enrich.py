@@ -11,8 +11,9 @@ import httpx
 from packages.eakg.models import RepoInterface
 from packages.eakg.store import ShardStore
 
-# Candidate swagger paths (Fees returned 404 on /swagger/v1/swagger.json)
+# Candidate swagger paths (LoanServices uses /swagger/1.0/; Fees varies by host)
 SPEC_CANDIDATES = (
+    "/swagger/1.0/swagger.json",
     "/swagger/v1/swagger.json",
     "/swagger/v1.0/swagger.json",
     "/swagger/docs/v1",
@@ -66,7 +67,9 @@ async def fetch_spec_with_source(
                 except json.JSONDecodeError:
                     break
                 if isinstance(data, dict) and ("paths" in data or "openapi" in data or "swagger" in data):
-                    return data, url, None
+                    paths = data.get("paths")
+                    if isinstance(paths, dict) and paths:
+                        return data, url, None
                 break
     return None, None, "no OpenAPI document at candidate paths"
 

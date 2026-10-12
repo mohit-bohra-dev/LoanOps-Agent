@@ -1659,6 +1659,7 @@ dependencies = [
     { name = "provider-contracts", extra = ["bedrock", "bge", "gemini", "langfuse", "ollama", "openai", "pgvector", "presidio", "qdrant", "redis", "structlog"] },
     { name = "pydantic" },
     { name = "pydantic-settings" },
+    { name = "rdflib" },
 ]
 
 [package.metadata]
@@ -1667,6 +1668,7 @@ requires-dist = [
     { name = "provider-contracts", extras = ["ollama", "openai", "gemini", "qdrant", "bge", "presidio", "structlog", "bedrock", "langfuse", "pgvector", "redis"], editable = "../provider_contracts" },
     { name = "pydantic", specifier = "==2.14.0a1" },
     { name = "pydantic-settings", specifier = "==2.14.1" },
+    { name = "rdflib", specifier = ">=7.0.0" },
 ]
 
 [[package]]

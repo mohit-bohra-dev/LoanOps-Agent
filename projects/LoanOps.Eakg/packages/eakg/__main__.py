@@ -9,7 +9,6 @@ import sys
 
 from packages.common.settings import Settings
 from packages.eakg.onboard import onboard_repository, rebuild_cross_app
-from packages.eakg.registry import RepositoryRegistry
 from packages.eakg.registry_import import import_taac
 from packages.eakg.registry_validate import validate_registry
 from packages.eakg.review import (
@@ -18,7 +17,7 @@ from packages.eakg.review import (
     publish_approved_catalog,
     review_pilot_edges,
 )
-from packages.eakg.store import ShardStore
+from packages.eakg.runtime import eakg_runtime
 from packages.eakg.sync import main as sync_main
 from packages.eakg.taac import ingest_taac_file
 
@@ -50,10 +49,25 @@ def main(argv: list[str] | None = None) -> int:
         help="Optional Graphify AST extract + links.json (not fatal if graphify fails)",
     )
 
-    sub.add_parser("cross-app", help="Rebuild cross_app.ttl from interfaces")
+    sub.add_parser("cross-app", help="Rebuild cross-app named graph in SPARQL store")
     sub.add_parser(
         "embed",
         help="Write data/eakg/enterprise/embeddings.json from merged shards",
+    )
+
+    p_load = sub.add_parser(
+        "graph-load",
+        help="Load Turtle files into GraphDB named graphs (one-time cutover)",
+    )
+    p_load.add_argument(
+        "--ids",
+        default="escrow,fees,loanservices",
+        help="Comma-separated repository ids (default: pilot three)",
+    )
+    p_load.add_argument(
+        "--from-shard-dir",
+        default="",
+        help="Optional shard root with repos/<id>/graph.ttl (cutover only)",
     )
 
     p_taac = sub.add_parser("ingest-taac", help="Ingest TAAC fixture/config")
@@ -72,14 +86,14 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("publish", help="Write catalog/approved.ttl")
 
-    p_q = sub.add_parser("query", help="Smoke-search / find / impact against merged shards")
+    p_q = sub.add_parser("query", help="Smoke-search / find / impact against SPARQL store")
     p_q.add_argument("mode", choices=["search", "find", "explain", "impact"])
     p_q.add_argument("needle")
     p_q.add_argument("--limit", type=int, default=10)
     p_q.add_argument(
         "--semantic",
         action="store_true",
-        help="Rank via embeddings.json (CapabilityCatalog), not keyword-only",
+        help="Deprecated: shard embeddings path; use keyword SPARQL search",
     )
 
     p_code = sub.add_parser(
@@ -105,11 +119,35 @@ def main(argv: list[str] | None = None) -> int:
     p_refresh = sub.add_parser("spec-refresh", help="Refresh cached OpenAPI specs for the active environment")
     p_refresh.add_argument("--env", default="")
 
+    p_art = sub.add_parser("artifacts", help="ADR-027 artifact store (Postgres)")
+    art_sub = p_art.add_subparsers(dest="artifacts_cmd", required=True)
+    art_sub.add_parser(
+        "migrate-from-disk",
+        help="Copy registry/interface/openapi/ops from data/eakg into Postgres",
+    )
+    art_sub.add_parser("status", help="Show backend + registry count")
+
     args = parser.parse_args(argv)
     cfg = Settings()
-    registry = RepositoryRegistry(cfg.eakg.registry_path)
-    store = ShardStore(cfg.eakg.shard_dir)
+    registry, store, arts = eakg_runtime(cfg)
     store.ensure_layout()
+
+    if args.cmd == "artifacts":
+        if args.artifacts_cmd == "migrate-from-disk":
+            from packages.eakg.migrate_artifacts import migrate_from_disk
+
+            print(json.dumps(migrate_from_disk(cfg), indent=2))
+            return 0
+        print(
+            json.dumps(
+                {
+                    "backend": arts.backend,
+                    "registry_count": len(arts.load_registry()),
+                },
+                indent=2,
+            )
+        )
+        return 0
 
     if args.cmd == "registry":
         if args.registry_cmd == "validate":
@@ -190,8 +228,53 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "cross-app":
-        print(json.dumps(rebuild_cross_app(registry, store, settings=cfg), indent=2))
+        print(
+            json.dumps(
+                asyncio.run(rebuild_cross_app(registry, store, settings=cfg)),
+                indent=2,
+            )
+        )
         return 0
+
+    if args.cmd == "graph-load":
+        from pathlib import Path
+
+        from packages.common.providers.factory import get_graph_store
+        from packages.eakg.graph_upload import upload_graph
+        from rdflib import Graph
+
+        shard = Path(args.from_shard_dir or cfg.eakg.shard_dir)
+        gs = get_graph_store()
+        ns = cfg.capability_kg.namespace
+        report: dict[str, object] = {}
+
+        async def _load() -> dict[str, object]:
+            out: dict[str, object] = {}
+            for rid in [x.strip() for x in args.ids.split(",") if x.strip()]:
+                gpath = shard / "repos" / rid / "graph.ttl"
+                epath = shard / "repos" / rid / "evidence.ttl"
+                if not gpath.is_file():
+                    out[rid] = {"status": "missing", "path": str(gpath)}
+                    continue
+                g = Graph()
+                g.parse(gpath, format="turtle")
+                eg = Graph()
+                if epath.is_file():
+                    eg.parse(epath, format="turtle")
+                iri = await upload_graph(gs, rid, g, namespace=ns, evidence=eg or None)
+                out[rid] = {
+                    "status": "ok",
+                    "named_graph": iri,
+                    "triples": len(g) + len(eg),
+                }
+            return out
+
+        report = asyncio.run(_load())
+        print(json.dumps(report, indent=2))
+        failed = any(
+            isinstance(v, dict) and v.get("status") != "ok" for v in report.values()
+        )
+        return 2 if failed else 0
 
     if args.cmd == "ingest-taac":
         path = args.path or cfg.eakg.taac_config_path or cfg.eakg.taac_fixture_path
@@ -243,7 +326,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "query":
-        from packages.eakg.merge import catalog_from_shards, merge_shards
+        from packages.common.providers.factory import get_graph_store
         from packages.eakg.query import (
             explain_capability,
             find_providers,
@@ -252,48 +335,20 @@ def main(argv: list[str] | None = None) -> int:
         )
 
         ns = cfg.capability_kg.namespace
-        if args.mode == "search" and args.semantic:
+        gs = get_graph_store()
 
-            async def _sem() -> object:
-                from packages.common.providers.factory import get_embedding_provider
-
-                async def _embed(text: str) -> list[float]:
-                    result = await get_embedding_provider().embed(text)
-                    return list(result.vector)
-
-                caps = catalog_from_shards(
-                    store.root,
-                    namespace=ns,
-                    approved_only=cfg.capability_kg.approved_only,
-                    semantic=True,
-                    embed_query=_embed,
+        async def _q() -> object:
+            if args.mode == "search":
+                return await search_capabilities(
+                    gs, args.needle, namespace=ns, limit=args.limit
                 )
-                recs = await caps.search_capabilities(args.needle, limit=args.limit)
-                return [
-                    {
-                        "id": r.id,
-                        "operation_id": r.operation_id,
-                        "description": r.description,
-                        "read_only": r.read_only,
-                    }
-                    for r in recs
-                ]
+            if args.mode == "find":
+                return await find_providers(gs, args.needle, namespace=ns)
+            if args.mode == "explain":
+                return await explain_capability(gs, args.needle, namespace=ns)
+            return await impact_of_change(gs, args.needle, namespace=ns)
 
-            print(json.dumps(asyncio.run(_sem()), indent=2, default=str))
-            return 0
-
-        g = merge_shards(store.root, namespace=ns)
-        if args.mode == "search":
-            query_payload: object = search_capabilities(
-                g, args.needle, namespace=ns, limit=args.limit
-            )
-        elif args.mode == "find":
-            query_payload = find_providers(g, args.needle, namespace=ns)
-        elif args.mode == "explain":
-            query_payload = explain_capability(g, args.needle, namespace=ns)
-        else:
-            query_payload = impact_of_change(g, args.needle, namespace=ns)
-        print(json.dumps(query_payload, indent=2, default=str))
+        print(json.dumps(asyncio.run(_q()), indent=2, default=str))
         return 0
 
     return 1

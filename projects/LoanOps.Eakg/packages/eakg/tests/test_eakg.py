@@ -6,10 +6,11 @@ from pathlib import Path
 from typing import Any, cast
 
 import pytest
+from packages.common.providers.graph_store import FakeGraphStore
 from packages.eakg.detectors import EnterpriseIndex, run_detectors
 from packages.eakg.extractors import detect_technology
 from packages.eakg.extractors.dotnet import extract_repo
-from packages.eakg.merge import catalog_from_shards, merge_shards
+from packages.eakg.merge import catalog_from_shards
 from packages.eakg.onboard import onboard_repository, rebuild_cross_app
 from packages.eakg.query import (
     explain_capability,
@@ -129,6 +130,7 @@ async def test_pilot_onboard_and_cross_app(tmp_path: Path) -> None:
     store = ShardStore(shard)
     store.ensure_layout()
     registry = RepositoryRegistry(reg_path)
+    gs = FakeGraphStore()
 
     for rid, app, path, api in (
         ("fees", "fees", FIX / "fees", "src/Fees.WebApi"),
@@ -150,6 +152,7 @@ async def test_pilot_onboard_and_cross_app(tmp_path: Path) -> None:
             rec,
             local_path=path,
             run_semantic=False,
+            graph_store=gs,
         )
 
     # TAAC + cross-app
@@ -160,7 +163,9 @@ async def test_pilot_onboard_and_cross_app(tmp_path: Path) -> None:
     )
 
     store.write_enterprise_apps(ingest_taac_file(TAAC))
-    result = rebuild_cross_app(registry, store, settings=settings, force=True)
+    result = await rebuild_cross_app(
+        registry, store, settings=settings, force=True, graph_store=gs
+    )
     assert result["relationships"] > 0
     assert result["dropped"] == 0
 
@@ -192,20 +197,21 @@ async def test_pilot_onboard_and_cross_app(tmp_path: Path) -> None:
     auto_approve_structural(store, confidence_threshold=1.0)
     publish_approved_catalog(store)
 
-    g = merge_shards(shard)
-    # seven questions (smoke)
-    hits = search_capabilities(g, "payment")
+    # SPARQL store smoke (ADR-026)
+    hits = await search_capabilities(gs, "payment")
     assert isinstance(hits, list)
-    providers = find_providers(g, "GetLoanSummary")
+    providers = await find_providers(gs, "GetLoanSummary")
     assert providers
-    explained = explain_capability(g, "get_loan_summary") or explain_capability(g, "GetLoanSummary")
+    explained = await explain_capability(gs, "get_loan_summary")
+    if explained is None:
+        explained = await explain_capability(gs, "GetLoanSummary")
     assert explained is not None
     assert explained.get("application") or explained.get("http_path")
-    impacts = impact_of_change(g, "loanservices")
+    impacts = await impact_of_change(gs, "loanservices")
     assert any(i.get("from_application") == "fees" for i in impacts)
 
-    catalog = catalog_from_shards(shard)
-    assert catalog.list_capabilities(limit=50)
+    # interface.json still on disk for ApiIndex (Postgres move is a later slice)
+    assert store.read_interface("loanservices") is not None
 
 
 @pytest.mark.asyncio

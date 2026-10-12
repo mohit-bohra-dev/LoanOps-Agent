@@ -59,13 +59,22 @@ def test_catalog_reuses_merge_until_fingerprint_changes(tmp_path: Path) -> None:
 
 @pytest.mark.asyncio
 async def test_eakg_tool_via_modular_client(tmp_path: Path) -> None:
+    from unittest.mock import patch
+
+    from packages.common.providers.graph_store import FakeGraphStore
     from packages.common.settings import CapabilityKgConfig, EakgConfig, Settings
     from packages.db.client import DbConfig, SqlServerClient
+    from packages.eakg.graph_upload import upload_graph
     from packages.sse.loader import OpenApiCatalogService
     from packages.tools.modular_tools import ModularToolsClient
     from provider_contracts.tools_client import ToolCall
+    from rdflib import Graph
 
-    _write_shard(tmp_path)
+    gs = FakeGraphStore()
+    g = Graph()
+    g.parse(data=_MIN_TTL, format="turtle")
+    await upload_graph(gs, "demo", g)
+
     settings = Settings(
         eakg=EakgConfig(shard_dir=str(tmp_path)),
         capability_kg=CapabilityKgConfig(enabled=True),
@@ -84,9 +93,13 @@ async def test_eakg_tool_via_modular_client(tmp_path: Path) -> None:
         settings=settings,
         capability_block=None,
     )
-    result = await client.call(
-        ToolCall(tool_name="search_capabilities", parameters={"query": "loan"})
-    )
+    with patch(
+        "packages.common.providers.factory.get_graph_store",
+        return_value=gs,
+    ):
+        result = await client.call(
+            ToolCall(tool_name="search_capabilities", parameters={"query": "loan"})
+        )
     assert result.success
     assert "get_loan" in (result.data or {}).get("text", "") or "getLoan" in (
         result.data or {}

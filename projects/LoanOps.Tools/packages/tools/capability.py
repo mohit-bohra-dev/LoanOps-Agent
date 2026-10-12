@@ -1,74 +1,81 @@
-"""EAKG capability search block for search_sse_apis (D4 shards only)."""
+"""EAKG capability search block for search_sse_apis (SPARQL store, ADR-026)."""
 
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
-from pathlib import Path
 
-from packages.tools.capability_catalog import CapabilityCatalogService
+from packages.common.providers.graph_store import AbstractGraphStore, GraphStoreError
+from packages.common.settings import Settings
 
 CapabilityBlock = Callable[[str, int], Awaitable[str | None]]
 
 
-def make_eakg_capability_search_block(
-    service: CapabilityCatalogService,
+def make_sparql_capability_search_block(
+    store: AbstractGraphStore,
+    *,
+    namespace: str,
+    enabled: bool = True,
 ) -> CapabilityBlock:
-    """Return a capability_block closure bound to a cached catalog service."""
+    """Return a capability_block closure bound to the SPARQL graph store."""
 
     async def eakg_capability_search_block(query: str, limit: int = 15) -> str | None:
-        if not service.enabled:
+        if not enabled:
             return None
-        repos = service.shard_dir / "repos"
-        if not repos.is_dir() or not any(p.is_dir() for p in repos.iterdir()):
+        from packages.eakg.query import search_capabilities
+
+        try:
+            rows = await search_capabilities(
+                store, query, namespace=namespace, limit=limit
+            )
+        except GraphStoreError:
             return None
-        caps = service.catalog()
-        if caps is None:
-            return None
-        records = await caps.search_capabilities(query, limit=limit)
-        if not records:
-            records = await caps.find_capabilities_for_intent(query, limit=limit)
-        if not records:
+        if not rows:
             return None
         lines = ["Capabilities (EAKG):"]
-        lines.extend(r.summary_line() for r in records)
+        for row in rows:
+            cid = row.get("id") or row.get("operation_id") or ""
+            lines.append(f"- capability: {cid}")
+            if row.get("operation_id"):
+                lines.append(f"  operation_id: {row['operation_id']}")
+            if row.get("http_path"):
+                lines.append(f"  http_path: {row['http_path']}")
+            if row.get("http_method"):
+                lines.append(f"  http_method: {row['http_method']}")
+            if row.get("application"):
+                lines.append(f"  application: {row['application']}")
         return "\n".join(lines)
 
     return eakg_capability_search_block
 
 
-async def eakg_capability_search_block(query: str, limit: int = 15) -> str | None:
-    """Default block: builds a one-off service from get_settings (tests / legacy)."""
+def make_eakg_capability_search_block(
+    service: object,
+) -> CapabilityBlock:
+    """Backward-compatible name: ignore shard service; use ``get_graph_store()``."""
+    _ = service
+    from packages.common.providers.factory import get_graph_store
     from packages.common.settings import get_settings
 
     settings = get_settings()
+    return make_sparql_capability_search_block(
+        get_graph_store(),
+        namespace=settings.capability_kg.namespace,
+        enabled=settings.capability_kg.enabled,
+    )
+
+
+async def eakg_capability_search_block(query: str, limit: int = 15) -> str | None:
+    """Default block from settings + graph store."""
+    from packages.common.providers.factory import get_graph_store
+    from packages.common.settings import get_settings
+
+    settings: Settings = get_settings()
     cfg = settings.capability_kg
     if not cfg.enabled:
         return None
-
-    shards = Path(settings.eakg.shard_dir)
-    repos = shards / "repos"
-    if not repos.is_dir() or not any(p.is_dir() for p in repos.iterdir()):
-        return None
-
-    embed_query = None
-
-    async def _embed(text: str) -> list[float]:
-        from packages.common.providers.factory import get_embedding_provider
-
-        result = await get_embedding_provider().embed(text)
-        return list(result.vector)
-
-    from packages.tools.capability_catalog import use_semantic
-
-    if use_semantic(semantic_flag=cfg.semantic, shard_dir=shards):
-        embed_query = _embed
-
-    service = CapabilityCatalogService(
-        shards,
+    block = make_sparql_capability_search_block(
+        get_graph_store(),
         namespace=cfg.namespace,
-        approved_only=cfg.approved_only,
-        semantic=cfg.semantic,
-        embed_query=embed_query,
-        enabled=cfg.enabled,
+        enabled=True,
     )
-    return await make_eakg_capability_search_block(service)(query, limit)
+    return await block(query, limit)

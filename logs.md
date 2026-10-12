@@ -1,3 +1,72 @@
+## [2026-10-12] — Plaisse-dev URLs (EAKG env=dev)
+
+**Session type:** Ops
+
+**Completed:**
+- Registry `dev` bases: escrowapi / fees / loanservicesapi `*.dev.pennymac.plaisse.com`
+- `.env` `EAKG__ENVIRONMENT=dev`; SSE + loan-api bases aligned
+- Specs refreshed (escrow 513, loanservices 266 paths); ApiIndex **1090** ops
+- Wired `registry_catalog` + `AppHealthService` through `eakg_runtime` (Postgres openapi)
+- MCP `/ready`: env=dev, catalog ops=1090; LoanServices Summary live **200**
+- Note: Escrow M2M may **401** (host reachable; audience/perm separate from old `:9101` unreachable)
+
+---
+
+## [2026-10-12] — ADR-027 Postgres artifact store cutover
+
+**Session type:** Implementation + ops
+
+**Completed:**
+- ADR-027 accepted: `EakgArtifactStore` (`file` \| `postgres`); schema `sql/eakg_artifacts.sql`
+- Wired registry / ShardStore / ApiIndex catalog / Tools factory + modular hot-reload via `eakg_runtime`
+- `.env` `EAKG_STORE__BACKEND=postgres` (DSN ← pgvector)
+- `uv run python -m packages.eakg artifacts migrate-from-disk` → registry 3, interfaces+manifests+openapi for escrow/fees/loanservices, ops env `local`
+- Verify: `artifacts status` backend=postgres; ApiIndex `load_or_build` → **980** ops
+- Tests: `test_artifact_store.py` green
+- CONTEXT.md: `EAKG_STORE__*` env rows
+
+---
+
+## [2026-10-12] — TASKS: Minimal API + multi-language extract
+
+**Session type:** Backlog
+
+**Completed:**
+- Added **Next (EAKG feed)** task: Multi-stack API extract (ASP.NET Minimal APIs + pluggable extractors for other languages; OpenAPI-primary when complete)
+- Linked parked “tree-sitter / CodeQL” line to that task
+
+---
+
+## [2026-10-09] — GraphDB Free live + graph-load + MCP restart
+
+**Session type:** Ops
+
+**Completed:**
+- Temurin 17 + GraphDB 10.8.13 under `D:\Users\v-mbohra\tools\` (outside clone)
+- Home/data: `D:\Users\v-mbohra\graphdb-home` — repo `loanops` created
+- `uv run python -m packages.eakg graph-load` → escrow/fees/loanservices OK; SPARQL COUNT ops = **949**
+- `.env` `GRAPH_STORE__*` pointed at `localhost:7200/repositories/loanops`
+- MCP restarted on `:8001` (health 200); Workbench opened
+- Helper: `D:\Users\v-mbohra\tools\start-graphdb.cmd`
+
+---
+
+## [2026-10-09] — ADR-026 SPARQL graph store (GraphDB / Neptune path)
+
+**Session type:** Architecture + implementation
+
+**Completed:**
+- ADR-026 in `decisions.md` (partial supersede ADR-017 query path)
+- `GraphStoreConfig` + `get_graph_store()` (15th factory) + `HttpSparqlGraphStore` / `FakeGraphStore`
+- EAKG `query.py` async SPARQL; MCP/tools dispatch off `merge_shards`
+- Onboard/cross-app upload named graphs (no new `graph.ttl` / `evidence.ttl`)
+- CLI: `python -m packages.eakg graph-load` + `scripts/_cutover_graph_store.py`
+- Fake cutover OK: escrow/fees/loanservices → 949 ops; `data/eakg/repos/` already gitignored
+
+**Blocked (operator):** GraphDB Free not running on this machine (`localhost:7200` refused). After install + repo `loanops`: `uv run python -m packages.eakg graph-load` then Workbench `http://localhost:7200`.
+
+---
+
 ## [2026-10-09] — MCP discovery answer gaps
 
 **Session type:** Fix (TESTX chat review)
@@ -1030,3 +1099,17 @@ Updated ARCHITECTURE, PRD, ANALYSIS, CONTEXT, demo/query docs, and STEP 4 in
 - Docs: `MCP_SECURITY.md`, `.env.example`. Tests: 24 MCP suite green.
 
 **Reason:** User: Work on gaps 1 and 2 in subagents.
+
+## [2026-10-12] - Auth0 M2M `requested_destination`
+
+**Session type:** Feature (credentials)
+
+**Completed:**
+- `packages.common.auth0_destination.resolve_destination` (PNMAC/wiki port).
+- `Auth0M2MCredentialBroker` + factory `CREDENTIALS__PROVIDER=auth0_m2m`; destinations from registry `base_url`.
+- Settings/`.env.example`/`CONTEXT.md` Auth0 knobs.
+- Unit tests `test_auth0_destination.py` (2 passed).
+- Smoke: modular `call_sse_api` `escrow:GET_api_escrow_getescrowbyloannumber` → HTTP 200 (loan 1000002245). Dest map: escrow→escrowapi, fees→feesapi, loanservices→loanservicesapi.
+- MCP restarted on :8001 with `auth0_m2m`.
+
+**Reason:** User: Can you use destination.

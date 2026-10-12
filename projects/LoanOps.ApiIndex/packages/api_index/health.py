@@ -96,8 +96,15 @@ class AppHealthService:
         capabilities: Any | None = None,
     ) -> None:
         self._settings = settings
-        self._registry = registry or RepositoryRegistry(settings.eakg.registry_path)
-        self._store = store or ShardStore(settings.eakg.shard_dir)
+        if registry is None or store is None:
+            from packages.eakg.runtime import eakg_runtime
+
+            rt_reg, rt_store, _arts = eakg_runtime(settings)
+            self._registry = registry or rt_reg
+            self._store = store or rt_store
+        else:
+            self._registry = registry
+            self._store = store
         self._op_set = op_set
         self._credentials = credentials
         self._breaker = breaker

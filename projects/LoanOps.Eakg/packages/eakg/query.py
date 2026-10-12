@@ -1,38 +1,11 @@
-"""Provenance-aware graph queries for MCP / pilot questions."""
+"""Provenance-aware graph queries for MCP / pilot questions (SPARQL, ADR-026)."""
 
 from __future__ import annotations
 
 from typing import Any
 
-from packages.capability_kg.ontology import (
-    CLASS_API_OPERATION,
-    CLASS_CAPABILITY,
-    CLASS_CROSS_APP_RELATIONSHIP,
-    DEFAULT_NAMESPACE,
-    PRED_BELONGS_TO_APP,
-    PRED_FROM_APP,
-    PRED_HAS_EVIDENCE,
-    PRED_HTTP_METHOD,
-    PRED_HTTP_PATH,
-    PRED_IMPLEMENTED_BY,
-    PRED_IMPLEMENTED_BY_CODE_UNIT,
-    PRED_OPERATION_ID,
-    PRED_RELATIONSHIP_KIND,
-    PRED_REQUIRES_PERMISSION,
-    PRED_REVIEW_STATUS,
-    PRED_TO_APP,
-    PRED_TO_OPERATION,
-    PRED_TO_PACKAGE,
-    loanops_ns,
-)
-from rdflib import Graph
-from rdflib.namespace import RDF, RDFS
-
-
-def _label(g: Graph, node: Any) -> str:
-    for _, _, o in g.triples((node, RDFS.label, None)):
-        return str(o)
-    return str(node).rsplit("/", 1)[-1]
+from packages.capability_kg.ontology import DEFAULT_NAMESPACE
+from packages.common.providers.graph_store import AbstractGraphStore, GraphStoreError
 
 
 def _normalize_needle(value: str) -> str:
@@ -76,106 +49,220 @@ def _query_tokens(query: str) -> tuple[str, list[str]]:
     return q, tokens
 
 
-def _operation_fields(
-    g: Graph,
-    op: Any,
-    *,
-    namespace: str = DEFAULT_NAMESPACE,
-) -> dict[str, Any]:
-    ns = loanops_ns(namespace)
-    result: dict[str, Any] = {"operation_id": None}
-    for _, _, oid in g.triples((op, ns[PRED_OPERATION_ID], None)):
-        result["operation_id"] = str(oid)
-    for _, _, m in g.triples((op, ns[PRED_HTTP_METHOD], None)):
-        result["http_method"] = str(m)
-    for _, _, p in g.triples((op, ns[PRED_HTTP_PATH], None)):
-        result["http_path"] = str(p)
-    for _, _, app in g.triples((op, ns[PRED_BELONGS_TO_APP], None)):
-        result["application"] = _label(g, app)
-    for _, _, code in g.triples((op, ns[PRED_IMPLEMENTED_BY_CODE_UNIT], None)):
-        result["code_unit"] = _label(g, code)
-    for _, _, perm in g.triples((op, ns[PRED_REQUIRES_PERMISSION], None)):
-        result["permission"] = str(perm)
-    for _, _, authz in g.triples((op, ns["authzSource"], None)):
-        result["authz_source"] = str(authz)
-    evidence: list[dict[str, str]] = []
-    for _, _, ev in g.triples((op, ns[PRED_HAS_EVIDENCE], None)):
-        row: dict[str, str] = {}
-        for _, p, o in g.triples((ev, None, None)):
-            row[str(p).rsplit("/", 1)[-1]] = str(o)
-        evidence.append(row)
-    result["evidence"] = evidence
-    # Match call_sse_api policy: resolved GET only (HEAD rejected).
-    result["mcp_invoke"] = str(result.get("http_method") or "").upper() == "GET"
+def _binding_str(row: dict[str, Any], key: str) -> str | None:
+    cell = row.get(key)
+    if not isinstance(cell, dict):
+        return None
+    val = cell.get("value")
+    return str(val) if val is not None else None
+
+
+def _app_label(row: dict[str, Any], label_key: str, uri_key: str) -> str | None:
+    """Prefer rdfs:label; else URI local name with optional ``app_`` prefix stripped."""
+    lab = _binding_str(row, label_key)
+    if lab:
+        return lab.rsplit("/", 1)[-1] if "/" in lab else lab
+    uri = _binding_str(row, uri_key)
+    if not uri:
+        return None
+    local = uri.rsplit("/", 1)[-1].rsplit("#", 1)[-1]
+    if local.startswith("app_"):
+        return local[4:] or local
+    return local or None
+
+
+def _prefix_block(namespace: str) -> str:
+    base = namespace if namespace.endswith("/") or namespace.endswith("#") else f"{namespace}/"
+    return f"PREFIX lo: <{base}>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
+
+
+def _row_from_op_binding(row: dict[str, Any], *, capability_id: str | None = None) -> dict[str, Any]:
+    oid = _binding_str(row, "oid") or capability_id or ""
+    method = _binding_str(row, "method")
+    path = _binding_str(row, "path")
+    app = _app_label(row, "appLabel", "app")
+    code = _binding_str(row, "codeLabel") or _binding_str(row, "code")
+    if code and "/" in code:
+        code = code.rsplit("/", 1)[-1]
+        if code.startswith("code_"):
+            code = code[5:] or code
+    result: dict[str, Any] = {
+        "id": oid,
+        "uri": _binding_str(row, "op") or "",
+        "operation_id": oid or None,
+        "http_method": method,
+        "http_path": path,
+        "application": app,
+        "code_unit": code,
+        "permission": _binding_str(row, "perm"),
+        "authz_source": _binding_str(row, "authz"),
+        "evidence": [],
+        "mcp_invoke": (method or "").upper() == "GET",
+    }
     return result
 
 
-def _explain_from_operation(
-    g: Graph,
-    op: Any,
+_OPS_SELECT = """
+SELECT ?op ?oid ?method ?path ?app ?appLabel ?code ?codeLabel ?perm ?authz
+WHERE {
+  GRAPH ?g {
+    ?op a lo:APIOperation ;
+        lo:operationId ?oid .
+    OPTIONAL { ?op lo:httpMethod ?method }
+    OPTIONAL { ?op lo:httpPath ?path }
+    OPTIONAL {
+      ?op lo:belongsToApp ?app .
+      OPTIONAL { ?app rdfs:label ?appLabel }
+    }
+    OPTIONAL {
+      ?op lo:implementedByCodeUnit ?code .
+      OPTIONAL { ?code rdfs:label ?codeLabel }
+    }
+    OPTIONAL { ?op lo:requiresPermission ?perm }
+    OPTIONAL { ?op lo:authzSource ?authz }
+  }
+}
+"""
+
+
+async def _fetch_operations(
+    store: AbstractGraphStore,
     *,
     namespace: str,
-    capability_id: str,
-) -> dict[str, Any]:
-    result: dict[str, Any] = {"id": capability_id, "uri": str(op)}
-    result.update(_operation_fields(g, op, namespace=namespace))
-    return result
+) -> list[dict[str, Any]]:
+    data = await store.query(_prefix_block(namespace) + _OPS_SELECT)
+    return list(data.get("results", {}).get("bindings", []))
 
 
-def explain_capability(
-    g: Graph,
+async def list_operation_records(
+    store: AbstractGraphStore,
+    *,
+    namespace: str = DEFAULT_NAMESPACE,
+    limit: int = 10_000,
+) -> list[dict[str, Any]]:
+    """All APIOperation rows (for capability bind warm / diagnostics)."""
+    rows = await _fetch_operations(store, namespace=namespace)
+    out = [_row_from_op_binding(r, capability_id=_binding_str(r, "oid") or "") for r in rows]
+    return out[:limit]
+
+
+async def _fetch_evidence_for_subject(
+    store: AbstractGraphStore,
+    subject_uri: str,
+    *,
+    namespace: str,
+) -> list[dict[str, str]]:
+    sparql = (
+        _prefix_block(namespace)
+        + f"""
+SELECT ?ev ?pred ?obj WHERE {{
+  GRAPH ?g {{
+    <{subject_uri}> lo:hasEvidence ?ev .
+    ?ev ?pred ?obj .
+  }}
+}}
+"""
+    )
+    data = await store.query(sparql)
+    by_ev: dict[str, dict[str, str]] = {}
+    for row in data.get("results", {}).get("bindings", []):
+        ev = _binding_str(row, "ev") or "_"
+        pred = _binding_str(row, "pred") or ""
+        obj = _binding_str(row, "obj") or ""
+        key = pred.rsplit("/", 1)[-1] if pred else "value"
+        by_ev.setdefault(ev, {})[key] = obj
+    return list(by_ev.values())
+
+
+async def explain_capability(
+    store: AbstractGraphStore,
     capability_id: str,
     *,
     namespace: str = DEFAULT_NAMESPACE,
 ) -> dict[str, Any] | None:
-    ns = loanops_ns(namespace)
     needle, _tokens = _query_tokens(capability_id)
     compact = _normalize_needle(capability_id)
+    ops = await _fetch_operations(store, namespace=namespace)
 
-    op_hits: list[tuple[int, Any, str]] = []
-    for op, _, _ in g.triples((None, RDF.type, ns[CLASS_API_OPERATION])):
-        oid = str(next(g.objects(op, ns[PRED_OPERATION_ID]), "") or "")
-        on = _normalize_needle(oid)
-        on_camel, _ = _query_tokens(oid)
+    op_hits: list[tuple[int, dict[str, Any], str]] = []
+    for row in ops:
+        oid = _binding_str(row, "oid") or ""
         if not oid:
             continue
+        on = _normalize_needle(oid)
+        on_camel, _ = _query_tokens(oid)
         if on == needle or on == compact or on_camel == needle:
-            op_hits.append((0, op, oid))
+            op_hits.append((0, row, oid))
         elif needle in on_camel or compact in on or needle in on:
-            op_hits.append((1, op, oid))
+            op_hits.append((1, row, oid))
         elif len(on_camel) >= 6 and (on_camel in needle or on in compact):
-            op_hits.append((2, op, oid))
+            op_hits.append((2, row, oid))
     if op_hits:
         op_hits.sort(key=lambda t: (t[0], len(t[2])))
-        _, op, oid = op_hits[0]
-        return _explain_from_operation(g, op, namespace=namespace, capability_id=oid)
+        _, row, oid = op_hits[0]
+        result = _row_from_op_binding(row, capability_id=oid)
+        op_uri = _binding_str(row, "op")
+        if op_uri:
+            result["evidence"] = await _fetch_evidence_for_subject(
+                store, op_uri, namespace=namespace
+            )
+        return result
 
-    cap = None
-    for s, _, _ in g.triples((None, RDF.type, ns[CLASS_CAPABILITY])):
-        lab = _normalize_needle(_label(g, s))
-        uri_tail = _normalize_needle(str(s).rsplit("/", 1)[-1])
+    # Capability nodes (label / URI tail)
+    sparql = (
+        _prefix_block(namespace)
+        + """
+SELECT ?cap ?label ?op ?oid ?method ?path ?app ?appLabel ?code ?codeLabel ?perm ?authz
+WHERE {
+  GRAPH ?g {
+    ?cap a lo:Capability .
+    OPTIONAL { ?cap rdfs:label ?label }
+    OPTIONAL {
+      ?cap lo:implementedBy ?op .
+      OPTIONAL { ?op lo:operationId ?oid }
+      OPTIONAL { ?op lo:httpMethod ?method }
+      OPTIONAL { ?op lo:httpPath ?path }
+      OPTIONAL {
+        ?op lo:belongsToApp ?app .
+        OPTIONAL { ?app rdfs:label ?appLabel }
+      }
+      OPTIONAL {
+        ?op lo:implementedByCodeUnit ?code .
+        OPTIONAL { ?code rdfs:label ?codeLabel }
+      }
+      OPTIONAL { ?op lo:requiresPermission ?perm }
+      OPTIONAL { ?op lo:authzSource ?authz }
+    }
+  }
+}
+"""
+    )
+    data = await store.query(sparql)
+    for row in data.get("results", {}).get("bindings", []):
+        lab = _normalize_needle(_binding_str(row, "label") or "")
+        uri = _binding_str(row, "cap") or ""
+        uri_tail = _normalize_needle(uri.rsplit("/", 1)[-1])
         if needle in {lab, uri_tail} or compact in {lab, uri_tail}:
-            cap = s
-            break
-        if needle in lab or needle in uri_tail or compact in lab or compact in uri_tail:
-            cap = s
-            break
-    if cap is None:
-        return None
-    result: dict[str, Any] = {"id": _label(g, cap), "uri": str(cap)}
-    for _, _, op in g.triples((cap, ns[PRED_IMPLEMENTED_BY], None)):
-        result.update(_operation_fields(g, op, namespace=namespace))
-    return result
+            pass
+        elif needle in lab or needle in uri_tail or compact in lab or compact in uri_tail:
+            pass
+        else:
+            continue
+        label = _binding_str(row, "label") or uri_tail
+        result = _row_from_op_binding(row, capability_id=label)
+        result["id"] = label
+        result["uri"] = uri
+        return result
+    return None
 
 
-def _search_capability_rows(
-    g: Graph,
+async def _search_capability_rows(
+    store: AbstractGraphStore,
     query: str,
     *,
     namespace: str = DEFAULT_NAMESPACE,
 ) -> list[dict[str, Any]]:
     """Score-ranked capability/operation rows (all HTTP methods)."""
-    ns = loanops_ns(namespace)
     q, tokens = _query_tokens(query)
     scored: list[tuple[int, dict[str, Any]]] = []
     seen: set[str] = set()
@@ -187,41 +274,56 @@ def _search_capability_rows(
         seen.add(key)
         scored.append((score, row))
 
-    for s, _, _ in g.triples((None, RDF.type, ns[CLASS_CAPABILITY])):
-        label = _label(g, s)
-        paths: list[str] = []
-        oids: list[str] = []
-        for _, _, op in g.triples((s, ns[PRED_IMPLEMENTED_BY], None)):
-            for _, _, path_node in g.triples((op, ns[PRED_HTTP_PATH], None)):
-                paths.append(str(path_node))
-            for _, _, oid_node in g.triples((op, ns[PRED_OPERATION_ID], None)):
-                oids.append(str(oid_node))
-        score = _score_match(q, tokens, label, str(s), *paths, *oids)
-        if score is None:
-            continue
-        _add(score, explain_capability(g, label, namespace=namespace) or {"id": label})
-
-    for op, _, _ in g.triples((None, RDF.type, ns[CLASS_API_OPERATION])):
-        oid = str(next(g.objects(op, ns[PRED_OPERATION_ID]), "") or "")
-        path = str(next(g.objects(op, ns[PRED_HTTP_PATH]), "") or "")
+    ops = await _fetch_operations(store, namespace=namespace)
+    for row in ops:
+        oid = _binding_str(row, "oid") or ""
+        path = _binding_str(row, "path") or ""
         score = _score_match(q, tokens, oid, path)
         if score is None:
             continue
-        _add(score, _explain_from_operation(g, op, namespace=namespace, capability_id=oid or path))
+        _add(score, _row_from_op_binding(row, capability_id=oid or path))
+
+    sparql = (
+        _prefix_block(namespace)
+        + """
+SELECT ?cap ?label ?oid ?path WHERE {
+  GRAPH ?g {
+    ?cap a lo:Capability .
+    OPTIONAL { ?cap rdfs:label ?label }
+    OPTIONAL {
+      ?cap lo:implementedBy ?op .
+      OPTIONAL { ?op lo:operationId ?oid }
+      OPTIONAL { ?op lo:httpPath ?path }
+    }
+  }
+}
+"""
+    )
+    data = await store.query(sparql)
+    for row in data.get("results", {}).get("bindings", []):
+        label = _binding_str(row, "label") or ""
+        uri = _binding_str(row, "cap") or ""
+        oid = _binding_str(row, "oid") or ""
+        path = _binding_str(row, "path") or ""
+        score = _score_match(q, tokens, label, uri, path, oid)
+        if score is None:
+            continue
+        explained = await explain_capability(store, label or uri, namespace=namespace)
+        _add(score, explained or {"id": label or uri, "uri": uri})
 
     scored.sort(key=lambda t: (t[0], str(t[1].get("id") or "")))
     return [row for _, row in scored]
 
 
-def search_capabilities(
-    g: Graph,
+async def search_capabilities(
+    store: AbstractGraphStore,
     query: str,
     *,
     namespace: str = DEFAULT_NAMESPACE,
     limit: int = 20,
 ) -> list[dict[str, Any]]:
     """Invoke-oriented search: prefer GET when any GET hit exists."""
-    rows = _search_capability_rows(g, query, namespace=namespace)
+    rows = await _search_capability_rows(store, query, namespace=namespace)
     reads = [row for row in rows if str(row.get("http_method") or "").upper() == "GET"]
     chosen = reads if reads else rows
     out = chosen[:limit]
@@ -231,59 +333,73 @@ def search_capabilities(
     return out
 
 
-def find_providers(
-    g: Graph,
+async def find_providers(
+    store: AbstractGraphStore,
     capability_or_op: str,
     *,
     namespace: str = DEFAULT_NAMESPACE,
 ) -> list[dict[str, Any]]:
     """Discovery/impact: all methods. mcp_invoke marks call_sse_api eligibility."""
-    explained = explain_capability(g, capability_or_op, namespace=namespace)
+    explained = await explain_capability(store, capability_or_op, namespace=namespace)
     if explained and explained.get("application"):
         return [explained]
-    return _search_capability_rows(g, capability_or_op, namespace=namespace)[:10]
+    return (await _search_capability_rows(store, capability_or_op, namespace=namespace))[:10]
 
 
-def impact_of_change(
-    g: Graph,
+async def impact_of_change(
+    store: AbstractGraphStore,
     operation_or_app: str,
     *,
     namespace: str = DEFAULT_NAMESPACE,
 ) -> list[dict[str, Any]]:
     """Incoming callsOperation / consumesSdk edges with evidence."""
-    ns = loanops_ns(namespace)
     needle = operation_or_app.lower()
+    sparql = (
+        _prefix_block(namespace)
+        + """
+SELECT ?rel ?kind ?status ?toOp ?toPkg ?toApp ?toAppLabel ?fromApp ?fromAppLabel
+WHERE {
+  GRAPH ?g {
+    ?rel a lo:CrossAppRelationship ;
+         lo:relationshipKind ?kind .
+    OPTIONAL { ?rel lo:hasReviewStatus ?status }
+    OPTIONAL { ?rel lo:toOperation ?toOp }
+    OPTIONAL { ?rel lo:toPackage ?toPkg }
+    OPTIONAL {
+      ?rel lo:toApplication ?toApp .
+      OPTIONAL { ?toApp rdfs:label ?toAppLabel }
+    }
+    OPTIONAL {
+      ?rel lo:fromApplication ?fromApp .
+      OPTIONAL { ?fromApp rdfs:label ?fromAppLabel }
+    }
+  }
+}
+"""
+    )
+    try:
+        data = await store.query(sparql)
+    except GraphStoreError:
+        raise
     impacts: list[dict[str, Any]] = []
-    for s, _, _ in g.triples((None, RDF.type, ns[CLASS_CROSS_APP_RELATIONSHIP])):
-        kind = None
-        for _, _, k in g.triples((s, ns[PRED_RELATIONSHIP_KIND], None)):
-            kind = str(k)
+    for row in data.get("results", {}).get("bindings", []):
+        kind = _binding_str(row, "kind")
         if kind not in {"callsOperation", "consumesSdk", "sharesDto", "callsApplication"}:
             continue
-        status = str(next(g.objects(s, ns[PRED_REVIEW_STATUS]), "") or "")
+        status = _binding_str(row, "status") or ""
         if status == "rejected":
             continue
-        to_op = None
-        to_pkg = None
-        to_app = None
-        from_app = None
-        for _, _, o in g.triples((s, ns[PRED_TO_OPERATION], None)):
-            to_op = str(o)
-        for _, _, o in g.triples((s, ns[PRED_TO_PACKAGE], None)):
-            to_pkg = str(o)
-        for _, _, o in g.triples((s, ns[PRED_TO_APP], None)):
-            to_app = _label(g, o)
-        for _, _, o in g.triples((s, ns[PRED_FROM_APP], None)):
-            from_app = _label(g, o)
+        to_op = _binding_str(row, "toOp")
+        to_pkg = _binding_str(row, "toPkg")
+        to_app = _app_label(row, "toAppLabel", "toApp")
+        from_app = _app_label(row, "fromAppLabel", "fromApp")
         blob = " ".join(x for x in [kind, to_op, to_pkg, to_app] if x).lower()
         if needle not in blob and needle not in (to_app or "").lower():
             continue
-        evidence = []
-        for _, _, ev in g.triples((s, ns[PRED_HAS_EVIDENCE], None)):
-            row: dict[str, str] = {}
-            for _, p, o in g.triples((ev, None, None)):
-                row[str(p).rsplit("/", 1)[-1]] = str(o)
-            evidence.append(row)
+        rel_uri = _binding_str(row, "rel") or ""
+        evidence: list[dict[str, str]] = []
+        if rel_uri:
+            evidence = await _fetch_evidence_for_subject(store, rel_uri, namespace=namespace)
         impacts.append(
             {
                 "kind": kind,

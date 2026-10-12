@@ -25,10 +25,10 @@
 | `docs/Init-Project.ps1` | Project initialisation script (PowerShell) |
 | `packages/common/settings.py` | Every env var, single source |
 | `packages/common/schemas.py` | Shared Pydantic models (Tools + Agent) |
-| `packages/common/providers/` | 10 provider Protocols + re-exports |
+| `packages/common/providers/` | Provider Protocols + re-exports (incl. graph_store ADR-026) |
 | `packages/common/providers/factory.py` | Factory functions (only place with concrete imports) |
-| `packages/common/providers/testing.py` | InMemory mock providers for tests |
-| `packages/common/providers/contract_tests/` | 10 contract test modules (one per Protocol) |
+| `packages/common/providers/testing.py` | Mock providers for tests (`FakeGraphStore`, …) |
+| `packages/common/providers/contract_tests/` | Contract test modules (one per Protocol) |
 | `packages/agent_core/_agent.py` | MS Agent Framework agent implementation |
 | `packages/agent_core/_intent_router.py` | Pure-function intent router |
 | `packages/agent_core/_output_parser.py` | JSON output contract parser with retry |
@@ -107,6 +107,9 @@
 | `EAKG__TAAC_FIXTURE_PATH` | `data/eakg/fixtures/taac-client-config.redacted.json` | Redacted TAAC for CI |
 | `EAKG__EXTRACTOR` | `auto` | `auto`\|`roslyn`\|`regex` — Roslyn primary (D5) |
 | `EAKG__ENVIRONMENT` | `local` | Registry env: `local` \| `dev` \| `stage` \| `prod` |
+| `EAKG_STORE__BACKEND` | `file` | `postgres` (product) \| `file` (tests) — ADR-027 |
+| `EAKG_STORE__DSN` | `""` | Empty → `VECTOR_STORE__PGVECTOR_DSN` |
+| `EAKG_STORE__FILE_SHARD_DIR` | (shard dir) | File-backend root when `backend=file` |
 | `SSE__CATALOG_SOURCE` | `auto` | `auto` \| `registry` \| `swagger_links` \| `fixture`. `auto`: explicit swagger links, else registry with a usable spec, else fixture |
 | `SSE__USE_FIXTURE` | `true` | Legacy fixture switch. Does not override an explicit `SSE__CATALOG_SOURCE` |
 | `API_INDEX__ENABLED` | `false` | When true, `search_sse_apis` uses `ApiSearchService` (two-stage vector+keyword). Default keeps sidecar/keyword path |
@@ -116,8 +119,16 @@
 | `API_INDEX__SCHEDULER_ENABLED` | `false` | Optional in-process nightly refresh (file lock); prod prefers external cron → `python -m packages.api_index.refresh nightly` |
 | `SSE__API_BASE_URL` | (see `.env.example`) | Default SSE host allow-list base |
 | `SSE__API_KEY` | `""` | Shared bearer for static broker apps listed in `CREDENTIALS__STATIC_SHARED_APPS`; not sent to every host |
-| `CREDENTIALS__PROVIDER` | `static` | `static` \| `mock` — `get_credential_broker()` (14th `get_*` in common factory) |
+| `CREDENTIALS__PROVIDER` | `static` | `static` \| `mock` \| `auth0_m2m` — `get_credential_broker()` (14th `get_*` in common factory) |
 | `CREDENTIALS__STATIC_SHARED_APPS` | `[]` | JSON list of app ids allowed to use `SSE__API_KEY` |
+| `CREDENTIALS__AUTH0_DOMAIN` | `""` | Auth0 tenant host for `auth0_m2m` (e.g. `auth.dev.pennymac.plaisse.com`) |
+| `CREDENTIALS__AUTH0_CLIENT_ID` | `""` | M2M client id (`auth0_m2m`) |
+| `CREDENTIALS__AUTH0_CLIENT_SECRET` | `""` | M2M client secret (`auth0_m2m`) |
+| `CREDENTIALS__AUTH0_AUDIENCE` | `https://pennymac` | Shared Plaisse API audience; per-app `requested_destination` from registry `base_url` |
+| `GRAPH_STORE__QUERY_URL` | `http://localhost:7200/repositories/loanops` | SPARQL query (GraphDB local; Neptune later) — ADR-026 |
+| `GRAPH_STORE__UPDATE_URL` | `…/repositories/loanops/statements` | SPARQL update / statements |
+| `GRAPH_STORE__AUTH_TOKEN` | `""` | Optional Bearer (empty local) |
+| `GRAPH_STORE__TIMEOUT_SECONDS` | `30` | HTTP timeout for graph store |
 | `APP_TOKEN_<APPID>` | unset | Per-app secret via SecretsProvider (e.g. `APP_TOKEN_FEES`) |
 | `SSE__SWAGGER_LINKS` | `[]` | JSON list of `{id,label,url}` swagger sources |
 | `PROMPT_STORE__PROVIDER` | `file` | `file` / `promptflow` |

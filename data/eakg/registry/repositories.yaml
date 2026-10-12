@@ -22,9 +22,9 @@ repositories:
   api_project_path: src/Escrow.Api
   service_url_key: EscrowManagerApiUrl
   environments:
-    local:
-      base_url: http://127.0.0.1:9101
-      spec_fixture: data/eakg/fixtures/specs/escrow.openapi.json
+    dev:
+      base_url: https://escrowapi.dev.pennymac.plaisse.com
+      auth_audience: https://pennymac
 - repository_id: fees
   application: Fees
   application_id: fees
@@ -48,9 +48,10 @@ repositories:
   api_project_path: src/Fees.WebApi
   service_url_key: FeesApiUrl
   environments:
-    local:
-      base_url: http://127.0.0.1:9102
-      spec_fixture: data/eakg/fixtures/specs/fees.openapi.json
+    dev:
+      # TAAC ServiceUrls.FeesApiUrl (WebAPI). FeesUrl=fees.dev is the Web UI only.
+      base_url: https://feesapi.dev.pennymac.plaisse.com
+      auth_audience: https://pennymac
 - repository_id: loanservices
   application: Loan Services
   application_id: loanservices
@@ -72,6 +73,7 @@ repositories:
   api_project_path: src/LoanServices.WebApi
   service_url_key: LoanServicesUrl
   environments:
-    local:
-      base_url: http://127.0.0.1:9103
-      spec_fixture: data/eakg/fixtures/specs/loanservices.openapi.json
+    dev:
+      base_url: https://loanservicesapi.dev.pennymac.plaisse.com
+      auth_audience: https://pennymac
+      spec_path: /swagger/1.0/swagger.json

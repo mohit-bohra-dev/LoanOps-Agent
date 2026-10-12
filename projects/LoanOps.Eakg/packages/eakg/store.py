@@ -12,6 +12,8 @@ from packages.capability_kg.store import load_graph, save_graph
 from packages.eakg.models import RepoInterface, utc_now_iso
 from rdflib import Graph
 
+# artifact_store typed as Any to avoid import cycles with artifact_store.py
+
 
 def content_hash(payload: Any) -> str:
     blob = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -21,9 +23,16 @@ def content_hash(payload: Any) -> str:
 class ShardStore:
     """One shard per repository under shard_dir/repos/<id>/."""
 
-    def __init__(self, shard_dir: str | Path, *, namespace: str = DEFAULT_NAMESPACE) -> None:
+    def __init__(
+        self,
+        shard_dir: str | Path,
+        *,
+        namespace: str = DEFAULT_NAMESPACE,
+        artifact_store: Any | None = None,
+    ) -> None:
         self.root = Path(shard_dir)
         self.namespace = namespace
+        self._artifacts = artifact_store
         self.repos_root = self.root / "repos"
         self.enterprise_root = self.root / "enterprise"
         self.catalog_root = self.root / "catalog"
@@ -52,13 +61,23 @@ class ShardStore:
         return save_graph(graph, dest)
 
     def write_interface(self, iface: RepoInterface) -> Path:
+        data = iface.to_dict()
+        if self._artifacts is not None:
+            self._artifacts.put_interface(iface.repository_id, data)
+            # Marker path for callers that expect a Path; not product truth on postgres.
+            dest = self.repo_dir(iface.repository_id) / "interface.json"
+            return dest
         dest = self.repo_dir(iface.repository_id) / "interface.json"
         dest.parent.mkdir(parents=True, exist_ok=True)
-        data = iface.to_dict()
         dest.write_text(json.dumps(data, indent=2), encoding="utf-8")
         return dest
 
     def read_interface(self, repository_id: str) -> RepoInterface | None:
+        if self._artifacts is not None:
+            raw = self._artifacts.get_interface(repository_id)
+            if raw is None:
+                return None
+            return RepoInterface.from_dict(raw)
         path = self.repo_dir(repository_id) / "interface.json"
         if not path.is_file():
             return None
@@ -71,13 +90,18 @@ class ShardStore:
         return content_hash(iface.to_dict())
 
     def write_manifest(self, repository_id: str, manifest: dict[str, Any]) -> Path:
+        manifest = {**manifest, "written_at": utc_now_iso()}
+        if self._artifacts is not None:
+            self._artifacts.put_manifest(repository_id, manifest)
+            return self.repo_dir(repository_id) / "manifest.json"
         dest = self.repo_dir(repository_id) / "manifest.json"
         dest.parent.mkdir(parents=True, exist_ok=True)
-        manifest = {**manifest, "written_at": utc_now_iso()}
         dest.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
         return dest
 
     def read_manifest(self, repository_id: str) -> dict[str, Any] | None:
+        if self._artifacts is not None:
+            return self._artifacts.get_manifest(repository_id)
         path = self.repo_dir(repository_id) / "manifest.json"
         if not path.is_file():
             return None

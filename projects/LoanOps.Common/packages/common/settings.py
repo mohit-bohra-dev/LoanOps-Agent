@@ -298,7 +298,7 @@ class McpConfig(BaseModel):
 
 
 class CapabilityKgConfig(BaseModel):
-    """RDF capability knowledge graph (ADR-014 facade). Product truth is EAKG shards."""
+    """RDF capability knowledge graph (ADR-014 facade). Product truth is SPARQL store (ADR-026)."""
 
     enabled: bool = True
     namespace: str = "https://loanops.local/ontology/"
@@ -350,9 +350,33 @@ class ApiIndexConfig(BaseModel):
 class CredentialsConfig(BaseModel):
     """Per-app credential broker (enterprise-app-scale P4 / G8)."""
 
-    provider: Literal["static", "mock"] = "static"
+    provider: Literal["static", "mock", "auth0_m2m"] = "static"
     # App ids allowed to receive SSE__API_KEY as a shared bearer (NFR-010).
     static_shared_apps: list[str] = Field(default_factory=list)
+    # Auth0 M2M + PNMAC requested_destination (Plaisse wiki algorithm).
+    auth0_domain: str = "auth.dev.pennymac.plaisse.com"
+    auth0_client_id: str = ""
+    auth0_client_secret: str = ""
+    auth0_audience: str = "https://pennymac"
+    auth0_token_url: str = ""  # empty → https://{auth0_domain}/oauth/token
+
+
+class GraphStoreConfig(BaseModel):
+    """HTTP SPARQL graph store (ADR-026). GraphDB local; Neptune RDF later."""
+
+    query_url: str = "http://localhost:7200/repositories/loanops"
+    update_url: str = "http://localhost:7200/repositories/loanops/statements"
+    auth_token: str = ""
+    timeout_seconds: int = Field(default=30, ge=1, le=300)
+
+
+class EakgStoreConfig(BaseModel):
+    """Non-graph EAKG artifacts (ADR-027): registry, interface, OpenAPI, ApiIndex ops."""
+
+    backend: Literal["file", "postgres"] = "file"
+    # Empty → derive from VECTOR_STORE__PGVECTOR_DSN (strip +asyncpg).
+    dsn: str = ""
+    file_shard_dir: str = ""
 
 
 class Settings(BaseSettings):
@@ -383,6 +407,8 @@ class Settings(BaseSettings):
     eakg: EakgConfig = Field(default_factory=EakgConfig)
     api_index: ApiIndexConfig = Field(default_factory=ApiIndexConfig)
     credentials: CredentialsConfig = Field(default_factory=CredentialsConfig)
+    graph_store: GraphStoreConfig = Field(default_factory=GraphStoreConfig)
+    eakg_store: EakgStoreConfig = Field(default_factory=EakgStoreConfig)
     agent_role: str = Field(default="system", validation_alias="AGENT_ROLE")
 
 

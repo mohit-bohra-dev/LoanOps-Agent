@@ -416,7 +416,9 @@ Full rebuild of all repos on one change is too expensive.
 **Reasoning:** Shards preserve ADR-014 local-first and enable incremental
 re-index. Facade hides the storage layout from MCP.
 
-**Status:** Accepted (plan approved 2026-10-02).
+**Status:** Accepted (plan approved 2026-10-02). **Query/persist path
+superseded by ADR-026** (HTTP SPARQL). Shard layout retained only as deprecated
+local artifact until cutover completes.
 
 ---
 
@@ -659,4 +661,85 @@ postmortems); summaries can cite back to source chunks with a pinned
 extraction model.
 
 **Status:** Deferred 2026-10-09. Recommendation recorded. Not a build.
+
+---
+
+## ADR-026 — EAKG runtime store is HTTP SPARQL (GraphDB local, Neptune later)
+
+**Decision:** Product EAKG **query and persist** go through a **`GraphStoreProvider`**
+over SPARQL 1.1 HTTP. Local operator store is **Ontotext GraphDB Free** (disk-backed,
+data directory outside this git repo, Workbench for visualization). AWS target is
+**Neptune RDF** (same client, different `GRAPH_STORE__*` URLs). RDFLib may build
+triples during extract only; it is **not** the runtime query store. No in-process
+merged `Graph` on the MCP request path. No Turtle shards under `data/eakg/` as
+product truth.
+
+**Supersedes (partial):** ADR-017 “query = lazily merged Turtle shards.” Shard files
+remain deprecated ingest artifacts only until cutover; onboard **uploads named
+graphs** to the SPARQL endpoint instead of writing `graph.ttl` / `evidence.ttl`.
+ADR-017’s scale trigger (~5M triples / p95 > 500 ms) still applies for capacity
+planning; the remote store is SPARQL (Neptune RDF), not Neo4j.
+
+**Context:** Enterprise path needs disk-backed SPARQL (cloud-like), visualization,
+no Docker, and no graph files in this repository. In-memory RDFLib merge does not
+meet those constraints.
+
+**Env (via `settings.py` only):**
+
+| Var | Role |
+|-----|------|
+| `GRAPH_STORE__QUERY_URL` | SPARQL query endpoint (default `http://localhost:7200/repositories/loanops`) |
+| `GRAPH_STORE__UPDATE_URL` | SPARQL update endpoint (default `…/repositories/loanops/statements`) |
+| `GRAPH_STORE__AUTH_TOKEN` | Optional Bearer (empty for local GraphDB; Neptune later) |
+| `GRAPH_STORE__TIMEOUT_SECONDS` | HTTP timeout (default 30) |
+
+Named graph IRI per repo: `{CAPABILITY_KG__NAMESPACE}namedGraph/{repositoryId}`.
+
+**Operator setup (local):** Install GraphDB Free (Windows). Create repository
+`loanops`. Data dir outside the LoanOps-Agent clone. Workbench:
+`http://localhost:7200`. Load via `python -m packages.eakg graph-load` (or onboard
+upload). CI uses a fake HTTP SPARQL double — GraphDB not required in CI.
+
+**Alternatives:** RDFLib shards (rejected for runtime); Fuseki/Oxigraph via Docker
+(no Docker); Blazegraph (unmaintained); Neo4j property graph (forces query rewrite;
+Neptune RDF keeps SPARQL).
+
+**Reasoning:** One Provider Protocol, GraphDB Workbench for viz now, Neptune later
+with env swap only. Fail closed if the endpoint is unreachable (no silent
+`data/eakg` fallback).
+
+**Status:** Accepted 2026-10-09 (plan approved).
+
+---
+
+## ADR-027 — EAKG non-graph artifacts in Postgres
+
+**Decision:** Persist registry, `interface.json`, OpenAPI cache (+ pointer),
+repo manifests, and ApiIndex `operations.json` in **Postgres** via an
+`EakgArtifactStore` Protocol. Default product backend is Postgres (same
+`loanops` DB as pgvector). `file` backend remains for unit tests / offline CI.
+RDF graphs stay in GraphDB (ADR-026) — not duplicated into Postgres.
+
+**Context:** After ADR-026, Turtle is no longer product truth, but registry and
+join inputs still lived under `data/eakg/`. Enterprise path needs a queryable
+catalog without repo-local JSON blobs.
+
+**Env (via `settings.py` only):**
+
+| Var | Role |
+|-----|------|
+| `EAKG_STORE__BACKEND` | `postgres` (product) \| `file` (tests) |
+| `EAKG_STORE__DSN` | asyncpg DSN; empty → derive from `VECTOR_STORE__PGVECTOR_DSN` |
+| `EAKG_STORE__FILE_SHARD_DIR` | File-backend root (default `EAKG__SHARD_DIR`) |
+
+**Tables:** `eakg_registry` (single JSONB doc), `eakg_interface`, `eakg_openapi`,
+`eakg_manifest`, `eakg_operations` (per environment).
+
+**Alternatives:** Keep YAML/JSON files (rejected for product); S3-only blobs
+(no transactional registry); stuff RDF into Postgres (rejected — SPARQL stays GraphDB).
+
+**Reasoning:** One DB for vectors + catalog metadata; GraphDB for graph query;
+file backend keeps `make test` / CI without Postgres.
+
+**Status:** Accepted 2026-10-12 (user directed cutover).
 

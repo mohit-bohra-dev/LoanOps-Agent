@@ -8,6 +8,7 @@ dependencies = [
     "pydantic==2.14.0a1",
     "pydantic-settings==2.14.1",
     "httpx>=0.27.0",
+    "rdflib>=7.0.0",
 ]
 
 [build-system]

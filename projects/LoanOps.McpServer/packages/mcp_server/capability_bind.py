@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Protocol
 
-from packages.capability_kg.catalog import CapabilityCatalog, CapabilityRecord
+from packages.capability_kg.catalog import CapabilityRecord
+from packages.common.providers.graph_store import AbstractGraphStore
 from packages.common.settings import Settings
 from packages.mcp_server.policy import PolicyError
 
@@ -156,18 +156,118 @@ def apply_capability_bind(
     return out
 
 
-def catalog_from_settings(settings: Settings) -> CapabilityCatalog | None:
-    """Load CapabilityCatalog from EAKG shards. None if KG disabled or shards missing."""
+class GraphStoreCapabilityLookup:
+    """CapabilityLookup backed by SPARQL explain (ADR-026). Warm before sync get."""
+
+    def __init__(
+        self,
+        store: AbstractGraphStore,
+        *,
+        namespace: str,
+    ) -> None:
+        self._store = store
+        self._namespace = namespace
+        self._by_id: dict[str, CapabilityRecord] = {}
+
+    async def warm(self) -> None:
+        from packages.eakg.query import list_operation_records
+
+        rows = await list_operation_records(
+            self._store, namespace=self._namespace, limit=10_000
+        )
+        self._by_id = {}
+        for row in rows:
+            rec = _record_from_explain(row)
+            if rec.id:
+                self._by_id[rec.id.lower()] = rec
+            if rec.operation_id:
+                self._by_id[rec.operation_id.lower()] = rec
+
+    async def resolve_one(self, capability_id: str) -> CapabilityRecord | None:
+        from packages.eakg.query import explain_capability
+
+        row = await explain_capability(
+            self._store, capability_id, namespace=self._namespace
+        )
+        if row is None:
+            return None
+        return _record_from_explain(row)
+
+    def get_capability(self, capability_id: str) -> CapabilityRecord | None:
+        key = capability_id.strip().lower()
+        if key in self._by_id:
+            return self._by_id[key]
+        return None
+
+
+def _record_from_explain(row: dict[str, Any]) -> CapabilityRecord:
+    method = str(row.get("http_method") or "")
+    read_only = method.upper() == "GET" if method else None
+    app = row.get("application")
+    return CapabilityRecord(
+        id=str(row.get("id") or row.get("operation_id") or ""),
+        description=None,
+        operation_id=str(row["operation_id"]) if row.get("operation_id") else None,
+        read_only=read_only,
+        review_status=None,
+        permission=str(row["permission"]) if row.get("permission") else None,
+        uri=str(row["uri"]) if row.get("uri") else None,
+        http_path=str(row["http_path"]) if row.get("http_path") else None,
+        application_id=str(app) if app else None,
+    )
+
+
+async def apply_capability_bind_async(
+    call_args: dict[str, Any],
+    store: AbstractGraphStore,
+    *,
+    require_bind: bool,
+    namespace: str,
+    resolver: OperationResolveLookup | None = None,
+) -> tuple[dict[str, Any], str | None]:
+    """Async bind using SPARQL explain (no shard merge).
+
+    Returns ``(rewritten_args, permission)``.
+    """
+    raw_cid = call_args.get("capability_id")
+    capability_id = str(raw_cid).strip() if raw_cid is not None else ""
+
+    if not capability_id:
+        if require_bind:
+            raise PolicyError("call_sse_api requires capability_id when capability bind is required")
+        return dict(call_args), None
+
+    lookup = GraphStoreCapabilityLookup(store, namespace=namespace)
+    record = await lookup.resolve_one(capability_id)
+    if record is None or not record.operation_id:
+        raise PolicyError(f"Unknown or unbound capability_id: {capability_id}")
+    bound = record
+    op_key = str(bound.operation_id)
+    id_key = bound.id.lower()
+
+    class _One:
+        def get_capability(self, cid: str) -> CapabilityRecord | None:
+            key = cid.strip().lower()
+            if key in {id_key, op_key.lower()}:
+                return bound
+            return None
+
+    out = apply_capability_bind(
+        call_args,
+        _One(),
+        require_bind=require_bind,
+        resolver=resolver,
+    )
+    return out, bound.permission
+
+
+def catalog_from_settings(settings: Settings) -> GraphStoreCapabilityLookup | None:
+    """SPARQL-backed lookup. Caller must ``await lookup.warm()`` for sync get_capability."""
     if not settings.capability_kg.enabled:
         return None
-    shard_dir = Path(settings.eakg.shard_dir)
-    if not shard_dir.is_dir():
-        return None
-    from packages.eakg.merge import catalog_from_shards
+    from packages.common.providers.factory import get_graph_store
 
-    return catalog_from_shards(
-        shard_dir,
+    return GraphStoreCapabilityLookup(
+        get_graph_store(),
         namespace=settings.capability_kg.namespace,
-        approved_only=settings.capability_kg.approved_only,
-        semantic=settings.capability_kg.semantic,
     )

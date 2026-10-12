@@ -22,10 +22,7 @@ from packages.mcp_server.capability_authz import (
     allowed_permissions_for_role,
     assert_capability_permission,
 )
-from packages.mcp_server.capability_bind import (
-    apply_capability_bind,
-    resolve_binding,
-)
+from packages.mcp_server.capability_bind import apply_capability_bind_async
 from packages.mcp_server.policy import (
     AuthError,
     PolicyError,
@@ -166,32 +163,28 @@ async def execute_tool(
         assert_tool_allowed(name, allowed)
 
         if name == "call_sse_api":
-            # Gap 1: capability_id → catalog operation_id (flag / when id present).
-            svc = client.capability_catalog()
-            catalog = svc.catalog() if svc is not None else None
+            # Gap 1: capability_id → SPARQL resolve (ADR-026; no shard merge).
+            from packages.common.providers.factory import get_graph_store
+            from packages.common.providers.graph_store import GraphStoreError
+
             has_capability_id = bool(str(call_args.get("capability_id") or "").strip())
+            required_perm: str | None = None
             if settings.capability_kg.require_capability_bind or has_capability_id:
-                if catalog is None:
+                if not settings.capability_kg.enabled:
                     raise PolicyError("capability catalog unavailable for bind")
                 resolver = client.operation_resolver()
-                call_args = apply_capability_bind(
-                    call_args,
-                    catalog,
-                    require_bind=settings.capability_kg.require_capability_bind,
-                    resolver=resolver,
-                )
+                try:
+                    call_args, required_perm = await apply_capability_bind_async(
+                        call_args,
+                        get_graph_store(),
+                        require_bind=settings.capability_kg.require_capability_bind,
+                        namespace=settings.capability_kg.namespace,
+                        resolver=resolver,
+                    )
+                except GraphStoreError as exc:
+                    raise PolicyError(f"graph store unavailable: {exc}") from exc
 
             # Gap 2: requiresPermission from bound capability (flag-gated).
-            required_perm: str | None = None
-            cid = str(call_args.get("capability_id") or "").strip()
-            if cid and catalog is not None:
-                binding = resolve_binding(
-                    catalog,
-                    capability_id=cid,
-                    resolver=client.operation_resolver(),
-                )
-                if binding is not None:
-                    required_perm = binding.permission
             assert_capability_permission(
                 required=required_perm,
                 allowed=allowed_permissions_for_role(

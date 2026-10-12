@@ -199,9 +199,9 @@ class ModularToolsClient(AbstractToolsClientProvider):
     def _active_app_ids(self) -> list[str]:
         if self._settings is None:
             return list(self._sse.app_targets().keys())
-        from packages.eakg.registry import RepositoryRegistry
+        from packages.eakg.runtime import eakg_runtime
 
-        registry = RepositoryRegistry(self._settings.eakg.registry_path)
+        registry, _store, _arts = eakg_runtime(self._settings)
         return [r.application_id for r in registry.list_active(self._settings.eakg.environment)]
 
     async def ensure_broker_primed(self) -> None:
@@ -252,11 +252,9 @@ class ModularToolsClient(AbstractToolsClientProvider):
             self._sse.reload_registry()
             if self._settings is not None:
                 from packages.api_index.catalog import OperationCatalog
-                from packages.eakg.registry import RepositoryRegistry
-                from packages.eakg.store import ShardStore
+                from packages.eakg.runtime import eakg_runtime
 
-                registry = RepositoryRegistry(self._settings.eakg.registry_path)
-                store = ShardStore(self._settings.eakg.shard_dir)
+                registry, store, _arts = eakg_runtime(self._settings)
                 caps = None
                 if self._catalog_service is not None:
                     caps = self._catalog_service.catalog()
@@ -309,11 +307,14 @@ class ModularToolsClient(AbstractToolsClientProvider):
                 return self._ok(name, text)
             if name in EAKG_TOOL_NAMES:
                 settings = self._settings if self._settings is not None else get_settings()
+                from packages.common.providers.factory import get_graph_store
+
                 text = await dispatch_eakg_tool(
                     name,
                     args,
                     catalog_service=self._catalog_service,
                     settings=settings,
+                    graph_store=get_graph_store(),
                 )
                 return self._ok(name, text)
             if name == "get_customer_servicing_summary":

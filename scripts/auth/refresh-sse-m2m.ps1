@@ -9,7 +9,11 @@
 
   Usage (from LoanOps repo root):
     .\scripts\auth\refresh-sse-m2m.ps1
+    .\scripts\auth\refresh-sse-m2m.ps1 -RequestedDestination escrowapi -ProbeUrl "https://escrowapi.dev.pennymac.plaisse.com/api/Escrow/GetEscrowByLoanNumber?loanNumber=1000002245"
     .\scripts\auth\refresh-sse-m2m.ps1 -ProbeUrl "https://loanservicesapi-plaisse-dev.pnmac.com/api/Loans/1000002245/Summary"
+
+  Prefer CREDENTIALS__PROVIDER=auth0_m2m at runtime (per-app requested_destination).
+  This script still writes SSE__API_KEY for legacy static/shared use.
 #>
 [CmdletBinding()]
 param(
@@ -18,6 +22,7 @@ param(
     [string]$Domain = "auth.dev.pennymac.plaisse.com",
     [string]$ClientId = "yY1wP158rVkx6z9lxdneav8JFWNGpTZ2",
     [string]$Audience = "https://pennymac",
+    [string]$RequestedDestination = "",
     [string]$ProbeUrl = ""
 )
 
@@ -50,6 +55,9 @@ $body = @{
     client_id     = $ClientId
     client_secret = $clientSecret
     audience      = $Audience
+}
+if (-not [string]::IsNullOrWhiteSpace($RequestedDestination)) {
+    $body["requested_destination"] = $RequestedDestination
 }
 $tokenUrl = "https://$Domain/oauth/token"
 $resp = Invoke-RestMethod -Method Post -Uri $tokenUrl -ContentType "application/x-www-form-urlencoded" -Body $body
@@ -97,5 +105,6 @@ if (-not [string]::IsNullOrWhiteSpace($ProbeUrl)) {
     }
 }
 
-Write-Output "SSE__API_KEY updated (token_len=$($token.Length) expires_in=$expires probe=$status)"
+$destNote = if ([string]::IsNullOrWhiteSpace($RequestedDestination)) { "none" } else { $RequestedDestination }
+Write-Output "SSE__API_KEY updated (token_len=$($token.Length) expires_in=$expires destination=$destNote probe=$status)"
 # Never print the token.

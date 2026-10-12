@@ -42,6 +42,9 @@ def _write_json(path: Path, payload: dict[str, Any]) -> None:
 
 
 def read_pointer(store: ShardStore, repository_id: str, environment: str) -> dict[str, Any] | None:
+    arts = getattr(store, "_artifacts", None)
+    if arts is not None:
+        return arts.get_openapi_pointer(repository_id, environment)
     path = pointer_path(store, repository_id, environment)
     if not path.is_file():
         return None
@@ -54,6 +57,9 @@ def read_current_spec(
     repository_id: str,
     environment: str,
 ) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    arts = getattr(store, "_artifacts", None)
+    if arts is not None:
+        return arts.get_openapi_spec(repository_id, environment)
     pointer = read_pointer(store, repository_id, environment)
     if pointer is None:
         return None, None
@@ -65,6 +71,28 @@ def read_current_spec(
         return None, pointer
     raw = json.loads(path.read_text(encoding="utf-8"))
     return (raw if isinstance(raw, dict) else None), pointer
+
+
+def _persist_openapi(
+    store: ShardStore,
+    repository_id: str,
+    environment: str,
+    pointer: dict[str, Any],
+    spec: dict[str, Any] | None,
+) -> None:
+    arts = getattr(store, "_artifacts", None)
+    if arts is not None:
+        arts.put_openapi(
+            repository_id, environment, pointer=pointer, spec=spec
+        )
+        return
+    directory = _env_dir(store, repository_id, environment)
+    if spec is not None:
+        digest = str(pointer.get("spec_hash") or "")
+        if digest:
+            _write_json(directory / f"{digest}.json", spec)
+            _prune(directory, digest)
+    _write_json(pointer_path(store, repository_id, environment), pointer)
 
 
 def _prune(directory: Path, keep: str) -> None:
@@ -93,7 +121,7 @@ async def refresh_spec(
             "last_error": "not_registered_in_env",
             "last_attempt_at": _now(),
         }
-        _write_json(pointer_path(store, record.repository_id, environment), pointer)
+        _persist_openapi(store, record.repository_id, environment, pointer, None)
         return pointer
 
     doc: dict[str, Any] | None = None
@@ -118,11 +146,8 @@ async def refresh_spec(
             transport=transport,
         )
 
-    directory = _env_dir(store, record.repository_id, environment)
     if isinstance(doc, dict) and ("paths" in doc or "openapi" in doc or "swagger" in doc):
         digest = hashlib.sha256(_canonical(doc).encode("utf-8")).hexdigest()[:12]
-        _write_json(directory / f"{digest}.json", doc)
-        _prune(directory, digest)
         paths_obj = doc.get("paths")
         count = len(paths_obj) if isinstance(paths_obj, dict) else 0
         pointer = {
@@ -137,6 +162,7 @@ async def refresh_spec(
             "changed": digest != previous.get("spec_hash"),
             "credential": credential,
         }
+        _persist_openapi(store, record.repository_id, environment, pointer, doc)
     else:
         pointer = {
             **{k: v for k, v in previous.items() if k != "changed"},
@@ -146,7 +172,7 @@ async def refresh_spec(
             "last_attempt_at": _now(),
             "credential": credential,
         }
-    _write_json(pointer_path(store, record.repository_id, environment), pointer)
+        _persist_openapi(store, record.repository_id, environment, pointer, None)
     return pointer
 
 

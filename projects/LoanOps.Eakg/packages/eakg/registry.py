@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Any, Literal
 
 import yaml  # type: ignore[import-untyped]
+
+# Any used for optional artifact_store to avoid circular import at type-check time.
 from packages.eakg.models import AccessStatus, IndexStatus, utc_now_iso
 
 VALID_INDEX = frozenset(
@@ -151,30 +153,44 @@ class RepositoryRecord:
 
 
 class RepositoryRegistry:
-    """Load / save repositories.yaml. Never hard-code pilot IDs in detectors."""
+    """Load / save repository registry (file YAML or Postgres — ADR-027)."""
 
-    def __init__(self, path: str | Path) -> None:
+    def __init__(
+        self,
+        path: str | Path,
+        *,
+        artifact_store: Any | None = None,
+    ) -> None:
+        from packages.eakg.artifact_store import AbstractEakgArtifactStore
+
         self.path = Path(path)
+        self._store: AbstractEakgArtifactStore | None = artifact_store
         self._records: dict[str, RepositoryRecord] = {}
-        if self.path.is_file():
+        if self._store is not None:
+            self.reload()
+        elif self.path.is_file():
             self.reload()
 
     def reload(self) -> None:
-        raw = yaml.safe_load(self.path.read_text(encoding="utf-8")) or {}
-        repos = raw.get("repositories") or []
+        if self._store is not None:
+            repos = self._store.load_registry()
+        else:
+            raw = yaml.safe_load(self.path.read_text(encoding="utf-8")) or {}
+            repos = raw.get("repositories") or []
         self._records = {
-            r["repository_id"]: RepositoryRecord.from_dict(r)
+            str(r["repository_id"]): RepositoryRecord.from_dict(r)
             for r in repos
             if isinstance(r, dict) and r.get("repository_id")
         }
 
     def save(self) -> None:
+        payload = [r.to_dict() for r in sorted(self._records.values(), key=lambda x: x.repository_id)]
+        if self._store is not None:
+            self._store.save_registry(payload)
+            return
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        payload = {
-            "repositories": [r.to_dict() for r in sorted(self._records.values(), key=lambda x: x.repository_id)]
-        }
         self.path.write_text(
-            yaml.safe_dump(payload, sort_keys=False, allow_unicode=True),
+            yaml.safe_dump({"repositories": payload}, sort_keys=False, allow_unicode=True),
             encoding="utf-8",
         )
 

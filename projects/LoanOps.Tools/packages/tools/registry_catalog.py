@@ -2,22 +2,21 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
 from packages.common.settings import Settings
 from packages.eakg.openapi_enrich import load_fixture_spec
-from packages.eakg.registry import RepositoryRegistry
+from packages.eakg.runtime import eakg_runtime
 from packages.eakg.spec_cache import read_current_spec
-from packages.eakg.store import ShardStore
 from packages.sse.catalog import origin_of
 from packages.sse.loader import resolve_catalog_source
 from packages.sse.types import AppTarget
 
 
 def registry_has_usable_spec(cfg: Settings) -> bool:
-    registry = RepositoryRegistry(cfg.eakg.registry_path)
-    store = ShardStore(cfg.eakg.shard_dir)
+    registry, store, _arts = eakg_runtime(cfg)
     env = cfg.eakg.environment
     for record in registry.list_active(env):
         doc, _pointer = read_current_spec(store, record.repository_id, env)
@@ -45,26 +44,32 @@ def catalog_fingerprint(cfg: Settings) -> tuple[tuple[str, int, int], ...]:
     if registry_path.is_file():
         stat = registry_path.stat()
         parts.append((str(registry_path), stat.st_mtime_ns, stat.st_size))
-    store = ShardStore(cfg.eakg.shard_dir)
+    registry, store, arts = eakg_runtime(cfg)
     env = cfg.eakg.environment
-    registry = RepositoryRegistry(cfg.eakg.registry_path)
     for record in registry.list_active(env):
         path = store.repo_dir(record.repository_id) / "openapi" / env / "current.json"
         if path.is_file():
             stat = path.stat()
             parts.append((str(path), stat.st_mtime_ns, stat.st_size))
+        elif arts.backend == "postgres":
+            ptr = arts.get_openapi_pointer(record.repository_id, env)
+            if ptr:
+                # Stable fingerprint from stored pointer (no disk mtime).
+                h = hash(json.dumps(ptr, sort_keys=True, default=str))
+                parts.append((f"pg:{record.repository_id}:{env}", h, len(ptr)))
     from packages.api_index.paths import operations_path
 
     ops_path = operations_path(cfg.eakg.shard_dir, env)
     if ops_path.is_file():
         stat = ops_path.stat()
         parts.append((str(ops_path), stat.st_mtime_ns, stat.st_size))
+    elif arts.backend == "postgres" and arts.get_operations(env) is not None:
+        parts.append((f"pg:operations:{env}", 1, 1))
     return tuple(parts)
 
 
 def build_registry_specs(cfg: Settings) -> list[dict[str, Any]]:
-    registry = RepositoryRegistry(cfg.eakg.registry_path)
-    store = ShardStore(cfg.eakg.shard_dir)
+    registry, store, _arts = eakg_runtime(cfg)
     env = cfg.eakg.environment
     specs: list[dict[str, Any]] = []
     for record in registry.list_active(env):
@@ -88,7 +93,7 @@ def build_registry_specs(cfg: Settings) -> list[dict[str, Any]]:
 
 def build_app_targets(cfg: Settings) -> dict[str, AppTarget]:
     """Per-app invoke targets from the registry (allow-list + origin binding)."""
-    registry = RepositoryRegistry(cfg.eakg.registry_path)
+    registry, _store, _arts = eakg_runtime(cfg)
     env = cfg.eakg.environment
     out: dict[str, AppTarget] = {}
     for record in registry.list_active(env):

@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from packages.common.providers.graph_store import AbstractGraphStore
 from packages.common.settings import Settings
 from packages.eakg.analyzers.registry import select_analyzers
 from packages.eakg.detectors import EnterpriseIndex, run_detectors
@@ -39,6 +40,7 @@ async def onboard_repository(
     local_path: str | Path | None = None,
     run_semantic: bool = False,
     engineering_graph: bool = False,
+    graph_store: AbstractGraphStore | None = None,
 ) -> dict[str, Any]:
     """Run extract → interface → graph for one repository."""
     cfg = settings or Settings()
@@ -171,8 +173,19 @@ async def onboard_repository(
         ops = details.get("operations")
         assert isinstance(ops, list)
         g, eg = interface_to_graph(iface, ops if ops and isinstance(ops[0], ApiOperationFact) else None)
-        store.write_graph(record.repository_id, g)
-        store.write_evidence(record.repository_id, eg)
+        # ADR-026: upload named graph to SPARQL store; no graph.ttl / evidence.ttl in repo.
+        from packages.common.providers.factory import get_graph_store
+        from packages.eakg.graph_upload import upload_graph
+
+        gs = graph_store if graph_store is not None else get_graph_store()
+        graph_iri = await upload_graph(
+            gs,
+            record.repository_id,
+            g,
+            namespace=cfg.capability_kg.namespace,
+            evidence=eg,
+        )
+        report["stages"].append({"graph_store": {"named_graph": graph_iri}})
         store.write_interface(iface)
 
         eng_status = "skipped"
@@ -246,12 +259,13 @@ async def onboard_repository(
     return report
 
 
-def rebuild_cross_app(
+async def rebuild_cross_app(
     registry: RepositoryRegistry,
     store: ShardStore,
     *,
     settings: Settings | None = None,
     force: bool = False,
+    graph_store: AbstractGraphStore | None = None,
 ) -> dict[str, Any]:
     cfg = settings or Settings()
     taac_path = cfg.eakg.taac_config_path or cfg.eakg.taac_fixture_path
@@ -305,7 +319,17 @@ def rebuild_cross_app(
     # dedupe by relationship_id
     by_id = {r.relationship_id: r for r in all_rels}
     graph = relationships_to_graph(list(by_id.values()))
-    store.write_cross_app(graph)
+    # ADR-026: cross-app edges live in SPARQL named graph (no enterprise/cross_app.ttl).
+    from packages.common.providers.factory import get_graph_store
+    from packages.eakg.graph_upload import upload_graph
+
+    gs = graph_store if graph_store is not None else get_graph_store()
+    await upload_graph(
+        gs,
+        "cross_app",
+        graph,
+        namespace=cfg.capability_kg.namespace,
+    )
 
     import json
 

@@ -10,22 +10,20 @@ from pathlib import Path
 from packages.common.settings import Settings
 from packages.eakg.gitops import remote_head
 from packages.eakg.onboard import onboard_repository, rebuild_cross_app
-from packages.eakg.registry import RepositoryRegistry
 from packages.eakg.review import (
     audit_stale_proposals,
     auto_approve_structural,
     publish_approved_catalog,
 )
+from packages.eakg.runtime import eakg_runtime
 from packages.eakg.semantic import propose_for_repo
-from packages.eakg.store import ShardStore
 from packages.eakg.taac import ingest_taac_file
 
 
 async def sync_repo(repository_id: str, *, settings: Settings | None = None) -> dict[str, object]:
     """Per-merge: extract only, no LLM."""
     cfg = settings or Settings()
-    registry = RepositoryRegistry(cfg.eakg.registry_path)
-    store = ShardStore(cfg.eakg.shard_dir)
+    registry, store, _arts = eakg_runtime(cfg)
     rec = registry.get(repository_id)
     if rec is None:
         raise SystemExit(f"unknown repository: {repository_id}")
@@ -42,8 +40,7 @@ async def sync_repo(repository_id: str, *, settings: Settings | None = None) -> 
 
 async def sync_nightly(*, settings: Settings | None = None) -> dict[str, object]:
     cfg = settings or Settings()
-    registry = RepositoryRegistry(cfg.eakg.registry_path)
-    store = ShardStore(cfg.eakg.shard_dir)
+    registry, store, _arts = eakg_runtime(cfg)
     from packages.eakg.spec_cache import refresh_all
 
     async def _no_token(_application_id: str, _audience: str) -> str:
@@ -77,7 +74,7 @@ async def sync_nightly(*, settings: Settings | None = None) -> dict[str, object]
     if Path(taac).is_file():
         store.write_enterprise_apps(ingest_taac_file(taac))
 
-    cross = rebuild_cross_app(registry, store, settings=cfg)
+    cross = await rebuild_cross_app(registry, store, settings=cfg)
     approved = auto_approve_structural(store, confidence_threshold=1.0)
     published = publish_approved_catalog(store)
     return {

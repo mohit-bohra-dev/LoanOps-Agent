@@ -5,6 +5,7 @@ Import from here in test code so the rest of the codebase never touches
 concrete provider classes directly.
 """
 
+from packages.common.providers.graph_store import FakeGraphStore
 from provider_contracts.audit_sink.mock import MockAuditSinkProvider
 from provider_contracts.content_safety.mock import MockContentSafetyProvider
 from provider_contracts.embedding.mock import MockEmbeddingProvider
@@ -29,4 +30,5 @@ __all__ = [
     "MockToolsClientProvider",
     "MockPromptStoreProvider",
     "MockSessionStoreProvider",
+    "FakeGraphStore",
 ]

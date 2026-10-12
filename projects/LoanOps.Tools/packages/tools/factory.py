@@ -119,11 +119,9 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
     operation_catalog = None
     try:
         from packages.api_index.catalog import OperationCatalog
-        from packages.eakg.registry import RepositoryRegistry
-        from packages.eakg.store import ShardStore
+        from packages.eakg.runtime import eakg_runtime
 
-        registry = RepositoryRegistry(cfg.eakg.registry_path)
-        store = ShardStore(cfg.eakg.shard_dir)
+        registry, store, _arts = eakg_runtime(cfg)
         caps = catalog_service.catalog() if catalog_service.enabled else None
         operation_catalog = OperationCatalog.load_or_build(
             registry,

@@ -80,12 +80,13 @@ import a concrete provider class directly.
 - Protocols live in `packages/common/providers/<name>.py`
 - Factories: `get_chat_provider()`, `get_vector_store_provider()`,
   `get_credential_broker()`, etc. in `packages/common/providers/factory.py`
-  (`get_credential_broker` is the 14th `get_*` there). Tools client factory is
-  `get_tools_client_provider()` in `packages/tools/factory.py`.
+  (`get_credential_broker` is the 14th `get_*` there; `get_graph_store` is 15th).
+  Tools client factory is `get_tools_client_provider()` in `packages/tools/factory.py`.
 - Selection is by env var via `packages/common/settings.py` only
 - Provider categories (common factory): chat, embedding, vector_store, pii,
   content_safety, audit_sink, secrets, telemetry, prompt_store, session_store,
-  reranker, loan_data, policy_source, credential_broker (+ tools_client in Tools)
+  reranker, loan_data, policy_source, credential_broker, graph_store
+  (+ tools_client in Tools)
 
 ## Rules (non-negotiable)
 
@@ -118,6 +119,7 @@ import a concrete provider class directly.
 | Live SSE OpenAPI tools | `projects/LoanOps.Sse/packages/sse/` + `/mcp/tools` |
 | Unified ops + API search | `projects/LoanOps.ApiIndex/packages/api_index/` (ADR-024) |
 | CredentialBroker | `packages/common/providers/credential_broker.py` + `get_credential_broker()` |
+| GraphStore (SPARQL) | `packages/common/providers/graph_store.py` + `get_graph_store()` (ADR-026) |
 | Tools client factories | `projects/LoanOps.Tools/packages/tools/` |
 | Agent API (`/chat`, `/health`) | `projects/LoanOps.AgentApi/apps/agent_api/` |
 | RAG ingest CLI | `projects/LoanOps.Rag/packages/rag/ingest.py` |

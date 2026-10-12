@@ -14,6 +14,7 @@ from functools import lru_cache
 
 from packages.common.providers.base import ProviderConfigError
 from packages.common.providers.credential_broker import AbstractCredentialBroker
+from packages.common.providers.graph_store import AbstractGraphStore
 from packages.common.providers.loan_data import AbstractLoanDataProvider
 from packages.common.providers.policy_source import AbstractPolicySourceProvider
 from packages.common.providers.session_store import AbstractSessionStoreProvider
@@ -410,6 +411,7 @@ def get_credential_broker() -> AbstractCredentialBroker:
     """Return the configured credential broker (CREDENTIALS__PROVIDER)."""
     cfg = _get_settings()
     from packages.common.providers.credential_broker import (
+        Auth0M2MCredentialBroker,
         CachingCredentialBroker,
         MockCredentialBroker,
         StaticCredentialBroker,
@@ -425,4 +427,48 @@ def get_credential_broker() -> AbstractCredentialBroker:
         )
     if cfg.credentials.provider == "mock":
         return CachingCredentialBroker(MockCredentialBroker({}))
+    if cfg.credentials.provider == "auth0_m2m":
+        from packages.common.auth0_destination import resolve_destination
+        from packages.eakg.runtime import eakg_runtime
+
+        cred = cfg.credentials
+        if not cred.auth0_client_id or not cred.auth0_client_secret:
+            raise ProviderConfigError(
+                "CREDENTIALS__PROVIDER=auth0_m2m requires "
+                "CREDENTIALS__AUTH0_CLIENT_ID and CREDENTIALS__AUTH0_CLIENT_SECRET"
+            )
+        token_url = cred.auth0_token_url.strip() or (
+            f"https://{cred.auth0_domain.rstrip('/')}/oauth/token"
+        )
+        registry, _store, _arts = eakg_runtime(cfg)
+        destinations: dict[str, str] = {}
+        for record in registry.list_active(cfg.eakg.environment):
+            env = record.environments.get(cfg.eakg.environment)
+            if env is None or not env.base_url:
+                continue
+            destinations[record.application_id] = resolve_destination(env.base_url)
+        return CachingCredentialBroker(
+            Auth0M2MCredentialBroker(
+                token_url=token_url,
+                client_id=cred.auth0_client_id,
+                client_secret=cred.auth0_client_secret,
+                audience=cred.auth0_audience or "https://pennymac",
+                destinations=destinations,
+            )
+        )
     raise ProviderConfigError(f"Unknown credentials provider: {cfg.credentials.provider}")
+
+
+# ── Graph store (15th get_*) — ADR-026 ─────────────────────────────────────
+@lru_cache(maxsize=1)
+def get_graph_store() -> AbstractGraphStore:
+    """Return the HTTP SPARQL graph store (GRAPH_STORE__*)."""
+    from packages.common.providers.graph_store import HttpSparqlGraphStore
+
+    cfg = _get_settings().graph_store
+    return HttpSparqlGraphStore(
+        query_url=cfg.query_url,
+        update_url=cfg.update_url,
+        auth_token=cfg.auth_token,
+        timeout_seconds=cfg.timeout_seconds,
+    )

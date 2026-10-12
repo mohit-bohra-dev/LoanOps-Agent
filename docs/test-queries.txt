@@ -1,0 +1,8 @@
+# MCP / SSE smoke queries (loan 1000002245)
+# Paste into Cursor→MCP or Agent /chat. Expect search_* then call_sse_api (or capability tools).
+
+1. Show me the loan summary for 1000002245
+2. What are the payment schedules for loan 1000002245?
+3. Get escrow details for loan 1000002245
+4. What fees apply for loan 1000002245?
+5. Which app provides GetLoanSummary? Explain it.

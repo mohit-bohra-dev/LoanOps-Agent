@@ -48,6 +48,7 @@ from packages.common.providers.factory import (
     get_content_safety_provider,
     get_credential_broker,
     get_embedding_provider,
+    get_graph_store,
     get_pii_provider,
     get_prompt_store_provider,
     get_secrets_provider,
@@ -55,6 +56,7 @@ from packages.common.providers.factory import (
     get_telemetry_provider,
     get_vector_store_provider,
 )
+from packages.common.providers.graph_store import AbstractGraphStore, GraphStoreError
 from packages.common.providers.pii import PiiProvider, PiiResult, PiiSpan
 from packages.common.providers.prompt_store import PromptStoreProvider
 from packages.common.providers.secrets import SecretsProvider
@@ -116,6 +118,9 @@ __all__ = [
     "get_prompt_store_provider",
     "get_session_store_provider",
     "get_credential_broker",
+    "get_graph_store",
+    "AbstractGraphStore",
+    "GraphStoreError",
     "AbstractCredentialBroker",
     "AccessToken",
     "Principal",

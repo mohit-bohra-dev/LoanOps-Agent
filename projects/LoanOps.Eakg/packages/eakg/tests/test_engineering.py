@@ -190,12 +190,15 @@ async def test_onboard_engineering_graph_failed_still_indexed(tmp_path: Path) ->
     )
     rec = registry.get("loanservices")
     assert rec is not None
+    from packages.common.providers.graph_store import FakeGraphStore
+
     report = await onboard_repository(
         registry,
         store,
         rec,
         local_path=FIX / "loanservices",
         engineering_graph=True,
+        graph_store=FakeGraphStore(),
     )
     assert store.read_interface("loanservices") is not None
     eng = [s for s in report["stages"] if "engineering_graph" in s]

@@ -21,9 +21,15 @@ Use these instead of treating every open checkbox as equal priority.
 
 ### Next (EAKG feed)
 
+- [x] ADR-027 EAKG non-graph artifacts in Postgres — `EakgArtifactStore` file|postgres; migrate CLI; registry/interface/OpenAPI/ApiIndex ops wired; local 3 apps migrated (`artifacts status` backend=postgres, registry=3) — 2026-10-12
 - [ ] Manual EAKG sync only — **D10:** no Task Scheduler, no cloud schedule — `docs/EAKG_INDEX_SCHEDULE.md`
 - [x] Live SSE swagger verify — Loan Services dev 292 ops + GET Summary **200** (2026-10-03) — `docs/SSE_LIVE_SWAGGER.md`
 - [ ] Team `swagger tofile` ask — `docs/EAKG_SWAGGER_EXPORT.md`
+- [ ] **Multi-stack API extract (beyond `*Controller`)** — today Roslyn only indexes `*Controller.cs` / `*Controller` types; ASP.NET **Minimal APIs** (`MapGet`/`MapPost`/…) and non-.NET HTTP APIs are missed → empty/weak `interface.operations` + ApiIndex join.
+  - [ ] .NET Minimal API: extend `tools/eakg-dotnet-extract` (or sibling) for `Map*` / `MapGroup` endpoint registration; fixtures + onboard smoke
+  - [ ] Pluggable extractor Protocol per language/stack (`EAKG__EXTRACTOR` / registry `technology`): Java/Spring, Node (Express/Fastify), Python (FastAPI/Flask), Go — ops + path/method at minimum
+  - [ ] Prefer OpenAPI-primary when swagger is complete; code extract fills gaps + evidence (same join shape as today)
+  - [ ] Keep ADR-018: no LLM in structural extract; tree-sitter/CodeQL as Phase 2 helpers (supersedes vague “Static analyzer extras” line below when this ships)
 
 ### Later / parked
 
@@ -31,7 +37,7 @@ Use these instead of treating every open checkbox as equal priority.
 - [ ] **D9** push `vdd` to GitLab — **not yet**; after full test pass
 - [x] **Roslyn .NET extractor** cutover (D5) — `tools/eakg-dotnet-extract`, `EAKG__EXTRACTOR=auto`
 - [x] Repo #4+ — **D6 freeze at 3** (Escrow/Fees/LoanServices); guide when unfrozen: `docs/EAKG_ONBOARD_REPO.md`
-- [ ] Static analyzer extras: tree-sitter / CodeQL (Phase 2)
+- [ ] Static analyzer extras: tree-sitter / CodeQL (Phase 2) — **see Next: Multi-stack API extract**
 - [ ] Graphify offline enrichment into RDF (Phase 10)
 - [ ] Human review workflow UI — **D8:** both CLI + Web UI (CLI live; UI still to build)
 - [ ] ARD implement (Phase 14) — after 11–12; draft `docs/ARD_RESOURCE_CHOICE.md`
