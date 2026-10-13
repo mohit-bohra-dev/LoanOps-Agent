@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 import json
+import re
+import shutil
+import subprocess
 from pathlib import Path
 from typing import Any
 
 from packages.eakg.join import eakg_operation_local_name, join_key
 from packages.eakg.models import ApiOperationFact, RepoInterface
+from packages.eakg.query import safe_application_id
 
 
 def _posix(path: str) -> str:
@@ -154,4 +158,163 @@ def explain_operation(
         "join_key": match.get("join_key"),
         "graphify_node_id": node_id,
         "callers": callers,
+    }
+
+
+def _node_blob(node: dict[str, Any]) -> str:
+    parts = [
+        str(node.get("id") or ""),
+        str(node.get("label") or ""),
+        str(node.get("name") or ""),
+        str(node.get("source_file") or node.get("file") or ""),
+        str(node.get("source_location") or ""),
+        str(node.get("type") or node.get("kind") or ""),
+    ]
+    return " ".join(parts).lower()
+
+
+def _filter_graph_nodes(
+    graph_path: Path,
+    query: str,
+    *,
+    limit: int,
+) -> list[dict[str, Any]]:
+    nodes, _edges = _load_graphify(graph_path)
+    needle = query.strip().lower()
+    if not needle:
+        return []
+    # Support simple *Facade* / Facade style needles
+    pattern: re.Pattern[str] | None = None
+    if "*" in needle:
+        pattern = re.compile("^" + re.escape(needle).replace("\\*", ".*") + "$", re.I)
+    hits: list[dict[str, Any]] = []
+    for node in nodes:
+        blob = _node_blob(node)
+        label = str(node.get("label") or node.get("name") or node.get("id") or "")
+        if pattern is not None:
+            if not (pattern.search(label) or pattern.search(blob)):
+                continue
+        elif needle not in blob:
+            continue
+        hits.append(
+            {
+                "id": str(node.get("id") or ""),
+                "label": label,
+                "file": str(node.get("source_file") or node.get("file") or ""),
+                "location": str(node.get("source_location") or ""),
+                "type": str(node.get("type") or node.get("kind") or ""),
+            }
+        )
+        if len(hits) >= limit:
+            break
+    return hits
+
+
+def _parse_graphify_query_nodes(stdout: str, *, limit: int) -> list[dict[str, Any]]:
+    """Parse ``NODE label [src=… loc=…]`` lines from graphify query output."""
+    hits: list[dict[str, Any]] = []
+    for line in stdout.splitlines():
+        if not line.startswith("NODE "):
+            continue
+        rest = line[5:]
+        src = ""
+        loc = ""
+        label = rest
+        bracket = rest.rfind("[")
+        if bracket >= 0 and rest.endswith("]"):
+            label = rest[:bracket].strip()
+            meta = rest[bracket + 1 : -1]
+            for part in meta.split():
+                if part.startswith("src="):
+                    src = part[4:]
+                elif part.startswith("loc="):
+                    loc = part[4:]
+        hits.append(
+            {
+                "id": label,
+                "label": label,
+                "file": src,
+                "location": loc,
+                "type": "",
+            }
+        )
+        if len(hits) >= limit:
+            break
+    return hits
+
+
+def search_code(
+    application_id: str,
+    query: str,
+    *,
+    engineering_graph_path: Path,
+    limit: int = 20,
+    prefer_subprocess: bool = True,
+) -> dict[str, Any]:
+    """Search one app's Graphify AST (``engineering/graph.json``).
+
+    Prefer ``graphify query --graph`` so large AST files stay out of the
+    agent process; fall back to in-process needle filter.
+    """
+    app_id = safe_application_id(application_id)
+    q = query.strip()
+    if not app_id:
+        return {"error": "application_id required (alphanumeric / ._- only)"}
+    if not q:
+        return {"error": "query required"}
+    path = engineering_graph_path
+    if not path.is_file():
+        return {
+            "error": (
+                "engineering graph missing; run eakg sync/onboard with "
+                "EAKG__ENGINEERING_GRAPH=true (or --engineering-graph)"
+            ),
+            "application_id": app_id,
+            "path": str(path),
+        }
+
+    lim = max(1, min(int(limit), 100))
+    tool = shutil.which("graphify") if prefer_subprocess else None
+    if tool:
+        try:
+            proc = subprocess.run(
+                [
+                    tool,
+                    "query",
+                    q,
+                    "--graph",
+                    str(path.resolve()),
+                    "--budget",
+                    str(max(2000, lim * 200)),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=60,
+            )
+        except subprocess.TimeoutExpired:
+            return {
+                "error": "graphify query timed out (60s)",
+                "application_id": app_id,
+                "query": q,
+                "path": str(path),
+            }
+        if proc.returncode == 0 and proc.stdout.strip():
+            hits = _parse_graphify_query_nodes(proc.stdout, limit=lim)
+            if hits:
+                return {
+                    "application_id": app_id,
+                    "query": q,
+                    "source": "graphify_query",
+                    "path": str(path),
+                    "hits": hits,
+                }
+
+    hits = _filter_graph_nodes(path, q, limit=lim)
+    return {
+        "application_id": app_id,
+        "query": q,
+        "source": "in_process",
+        "path": str(path),
+        "hits": hits,
     }

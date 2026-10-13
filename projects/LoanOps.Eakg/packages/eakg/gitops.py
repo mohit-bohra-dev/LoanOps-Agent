@@ -16,13 +16,16 @@ def run_glab(
     cwd: Path | None = None,
 ) -> subprocess.CompletedProcess[str]:
     """Invoke glab with explicit hostname (never rely on gitlab.com default)."""
-    cmd = ["glab", *args]
-    # Insert --hostname after the subcommand group when possible.
-    # Patterns: `api ...`, `repo clone ...`
+    import os
+
+    # `glab api --hostname H …` works. `glab repo clone --hostname H …` does not
+    # (clone treats unknown flags as git flags). Use GITLAB_HOST for repo ops.
+    env = os.environ.copy()
+    env["GITLAB_HOST"] = host
     if args and args[0] == "api":
         cmd = ["glab", "api", "--hostname", host, *args[1:]]
-    elif len(args) >= 2 and args[0] == "repo":
-        cmd = ["glab", "repo", args[1], "--hostname", host, *args[2:]]
+    elif args and args[0] == "repo":
+        cmd = ["glab", "repo", *args[1:]]
     else:
         cmd = ["glab", "--hostname", host, *args]
     return subprocess.run(
@@ -31,6 +34,7 @@ def run_glab(
         capture_output=True,
         text=True,
         check=False,
+        env=env,
     )
 
 

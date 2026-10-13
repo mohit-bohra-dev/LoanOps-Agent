@@ -1,6 +1,6 @@
 """Scopes allow-list tests."""
 
-from packages.common.scopes import tools_for_role, tools_for_scopes
+from packages.common.scopes import EAKG_TOOL_NAMES, tools_for_role, tools_for_scopes
 
 
 def test_system_has_sse_and_docs_not_db() -> None:
@@ -11,6 +11,14 @@ def test_system_has_sse_and_docs_not_db() -> None:
     assert "get_customer_servicing_summary" not in tools
     assert "wiki_document_feature" not in tools
     assert "lookup_loan" not in tools
+
+
+def test_eakg_read_includes_describe_and_search_code() -> None:
+    tools = tools_for_scopes(["eakg.read"])
+    assert "describe_application" in tools
+    assert "search_code" in tools
+    assert "describe_application" in EAKG_TOOL_NAMES
+    assert "search_code" in EAKG_TOOL_NAMES
 
 
 def test_customer_blocked_from_wiki() -> None:

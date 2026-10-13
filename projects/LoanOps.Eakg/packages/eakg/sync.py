@@ -35,6 +35,7 @@ async def sync_repo(repository_id: str, *, settings: Settings | None = None) -> 
         settings=cfg,
         local_path=local if local.is_dir() else None,
         run_semantic=False,
+        engineering_graph=cfg.eakg.engineering_graph,
     )
 
 
@@ -62,6 +63,7 @@ async def sync_nightly(*, settings: Settings | None = None) -> dict[str, object]
             settings=cfg,
             local_path=local if local.is_dir() else None,
             run_semantic=True,
+            engineering_graph=cfg.eakg.engineering_graph,
         )
         updated.append(rec.repository_id)
         # proposals
@@ -88,6 +90,8 @@ async def sync_nightly(*, settings: Settings | None = None) -> dict[str, object]
 
 def sync_audit(*, settings: Settings | None = None) -> dict[str, object]:
     cfg = settings or Settings()
+    from packages.eakg.store import ShardStore
+
     store = ShardStore(cfg.eakg.shard_dir)
     stale = audit_stale_proposals(store, stale_days=cfg.eakg.review_stale_days)
     # orphan / missing evidence check (lightweight)

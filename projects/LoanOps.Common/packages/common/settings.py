@@ -334,6 +334,8 @@ class EakgConfig(BaseModel):
     extractor: Literal["auto", "roslyn", "regex"] = "auto"
     # Synthetic / redacted TAAC fixture for local/CI (never commit real secrets)
     taac_fixture_path: str = "data/eakg/fixtures/taac-client-config.redacted.json"
+    # Default-on Graphify AST per app during sync/onboard (non-fatal; shard engineering/)
+    engineering_graph: bool = True
 
 
 class ApiIndexConfig(BaseModel):

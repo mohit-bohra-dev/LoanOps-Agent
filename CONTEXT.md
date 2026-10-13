@@ -106,6 +106,7 @@
 | `EAKG__REVIEW_STALE_DAYS` | `14` | Weekly audit stale-proposal age |
 | `EAKG__TAAC_FIXTURE_PATH` | `data/eakg/fixtures/taac-client-config.redacted.json` | Redacted TAAC for CI |
 | `EAKG__EXTRACTOR` | `auto` | `auto`\|`roslyn`\|`regex` — Roslyn primary (D5) |
+| `EAKG__ENGINEERING_GRAPH` | `true` | Graphify AST → `data/eakg/repos/<id>/engineering/graph.json` on sync (non-fatal) |
 | `EAKG__ENVIRONMENT` | `local` | Registry env: `local` \| `dev` \| `stage` \| `prod` |
 | `EAKG_STORE__BACKEND` | `file` | `postgres` (product) \| `file` (tests) — ADR-027 |
 | `EAKG_STORE__DSN` | `""` | Empty → `VECTOR_STORE__PGVECTOR_DSN` |
@@ -216,6 +217,8 @@ Agent / MCP tools (role `system`):
 | `call_sse_api` | Invoke live REST by `operation_id` or method+path |
 | `search_docs` | SOP / docs vector search |
 | `search_capabilities` | EAKG capability keyword search (provenance) |
+| `describe_application` | Proxies / packages / topics / outbound routes for one app |
+| `search_code` | Needle search over per-app `engineering/graph.json` (AST) |
 | `explain_capability` | Capability → API → code → authz + evidence |
 | `find_providers` | Which app/API provides a capability |
 | `impact_of_change` | Incoming cross-app edges for an API/app |

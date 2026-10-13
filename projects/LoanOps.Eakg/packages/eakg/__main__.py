@@ -45,8 +45,12 @@ def main(argv: list[str] | None = None) -> int:
     p_on.add_argument("--semantic", action="store_true")
     p_on.add_argument(
         "--engineering-graph",
-        action="store_true",
-        help="Optional Graphify AST extract + links.json (not fatal if graphify fails)",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help=(
+            "Graphify AST → shard engineering/graph.json (default: EAKG__ENGINEERING_GRAPH; "
+            "not fatal if graphify fails)"
+        ),
     )
 
     sub.add_parser("cross-app", help="Rebuild cross-app named graph in SPARQL store")
@@ -68,6 +72,16 @@ def main(argv: list[str] | None = None) -> int:
         "--from-shard-dir",
         default="",
         help="Optional shard root with repos/<id>/graph.ttl (cutover only)",
+    )
+
+    p_rebuild = sub.add_parser(
+        "rebuild-graphs",
+        help="Rebuild graph.ttl + GraphDB from stored interface.json (no re-extract)",
+    )
+    p_rebuild.add_argument(
+        "--ids",
+        default="escrow,fees,loanservices",
+        help="Comma-separated repository ids (default: pilot three)",
     )
 
     p_taac = sub.add_parser("ingest-taac", help="Ingest TAAC fixture/config")
@@ -196,6 +210,11 @@ def main(argv: list[str] | None = None) -> int:
         if onboard_rec is None:
             print(f"unknown repository: {args.id}", file=sys.stderr)
             return 1
+        eng = (
+            cfg.eakg.engineering_graph
+            if args.engineering_graph is None
+            else bool(args.engineering_graph)
+        )
         result = asyncio.run(
             onboard_repository(
                 registry,
@@ -204,11 +223,31 @@ def main(argv: list[str] | None = None) -> int:
                 settings=cfg,
                 local_path=args.local_path or None,
                 run_semantic=bool(args.semantic),
-                engineering_graph=bool(args.engineering_graph),
+                engineering_graph=eng,
             )
         )
         print(json.dumps(result, indent=2, default=str))
         return 0
+
+    if args.cmd == "rebuild-graphs":
+        from packages.common.providers.factory import get_graph_store
+        from packages.eakg.rebuild_graphs import rebuild_graphs_from_interfaces
+
+        ids = [x.strip() for x in args.ids.split(",") if x.strip()]
+        rebuild_report = asyncio.run(
+            rebuild_graphs_from_interfaces(
+                store,
+                get_graph_store(),
+                ids,
+                namespace=cfg.capability_kg.namespace,
+            )
+        )
+        print(json.dumps(rebuild_report, indent=2))
+        failed = any(
+            isinstance(v, dict) and v.get("status") != "ok"
+            for v in rebuild_report.values()
+        )
+        return 2 if failed else 0
 
     if args.cmd == "code":
         from packages.eakg.engineering import explain_operation

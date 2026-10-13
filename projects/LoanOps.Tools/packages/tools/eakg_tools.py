@@ -1,17 +1,21 @@
-"""EAKG discovery tools (search / explain / find / impact) — SPARQL store (ADR-026)."""
+"""EAKG discovery tools (search / explain / find / impact / describe / code)."""
 
 from __future__ import annotations
 
+import asyncio
 import json
 from typing import Any
 
 from packages.common.providers.graph_store import AbstractGraphStore, GraphStoreError
 from packages.common.scopes import EAKG_TOOL_NAMES
 from packages.common.settings import Settings
+from packages.eakg.engineering import search_code
 from packages.eakg.query import (
+    describe_application,
     explain_capability,
     find_providers,
     impact_of_change,
+    safe_application_id,
     search_capabilities,
 )
 from packages.tools.policy import ToolPolicyError
@@ -67,6 +71,46 @@ async def dispatch_eakg_tool(
             if settings.capability_kg.approved_only:
                 rows = [r for r in rows if r.get("review_status") == "approved"]
             return json.dumps(rows, indent=2)
+        if name == "describe_application":
+            app_raw = safe_application_id(str(arguments.get("application_id") or ""))
+            if app_raw is None:
+                return json.dumps(
+                    {"error": "application_id required (alphanumeric / ._- only)"}
+                )
+            app_id: str = app_raw
+            from packages.eakg.runtime import eakg_runtime
+
+            _reg, shard, _arts = eakg_runtime(settings)
+
+            def _load_iface() -> Any:
+                return shard.read_interface(app_id)
+
+            row = await describe_application(
+                store,
+                app_id,
+                namespace=ns,
+                interface_fallback=_load_iface,
+            )
+            return json.dumps(row, indent=2)
+        if name == "search_code":
+            code_raw = safe_application_id(str(arguments.get("application_id") or ""))
+            if code_raw is None:
+                return json.dumps(
+                    {"error": "application_id required (alphanumeric / ._- only)"}
+                )
+            code_app: str = code_raw
+            from packages.eakg.runtime import eakg_runtime
+
+            _reg, shard, _arts = eakg_runtime(settings)
+            eng_path = shard.engineering_dir(code_app) / "graph.json"
+            row = await asyncio.to_thread(
+                search_code,
+                code_app,
+                str(arguments.get("query") or ""),
+                engineering_graph_path=eng_path,
+                limit=int(arguments.get("limit") or 20),
+            )
+            return json.dumps(row, indent=2)
     except GraphStoreError as exc:
         raise ToolPolicyError(f"graph store unavailable: {exc}") from exc
     raise ToolPolicyError(f"Unknown EAKG tool: {name}")

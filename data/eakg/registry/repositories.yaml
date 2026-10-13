@@ -1,4 +1,29 @@
 repositories:
+- repository_id: corecomponents
+  application: Core Components
+  application_id: corecomponents
+  git_url: https://gitlab.pnmac.com/servicing/plaisse/applications/corecomponents/CoreComponents.git
+  default_branch: main
+  gitlab_project_id: 15617
+  team: servicing/plaisse/applications/corecomponents
+  owner: servicing/plaisse/applications/corecomponents
+  technology: dotnet-aspnetcore
+  last_indexed_commit: 5ffba584c18fe0f00890dd090379d1e74c227035
+  last_indexed_at: '2026-10-13T08:19:18+00:00'
+  index_status: indexed
+  access_status: ok
+  visibility: ''
+  deployables:
+  - CoreComponents.Api
+  - CoreComponents.Web
+  detector_versions: {}
+  shard_path: repos/corecomponents
+  api_project_path: src/CoreComponents.Api
+  service_url_key: CoreComponentsApiUrl
+  environments:
+    dev:
+      base_url: https://corecomponentsapi-plaisse-dev.pnmac.com
+      auth_audience: https://pennymac
 - repository_id: escrow
   application: Escrow Manager
   application_id: escrow
@@ -9,7 +34,7 @@ repositories:
   owner: servicing/plaisse/applications
   technology: dotnet-aspnetcore
   last_indexed_commit: c2cb28f3204bb5a6fabe2eff23ec06d9a8d95130
-  last_indexed_at: '2026-10-03T17:37:33+00:00'
+  last_indexed_at: '2026-10-13T06:18:25+00:00'
   index_status: indexed
   access_status: ok
   visibility: private
@@ -35,7 +60,7 @@ repositories:
   owner: servicing/plaisse/applications/fees
   technology: dotnet-aspnetcore
   last_indexed_commit: a3973072d1cf26be6546a2bc232889f42b7686a5
-  last_indexed_at: '2026-10-02T11:27:34+00:00'
+  last_indexed_at: '2026-10-13T06:19:04+00:00'
   index_status: indexed
   access_status: ok
   visibility: internal
@@ -49,7 +74,6 @@ repositories:
   service_url_key: FeesApiUrl
   environments:
     dev:
-      # TAAC ServiceUrls.FeesApiUrl (WebAPI). FeesUrl=fees.dev is the Web UI only.
       base_url: https://feesapi.dev.pennymac.plaisse.com
       auth_audience: https://pennymac
 - repository_id: loanservices
@@ -62,7 +86,7 @@ repositories:
   owner: servicing/plaisse/applications
   technology: dotnet-aspnetcore
   last_indexed_commit: 58a41de72619fa1075c9231b9504fb248568a854
-  last_indexed_at: '2026-10-03T17:37:21+00:00'
+  last_indexed_at: '2026-10-13T06:17:25+00:00'
   index_status: indexed
   access_status: ok
   visibility: internal

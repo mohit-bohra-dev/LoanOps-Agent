@@ -6,3 +6,8 @@
 3. Get escrow details for loan 1000002245
 4. What fees apply for loan 1000002245?
 5. Which app provides GetLoanSummary? Explain it.
+
+# ENG — interface surface (describe_application) + AST (search_code after sync)
+6. Does loanservices use outbound proxies? List them.
+7. Describe the loanservices application interface (proxies, packages, topics).
+8. Does loanservices use any Facades? List them.

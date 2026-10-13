@@ -238,7 +238,8 @@ sequenceDiagram
 
 Tools (role `system`):  
 `search_sse_apis`, `list_sse_apis`, `call_sse_api`, `search_docs`,  
-`search_capabilities`, `explain_capability`, `find_providers`, `impact_of_change`.
+`search_capabilities`, `explain_capability`, `find_providers`, `impact_of_change`,
+`describe_application`, `search_code`.
 
 ---
 
@@ -304,7 +305,7 @@ SSE__USE_FIXTURE=false + swagger links
 ## F16 — EAKG capability tools via MCP
 
 ```text
-search_capabilities / explain_capability / find_providers / impact_of_change
+search_capabilities / explain_capability / find_providers / impact_of_change / describe_application / search_code
   → merge shards under data/eakg (or approved.ttl if APPROVED_ONLY)
   → RDFLib query
   → JSON rows + evidence

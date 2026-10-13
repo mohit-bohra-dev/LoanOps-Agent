@@ -9,6 +9,8 @@ EAKG_TOOL_NAMES = (
     "explain_capability",
     "find_providers",
     "impact_of_change",
+    "describe_application",
+    "search_code",
 )
 DB_TOOL_NAMES = ("get_customer_servicing_summary", "run_read_only_sql")
 DOCS_TOOL_NAMES = ("search_docs", "index_docs")

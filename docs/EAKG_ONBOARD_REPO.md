@@ -2,6 +2,8 @@
 
 EAKG never hard-codes Escrow/Fees/LoanServices. New apps = registry row + onboard.
 
+**Agent skill:** `@.cursor/skills/eakg-onboard-repo/SKILL.md` — full PowerShell checklist (register → env URL → onboard → cross-app → smoke).
+
 ## Steps
 
 1. Register (no clone yet):

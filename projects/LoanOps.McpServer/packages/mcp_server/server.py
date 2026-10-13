@@ -442,6 +442,42 @@ def create_app(cfg: Settings | None = None) -> Starlette:
     async def impact_of_change_tool(target: str) -> str:
         return await _run("impact_of_change", {"target": target})
 
+    @mcp.tool(
+        name="describe_application",
+        description=(
+            "Describe one application's interface surface from the EAKG graph: "
+            "outbound ServiceProxy classes, SdkPackages, EventTopics, "
+            "connection/service URL keys, and route compositions. "
+            "Falls back to stored interface.json when the graph has no surface."
+        ),
+        annotations=_READ_ONLY,
+    )
+    async def describe_application_tool(application_id: str) -> str:
+        return await _run(
+            "describe_application", {"application_id": application_id}
+        )
+
+    @mcp.tool(
+        name="search_code",
+        description=(
+            "Search one app's Graphify AST (engineering/graph.json on the EAKG "
+            "shard) for class/method/file hits. Requires prior sync/onboard with "
+            "EAKG__ENGINEERING_GRAPH. Not the LoanOps-Agent graphify-out/."
+        ),
+        annotations=_READ_ONLY,
+    )
+    async def search_code_tool(
+        application_id: str, query: str, limit: int = 20
+    ) -> str:
+        return await _run(
+            "search_code",
+            {
+                "application_id": application_id,
+                "query": query,
+                "limit": limit,
+            },
+        )
+
     @mcp.custom_route("/health", methods=["GET"])  # type: ignore[untyped-decorator]
     async def health(_request: Request) -> Response:
         """Liveness: process is up (no dependency checks)."""

@@ -1,3 +1,30 @@
+## [2026-10-13] — CoreComponents onboard + eakg-onboard-repo skill
+
+**Session type:** Ops + tooling
+
+**Completed:**
+- Registered/onboarded `corecomponents` (GitLab `15617`, `src/CoreComponents.Api`) — Roslyn ops, GraphDB, eng graph ~7MB, cross-app
+- Dev env: `https://corecomponentsapi-plaisse-dev.pnmac.com`, `CoreComponentsApiUrl`
+- `gitops.run_glab`: `GITLAB_HOST` for `repo clone` (not `--hostname` after repo)
+- Skill: `.cursor/skills/eakg-onboard-repo/SKILL.md`; pointer in `docs/EAKG_ONBOARD_REPO.md`
+- Exported registry → `data/eakg/registry/repositories.yaml` (4 apps)
+
+---
+
+## [2026-10-12] — Full eng graph sync (1C Phase A+B)
+
+**Session type:** Implementation
+
+**Completed:**
+- Phase A: `interface_to_graph` materializes ServiceProxy / SdkPackage / EventTopic / RouteComposition + keys
+- MCP `describe_application` (SPARQL + interface.json fallback); scopes / MCP policy / server wired
+- `rebuild-graphs` CLI; GraphDB re-index escrow/fees/loanservices — loanservices proxies: BulkUpload, Cash, Escrow, Lafa, Lamp
+- Phase B: `EAKG__ENGINEERING_GRAPH` default `true`; sync/onboard pass flag; MCP `search_code` over shard `engineering/graph.json`
+- Tests: `test_interface_surface.py` + scopes; docs: CONTEXT, test-queries ENG lines, ENGINEERING_GRAPH_ANALYSIS, FLOWS
+- Note: removed stale `.venv/Lib/site-packages/packages` shadow (was masking editable installs)
+
+---
+
 ## [2026-10-12] — Plaisse-dev URLs (EAKG env=dev)
 
 **Session type:** Ops
@@ -1113,3 +1140,16 @@ Updated ARCHITECTURE, PRD, ANALYSIS, CONTEXT, demo/query docs, and STEP 4 in
 - MCP restarted on :8001 with `auth0_m2m`.
 
 **Reason:** User: Can you use destination.
+
+## [2026-10-13] - Eng graph sync ops (plan 1C steps 1-4)
+
+**Session type:** Ops
+
+**Completed:**
+- graphify 0.9.72 on PATH
+- `eakg sync repo` escrow / fees / loanservices — engineering_graph=ok
+- Shard graphs: escrow 64.9MB, fees 33.6MB, loanservices 31.2MB (+ links.json)
+- MCP restarted :8001
+- Smoke: `describe_application` loanservices → 5 proxies; `search_code` Proxy hits; Facade → 0 (no *Facade* in AST)
+
+**Reason:** User: do 1-4 (graphify, sync, restart MCP, smoke ENG queries).

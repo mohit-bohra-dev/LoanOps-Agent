@@ -43,17 +43,17 @@ ADR-012 / ARCHITECTURE: **do not** put SSE OpenAPI/ops into LoanOps `graphify-ou
 10. Ask time    search_sse_apis (OpenAPI keyword + EAKG block) → call_sse_api
 ```
 
-**STEP 5 does not graph all C#.** It serializes HTTP operations + one seeded Capability per op + CodeUnit `Controller.Action` + evidence pointers. Packages, topics, proxies, connection keys stay on **`interface.json`** for detectors.
+**STEP 5** serializes HTTP operations + one seeded Capability per op + CodeUnit `Controller.Action` + evidence pointers, **and** materializes the interface surface (proxies, packages, topics, connection/URL keys, route compositions) for MCP `describe_application`. Full C# AST stays on the shard as Graphify JSON (`engineering/graph.json`) when `EAKG__ENGINEERING_GRAPH` is on — not in GraphDB.
 
 ### RDF classes actually written
 
 | Source | Classes |
 |--------|---------|
-| `interface_to_graph` | Repository, Application, APIOperation, CodeUnit, Capability, Evidence (pointers on graph; full nodes in evidence.ttl) |
+| `interface_to_graph` | Repository, Application, APIOperation, CodeUnit, Capability, ServiceProxy, SdkPackage, EventTopic, RouteComposition, Evidence (pointers on graph; full nodes in evidence.ttl) |
 | Detectors | CrossAppRelationship + Evidence |
 | TAAC | Enterprise, Application, AuthProvider, DataStore, EventTopic |
 
-**Ontology present, not materialized in `graph_build.py`:** Deployable, ApiSurface, SdkPackage, Role, Principal, Documentation; `hasDeployable` / `hasApiSurface`. Registry `deployables:` (e.g. Escrow.Web) are unused in Turtle.
+**Ontology present, not materialized in `graph_build.py`:** Deployable, ApiSurface, Role, Principal, Documentation; `hasDeployable` / `hasApiSurface`. Registry `deployables:` (e.g. Escrow.Web) are unused in Turtle.
 
 ### Cross-app kinds implemented
 
@@ -165,7 +165,7 @@ Re-onboard of EAKG **does not** refresh these files.
 | Graphify of SSE clones | **Local experiment only** — not pipeline |
 | UI → route → OpenAPI → controller as one path | **Missing** |
 | EAKG extractors for Java/Python/Node | **Missing** |
-| RDF for packages/topics/proxies | **Missing** (JSON only) |
+| RDF for packages/topics/proxies | **Done** (`interface_to_graph` + `describe_application`) |
 | CodeQL / Tree-sitter | **Missing** |
 | Graphify wiki | **Missing** |
 

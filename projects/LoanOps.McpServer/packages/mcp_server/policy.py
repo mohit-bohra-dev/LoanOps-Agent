@@ -20,6 +20,8 @@ _READ_ONLY_TOOLS = frozenset(
         "explain_capability",
         "find_providers",
         "impact_of_change",
+        "describe_application",
+        "search_code",
     }
 )
 

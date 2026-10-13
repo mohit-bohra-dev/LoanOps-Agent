@@ -11,20 +11,28 @@ from packages.capability_kg.ontology import (
     CLASS_CAPABILITY,
     CLASS_CODE_UNIT,
     CLASS_CROSS_APP_RELATIONSHIP,
+    CLASS_EVENT_TOPIC,
     CLASS_EVIDENCE,
     CLASS_REPOSITORY,
+    CLASS_ROUTE_COMPOSITION,
+    CLASS_SDK_PACKAGE,
+    CLASS_SERVICE_PROXY,
     DEFAULT_NAMESPACE,
     PRED_AUTHZ_SOURCE,
     PRED_BELONGS_TO_APP,
     PRED_BELONGS_TO_REPO,
+    PRED_CALLER_SYMBOL,
     PRED_COMMIT_SHA,
+    PRED_COMPOSED_PATH,
     PRED_CONFIDENCE,
+    PRED_CONN_KEY,
     PRED_DETECTOR_ID,
     PRED_DETECTOR_VERSION,
     PRED_EXTRACTED_AT,
     PRED_FILE_PATH,
     PRED_FROM_APP,
     PRED_HAS_EVIDENCE,
+    PRED_HOSTS,
     PRED_HTTP_METHOD,
     PRED_HTTP_PATH,
     PRED_IMPLEMENTED_BY,
@@ -33,11 +41,15 @@ from packages.capability_kg.ontology import (
     PRED_LINE_END,
     PRED_LINE_START,
     PRED_OPERATION_ID,
+    PRED_PACKAGE_ID,
+    PRED_PROXY_BASE,
+    PRED_PROXY_CLASS,
     PRED_READ_ONLY,
     PRED_RELATIONSHIP_KIND,
     PRED_REPO_ID,
     PRED_REQUIRES_PERMISSION,
     PRED_REVIEW_STATUS,
+    PRED_SERVICE_URL_KEY,
     PRED_SOURCE,
     PRED_TO_APP,
     PRED_TO_AUTH,
@@ -45,6 +57,8 @@ from packages.capability_kg.ontology import (
     PRED_TO_OPERATION,
     PRED_TO_PACKAGE,
     PRED_TO_TOPIC,
+    PRED_TOPIC_NAME,
+    PRED_VERSION,
     loanops_ns,
 )
 from packages.eakg.models import (
@@ -193,7 +207,107 @@ def interface_to_graph(
             g.add((op_uri, ns[PRED_HAS_EVIDENCE], euri))
             g.add((cap, ns[PRED_HAS_EVIDENCE], euri))
 
+    _materialize_interface_surface(g, ns, app, iface)
+
     return g, eg
+
+
+_MAX_SURFACE_ITEMS = 200
+_MAX_LITERAL = 240
+
+
+def _bound_str(value: object, *, limit: int = _MAX_LITERAL) -> str:
+    text = str(value or "").strip()
+    return text[:limit] if text else ""
+
+
+def _materialize_interface_surface(
+    g: Graph,
+    ns: Any,
+    app: Any,
+    iface: RepoInterface,
+) -> None:
+    """Write proxies / packages / topics / keys / outbound routes from interface JSON."""
+    for key in iface.connection_keys[:_MAX_SURFACE_ITEMS]:
+        lit = _bound_str(key)
+        if lit:
+            g.add((app, ns[PRED_CONN_KEY], Literal(lit)))
+    for key in iface.service_url_keys[:_MAX_SURFACE_ITEMS]:
+        lit = _bound_str(key)
+        if lit:
+            g.add((app, ns[PRED_SERVICE_URL_KEY], Literal(lit)))
+
+    for i, pkg in enumerate(iface.packages[:_MAX_SURFACE_ITEMS]):
+        if not isinstance(pkg, dict):
+            continue
+        pid = _bound_str(pkg.get("package_id") or pkg.get("id"))
+        if not pid:
+            continue
+        puri = ns[f"pkg_{_safe(iface.application_id)}_{_safe(pid)}_{i}"]
+        g.add((puri, RDF.type, ns[CLASS_SDK_PACKAGE]))
+        g.add((puri, RDFS.label, Literal(pid)))
+        g.add((puri, ns[PRED_PACKAGE_ID], Literal(pid)))
+        ver = _bound_str(pkg.get("version"))
+        if ver:
+            g.add((puri, ns[PRED_VERSION], Literal(ver)))
+        g.add((puri, ns[PRED_BELONGS_TO_APP], app))
+        g.add((app, ns[PRED_HOSTS], puri))
+
+    for i, topic in enumerate(iface.topics[:_MAX_SURFACE_ITEMS]):
+        if not isinstance(topic, dict):
+            continue
+        name = _bound_str(topic.get("value") or topic.get("key") or topic.get("topic_name"))
+        if not name:
+            continue
+        turi = ns[f"topic_{_safe(iface.application_id)}_{_safe(name)}_{i}"]
+        g.add((turi, RDF.type, ns[CLASS_EVENT_TOPIC]))
+        g.add((turi, RDFS.label, Literal(name)))
+        g.add((turi, ns[PRED_TOPIC_NAME], Literal(name)))
+        g.add((turi, ns[PRED_BELONGS_TO_APP], app))
+        g.add((app, ns[PRED_HOSTS], turi))
+
+    for i, proxy in enumerate(iface.proxies[:_MAX_SURFACE_ITEMS]):
+        if not isinstance(proxy, dict):
+            continue
+        cls = _bound_str(proxy.get("class") or proxy.get("class_name"))
+        if not cls:
+            continue
+        puri = ns[f"proxy_{_safe(iface.application_id)}_{_safe(cls)}_{i}"]
+        g.add((puri, RDF.type, ns[CLASS_SERVICE_PROXY]))
+        g.add((puri, RDFS.label, Literal(cls)))
+        g.add((puri, ns[PRED_PROXY_CLASS], Literal(cls)))
+        base = _bound_str(proxy.get("base") or proxy.get("base_class"))
+        if base:
+            g.add((puri, ns[PRED_PROXY_BASE], Literal(base)))
+        url_key = _bound_str(proxy.get("url_key"))
+        if url_key:
+            g.add((puri, ns[PRED_SERVICE_URL_KEY], Literal(url_key)))
+        g.add((puri, ns[PRED_BELONGS_TO_APP], app))
+        g.add((app, ns[PRED_HOSTS], puri))
+
+    for i, route in enumerate(iface.route_compositions[:_MAX_SURFACE_ITEMS]):
+        if not isinstance(route, dict):
+            continue
+        path = _bound_str(route.get("path") or route.get("composed_path"))
+        caller = _bound_str(route.get("caller") or route.get("caller_symbol"))
+        if not path and not caller:
+            continue
+        ruri = ns[f"route_{_safe(iface.application_id)}_{i}_{_safe(path or caller)}"]
+        g.add((ruri, RDF.type, ns[CLASS_ROUTE_COMPOSITION]))
+        label = path or caller
+        g.add((ruri, RDFS.label, Literal(label)))
+        if path:
+            g.add((ruri, ns[PRED_COMPOSED_PATH], Literal(path)))
+        if caller:
+            g.add((ruri, ns[PRED_CALLER_SYMBOL], Literal(caller)))
+        method = _bound_str(route.get("method") or route.get("http_method"))
+        if method:
+            g.add((ruri, ns[PRED_HTTP_METHOD], Literal(method)))
+        url_key = _bound_str(route.get("url_key"))
+        if url_key:
+            g.add((ruri, ns[PRED_SERVICE_URL_KEY], Literal(url_key)))
+        g.add((ruri, ns[PRED_BELONGS_TO_APP], app))
+        g.add((app, ns[PRED_HOSTS], ruri))
 
 
 def relationships_to_graph(

@@ -413,3 +413,293 @@ WHERE {
         )
     impacts.sort(key=lambda r: 0 if r.get("review_status") == "approved" else 1)
     return impacts
+
+
+def _describe_from_interface(
+    iface: Any,
+    *,
+    application_id: str,
+) -> dict[str, Any]:
+    """Structured describe payload from RepoInterface (JSON fallback)."""
+    proxies: list[dict[str, Any]] = []
+    for p in iface.proxies:
+        if not isinstance(p, dict):
+            continue
+        proxies.append(
+            {
+                "class": p.get("class") or p.get("class_name"),
+                "base": p.get("base") or p.get("base_class"),
+                "url_key": p.get("url_key"),
+            }
+        )
+    packages: list[dict[str, Any]] = []
+    for p in iface.packages:
+        if not isinstance(p, dict):
+            continue
+        packages.append(
+            {
+                "package_id": p.get("package_id") or p.get("id"),
+                "version": p.get("version"),
+            }
+        )
+    topics: list[dict[str, Any]] = []
+    for t in iface.topics:
+        if not isinstance(t, dict):
+            continue
+        topics.append(
+            {
+                "name": t.get("value") or t.get("key") or t.get("topic_name"),
+                "role": t.get("role"),
+            }
+        )
+    routes: list[dict[str, Any]] = []
+    for r in iface.route_compositions:
+        if not isinstance(r, dict):
+            continue
+        routes.append(
+            {
+                "path": r.get("path") or r.get("composed_path"),
+                "caller": r.get("caller") or r.get("caller_symbol"),
+                "method": r.get("method") or r.get("http_method"),
+                "url_key": r.get("url_key"),
+            }
+        )
+    return {
+        "application_id": application_id or iface.application_id,
+        "repository_id": iface.repository_id,
+        "commit_sha": iface.commit_sha,
+        "source": "interface",
+        "proxies": proxies,
+        "packages": packages,
+        "topics": topics,
+        "connection_keys": list(iface.connection_keys),
+        "service_url_keys": list(iface.service_url_keys),
+        "route_compositions": routes,
+        "operation_count": len(iface.operations),
+    }
+
+
+def _sparql_literal(value: str) -> str:
+    return value.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def safe_application_id(value: str) -> str | None:
+    """Reject path traversal / namespace-colliding junk; allow registry-style ids."""
+    import re
+
+    text = value.strip()
+    if not text or len(text) > 80:
+        return None
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", text):
+        return None
+    return text
+
+
+def _app_match_filter(app_id: str) -> str:
+    """Exact label or URI local name ``app_<id>`` — never substring of namespace."""
+    lit = _sparql_literal(app_id)
+    local = _sparql_literal(f"app_{app_id}")
+    return (
+        f'LCASE(STR(?appLabel)) = LCASE("{lit}")'
+        f' || STRENDS(LCASE(STR(?app)), "/{local}")'
+        f' || STRENDS(LCASE(STR(?app)), "#{local}")'
+    )
+
+
+async def describe_application(
+    store: AbstractGraphStore,
+    application_id: str,
+    *,
+    namespace: str = DEFAULT_NAMESPACE,
+    interface_fallback: Any | None = None,
+) -> dict[str, Any]:
+    """Proxies, packages, topics, outbound routes for one application.
+
+    Prefer SPARQL graph; if surface empty and ``interface_fallback`` is a
+    RepoInterface (or callable returning one), use that.
+    """
+    app_id = safe_application_id(application_id)
+    if not app_id:
+        return {"error": "application_id required (alphanumeric / ._- only)"}
+    app_filter = _app_match_filter(app_id)
+    prefix = _prefix_block(namespace)
+
+    # Separate queries — sibling OPTIONAL blocks would cartesian-product.
+    keys_q = (
+        prefix
+        + f"""
+SELECT ?appLabel ?conn ?url
+WHERE {{
+  GRAPH ?g {{
+    ?app a lo:Application .
+    OPTIONAL {{ ?app rdfs:label ?appLabel }}
+    FILTER ({app_filter})
+    OPTIONAL {{ ?app lo:connectionKey ?conn }}
+    OPTIONAL {{ ?app lo:serviceUrlKey ?url }}
+  }}
+}}
+"""
+    )
+    proxy_q = (
+        prefix
+        + f"""
+SELECT ?pClass ?pBase ?pUrl
+WHERE {{
+  GRAPH ?g {{
+    ?app a lo:Application .
+    OPTIONAL {{ ?app rdfs:label ?appLabel }}
+    FILTER ({app_filter})
+    ?proxy a lo:ServiceProxy ; lo:belongsToApp ?app .
+    OPTIONAL {{ ?proxy lo:proxyClass ?pClass }}
+    OPTIONAL {{ ?proxy lo:proxyBase ?pBase }}
+    OPTIONAL {{ ?proxy lo:serviceUrlKey ?pUrl }}
+  }}
+}}
+"""
+    )
+    pkg_q = (
+        prefix
+        + f"""
+SELECT ?pkgId ?pkgVer
+WHERE {{
+  GRAPH ?g {{
+    ?app a lo:Application .
+    OPTIONAL {{ ?app rdfs:label ?appLabel }}
+    FILTER ({app_filter})
+    ?pkg a lo:SdkPackage ; lo:belongsToApp ?app .
+    OPTIONAL {{ ?pkg lo:packageId ?pkgId }}
+    OPTIONAL {{ ?pkg lo:version ?pkgVer }}
+  }}
+}}
+"""
+    )
+    topic_q = (
+        prefix
+        + f"""
+SELECT ?tName
+WHERE {{
+  GRAPH ?g {{
+    ?app a lo:Application .
+    OPTIONAL {{ ?app rdfs:label ?appLabel }}
+    FILTER ({app_filter})
+    ?topic a lo:EventTopic ; lo:belongsToApp ?app .
+    OPTIONAL {{ ?topic lo:topicName ?tName }}
+  }}
+}}
+"""
+    )
+    route_q = (
+        prefix
+        + f"""
+SELECT ?rPath ?rCaller ?rMethod ?rUrl
+WHERE {{
+  GRAPH ?g {{
+    ?app a lo:Application .
+    OPTIONAL {{ ?app rdfs:label ?appLabel }}
+    FILTER ({app_filter})
+    ?route a lo:RouteComposition ; lo:belongsToApp ?app .
+    OPTIONAL {{ ?route lo:composedPath ?rPath }}
+    OPTIONAL {{ ?route lo:callerSymbol ?rCaller }}
+    OPTIONAL {{ ?route lo:httpMethod ?rMethod }}
+    OPTIONAL {{ ?route lo:serviceUrlKey ?rUrl }}
+  }}
+}}
+"""
+    )
+    try:
+        keys_data = await store.query(keys_q)
+        proxy_data = await store.query(proxy_q)
+        pkg_data = await store.query(pkg_q)
+        topic_data = await store.query(topic_q)
+        route_data = await store.query(route_q)
+    except GraphStoreError:
+        raise
+
+    connection_keys: list[str] = []
+    service_url_keys: list[str] = []
+    app_label = app_id
+    for row in keys_data.get("results", {}).get("bindings", []):
+        lab = _binding_str(row, "appLabel")
+        if lab:
+            app_label = lab
+        conn = _binding_str(row, "conn")
+        if conn and conn not in connection_keys:
+            connection_keys.append(conn)
+        url = _binding_str(row, "url")
+        if url and url not in service_url_keys:
+            service_url_keys.append(url)
+
+    proxies: list[dict[str, Any]] = []
+    seen_proxy: set[str] = set()
+    for row in proxy_data.get("results", {}).get("bindings", []):
+        p_class = _binding_str(row, "pClass")
+        if p_class and p_class.lower() not in seen_proxy:
+            seen_proxy.add(p_class.lower())
+            proxies.append(
+                {
+                    "class": p_class,
+                    "base": _binding_str(row, "pBase"),
+                    "url_key": _binding_str(row, "pUrl"),
+                }
+            )
+
+    packages: list[dict[str, Any]] = []
+    seen_pkg: set[str] = set()
+    for row in pkg_data.get("results", {}).get("bindings", []):
+        pkg_id = _binding_str(row, "pkgId")
+        if pkg_id and pkg_id.lower() not in seen_pkg:
+            seen_pkg.add(pkg_id.lower())
+            packages.append(
+                {"package_id": pkg_id, "version": _binding_str(row, "pkgVer")}
+            )
+
+    topics: list[dict[str, Any]] = []
+    seen_topic: set[str] = set()
+    for row in topic_data.get("results", {}).get("bindings", []):
+        t_name = _binding_str(row, "tName")
+        if t_name and t_name.lower() not in seen_topic:
+            seen_topic.add(t_name.lower())
+            topics.append({"name": t_name, "role": None})
+
+    routes: list[dict[str, Any]] = []
+    seen_route: set[str] = set()
+    for row in route_data.get("results", {}).get("bindings", []):
+        r_path = _binding_str(row, "rPath")
+        r_caller = _binding_str(row, "rCaller")
+        r_key = f"{r_caller}|{r_path}".lower()
+        if r_key != "|" and r_key not in seen_route:
+            seen_route.add(r_key)
+            routes.append(
+                {
+                    "path": r_path,
+                    "caller": r_caller,
+                    "method": _binding_str(row, "rMethod"),
+                    "url_key": _binding_str(row, "rUrl"),
+                }
+            )
+
+    result: dict[str, Any] = {
+        "application_id": app_label,
+        "source": "graph",
+        "proxies": proxies,
+        "packages": packages,
+        "topics": topics,
+        "connection_keys": connection_keys,
+        "service_url_keys": service_url_keys,
+        "route_compositions": routes,
+    }
+    surface = (
+        proxies or packages or topics or routes or connection_keys or service_url_keys
+    )
+    if surface:
+        return result
+
+    iface = interface_fallback
+    if callable(iface):
+        iface = iface()
+    if iface is not None and hasattr(iface, "proxies"):
+        return _describe_from_interface(iface, application_id=app_id)
+    return {
+        **result,
+        "note": "no interface surface in graph; re-index or provide interface.json",
+    }
