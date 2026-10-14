@@ -1,0 +1,17 @@
+# Phrase → stable operation key (ADR-024 join key). LLM-drafted once; human-reviewed.
+# linkStatus starts unverified; SPARQL ASK is existence-only.
+version: "1.0.0"
+approved: true
+items:
+  - phrases:
+      - "last analysis"
+      - "Last Analysis Effective Date"
+      - "escrow analysis history"
+    operation_key: "escrow|GET|/api/EscrowAnalysis/GetEscrowAnalysisSSEHistories"
+    capability_hint: "cap_escrow_get_escrow_analysis_sse_histories"
+  - phrases:
+      - "Next Due Date"
+      - "next payment due"
+      - "payment schedule status"
+    operation_key: "escrow|GET|/api/EscrowAnalysis/GetPaymentScheduleStatus"
+    capability_hint: "cap_escrow_get_payment_schedule_status"

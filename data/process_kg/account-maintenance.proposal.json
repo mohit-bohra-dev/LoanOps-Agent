@@ -1,0 +1,936 @@
+{
+  "version": "1.0.0",
+  "review_status": "pending_review",
+  "report": {
+    "extractor_version": "1.0.0",
+    "processes": [
+      {
+        "process_id": "account_maintenance",
+        "procedure_id": "DP17-ESC053.v24",
+        "source_completeness": "lossy_unverified",
+        "lost_features": [
+          "td",
+          "span"
+        ],
+        "extraction_status": "full",
+        "needs_review_count": 0,
+        "needs_review": [],
+        "step_count": 1,
+        "transition_count": 0,
+        "child_stubs": 6,
+        "capability_keys": [],
+        "validation": {
+          "status": "pass",
+          "failures": [],
+          "decision_sheet": []
+        }
+      },
+      {
+        "process_id": "efta_sensitive",
+        "procedure_id": "DP17-ESC372.v01",
+        "source_completeness": "lossy_unverified",
+        "lost_features": [
+          "ac:image",
+          "ri:attachment",
+          "span",
+          "td"
+        ],
+        "extraction_status": "partial",
+        "needs_review_count": 4,
+        "needs_review": [
+          {
+            "reason": "unsupported_branch_grammar",
+            "section": "Procedures",
+            "ordinal": 3,
+            "kind": "branch"
+          },
+          {
+            "reason": "unsupported_branch_grammar",
+            "section": "Procedures",
+            "ordinal": 3,
+            "kind": "branch"
+          },
+          {
+            "reason": "action_plus_jump",
+            "section": "Procedures",
+            "ordinal": 5,
+            "kind": "branch"
+          },
+          {
+            "reason": "unresolved_branch:there are less than 15 days until the next monthly draft or 13 days for the next bi weekly draft",
+            "section": "Procedures",
+            "ordinal": 5,
+            "kind": "branch"
+          }
+        ],
+        "step_count": 8,
+        "transition_count": 8,
+        "child_stubs": 1,
+        "capability_keys": [
+          "escrow|GET|/api/EscrowAnalysis/GetPaymentScheduleStatus"
+        ],
+        "validation": {
+          "status": "fail",
+          "failures": [
+            "missing_branch_destination:efta_sensitive_t5_1"
+          ],
+          "decision_sheet": [
+            {
+              "decision_step_id": "efta_sensitive_s2",
+              "guard_label": "there is a payment increase",
+              "to_step_id": "efta_sensitive_s3",
+              "source_section": "Procedures",
+              "source_ordinal": 2,
+              "confirmed": false
+            },
+            {
+              "decision_step_id": "efta_sensitive_s2",
+              "guard_label": "there is payment decrease",
+              "to_step_id": "efta_sensitive_s2_end_1",
+              "source_section": "Procedures",
+              "source_ordinal": 2,
+              "confirmed": false
+            },
+            {
+              "decision_step_id": "efta_sensitive_s5",
+              "guard_label": "there is 15 days or more until the next monthly draft or 13 days for the next bi weekly draft",
+              "to_step_id": "efta_sensitive_s5_analyze_0",
+              "source_section": "Procedures",
+              "source_ordinal": 5,
+              "confirmed": false
+            },
+            {
+              "decision_step_id": "efta_sensitive_s5",
+              "guard_label": "there are less than 15 days until the next monthly draft or 13 days for the next bi weekly draft",
+              "to_step_id": null,
+              "source_section": "Procedures",
+              "source_ordinal": 5,
+              "confirmed": false
+            }
+          ]
+        }
+      },
+      {
+        "process_id": "efta_paid_in_advance",
+        "procedure_id": "DP17-ESC362.v05",
+        "source_completeness": "lossy_unverified",
+        "lost_features": [
+          "ac:image",
+          "ri:attachment",
+          "span",
+          "td"
+        ],
+        "extraction_status": "full",
+        "needs_review_count": 0,
+        "needs_review": [],
+        "step_count": 11,
+        "transition_count": 5,
+        "child_stubs": 1,
+        "capability_keys": [
+          "escrow|GET|/api/EscrowAnalysis/GetPaymentScheduleStatus"
+        ],
+        "validation": {
+          "status": "fail",
+          "failures": [
+            "unreachable_step:efta_paid_in_advance_s3",
+            "unreachable_step:efta_paid_in_advance_s4",
+            "unreachable_step:efta_paid_in_advance_s5",
+            "no_end_step",
+            "no_path_to_end:efta_paid_in_advance_s1",
+            "no_path_to_end:efta_paid_in_advance_s2",
+            "unapproved_cycle"
+          ],
+          "decision_sheet": []
+        }
+      },
+      {
+        "process_id": "fha_non_impound",
+        "procedure_id": "DP17-ESC355.v01",
+        "source_completeness": "lossy_unverified",
+        "lost_features": [
+          "ac:image",
+          "ri:attachment",
+          "span",
+          "td"
+        ],
+        "extraction_status": "partial",
+        "needs_review_count": 3,
+        "needs_review": [
+          {
+            "reason": "unresolved_branch:Yes",
+            "section": "Procedures",
+            "ordinal": 3,
+            "kind": "branch"
+          },
+          {
+            "reason": "unresolved_branch:No",
+            "section": "Procedures",
+            "ordinal": 3,
+            "kind": "branch"
+          },
+          {
+            "reason": "missing_terminal_path",
+            "section": "Procedures",
+            "ordinal": 6,
+            "kind": "structure"
+          }
+        ],
+        "step_count": 6,
+        "transition_count": 6,
+        "child_stubs": 1,
+        "capability_keys": [],
+        "validation": {
+          "status": "fail",
+          "failures": [
+            "missing_branch_destination:fha_non_impound_t3_0",
+            "missing_branch_destination:fha_non_impound_t3_1",
+            "unreachable_step:fha_non_impound_s4",
+            "unreachable_step:fha_non_impound_s5",
+            "unreachable_step:fha_non_impound_s6",
+            "no_end_step",
+            "no_path_to_end:fha_non_impound_s3",
+            "no_path_to_end:fha_non_impound_s1",
+            "no_path_to_end:fha_non_impound_s2"
+          ],
+          "decision_sheet": [
+            {
+              "decision_step_id": "fha_non_impound_s3",
+              "guard_label": "Yes",
+              "to_step_id": null,
+              "source_section": "Procedures",
+              "source_ordinal": 3,
+              "confirmed": false
+            },
+            {
+              "decision_step_id": "fha_non_impound_s3",
+              "guard_label": "No",
+              "to_step_id": null,
+              "source_section": "Procedures",
+              "source_ordinal": 3,
+              "confirmed": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "processes": [
+    {
+      "process_id": "account_maintenance",
+      "title": "Account Maintenance",
+      "procedure_id": "DP17-ESC053.v24",
+      "effective_date": "2/12/26",
+      "page_id": "1887338919",
+      "page_url": "https://pennymac.atlassian.net/wiki/spaces/SC/pages/1887338919/Account+Maintenance",
+      "source_version": 5,
+      "source_hash": "c94256bab46b97bd94e3eb6772773af7cdd586c2a06b8a5ad3bbab157b13d820",
+      "source_completeness": "lossy_unverified",
+      "lost_features": [
+        "td",
+        "span"
+      ],
+      "extraction_status": "full",
+      "regulations": [
+        "efta",
+        "respa"
+      ],
+      "steps": [
+        {
+          "id": "account_maintenance_start",
+          "label": "Hub: Account Maintenance",
+          "kind": "start",
+          "source_section": "Topics",
+          "source_ordinal": 0,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        }
+      ],
+      "transitions": [],
+      "children": [
+        {
+          "process_id": "payment_adjustment",
+          "title": "Payment Adjustment",
+          "page_id": "1887404635",
+          "url": "https://pennymac.atlassian.net/wiki/spaces/SC/pages/1887404635/Payment+Adjustment"
+        },
+        {
+          "process_id": "default",
+          "title": "Default",
+          "page_id": "1886913016",
+          "url": "https://pennymac.atlassian.net/wiki/spaces/SC/pages/1886913016/Account+Maintenance+-+Default"
+        },
+        {
+          "process_id": "manual",
+          "title": "Manual",
+          "page_id": "1886847494",
+          "url": "https://pennymac.atlassian.net/wiki/spaces/SC/pages/1886847494/Account+Maintenance+-+Manual"
+        },
+        {
+          "process_id": "fha_with_non_impound_lines",
+          "title": "FHA with Non-Impound Lines",
+          "page_id": "1824293561",
+          "url": "https://pennymac.atlassian.net/wiki/spaces/SC/pages/1824293561/FHA+with+Non-Impound+Lines"
+        },
+        {
+          "process_id": "efta_paid_in_advance_analysis",
+          "title": "EFTA & Paid in Advance Analysis",
+          "page_id": "1823803094",
+          "url": "https://pennymac.atlassian.net/wiki/spaces/SC/pages/1823803094/EFTA+Paid+in+Advance+Analysis"
+        },
+        {
+          "process_id": "paid_ahead_efta_sensitive_analysis",
+          "title": "Paid Ahead EFTA Sensitive Analysis",
+          "page_id": "4474339419",
+          "url": "https://pennymac.atlassian.net/wiki/spaces/SC/pages/4474339419/Paid+Ahead+EFTA+Sensitive+Analysis"
+        }
+      ],
+      "needs_review": [],
+      "extractor_version": "1.0.0",
+      "maps_hash": "95dde7afbea46034",
+      "related_page_ids": []
+    },
+    {
+      "process_id": "efta_sensitive",
+      "title": "Paid Ahead EFTA Sensitive Analysis",
+      "procedure_id": "DP17-ESC372.v01",
+      "effective_date": "2/12/26",
+      "page_id": "4474339419",
+      "page_url": "https://pennymac.atlassian.net/wiki/spaces/SC/pages/4474339419/Paid+Ahead+EFTA+Sensitive+Analysis",
+      "source_version": 2,
+      "source_hash": "2d369f62f347452f503acc9563d61b68f32f62564cec35e56b2ddc29bfcf6e91",
+      "source_completeness": "lossy_unverified",
+      "lost_features": [
+        "ac:image",
+        "ri:attachment",
+        "span",
+        "td"
+      ],
+      "extraction_status": "partial",
+      "regulations": [
+        "efta",
+        "respa"
+      ],
+      "steps": [
+        {
+          "id": "efta_sensitive_s1",
+          "label": "Confirm if the loan is signed up for ACH. This can be verified in LAMP, under the ACH Tab",
+          "kind": "start",
+          "source_section": "Procedures",
+          "source_ordinal": 1,
+          "systems": [
+            "lamp"
+          ],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_sensitive_s1_end_1",
+          "label": "the loan is not EFTA sensitive",
+          "kind": "end",
+          "source_section": "Procedures",
+          "source_ordinal": 1,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_sensitive_s2",
+          "label": "Determine If the analysis will cause a payment increase or decrease from the last payment made.",
+          "kind": "decision",
+          "source_section": "Procedures",
+          "source_ordinal": 2,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_sensitive_s2_end_1",
+          "label": "the loan is not EFTA sensitive. Stop here and analyze the loan if no other review is required",
+          "kind": "end",
+          "source_section": "Procedures",
+          "source_ordinal": 2,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_sensitive_s3",
+          "label": "Review the effective date of the analysis and Next Due Date in SSE",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 3,
+          "systems": [
+            "sse"
+          ],
+          "thresholds": [],
+          "capability_keys": [
+            "escrow|GET|/api/EscrowAnalysis/GetPaymentScheduleStatus"
+          ],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_sensitive_s4",
+          "label": "Verify the ACH type and next draft date, then continue to next step",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 4,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_sensitive_s5",
+          "label": "Confirm if there are 15 days before the next draft for monthly ACH and 13 days for Bi Weekly ACH",
+          "kind": "decision",
+          "source_section": "Procedures",
+          "source_ordinal": 5,
+          "systems": [],
+          "thresholds": [
+            {
+              "text": "15 days",
+              "value": 15,
+              "unit": "days_unspecified"
+            },
+            {
+              "text": "13 days",
+              "value": 13,
+              "unit": "days_unspecified"
+            }
+          ],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_sensitive_s5_analyze_0",
+          "label": "analyze the account",
+          "kind": "end",
+          "source_section": "Procedures",
+          "source_ordinal": 5,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        }
+      ],
+      "transitions": [
+        {
+          "id": "efta_sensitive_t1_0",
+          "from_step": "efta_sensitive_s1",
+          "to_step": "efta_sensitive_s2",
+          "guard_label": "Yes",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 1
+        },
+        {
+          "id": "efta_sensitive_t1_1",
+          "from_step": "efta_sensitive_s1",
+          "to_step": "efta_sensitive_s1_end_1",
+          "guard_label": "No",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 1
+        },
+        {
+          "id": "efta_sensitive_t2_0",
+          "from_step": "efta_sensitive_s2",
+          "to_step": "efta_sensitive_s3",
+          "guard_label": "there is a payment increase",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 2
+        },
+        {
+          "id": "efta_sensitive_t2_1",
+          "from_step": "efta_sensitive_s2",
+          "to_step": "efta_sensitive_s2_end_1",
+          "guard_label": "there is payment decrease",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 2
+        },
+        {
+          "id": "efta_sensitive_t5_0",
+          "from_step": "efta_sensitive_s5",
+          "to_step": "efta_sensitive_s5_analyze_0",
+          "guard_label": "there is 15 days or more until the next monthly draft or 13 days for the next bi weekly draft",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 5
+        },
+        {
+          "id": "efta_sensitive_t5_1",
+          "from_step": "efta_sensitive_s5",
+          "to_step": null,
+          "guard_label": "there are less than 15 days until the next monthly draft or 13 days for the next bi weekly draft",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 5
+        },
+        {
+          "id": "efta_sensitive_seq_2",
+          "from_step": "efta_sensitive_s3",
+          "to_step": "efta_sensitive_s4",
+          "guard_label": "next",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 3
+        },
+        {
+          "id": "efta_sensitive_seq_3",
+          "from_step": "efta_sensitive_s4",
+          "to_step": "efta_sensitive_s5",
+          "guard_label": "next",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 4
+        }
+      ],
+      "children": [
+        {
+          "process_id": "escrow_maintenance_policy",
+          "title": "Escrow Maintenance Policy",
+          "page_id": "1832813050",
+          "url": "https://pennymac.atlassian.net/wiki/spaces/SC/pages/1832813050"
+        }
+      ],
+      "needs_review": [
+        {
+          "reason": "unsupported_branch_grammar",
+          "section": "Procedures",
+          "ordinal": 3,
+          "kind": "branch"
+        },
+        {
+          "reason": "unsupported_branch_grammar",
+          "section": "Procedures",
+          "ordinal": 3,
+          "kind": "branch"
+        },
+        {
+          "reason": "action_plus_jump",
+          "section": "Procedures",
+          "ordinal": 5,
+          "kind": "branch"
+        },
+        {
+          "reason": "unresolved_branch:there are less than 15 days until the next monthly draft or 13 days for the next bi weekly draft",
+          "section": "Procedures",
+          "ordinal": 5,
+          "kind": "branch"
+        }
+      ],
+      "extractor_version": "1.0.0",
+      "maps_hash": "95dde7afbea46034",
+      "related_page_ids": [
+        "1832813050"
+      ]
+    },
+    {
+      "process_id": "efta_paid_in_advance",
+      "title": "EFTA & Paid in Advance Analysis",
+      "procedure_id": "DP17-ESC362.v05",
+      "effective_date": "4/25/25",
+      "page_id": "1823803094",
+      "page_url": "https://pennymac.atlassian.net/wiki/spaces/SC/pages/1823803094/EFTA+Paid+in+Advance+Analysis",
+      "source_version": 12,
+      "source_hash": "d18af76a5c3b69a3447a55a4990ce070c497024d025601b3bdc5e9c66a187d0e",
+      "source_completeness": "lossy_unverified",
+      "lost_features": [
+        "ac:image",
+        "ri:attachment",
+        "span",
+        "td"
+      ],
+      "extraction_status": "full",
+      "regulations": [
+        "efta"
+      ],
+      "steps": [
+        {
+          "id": "efta_paid_in_advance_s1",
+          "label": "Export the EFTA 94.21 Research report in RIMS and save the file in the archive folder on the M: drive.",
+          "kind": "start",
+          "source_section": "Procedures",
+          "source_ordinal": 1,
+          "systems": [
+            "rims",
+            "m_drive"
+          ],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_paid_in_advance_s2",
+          "label": "Create 5 additional tabs within the spreadsheet: EFTA Monthly, EFTA Bi-Weekly, EFTA Combined Daily Review, Bulk Upload\u2026",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 2,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_paid_in_advance_s1",
+          "label": "Select monthly on ES_EFTA_94_21_RESEARCH",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 1,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_paid_in_advance_s2",
+          "label": "Copy and paste onto Monthly tab",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 2,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_paid_in_advance_s3",
+          "label": "Next Payment Due date and select all that is paid ahead",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 3,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [
+            "escrow|GET|/api/EscrowAnalysis/GetPaymentScheduleStatus"
+          ],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_paid_in_advance_s4",
+          "label": "Loans that are less than 15 days, highlight in red and add to the EFTA Combined Daily Review tab",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 4,
+          "systems": [],
+          "thresholds": [
+            {
+              "text": "15 days",
+              "value": 15,
+              "unit": "days_unspecified"
+            }
+          ],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_paid_in_advance_s5",
+          "label": "Highlight the remaining loans in green and add to the bulk upload tab to be analyzed",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 5,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_paid_in_advance_s1",
+          "label": "Review all loans for Tax variance",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 1,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_paid_in_advance_s2",
+          "label": "Bulk Upload all the loans",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 2,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_paid_in_advance_s3",
+          "label": "Bulk Notate all of the loans that were analyzed",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 3,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "efta_paid_in_advance_s4",
+          "label": "Follow up the next day and process a DATA Lookup report to confirm all loans were successfully analyzed",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 4,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        }
+      ],
+      "transitions": [
+        {
+          "id": "efta_paid_in_advance_seq_0",
+          "from_step": "efta_paid_in_advance_s1",
+          "to_step": "efta_paid_in_advance_s2",
+          "guard_label": "next",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 1
+        },
+        {
+          "id": "efta_paid_in_advance_seq_1",
+          "from_step": "efta_paid_in_advance_s2",
+          "to_step": "efta_paid_in_advance_s1",
+          "guard_label": "next",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 2
+        },
+        {
+          "id": "efta_paid_in_advance_seq_4",
+          "from_step": "efta_paid_in_advance_s3",
+          "to_step": "efta_paid_in_advance_s4",
+          "guard_label": "next",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 3
+        },
+        {
+          "id": "efta_paid_in_advance_seq_5",
+          "from_step": "efta_paid_in_advance_s4",
+          "to_step": "efta_paid_in_advance_s5",
+          "guard_label": "next",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 4
+        },
+        {
+          "id": "efta_paid_in_advance_seq_6",
+          "from_step": "efta_paid_in_advance_s5",
+          "to_step": "efta_paid_in_advance_s1",
+          "guard_label": "next",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 5
+        }
+      ],
+      "children": [
+        {
+          "process_id": "tax_variance",
+          "title": "Tax Variance",
+          "page_id": "1833534141",
+          "url": "https://pennymac.atlassian.net/wiki/spaces/SC/pages/1833534141/Tax+Variance"
+        }
+      ],
+      "needs_review": [],
+      "extractor_version": "1.0.0",
+      "maps_hash": "95dde7afbea46034",
+      "related_page_ids": [
+        "1833534141"
+      ]
+    },
+    {
+      "process_id": "fha_non_impound",
+      "title": "FHA with Non-Impound Lines",
+      "procedure_id": "DP17-ESC355.v01",
+      "effective_date": "3/13/20",
+      "page_id": "1824293561",
+      "page_url": "https://pennymac.atlassian.net/wiki/spaces/SC/pages/1824293561/FHA+with+Non-Impound+Lines",
+      "source_version": 12,
+      "source_hash": "7edaddaaee17faa1aeaef3f20bfa5572b5f4552f622ba5e8d392e599c547fd41",
+      "source_completeness": "lossy_unverified",
+      "lost_features": [
+        "ac:image",
+        "ri:attachment",
+        "span",
+        "td"
+      ],
+      "extraction_status": "partial",
+      "regulations": [],
+      "steps": [
+        {
+          "id": "fha_non_impound_s1",
+          "label": "Open Google Chrome browser and type rims/ as the web address. Servicing Non Default Escrow Possible Data Issues",
+          "kind": "start",
+          "source_section": "Procedures",
+          "source_ordinal": 1,
+          "systems": [
+            "rims",
+            "google_chrome"
+          ],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "fha_non_impound_s2",
+          "label": "Review Escrow: FHA with no Escrow Payment",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 2,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "fha_non_impound_s3",
+          "label": "Review loans on the report to determine if there is a valid reason the loan is non escrowed.",
+          "kind": "decision",
+          "source_section": "Procedures",
+          "source_ordinal": 3,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "fha_non_impound_s4",
+          "label": "Once the department contact responds on whether it needs to be converted to escrow, proceed to Establish Escrow",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 4,
+          "systems": [],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "fha_non_impound_s5",
+          "label": "Document Servicing System with your findings",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 5,
+          "systems": [
+            "sse"
+          ],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        },
+        {
+          "id": "fha_non_impound_s6",
+          "label": "Save the report to the M: drive on a monthly basis",
+          "kind": "task",
+          "source_section": "Procedures",
+          "source_ordinal": 6,
+          "systems": [
+            "m_drive"
+          ],
+          "thresholds": [],
+          "capability_keys": [],
+          "sop_role_label": ""
+        }
+      ],
+      "transitions": [
+        {
+          "id": "fha_non_impound_t3_0",
+          "from_step": "fha_non_impound_s3",
+          "to_step": null,
+          "guard_label": "Yes",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 3
+        },
+        {
+          "id": "fha_non_impound_t3_1",
+          "from_step": "fha_non_impound_s3",
+          "to_step": null,
+          "guard_label": "No",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 3
+        },
+        {
+          "id": "fha_non_impound_seq_0",
+          "from_step": "fha_non_impound_s1",
+          "to_step": "fha_non_impound_s2",
+          "guard_label": "next",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 1
+        },
+        {
+          "id": "fha_non_impound_seq_1",
+          "from_step": "fha_non_impound_s2",
+          "to_step": "fha_non_impound_s3",
+          "guard_label": "next",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 2
+        },
+        {
+          "id": "fha_non_impound_seq_3",
+          "from_step": "fha_non_impound_s4",
+          "to_step": "fha_non_impound_s5",
+          "guard_label": "next",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 4
+        },
+        {
+          "id": "fha_non_impound_seq_4",
+          "from_step": "fha_non_impound_s5",
+          "to_step": "fha_non_impound_s6",
+          "guard_label": "next",
+          "kind": "normal",
+          "source_section": "Procedures",
+          "source_ordinal": 5
+        }
+      ],
+      "children": [
+        {
+          "process_id": "account_maintenance",
+          "title": "Account Maintenance",
+          "page_id": "1887338919",
+          "url": "https://pennymac.atlassian.net/wiki/spaces/SC/pages/1887338919/Account+Maintenance"
+        }
+      ],
+      "needs_review": [
+        {
+          "reason": "unresolved_branch:Yes",
+          "section": "Procedures",
+          "ordinal": 3,
+          "kind": "branch"
+        },
+        {
+          "reason": "unresolved_branch:No",
+          "section": "Procedures",
+          "ordinal": 3,
+          "kind": "branch"
+        },
+        {
+          "reason": "missing_terminal_path",
+          "section": "Procedures",
+          "ordinal": 6,
+          "kind": "structure"
+        }
+      ],
+      "extractor_version": "1.0.0",
+      "maps_hash": "95dde7afbea46034",
+      "related_page_ids": [
+        "1887338919"
+      ]
+    }
+  ]
+}

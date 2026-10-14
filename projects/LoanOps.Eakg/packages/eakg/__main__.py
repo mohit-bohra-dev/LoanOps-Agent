@@ -130,7 +130,10 @@ def main(argv: list[str] | None = None) -> int:
     p_imp.add_argument("--path", default="")
     p_imp.add_argument("--dry-run", action="store_true")
 
-    p_refresh = sub.add_parser("spec-refresh", help="Refresh cached OpenAPI specs for the active environment")
+    p_refresh = sub.add_parser(
+        "spec-refresh",
+        help="Refresh cached OpenAPI specs for the active environment",
+    )
     p_refresh.add_argument("--env", default="")
 
     p_art = sub.add_parser("artifacts", help="ADR-027 artifact store (Postgres)")
@@ -140,6 +143,71 @@ def main(argv: list[str] | None = None) -> int:
         help="Copy registry/interface/openapi/ops from data/eakg into Postgres",
     )
     art_sub.add_parser("status", help="Show backend + registry count")
+
+    p_proc = sub.add_parser("process", help="ADR-028 business process KG pilot")
+    proc_sub = p_proc.add_subparsers(dest="process_cmd", required=True)
+    p_pe = proc_sub.add_parser("extract", help="Extract + validate fixtures → proposal JSON")
+    p_pe.add_argument(
+        "--fixtures",
+        default="projects/LoanOps.Eakg/packages/eakg/tests/fixtures/process",
+    )
+    p_pe.add_argument("--maps", default="data/process_kg/maps")
+    p_pe.add_argument(
+        "--out",
+        default="data/process_kg/account-maintenance.proposal.json",
+    )
+    p_pe.add_argument(
+        "--names",
+        default="account_maintenance,efta_sensitive,efta_paid_in_advance,fha_non_impound",
+    )
+    p_pv = proc_sub.add_parser("validate", help="Re-validate last proposal file")
+    p_pv.add_argument(
+        "--proposal",
+        default="data/process_kg/account-maintenance.proposal.json",
+    )
+    p_pl = proc_sub.add_parser(
+        "load",
+        help="Load proposal graphs into GraphStore (pending_review)",
+    )
+    p_pl.add_argument(
+        "--proposal",
+        default="data/process_kg/account-maintenance.proposal.json",
+    )
+    p_pl.add_argument(
+        "--fixtures",
+        default="projects/LoanOps.Eakg/packages/eakg/tests/fixtures/process",
+    )
+    p_pl.add_argument("--maps", default="data/process_kg/maps")
+    p_pl.add_argument(
+        "--names",
+        default=(
+            "account_maintenance,efta_sensitive,"
+            "efta_paid_in_advance,fha_non_impound"
+        ),
+    )
+    p_ps = proc_sub.add_parser("show", help="Explain one process from GraphStore")
+    p_ps.add_argument("process_id")
+    p_pa = proc_sub.add_parser(
+        "approve",
+        help="Set hasReviewStatus=approved (not run in pilot by default)",
+    )
+    p_pa.add_argument("process_id")
+    p_pa.add_argument("--by", default="", help="Reviewer id")
+    p_pf = proc_sub.add_parser("verify-fresh", help="Compare live version/hash to stored")
+    p_pf.add_argument("process_id")
+    p_pf.add_argument("--version", type=int, required=True)
+    p_pf.add_argument("--hash", required=True)
+    p_pr = proc_sub.add_parser("revalidate", help="Flag broken capability links")
+    p_pr.add_argument(
+        "--keys",
+        default="",
+        help="Comma-separated known operation keys (app|METHOD|path)",
+    )
+    p_prep = proc_sub.add_parser("report", help="Print extraction/validation report JSON")
+    p_prep.add_argument(
+        "--proposal",
+        default="data/process_kg/account-maintenance.proposal.json",
+    )
 
     args = parser.parse_args(argv)
     cfg = Settings()
@@ -162,6 +230,134 @@ def main(argv: list[str] | None = None) -> int:
             )
         )
         return 0
+
+    if args.cmd == "process":
+        from pathlib import Path
+
+        from packages.eakg.process_graph import (
+            explain_process,
+            extract_bundle,
+            load_processes,
+            report_extraction,
+            revalidate_links,
+            set_review_status,
+            verify_fresh,
+            write_proposal,
+        )
+
+        if args.process_cmd == "extract":
+            names = [x.strip() for x in args.names.split(",") if x.strip()]
+            drafts, validations = extract_bundle(
+                Path(args.fixtures), Path(args.maps), names
+            )
+            write_proposal(Path(args.out), drafts, validations)
+            print(json.dumps(report_extraction(drafts, validations), indent=2))
+            return 0
+
+        if args.process_cmd in {"validate", "report"}:
+            proposal_path = Path(args.proposal)
+            payload = json.loads(proposal_path.read_text(encoding="utf-8"))
+            print(json.dumps(payload.get("report") or payload, indent=2))
+            return 0
+
+        if args.process_cmd == "load":
+            from packages.common.providers.factory import get_graph_store
+
+            names = [x.strip() for x in args.names.split(",") if x.strip()]
+            drafts, validations = extract_bundle(
+                Path(args.fixtures), Path(args.maps), names
+            )
+            write_proposal(Path(args.proposal), drafts, validations)
+            gs = get_graph_store()
+            result = asyncio.run(
+                load_processes(
+                    gs,
+                    drafts,
+                    validations,
+                    namespace=cfg.capability_kg.namespace,
+                )
+            )
+            print(json.dumps(result, indent=2))
+            return 0
+
+        if args.process_cmd == "show":
+            from packages.common.providers.factory import get_graph_store
+
+            gs = get_graph_store()
+            print(
+                json.dumps(
+                    asyncio.run(
+                        explain_process(
+                            gs,
+                            args.process_id,
+                            namespace=cfg.capability_kg.namespace,
+                        )
+                    ),
+                    indent=2,
+                )
+            )
+            return 0
+
+        if args.process_cmd == "approve":
+            from packages.common.providers.factory import get_graph_store
+
+            gs = get_graph_store()
+            print(
+                json.dumps(
+                    asyncio.run(
+                        set_review_status(
+                            gs,
+                            args.process_id,
+                            "approved",
+                            reviewer=args.by,
+                            namespace=cfg.capability_kg.namespace,
+                        )
+                    ),
+                    indent=2,
+                )
+            )
+            return 0
+
+        if args.process_cmd == "verify-fresh":
+            from packages.common.providers.factory import get_graph_store
+
+            gs = get_graph_store()
+            print(
+                json.dumps(
+                    asyncio.run(
+                        verify_fresh(
+                            gs,
+                            args.process_id,
+                            live_version=args.version,
+                            live_hash=args.hash,
+                            namespace=cfg.capability_kg.namespace,
+                        )
+                    ),
+                    indent=2,
+                )
+            )
+            return 0
+
+        if args.process_cmd == "revalidate":
+            from packages.common.providers.factory import get_graph_store
+
+            keys = {x.strip() for x in args.keys.split(",") if x.strip()}
+            gs = get_graph_store()
+            print(
+                json.dumps(
+                    asyncio.run(
+                        revalidate_links(
+                            gs,
+                            known_operation_keys=keys,
+                            namespace=cfg.capability_kg.namespace,
+                        )
+                    ),
+                    indent=2,
+                )
+            )
+            return 0
+
+        return 1
 
     if args.cmd == "registry":
         if args.registry_cmd == "validate":

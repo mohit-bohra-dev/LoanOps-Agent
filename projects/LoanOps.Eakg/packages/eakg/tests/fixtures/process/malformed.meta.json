@@ -1,0 +1,9 @@
+{
+  "page_id": "999000001",
+  "title": "Malformed Synthetic",
+  "version": 1,
+  "url": "https://example.invalid/wiki/pages/999000001",
+  "lossy_conversion": false,
+  "lost_features": [],
+  "process_id": "malformed_synthetic"
+}

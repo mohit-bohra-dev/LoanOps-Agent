@@ -743,3 +743,44 @@ file backend keeps `make test` / CI without Postgres.
 
 **Status:** Accepted 2026-10-12 (user directed cutover).
 
+---
+
+## ADR-028 — Business process knowledge graph (pilot)
+
+**Decision:** Represent Confluence SOP business processes as RDF in the existing
+EAKG SPARQL store (ADR-026), using a **deterministic rule-based extractor**.
+An LLM may draft curated gazetteer / phrase-map YAML **once offline**; humans
+approve those maps in git. Runtime extract/load never calls an LLM. Pilot
+scope: Account Maintenance hub + three leaf SOPs. All process nodes load as
+`pending_review`. Process graph data **never** authorizes or denies API calls.
+
+**Context:** External review of the process-KG plan required source-completeness
+tracking, path-level graph validation, capability-link lifecycle, document
+provenance (not code `Evidence`), and a clear LLM boundary vs ADR-025.
+
+**LLM boundary:**
+- Suggestions in `data/process_kg/maps/*.yaml` are not facts until versioned,
+  reviewed, and approved.
+- Each extraction records `extractorVersion` + `mapsHash`. Map changes mark
+  dependent processes `reextract_required`.
+
+**Five status dimensions** (separate predicates; do not overload `hasReviewStatus`):
+- `sourceCompleteness`: `lossy_unverified` | `verified_complete` | `complete_unverified`
+- `extractionStatus`: `full` | `partial` | `stub`
+- `validationStatus`: `pass` | `fail`
+- `hasReviewStatus`: existing lifecycle + `needs_reapproval`
+- `sourceStatus`: `current` | `stale`
+
+**Provenance:** Reuse `Documentation` (page id, URL, version, content hash).
+Steps/transitions carry `sourceSection` + `sourceOrdinal`. Do **not** reuse
+code-oriented `Evidence`. Graph stores short step labels only — no SOP quotes.
+
+**Ontology (new):** `BusinessProcess`, `ProcessStep`, `Transition`,
+`CapabilityLink`, `BusinessSystem`, `Regulation`. SOP roles are literals
+(`sopRoleLabel`), never `Role` resources.
+
+**Non-goals:** MCP process-query tool; capability-search ranking; process data
+as authorization input; crawling ~30 remaining sibling pages until pilot metrics.
+
+**Status:** Accepted 2026-10-15 (plan approved; pilot loads stay `pending_review`).
+

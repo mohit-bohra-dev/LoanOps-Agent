@@ -91,6 +91,7 @@ addopts = ["--import-mode=importlib"]
 markers = [
     "integration: requires live external services",
     "scale: enterprise-app-scale suite (SC-002–005; use --scale-profile=full for 30×170)",
+    "graphdb: opt-in local GraphDB tests (ADR-026/028; skipped in CI)",
 ]
 
 [tool.uv]

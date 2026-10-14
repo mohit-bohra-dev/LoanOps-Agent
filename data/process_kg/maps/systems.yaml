@@ -1,0 +1,14 @@
+# Approved gazetteer (ADR-028). LLM-drafted once; human-reviewed.
+version: "1.0.0"
+approved: true
+items:
+  - id: rims
+    labels: ["RIMS", "rims/", "rims"]
+  - id: lamp
+    labels: ["LAMP", "Lamp"]
+  - id: sse
+    labels: ["SSE", "Servicing System"]
+  - id: m_drive
+    labels: ["M: drive", "M:"]
+  - id: google_chrome
+    labels: ["Google Chrome"]

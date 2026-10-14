@@ -35,6 +35,12 @@ Prefix in Turtle: `loanops:`.
 | `CrossAppRelationship` | First-class cross-app edge (v2) |
 | `Evidence` | Provenance node (v2) |
 | `Proposal` | LLM semantic overlay pending review (v2) |
+| `BusinessProcess` | SOP / procedure workflow (ADR-028) |
+| `ProcessStep` | Ordered step or decision in a process |
+| `Transition` | Labeled edge between steps (branch / override / loopback) |
+| `CapabilityLink` | Reified step → capability link with status |
+| `BusinessSystem` | Operational system named in SOPs (RIMS, LAMP, …) — not an API `Application` |
+| `Regulation` | Governing law/policy named in SOPs (EFTA, RESPA, …) |
 
 ## Predicates
 
@@ -70,8 +76,36 @@ Prefix in Turtle: `loanops:`.
 | `toOperation` / `toPackage` / `toTopic` / `toDataStore` / `toAuthProvider` | CrossAppRelationship → literal |
 | `repositoryId` / `commitSha` / `filePath` / `lineStart` / `lineEnd` | Evidence → literal |
 | `detectorId` / `detectorVersion` / `extractedAt` | Evidence → literal |
+| `hasStep` / `firstStep` | BusinessProcess → ProcessStep |
+| `hasTransition` | ProcessStep → Transition |
+| `fromStep` / `toStep` | Transition → ProcessStep |
+| `guardLabel` | Transition → literal (Yes / No / …) |
+| `transitionKind` | Transition → `normal` \| `override` \| `loopback` |
+| `stepKind` | ProcessStep → `start` \| `task` \| `decision` \| `end` |
+| `subProcessOf` | BusinessProcess → BusinessProcess |
+| `hasCapabilityLink` | ProcessStep → CapabilityLink |
+| `toCapability` | CapabilityLink → Capability |
+| `operationKey` | CapabilityLink → literal (`app\|METHOD\|path`) |
+| `linkType` / `linkStatus` | CapabilityLink → literal (`ok` \| `broken` \| `unverified`) |
+| `usesSystem` | ProcessStep → BusinessSystem |
+| `governedBy` | BusinessProcess → Regulation |
+| `sopRoleLabel` | ProcessStep → literal (descriptive; never authz `Role`) |
+| `procedureId` / `effectiveDate` | BusinessProcess → literal |
+| `sourceSection` / `sourceOrdinal` | ProcessStep / Transition → locator |
+| `sourcePageId` / `sourceVersion` / `sourceHash` | Documentation / process → literal |
+| `extractorVersion` / `mapsHash` | BusinessProcess → literal |
+| `thresholdText` / `thresholdValue` / `thresholdUnit` | ProcessStep → literal |
+| `sourceCompleteness` | BusinessProcess → `lossy_unverified` \| `verified_complete` \| `complete_unverified` |
+| `extractionStatus` | BusinessProcess → `full` \| `partial` \| `stub` |
+| `validationStatus` | BusinessProcess → `pass` \| `fail` |
+| `sourceStatus` | BusinessProcess → `current` \| `stale` |
+| `lostFeatures` | Documentation → literal |
 
 Also use `rdf:type`, `rdfs:label`, `rdfs:comment`.
+
+Process graph nodes must `documentedBy` a `Documentation` node (page id, URL,
+version, hash). Do **not** reuse code `Evidence` for wiki provenance (ADR-028).
+`sopRoleLabel` must never grant or deny API access.
 
 ## CrossAppRelationship kinds
 

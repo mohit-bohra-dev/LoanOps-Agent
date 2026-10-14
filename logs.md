@@ -1,3 +1,18 @@
+## [2026-10-15] — ADR-028 process KG pilot (Account Maintenance)
+
+**Session type:** Implementation
+
+**Completed:**
+- ADR-028: deterministic SOP → RDF process graph; LLM maps offline only; never authorizes
+- Ontology: BusinessProcess / ProcessStep / Transition / CapabilityLink / BusinessSystem / Regulation
+- Extractor + validator + GraphStore load (`process_extract` / `process_validate` / `process_graph`)
+- CLI: `python -m packages.eakg process extract|validate|load|show|approve|verify-fresh|revalidate|report`
+- Fixtures + maps under `data/process_kg/`; proposal `account-maintenance.proposal.json`
+- Tests: 14 passed (FakeGraphStore); authz isolation; opt-in `@pytest.mark.graphdb` stub
+- Pilot stays `pending_review` (no reviewer named)
+
+---
+
 ## [2026-10-13] — CoreComponents onboard + eakg-onboard-repo skill
 
 **Session type:** Ops + tooling

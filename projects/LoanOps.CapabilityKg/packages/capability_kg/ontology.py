@@ -41,6 +41,14 @@ CLASS_CROSS_APP_RELATIONSHIP = "CrossAppRelationship"
 CLASS_EVIDENCE = "Evidence"
 CLASS_PROPOSAL = "Proposal"
 
+# v3 business process (ADR-028)
+CLASS_BUSINESS_PROCESS = "BusinessProcess"
+CLASS_PROCESS_STEP = "ProcessStep"
+CLASS_TRANSITION = "Transition"
+CLASS_CAPABILITY_LINK = "CapabilityLink"
+CLASS_BUSINESS_SYSTEM = "BusinessSystem"
+CLASS_REGULATION = "Regulation"
+
 PRED_HAS_DOMAIN = "hasDomain"
 PRED_IMPLEMENTED_BY = "implementedBy"
 PRED_EXPOSED_BY = "exposedBy"
@@ -95,6 +103,55 @@ PRED_PROXY_BASE = "proxyBase"
 PRED_COMPOSED_PATH = "composedPath"
 PRED_CALLER_SYMBOL = "callerSymbol"
 PRED_HOSTS = "hosts"
+
+# v3 process predicates (ADR-028)
+PRED_HAS_STEP = "hasStep"
+PRED_FIRST_STEP = "firstStep"
+PRED_HAS_TRANSITION = "hasTransition"
+PRED_FROM_STEP = "fromStep"
+PRED_TO_STEP = "toStep"
+PRED_GUARD_LABEL = "guardLabel"
+PRED_TRANSITION_KIND = "transitionKind"
+PRED_STEP_KIND = "stepKind"
+PRED_SUB_PROCESS_OF = "subProcessOf"
+PRED_HAS_CAPABILITY_LINK = "hasCapabilityLink"
+PRED_TO_CAPABILITY = "toCapability"
+PRED_OPERATION_KEY = "operationKey"
+PRED_LINK_TYPE = "linkType"
+PRED_LINK_STATUS = "linkStatus"
+PRED_USES_SYSTEM = "usesSystem"
+PRED_GOVERNED_BY = "governedBy"
+PRED_SOP_ROLE_LABEL = "sopRoleLabel"
+PRED_PROCEDURE_ID = "procedureId"
+PRED_EFFECTIVE_DATE = "effectiveDate"
+PRED_SOURCE_SECTION = "sourceSection"
+PRED_SOURCE_ORDINAL = "sourceOrdinal"
+PRED_SOURCE_PAGE_ID = "sourcePageId"
+PRED_SOURCE_VERSION = "sourceVersion"
+PRED_SOURCE_HASH = "sourceHash"
+PRED_EXTRACTOR_VERSION = "extractorVersion"
+PRED_MAPS_HASH = "mapsHash"
+PRED_THRESHOLD_TEXT = "thresholdText"
+PRED_THRESHOLD_VALUE = "thresholdValue"
+PRED_THRESHOLD_UNIT = "thresholdUnit"
+PRED_SOURCE_COMPLETENESS = "sourceCompleteness"
+PRED_EXTRACTION_STATUS = "extractionStatus"
+PRED_VALIDATION_STATUS = "validationStatus"
+PRED_SOURCE_STATUS = "sourceStatus"
+PRED_LOST_FEATURES = "lostFeatures"
+
+STEP_KINDS = frozenset({"start", "task", "decision", "end"})
+TRANSITION_KINDS = frozenset({"normal", "override", "loopback"})
+LINK_STATUSES = frozenset({"ok", "broken", "unverified"})
+THRESHOLD_UNITS = frozenset(
+    {"calendar_days", "business_days", "days_unspecified", "months"}
+)
+SOURCE_COMPLETENESS = frozenset(
+    {"lossy_unverified", "verified_complete", "complete_unverified"}
+)
+EXTRACTION_STATUSES = frozenset({"full", "partial", "stub"})
+VALIDATION_STATUSES = frozenset({"pass", "fail"})
+SOURCE_STATUSES = frozenset({"current", "stale"})
 
 # CrossAppRelationship kinds
 KIND_CALLS_OPERATION = "callsOperation"

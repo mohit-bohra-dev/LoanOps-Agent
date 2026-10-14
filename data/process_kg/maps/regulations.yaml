@@ -1,0 +1,8 @@
+# Approved gazetteer (ADR-028). LLM-drafted once; human-reviewed.
+version: "1.0.0"
+approved: true
+items:
+  - id: efta
+    labels: ["EFTA", "Electronic Funds Transfer Act", "Electronic Fund Transfer Act"]
+  - id: respa
+    labels: ["RESPA", "Real Estate Settlement Protection Act", "Real Estate Settlement Procedures Act"]

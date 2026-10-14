@@ -1,0 +1,8 @@
+# Manual small list (ADR-028). Not LLM-drafted.
+version: "1.0.0"
+approved: true
+phrases:
+  - "Stop here"
+  - "Stop."
+  - "not EFTA sensitive"
+  - "the loan is not EFTA sensitive"
