@@ -87,7 +87,10 @@ def project_links(
         links.append(
             {
                 "eakg_operation": eakg_operation_local_name(
-                    iface.application_id, op.action, op.http_method
+                    iface.application_id,
+                    op.action,
+                    op.http_method,
+                    op.http_path,
                 ),
                 "join_key": join_key(iface.application_id, op.http_method, op.http_path),
                 "graphify_node_id": str(hit.get("id") or ""),

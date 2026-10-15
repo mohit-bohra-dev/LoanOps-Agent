@@ -1,0 +1,10 @@
+# ADR-029 approved patterns — SDK package suffixes for nuget_sdk detector.
+# Patterns only widen detection; never define capability semantics or callable.
+client_suffixes:
+  - ".Client"
+domain_suffixes:
+  - ".Domain"
+added_by: bootstrap
+approved_by: adr-029
+approved_at: "2026-10-15"
+motivating: []

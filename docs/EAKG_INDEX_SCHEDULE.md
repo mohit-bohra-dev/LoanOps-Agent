@@ -9,6 +9,10 @@ Three tiers call the same CLI. Do not re-clone everything nightly.
 | Per-merge | On merge to `main` | `python -m packages.eakg sync repo --id <repo_id>` | No |
 | Nightly | ~02:00 local | `python -m packages.eakg sync nightly` | Proposals only (flagged) |
 | Weekly audit | Monday | `python -m packages.eakg sync audit` | No |
+| Investigate (opt-in) | Manual | `python -m packages.eakg investigate --id <repo> --dry-run` then with `EAKG__INVESTIGATE_AGENT=1` | ADR-029 investigator over gap ledger only |
+| Patterns | Manual | `python -m packages.eakg patterns hash` / `patterns backtest --proposal …` | No (deterministic backtest) |
+
+ADR-029: deterministic analyzers own coverage; LLM investigates ledger gaps only when `EAKG__INVESTIGATE_AGENT=true` (default off). Candidates stay `pending_review` / `callable=false` until human publish. Pattern YAMLs under `data/eakg/patterns/` require backtest + git merge before the next extract absorbs them (`patterns_hash` → `reextract_required`).
 
 ## Prerequisites
 

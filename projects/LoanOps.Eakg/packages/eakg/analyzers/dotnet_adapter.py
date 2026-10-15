@@ -9,7 +9,6 @@ from packages.eakg.analyzers.types import (
     AnalyzerResult,
     FragmentNode,
     GraphFragment,
-    Provenance,
 )
 from packages.eakg.extractors.dotnet import extract_repo
 from packages.eakg.models import ApiOperationFact
@@ -17,7 +16,7 @@ from packages.eakg.models import ApiOperationFact
 
 class DotNetRoslynAdapter:
     id = "dotnet_roslyn"
-    version = "2.0.0"
+    version = "2.1.0"
     languages = frozenset({"csharp"})
     produces_api_surface = True
     fatal = True
@@ -66,10 +65,14 @@ class DotNetRoslynAdapter:
                     )
                 )
         extractor_id = str(details.get("extractor") or self.id)
+        op_facts: list[ApiOperationFact] = []
+        if isinstance(ops, list):
+            op_facts = [o for o in ops if isinstance(o, ApiOperationFact)]
         extra: dict[str, object] = {
             "repo_interface": iface,
             "details": details,
             "extractor": extractor_id,
+            "operation_facts": op_facts,
         }
         return AnalyzerResult(
             fragment=GraphFragment(nodes=nodes),

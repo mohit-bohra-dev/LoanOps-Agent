@@ -27,11 +27,17 @@ Use these instead of treating every open checkbox as equal priority.
 - [ ] Manual EAKG sync only — **D10:** no Task Scheduler, no cloud schedule — `docs/EAKG_INDEX_SCHEDULE.md`
 - [x] Live SSE swagger verify — Loan Services dev 292 ops + GET Summary **200** (2026-10-03) — `docs/SSE_LIVE_SWAGGER.md`
 - [ ] Team `swagger tofile` ask — `docs/EAKG_SWAGGER_EXPORT.md`
-- [ ] **Multi-stack API extract (beyond `*Controller`)** — today Roslyn only indexes `*Controller.cs` / `*Controller` types; ASP.NET **Minimal APIs** (`MapGet`/`MapPost`/…) and non-.NET HTTP APIs are missed → empty/weak `interface.operations` + ApiIndex join.
-  - [ ] .NET Minimal API: extend `tools/eakg-dotnet-extract` (or sibling) for `Map*` / `MapGroup` endpoint registration; fixtures + onboard smoke
-  - [ ] Pluggable extractor Protocol per language/stack (`EAKG__EXTRACTOR` / registry `technology`): Java/Spring, Node (Express/Fastify), Python (FastAPI/Flask), Go — ops + path/method at minimum
+- [x] **Multi-stack API extract (beyond `*Controller`)** — Roslyn Minimal APIs + tree-sitter Python/Node (2026-10-15). Canonical route identity + multi-adapter merge. Re-onboard after RDF URI change.
+  - [x] .NET Minimal API: `Map*` / `MapGroup` / fluent authz in `tools/eakg-dotnet-extract` v2.1.0
+  - [x] Tree-sitter: Python (FastAPI/Flask) + Node (Express/Fastify); Java/Go still backlog
   - [ ] Prefer OpenAPI-primary when swagger is complete; code extract fills gaps + evidence (same join shape as today)
-  - [ ] Keep ADR-018: no LLM in structural extract; tree-sitter/CodeQL as Phase 2 helpers (supersedes vague “Static analyzer extras” line below when this ships)
+  - [x] ADR-018 amended: tree-sitter shipping for py/node; CodeQL out; LLM investigator under ADR-029
+- [x] **ADR-029** — Deterministic extract + LLM investigator + pattern feedback (not GraphRAG) — revised 2026-10-15; implemented
+  - [x] Coverage manifest + `ConflictRecord` + `gap_ledger` + `candidate_gate` + `investigate_agent`
+  - [x] Pattern store `data/eakg/patterns/` + backtest + CLI `investigate` / `patterns`
+  - [x] Sources: OpenAPI join gaps, cross-app near-misses, TAAC unmapped keys, code coverage holes
+  - [x] Process: rule baseline benchmark tests; investigator gated until benchmark wins
+  - [ ] Process investigator adoption (after fixture A/B beats rule extractor)
 
 ### Later / parked
 
@@ -39,7 +45,8 @@ Use these instead of treating every open checkbox as equal priority.
 - [ ] **D9** push `vdd` to GitLab — **not yet**; after full test pass
 - [x] **Roslyn .NET extractor** cutover (D5) — `tools/eakg-dotnet-extract`, `EAKG__EXTRACTOR=auto`
 - [x] Repo #4+ — **D6 freeze at 3** (Escrow/Fees/LoanServices); guide when unfrozen: `docs/EAKG_ONBOARD_REPO.md`
-- [ ] Static analyzer extras: tree-sitter / CodeQL (Phase 2) — **see Next: Multi-stack API extract**
+- [x] Static analyzer extras: tree-sitter Python/Node shipped with multi-stack extract (2026-10-15). CodeQL out (license). Taint = SonarQube on SSE pipelines.
+- [ ] **SonarQube findings → EAKG graph** — every SSE pipeline already runs SonarQube. Later: pull open vulnerabilities / security hotspots (`api/issues/search`, `api/hotspots/search`) into the graph as finding nodes with `Evidence` (`detector_id=sonarqube`), linked to an existing operation when file+line overlap. Do **not** store them as `callsApplication` (Sonar gives locations, not a resolved app URL). Needs a SonarQube provider + env var (token, base URL, project-key → repository id) before any client code. Re-sync and drop closed issues. Not an API catalog.
 - [ ] Graphify offline enrichment into RDF (Phase 10)
 - [ ] Human review workflow UI — **D8:** both CLI + Web UI (CLI live; UI still to build)
 - [ ] ARD implement (Phase 14) — after 11–12; draft `docs/ARD_RESOURCE_CHOICE.md`

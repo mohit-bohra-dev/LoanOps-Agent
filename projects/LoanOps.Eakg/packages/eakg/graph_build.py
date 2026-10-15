@@ -68,6 +68,7 @@ from packages.eakg.models import (
     Evidence,
     RepoInterface,
 )
+from packages.eakg.route_identity import normalize_path, route_key, route_key_hash
 from rdflib import Graph, Literal
 from rdflib.namespace import RDF, RDFS, XSD
 
@@ -156,12 +157,16 @@ def interface_to_graph(
 
     ev_counter = 0
     for op in ops:
-        op_id = op.action or op.operation_key
-        op_uri = ns[f"op_{_safe(iface.application_id)}_{_safe(op_id)}_{_safe(op.http_method)}"]
+        method = (op.http_method or "GET").upper()
+        path = normalize_path(op.http_path)
+        rkey = route_key(method, path)
+        rhash = route_key_hash(rkey)
+        op_id = op.action or op.operation_key or rkey
+        op_uri = ns[f"op_{_safe(iface.application_id)}_{rhash}"]
         g.add((op_uri, RDF.type, ns[CLASS_API_OPERATION]))
         g.add((op_uri, ns[PRED_OPERATION_ID], Literal(op_id)))
-        g.add((op_uri, ns[PRED_HTTP_METHOD], Literal(op.http_method)))
-        g.add((op_uri, ns[PRED_HTTP_PATH], Literal(op.http_path)))
+        g.add((op_uri, ns[PRED_HTTP_METHOD], Literal(method)))
+        g.add((op_uri, ns[PRED_HTTP_PATH], Literal(path)))
         g.add((op_uri, ns[PRED_BELONGS_TO_APP], app))
         g.add((op_uri, ns[PRED_AUTHZ_SOURCE], Literal(op.authz_source)))
         g.add((op_uri, ns[PRED_READ_ONLY], Literal(op.read_only, datatype=XSD.boolean)))
@@ -178,8 +183,9 @@ def interface_to_graph(
         # Seed capability from operation (structural; review_status discovered)
         cap_name = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", op_id)
         cap_name = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", cap_name).lower()
-        cap = ns[f"cap_{_safe(iface.application_id)}_{_safe(cap_name)}"]
+        cap = ns[f"cap_{_safe(iface.application_id)}_{rhash}"]
         comment = op.summary or f"Capability for {op_id}"
+        source = op.evidence[0].detector_id if op.evidence else "static_dotnet"
         g.add((cap, RDF.type, ns[CLASS_CAPABILITY]))
         g.add((cap, RDFS.label, Literal(cap_name)))
         g.add((cap, RDFS.comment, Literal(comment)))
@@ -187,7 +193,7 @@ def interface_to_graph(
         g.add((cap, ns[PRED_IMPLEMENTED_BY], op_uri))
         g.add((cap, ns[PRED_BELONGS_TO_APP], app))
         g.add((cap, ns[PRED_REVIEW_STATUS], Literal("discovered")))
-        g.add((cap, ns[PRED_SOURCE], Literal("static_dotnet")))
+        g.add((cap, ns[PRED_SOURCE], Literal(source)))
         g.add((cap, ns[PRED_READ_ONLY], Literal(op.read_only, datatype=XSD.boolean)))
         if op.authz_policy:
             g.add((cap, ns[PRED_REQUIRES_PERMISSION], Literal(op.authz_policy)))
@@ -371,10 +377,10 @@ def enrich_operations_from_openapi(
         for method, op in item.items():
             if method.startswith("x-") or not isinstance(op, dict):
                 continue
-            by_mp[f"{method.upper()}:{path}"] = op
+            by_mp[route_key(method.upper(), str(path))] = op
     new_ops: list[dict[str, Any]] = []
     for o in iface.operations:
-        key = f"{o.get('method')}:{o.get('path')}"
+        key = route_key(str(o.get("method") or "GET"), str(o.get("path") or "/"))
         op = by_mp.get(key)
         row = dict(o)
         if op:

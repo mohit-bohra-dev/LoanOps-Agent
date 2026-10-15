@@ -7,10 +7,10 @@ Recorded 2026-10-02. Cross-links: [`DECIDE_AND_CLEANUP.md`](DECIDE_AND_CLEANUP.m
 
 | Layer | Recommendation | Decision | In LoanOps-Agent today |
 |---|---|---|---|
-| **Source-code analysis (.NET)** | **Roslyn** | ✅ Primary | ✅ **Shipping:** `tools/eakg-dotnet-extract` + `EAKG__EXTRACTOR=auto` (Roslyn then regex). Detector `dotnet_roslyn` v2. |
+| **Source-code analysis (.NET)** | **Roslyn** | ✅ Primary | ✅ **Shipping:** controllers + Minimal APIs (`dotnet_roslyn` v2.1.0) + regex surface facts |
 | **API analysis** | **OpenAPI parser** | ✅ Primary | ✅ `packages/eakg/openapi_enrich.py` + `packages/sse` OpenAPI catalog |
-| **Cross-language / deep analysis** | **CodeQL** | 🟡 Phase 2 | ❌ Not started |
-| **Generic parsing** | **Tree-sitter** | 🟡 Phase 2 | ❌ Optional later (was ADR-018 alt); not Phase 1 |
+| **Cross-language / deep analysis** | **CodeQL** | ❌ Out | License blocks private SSE clones; taint covered by SonarQube on SSE pipelines |
+| **Generic parsing** | **Tree-sitter** | ✅ Shipping (partial) | ✅ Python + Node/TS route extract; Java/Go backlog |
 | **Engineering / code graph** | **Graphify** | 🟡 Reuse existing | ✅ `graphify-out/` — LoanOps code intelligence only; **not** enterprise capability registry |
 | **Capability graph** | **RDF + RDFLib** | ✅ Primary | ✅ `packages/capability_kg` + `packages/eakg` shards (EAKG = truth, D4) |
 | **Graph querying** | **SPARQL** | ✅ Primary | ✅ Behind `CapabilityCatalog` / EAKG query helpers |

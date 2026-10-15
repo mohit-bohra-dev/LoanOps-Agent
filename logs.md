@@ -1,3 +1,68 @@
+## [2026-10-15] — ADR-029 investigator + pattern feedback (implemented)
+
+**Session type:** Implementation
+
+**Completed:**
+- ADR-029 revised: deterministic coverage/facts; LLM investigates gap ledger only; pattern feedback via git
+- Modules: `coverage`, `gap_ledger`, `candidate_gate`, `investigate_agent`, `patterns`, `pattern_backtest`, `openapi_ledger`
+- `ConflictRecord` in `merge_api`; near-misses in `detectors`; onboard writes coverage + ledger
+- Settings: `EAKG__INVESTIGATE_AGENT` (default off), `patterns_dir`, `investigate_max_rounds`
+- CLI: `investigate`, `patterns hash|backtest`; bootstrap patterns under `data/eakg/patterns/`
+- Tests: `test_adr029_investigate.py`, process rule baseline benchmark
+- Docs/TASKS/schedule updated
+
+---
+
+## [2026-10-15] — ADR-029 LLM gap-fill structural facts
+
+**Session type:** Decision / plan revise
+
+**Completed:**
+- Evolved through Option 3 → LLM-primary → agent-tools → design review → investigator architecture
+- ADR-029 rewritten (see implementation entry above)
+
+---
+
+## [2026-10-15] — Multi-lang structural API extract (review fixes)
+
+**Session type:** Implementation
+
+**Completed:**
+- Express `router.route(path).get` applies `app.use` mount prefixes; Fastify object-only `route`
+- Engineering join `eakg_operation_local_name` matches RDF route-key hash URIs
+- Fixture: Node legacy under `/api`; Python `APIRouter` paren typo fixed
+- Zero-ops onboard fail kept (plan contract); package/proxy surface still DotNet-only
+- Break merge_api ↔ treesitter_adapter circular import; lock RDF↔join + preserve-shard tests
+
+**Migration:** Re-onboard registered apps for new op/capability IRIs (no committed shards in repo).
+
+---
+
+## [2026-10-15] — Multi-lang structural API extract
+
+**Session type:** Implementation
+
+**Completed:**
+- Canonical route identity (`route_identity.py`) + multi-adapter merge (`merge_api.py`)
+- RDF op/capability URIs keyed by route-key hash (re-onboard required)
+- Roslyn `dotnet_roslyn` 2.1.0: Minimal APIs (`Map*`/`MapGroup`/fluent authz)
+- Tree-sitter adapters: FastAPI/Flask + Express/Fastify (MIT wheels)
+- Onboard runs all API adapters; Java still unsupported
+- ADR-018 amended; extractor + stack docs + TASKS updated
+- Tests: route identity, Minimal API fixture, Python/Node fixtures
+
+**Migration:** Re-onboard registered apps so GraphDB named graphs pick up new op/capability IRIs.
+
+---
+
+## [2026-10-15] — Park SonarQube findings → EAKG graph
+
+**Session type:** Note
+
+**Decision:** Do not add CodeQL for taint. Every SSE pipeline already runs SonarQube. Later task in `TASKS.md`: import open vulnerabilities / hotspots as finding nodes + evidence, linked to operations by file+line. Not `callsApplication`. Needs a SonarQube provider + env var first.
+
+---
+
 ## [2026-10-15] — ADR-028 process KG pilot (Account Maintenance)
 
 **Session type:** Implementation

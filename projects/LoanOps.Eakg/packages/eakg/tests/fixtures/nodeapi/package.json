@@ -1,0 +1,9 @@
+{
+  "name": "nodeapi-fixture",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "^4.0.0",
+    "fastify": "^4.0.0"
+  }
+}

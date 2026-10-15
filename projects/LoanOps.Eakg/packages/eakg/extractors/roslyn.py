@@ -14,7 +14,7 @@ from packages.eakg.models import ApiOperationFact, AuthzSource, Evidence
 logger = logging.getLogger(__name__)
 
 DETECTOR_ID = "dotnet_roslyn"
-DETECTOR_VERSION = "2.0.0"
+DETECTOR_VERSION = "2.1.0"
 
 
 def _loanops_repo_root() -> Path:

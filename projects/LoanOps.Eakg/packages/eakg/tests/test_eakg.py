@@ -109,6 +109,35 @@ def test_extract_loanservices_roslyn_ops() -> None:
     assert ops[0].evidence[0].detector_id == "dotnet_roslyn"
 
 
+def test_extract_minimal_api_roslyn_ops() -> None:
+    from packages.eakg.extractors.roslyn import roslyn_tool_available
+
+    if not roslyn_tool_available():
+        pytest.skip("dotnet SDK / roslyn tool not available")
+    _, details = extract_repo(
+        FIX / "minimalapi",
+        repository_id="minimalapi",
+        application_id="minimalapi",
+        commit_sha="min1",
+        api_project_path="src/MinimalApi.Web",
+        extractor="roslyn",
+    )
+    detail = cast(dict[str, Any], details)
+    ops = detail["operations"]
+    assert isinstance(ops, list) and ops
+    by_action = {o.action: o for o in ops}
+    assert "GetLoan" in by_action
+    assert by_action["GetLoan"].http_path == "/api/loans/{id}"
+    assert by_action["GetLoan"].http_method == "GET"
+    assert by_action["GetLoan"].authz_source == "class-level"
+    assert "Health" in by_action
+    assert by_action["Health"].authz_policy == "AllowAnonymous"
+    assert by_action["Health"].authz_source == "attribute"
+    create = next(o for o in ops if o.http_method == "POST" and "/loans" in o.http_path)
+    assert create.authz_policy == "LoansWrite"
+    assert all(o.evidence[0].detector_version == "2.1.0" for o in ops)
+
+
 def test_extract_escrow_authorize() -> None:
     _, details = extract_repo(
         FIX / "escrow",

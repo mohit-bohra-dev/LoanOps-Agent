@@ -209,6 +209,35 @@ def main(argv: list[str] | None = None) -> int:
         default="data/process_kg/account-maintenance.proposal.json",
     )
 
+    p_inv = sub.add_parser(
+        "investigate",
+        help="ADR-029: LLM investigator over gap ledger (EAKG__INVESTIGATE_AGENT)",
+    )
+    p_inv.add_argument("--id", default="", help="repository_id (or enterprise/cross_app)")
+    p_inv.add_argument("--limit", type=int, default=5)
+    p_inv.add_argument(
+        "--ledger",
+        default="",
+        help="Optional path to gap_ledger.json (default: shard or enterprise)",
+    )
+    p_inv.add_argument(
+        "--openapi-report",
+        default="",
+        help="Optional ApiIndex mismatch report JSON to merge into ledger",
+    )
+    p_inv.add_argument("--dry-run", action="store_true", help="Build ledger only; no LLM")
+
+    p_pat = sub.add_parser("patterns", help="ADR-029 pattern store / backtest")
+    pat_sub = p_pat.add_subparsers(dest="patterns_cmd", required=True)
+    pat_sub.add_parser("hash", help="Print patterns_hash for EAKG__PATTERNS_DIR")
+    p_bt = pat_sub.add_parser("backtest", help="Backtest a pattern proposal JSON")
+    p_bt.add_argument("--proposal", required=True, help="JSON file with pattern payload")
+    p_bt.add_argument(
+        "--motivating",
+        default="",
+        help="Optional JSON list of ledger items",
+    )
+
     args = parser.parse_args(argv)
     cfg = Settings()
     registry, store, arts = eakg_runtime(cfg)
@@ -585,6 +614,103 @@ def main(argv: list[str] | None = None) -> int:
 
         print(json.dumps(asyncio.run(_q()), indent=2, default=str))
         return 0
+
+    if args.cmd == "investigate":
+        from pathlib import Path
+
+        from packages.eakg.gap_ledger import LedgerItem, from_openapi_join_report
+        from packages.eakg.investigate_agent import (
+            InvestigateContext,
+            investigate_ledger,
+        )
+        from packages.eakg.patterns import load_patterns
+
+        rid = args.id or "enterprise"
+        ledger_path = Path(args.ledger) if args.ledger else None
+        if ledger_path is None:
+            candidate = store.repo_dir(rid) / "gap_ledger.json"
+            if not candidate.is_file():
+                candidate = store.enterprise_root / "gap_ledger.json"
+            ledger_path = candidate
+        items: list[LedgerItem] = []
+        if ledger_path.is_file():
+            raw_items = json.loads(ledger_path.read_text(encoding="utf-8"))
+            items = [LedgerItem.from_dict(x) for x in raw_items if isinstance(x, dict)]
+        if args.openapi_report:
+            report = json.loads(Path(args.openapi_report).read_text(encoding="utf-8"))
+            items.extend(from_openapi_join_report(report, repository_id=rid))
+        if args.dry_run or not cfg.eakg.investigate_agent:
+            print(
+                json.dumps(
+                    {
+                        "dry_run": True,
+                        "investigate_agent": cfg.eakg.investigate_agent,
+                        "items": len(items),
+                        "ledger": [i.to_dict() for i in items[: args.limit]],
+                    },
+                    indent=2,
+                )
+            )
+            return 0
+        from packages.common.providers.factory import get_chat_provider
+
+        patterns = load_patterns(cfg.eakg.patterns_dir)
+        chat = get_chat_provider()
+        results = asyncio.run(
+            investigate_ledger(
+                items,
+                chat=chat,
+                ctx=InvestigateContext(store=store, repository_id=rid),
+                store=store,
+                max_rounds=cfg.eakg.investigate_max_rounds,
+                patterns_hash=patterns.patterns_hash,
+                limit=args.limit,
+            )
+        )
+        print(
+            json.dumps(
+                {
+                    "runs": len(results),
+                    "results": [r.to_dict() for r in results],
+                },
+                indent=2,
+            )
+        )
+        return 0
+
+    if args.cmd == "patterns":
+        from pathlib import Path
+
+        from packages.eakg.gap_ledger import LedgerItem
+        from packages.eakg.pattern_backtest import backtest_from_dirs
+        from packages.eakg.patterns import load_patterns
+
+        if args.patterns_cmd == "hash":
+            ps = load_patterns(cfg.eakg.patterns_dir)
+            print(json.dumps({"patterns_dir": cfg.eakg.patterns_dir, "hash": ps.patterns_hash}))
+            return 0
+        if args.patterns_cmd == "backtest":
+            proposal = json.loads(Path(args.proposal).read_text(encoding="utf-8"))
+            payload = proposal.get("payload") or proposal.get("candidate") or proposal
+            motivating: list[LedgerItem] = []
+            if args.motivating:
+                raw_m = json.loads(Path(args.motivating).read_text(encoding="utf-8"))
+                motivating = [
+                    LedgerItem.from_dict(x) for x in raw_m if isinstance(x, dict)
+                ]
+            ifaces = []
+            for rec in registry.list():
+                iface = store.read_interface(rec.repository_id)
+                if iface is not None:
+                    ifaces.append(iface)
+            report = backtest_from_dirs(
+                patterns_dir=cfg.eakg.patterns_dir,
+                proposal_payload=payload if isinstance(payload, dict) else {},
+                motivating_items=motivating,
+                interfaces=ifaces,
+            )
+            print(json.dumps(report.to_dict(), indent=2))
+            return 0 if report.passed else 2
 
     return 1
 

@@ -336,6 +336,10 @@ class EakgConfig(BaseModel):
     taac_fixture_path: str = "data/eakg/fixtures/taac-client-config.redacted.json"
     # Default-on Graphify AST per app during sync/onboard (non-fatal; shard engineering/)
     engineering_graph: bool = True
+    # ADR-029: LLM investigator over gap ledger (default off — deterministic only)
+    investigate_agent: bool = False
+    investigate_max_rounds: int = Field(default=8, ge=1, le=32)
+    patterns_dir: str = "data/eakg/patterns"
 
 
 class ApiIndexConfig(BaseModel):

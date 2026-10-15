@@ -19,6 +19,7 @@ from packages.capability_kg.ontology import (
     RELATIONSHIP_KINDS,
 )
 from packages.eakg.models import CrossAppRelationship, Evidence, RepoInterface, utc_now_iso
+from packages.eakg.patterns import PatternSet
 from packages.eakg.taac import normalize_topic, url_key_to_app_id
 
 
@@ -57,6 +58,7 @@ class EnterpriseIndex:
     connection_key_to_catalog: dict[str, str]
     catalog_owner_app: dict[str, str]  # LoanServicing → loanservices
     interfaces: dict[str, RepoInterface]
+    patterns: PatternSet | None = None
 
     def app_for_package(self, package_id: str) -> str | None:
         # PNMAC.LoanServices.Client → loanservices
@@ -64,6 +66,17 @@ class EnterpriseIndex:
         if not m:
             return None
         return m.group(1).lower()
+
+    def sdk_kind(self, package_id: str) -> str | None:
+        """Return consumesSdk / sharesDto kind from patterns (or defaults)."""
+        pats = self.patterns or PatternSet()
+        for suf in pats.sdk_client_suffixes:
+            if package_id.endswith(suf):
+                return KIND_CONSUMES_SDK
+        for suf in pats.sdk_domain_suffixes:
+            if package_id.endswith(suf):
+                return KIND_SHARES_DTO
+        return None
 
 
 DetectorFn = Callable[
@@ -79,8 +92,8 @@ def detect_nuget_sdk(iface: RepoInterface, index: EnterpriseIndex) -> list[Cross
         target = index.app_for_package(pid)
         if not target or target == iface.application_id:
             continue
-        kind = KIND_CONSUMES_SDK if pid.endswith(".Client") else KIND_SHARES_DTO
-        if kind == KIND_SHARES_DTO and not pid.endswith(".Domain"):
+        kind = index.sdk_kind(pid)
+        if kind is None:
             continue
         ev = _ev_from_iface(
             iface,
@@ -308,8 +321,12 @@ def detect_data_store(iface: RepoInterface, index: EnterpriseIndex) -> list[Cros
             else:
                 continue
         owner = index.catalog_owner_app.get(catalog.lower())
+        if not owner and index.patterns is not None:
+            owner = index.patterns.datastore_owners.get(catalog.lower()) or index.patterns.datastore_owners.get(
+                catalog
+            )
         if not owner:
-            # LoanServicing owned by loanservices
+            # LoanServicing owned by loanservices (pilot heuristic fallback)
             if "loanservic" in catalog.lower():
                 owner = "loanservices"
             elif "fee" in catalog.lower():
@@ -454,3 +471,64 @@ def run_detectors(
                 continue
             kept.append(rel)
     return kept, dropped
+
+
+def collect_near_misses(
+    iface: RepoInterface,
+    index: EnterpriseIndex,
+) -> list[dict[str, object]]:
+    """Deterministic near-misses for the gap ledger (not emitted as edges)."""
+    misses: list[dict[str, object]] = []
+    # Proxies with url_key but no callsApplication edge target
+    emitted_targets = {
+        r.to_application
+        for r in detect_proxy_class(iface, index)
+        if r.to_application
+    }
+    for proxy in iface.proxies:
+        url_key = proxy.get("url_key") if isinstance(proxy, dict) else None
+        if not url_key:
+            misses.append(
+                {
+                    "kind": "proxy_missing_url_key",
+                    "feature": str(
+                        (proxy.get("class_name") if isinstance(proxy, dict) else None) or "proxy"
+                    ),
+                    "proxy": proxy,
+                }
+            )
+            continue
+        target = index.url_key_to_app.get(str(url_key)) or url_key_to_app_id(str(url_key))
+        if target and target != iface.application_id and target not in emitted_targets:
+            misses.append(
+                {
+                    "kind": "proxy_unmatched_target",
+                    "feature": str(target),
+                    "url_key": url_key,
+                    "to_application": target,
+                }
+            )
+    # Packages that look like SDKs but fail pattern / app_for_package
+    for pkg in iface.packages:
+        pid = str(pkg.get("package_id") or "")
+        if not pid.startswith("PNMAC."):
+            continue
+        if index.sdk_kind(pid) is None and (
+            pid.endswith(".Client") or pid.endswith(".Domain") or "Client" in pid
+        ):
+            misses.append(
+                {
+                    "kind": "sdk_pattern_miss",
+                    "feature": pid,
+                    "package_id": pid,
+                }
+            )
+        elif index.app_for_package(pid) is None and index.sdk_kind(pid) is not None:
+            misses.append(
+                {
+                    "kind": "sdk_app_unmapped",
+                    "feature": pid,
+                    "package_id": pid,
+                }
+            )
+    return misses

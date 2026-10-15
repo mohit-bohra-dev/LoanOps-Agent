@@ -7,6 +7,25 @@ from typing import Protocol, runtime_checkable
 
 from packages.eakg.analyzers.types import AnalyzerResult, Inventory
 
+_SKIP_PARTS = frozenset(
+    {
+        "node_modules",
+        ".git",
+        ".venv",
+        "venv",
+        "dist",
+        "build",
+        "target",
+        "bin",
+        "obj",
+        "__pycache__",
+    }
+)
+
+
+def _under_skip(path: Path) -> bool:
+    return any(part in _SKIP_PARTS for part in path.parts)
+
 
 @runtime_checkable
 class Analyzer(Protocol):
@@ -39,7 +58,7 @@ def inventory(repo: Path) -> Inventory:
     root = Path(repo)
     languages: list[str] = []
     projects: list[str] = []
-    csprojs = list(root.rglob("*.csproj"))
+    csprojs = [p for p in root.rglob("*.csproj") if not _under_skip(p)]
     if csprojs:
         languages.append("csharp")
         for p in csprojs:
@@ -47,19 +66,36 @@ def inventory(repo: Path) -> Inventory:
                 projects.append(str(p.relative_to(root)).replace("\\", "/"))
             except ValueError:
                 projects.append(str(p).replace("\\", "/"))
-    if (root / "package.json").is_file():
+
+    pkg_jsons = [p for p in root.rglob("package.json") if not _under_skip(p)]
+    if pkg_jsons or (root / "package.json").is_file():
         languages.append("javascript")
-    ts_hit = next(root.rglob("*.ts"), None) is not None or next(root.rglob("*.tsx"), None) is not None
+
+    ts_hit = any(
+        not _under_skip(p)
+        for p in list(root.rglob("*.ts"))[:20] + list(root.rglob("*.tsx"))[:20]
+    )
     if ts_hit:
         languages.append("typescript")
-    if (root / "pyproject.toml").is_file():
+
+    py_markers = (
+        list(root.rglob("pyproject.toml"))
+        + list(root.rglob("requirements.txt"))
+        + list(root.rglob("setup.py"))
+    )
+    py_markers = [p for p in py_markers if not _under_skip(p)]
+    if py_markers or any(
+        not _under_skip(p) for p in list(root.rglob("*.py"))[:5]
+    ):
         languages.append("python")
-    poms = list(root.glob("pom.xml")) or list(root.rglob("pom.xml"))[:1]
+
+    poms = [p for p in root.rglob("pom.xml") if not _under_skip(p)]
     if poms:
         languages.append("java")
-    if next(root.rglob("*.sql"), None) is not None:
+
+    if any(not _under_skip(p) for p in list(root.rglob("*.sql"))[:5]):
         languages.append("sql")
-    # unique preserve order
+
     seen: set[str] = set()
     uniq: list[str] = []
     for lang in languages:

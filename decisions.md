@@ -362,8 +362,10 @@ Repository, Deployable, ApiSurface, CodeUnit, DataStore, EventTopic,
 SdkPackage, AuthProvider, CrossAppRelationship, Evidence, and Proposal
 classes. Model cross-application edges as first-class nodes that must carry
 at least one Evidence node (repositoryId, commitSha, filePath, line range,
-detectorId, confidence). Structural facts come from extractors; LLM writes
-only Proposal overlays.
+detectorId, confidence). Structural facts come primarily from extractors;
+LLM may **investigate** ledger gaps only under ADR-029 (candidates with
+Evidence `detectorId=llm_investigate*`, review-gated; patterns via git).
+Label/group overlays remain Proposal nodes (ADR-014 ReviewStatus).
 
 **Context:** Pilot of Escrow, Fees, and LoanServices showed repeatable
 platform idioms for cross-app calls, but relationships without provenance
@@ -374,9 +376,12 @@ Neo4j property graph from day one.
 
 **Reasoning:** First-class relationship nodes keep confidence and review
 status attachable. Evidence requirement matches the project citation rule.
-LLM proposals stay human-gated (ADR-014 ReviewStatus).
+LLM proposals stay human-gated (ADR-014 ReviewStatus). Gap-fill structural
+writes are constrained by ADR-029 (investigator + pattern feedback, not
+free-form GraphRAG).
 
-**Status:** Accepted (plan approved 2026-10-02).
+**Status:** Accepted (plan approved 2026-10-02). **LLM boundary amended by
+ADR-029** (2026-10-15, investigator architecture).
 
 ---
 
@@ -424,26 +429,37 @@ local artifact until cutover completes.
 
 ## ADR-018 — Static .NET extraction: Roslyn primary, regex fallback
 
-**Decision (amended 2026-10-02 D5 upgrade):** **Roslyn** syntax-tree extraction is
-the primary controller/operation extractor (`tools/eakg-dotnet-extract`, detector
-`dotnet_roslyn`). Selected via `EAKG__EXTRACTOR=auto|roslyn|regex` (default
-`auto`: try Roslyn, fall back to regex). Packages, appsettings topics,
+**Decision (amended 2026-10-15 multi-lang):** **Roslyn** syntax-tree extraction is
+the primary .NET controller + Minimal API extractor (`tools/eakg-dotnet-extract`,
+detector `dotnet_roslyn` v2.1.0). Selected via `EAKG__EXTRACTOR=auto|roslyn|regex`
+(default `auto`: try Roslyn, fall back to regex). Packages, appsettings topics,
 connection strings, proxies, and String.Format routes remain in the Python
-regex module. Tree-sitter and CodeQL are **Phase 2**. No LLM in structural
-extraction.
+regex module. **Tree-sitter** extracts structural HTTP routes for Python
+(FastAPI/Flask) and Node/TypeScript (Express/Fastify) via detector ids
+`treesitter_python` / `treesitter_node`. Onboard merges all API adapters by
+canonical `METHOD:/normalized/path`. RDF operation/capability URIs hash that
+route key (re-onboard required after upgrade). **CodeQL stays out** (license on
+private clones; taint covered by SonarQube on SSE pipelines). Java/Go extractors
+remain backlog. Primary extractors stay deterministic (Roslyn / regex /
+tree-sitter). **LLM investigation of ledger gaps only under ADR-029**
+(Evidence `detectorId=llm_investigate*`; default off; review before publish).
 
 **Context:** Controllers use attribute routes and many attributes before the
 method; regex window heuristics miss actions (e.g. GetLoanSummary). Stack board
-chose Roslyn; `dotnet` SDK 8+ is available on the pilot workstation.
+chose Roslyn; `dotnet` SDK 8+ is available on the pilot workstation. Multi-stack
+repos need the same `ApiOperationFact` shape without a proprietary SAST license.
 
 **Alternatives:** tree-sitter-only; regex forever; full project compilation /
-semantic model (heavier restores).
+semantic model (heavier restores); CodeQL (license).
 
 **Reasoning:** Syntax trees bind Http* attributes to the correct
 MethodDeclaration without NuGet restore of app projects. Hybrid OpenAPI still
-enriches when a token exists (`EAKG__OPENAPI_MODE`).
+enriches when a token exists (`EAKG__OPENAPI_MODE`). Tree-sitter fills
+non-.NET route surface with MIT wheels.
 
-**Status:** Accepted; D5 Roslyn upgrade shipped 2026-10-02.
+**Status:** Accepted; D5 Roslyn upgrade shipped 2026-10-02; multi-lang
+tree-sitter + Minimal APIs shipped 2026-10-15. **LLM investigator amended
+by ADR-029** (2026-10-15).
 
 ---
 
@@ -660,7 +676,14 @@ three alternatives ship; source becomes dense narrative (runbooks,
 postmortems); summaries can cite back to source chunks with a pinned
 extraction model.
 
+**Clarification (2026-10-15, ADR-029):** ADR-025 still bans **GraphRAG**
+(LLM entity/relation extraction over the SOP/doc corpus for retrieval).
+It does **not** ban **EAKG investigation**: after rule extractors run, an
+optional LLM may propose **candidates** (and pattern rules) for ledger gaps
+under ADR-029. That path is EAKG indexing, not doc GraphRAG.
+
 **Status:** Deferred 2026-10-09. Recommendation recorded. Not a build.
+GraphRAG ban unchanged; EAKG LLM investigator is ADR-029.
 
 ---
 
@@ -748,11 +771,15 @@ file backend keeps `make test` / CI without Postgres.
 ## ADR-028 — Business process knowledge graph (pilot)
 
 **Decision:** Represent Confluence SOP business processes as RDF in the existing
-EAKG SPARQL store (ADR-026), using a **deterministic rule-based extractor**.
-An LLM may draft curated gazetteer / phrase-map YAML **once offline**; humans
-approve those maps in git. Runtime extract/load never calls an LLM. Pilot
-scope: Account Maintenance hub + three leaf SOPs. All process nodes load as
-`pending_review`. Process graph data **never** authorizes or denies API calls.
+EAKG SPARQL store (ADR-026), using a **deterministic rule-based extractor**
+as the primary path. An LLM may draft curated gazetteer / phrase-map YAML
+**offline** (humans approve maps in git). **Additionally**, under ADR-029,
+process ledger items (`partial`/`stub`) may be investigated only after the
+fixture benchmark passes; candidates use Documentation provenance and
+`detectorId=llm_investigate_process*`. Core `extract_page` stays LLM-free.
+Pilot scope: Account Maintenance hub + three leaf SOPs. All process nodes
+load as `pending_review`. Process graph data **never** authorizes or denies
+API calls.
 
 **Context:** External review of the process-KG plan required source-completeness
 tracking, path-level graph validation, capability-link lifecycle, document
@@ -763,6 +790,8 @@ provenance (not code `Evidence`), and a clear LLM boundary vs ADR-025.
   reviewed, and approved.
 - Each extraction records `extractorVersion` + `mapsHash`. Map changes mark
   dependent processes `reextract_required`.
+- Runtime investigation (ADR-029) is opt-in (`EAKG__INVESTIGATE_AGENT`);
+  publishes only after review; still not GraphRAG over the full SOP corpus.
 
 **Five status dimensions** (separate predicates; do not overload `hasReviewStatus`):
 - `sourceCompleteness`: `lossy_unverified` | `verified_complete` | `complete_unverified`
@@ -783,4 +812,52 @@ code-oriented `Evidence`. Graph stores short step labels only — no SOP quotes.
 as authorization input; crawling ~30 remaining sibling pages until pilot metrics.
 
 **Status:** Accepted 2026-10-15 (plan approved; pilot loads stay `pending_review`).
+**Runtime LLM investigation for partial extracts amended by ADR-029**
+(2026-10-15; gated on fixture benchmark).
+
+---
+
+## ADR-029 — Deterministic extract, LLM investigation, pattern feedback
+
+**Decision:** Deterministic analyzers establish EAKG facts and own coverage.
+An optional LLM **investigator** (flag `EAKG__INVESTIGATE_AGENT`, default
+**off**) may only work items from a deterministic **gap ledger**. Everything
+it produces is a **candidate** (`pending_review`, `callable=false`) that must
+pass a validation gate and human review before publish.
+
+When three or more ledger items share a **shape key**, the agent may propose
+a **pattern** (YAML under `data/eakg/patterns/`) or an **extractor-change**
+request (TASKS.md). Patterns require a backtest (motivating recall, zero
+regression on established facts, unrequested-match report) and a human git
+merge. Approved patterns load into deterministic extractors on the next run
+(`patterns_hash`; change → `reextract_required`). Patterns only widen
+detection — never capability semantics, authz, or callable status.
+
+**Coverage cannot be delegated to the LLM.** `select_analyzers` output is a
+persisted coverage manifest; incomplete runs are reported as incomplete.
+Conflicts between analyzers become `ConflictRecord`s (deterministic), not
+LLM reconciliations. Implementation facts (Roslyn / tree-sitter / Graphify)
+must not be promoted into governed capability relationships by the agent.
+
+**Amends:** ADR-015 (candidates + Evidence/`llm_investigate*`, not silent
+structural writes); ADR-018 (rules remain primary; LLM investigates gaps);
+ADR-028 (process investigator only after fixture benchmark passes).
+**Does not amend** ADR-025’s GraphRAG ban for policy/doc retrieval.
+
+**Context:** Design review rejected LLM-primary / agent-driven coverage.
+Restricting writes to sinks does not guarantee correctness or completeness.
+
+**Alternatives:** LLM-primary extract (rejected); tool-calling agent owning
+extractor selection (rejected — coverage hole); proposals-only labels forever
+(insufficient for OpenAPI/cross-app holes).
+
+**Reasoning:** Rules establish facts; agent investigates ambiguity and
+proposes patterns so the pipeline needs the model less over time.
+
+**Implementation:** `coverage`, `gap_ledger`, `candidate_gate`,
+`investigate_agent`, `patterns`, `pattern_backtest`; CLI
+`investigate` / `patterns backtest`.
+
+**Status:** Accepted 2026-10-15 (revised from gap-fill / LLM-primary after
+design review). Flag default off.
 

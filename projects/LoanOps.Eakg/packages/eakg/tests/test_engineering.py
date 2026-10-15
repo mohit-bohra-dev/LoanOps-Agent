@@ -97,7 +97,10 @@ def test_project_links_matches_file_and_action(tmp_path: Path) -> None:
     row = payload["links"][0]
     assert row["graphify_node_id"] == "n_getloansummary"
     assert row["eakg_operation"] == eakg_operation_local_name(
-        "loanservices", "GetLoanSummary", "GET"
+        "loanservices",
+        "GetLoanSummary",
+        "GET",
+        "/api/Loans/{id}/Summary",
     )
     assert "Task" not in row["symbol"]
     lpath = tmp_path / "links.json"
@@ -140,7 +143,7 @@ def test_select_analyzers_java_has_no_api_adapter(tmp_path: Path) -> None:
 
 
 def test_select_analyzers_python_does_not_wipe_dotnet(tmp_path: Path) -> None:
-    """Unknown/extra language recorded; DotNet still selected."""
+    """Python + C# both get API adapters; neither language is unsupported."""
     csproj = tmp_path / "App.csproj"
     csproj.write_text(
         '<Project Sdk="Microsoft.NET.Sdk.Web"><ItemGroup></ItemGroup></Project>',
@@ -151,7 +154,8 @@ def test_select_analyzers_python_does_not_wipe_dotnet(tmp_path: Path) -> None:
     assert "csharp" in inv.languages
     assert "python" in inv.languages
     assert any(a.id == "dotnet_roslyn" for a in chosen)
-    assert "python" in unsupported
+    assert any(a.id == "treesitter_api" for a in chosen)
+    assert "python" not in unsupported
     assert "csharp" not in unsupported
 
 
@@ -174,6 +178,53 @@ async def test_onboard_java_fails_without_wiping_dotnet_path(tmp_path: Path) -> 
     report = await onboard_repository(registry, store, rec, local_path=java)
     assert report.get("error", "").startswith("no extractor")
     assert store.read_interface("javaapp") is None
+
+
+@pytest.mark.asyncio
+async def test_onboard_zero_ops_preserves_prior_shard(tmp_path: Path) -> None:
+    """Adapters run but extract nothing → fail; keep previous interface.json."""
+    from packages.common.providers.graph_store import FakeGraphStore
+    from packages.eakg.models import RepoInterface
+
+    empty = tmp_path / "emptyapi"
+    empty.mkdir()
+    (empty / "pyproject.toml").write_text("[project]\nname='emptyapi'\n", encoding="utf-8")
+    (empty / "main.py").write_text(
+        "from fastapi import FastAPI\n\napp = FastAPI()\n",
+        encoding="utf-8",
+    )
+    store = ShardStore(tmp_path / "eakg")
+    store.ensure_layout()
+    prior = RepoInterface(
+        repository_id="emptyapi",
+        application_id="emptyapi",
+        commit_sha="old",
+        operations=[{"key": "GET:/keep", "method": "GET", "path": "/keep"}],
+    )
+    store.write_interface(prior)
+    registry = RepositoryRegistry(tmp_path / "repositories.yaml")
+    registry.register(
+        repository_id="emptyapi",
+        application="emptyapi",
+        application_id="emptyapi",
+        git_url="https://example.invalid/emptyapi.git",
+    )
+    rec = registry.get("emptyapi")
+    assert rec is not None
+    report = await onboard_repository(
+        registry,
+        store,
+        rec,
+        skip_clone=True,
+        local_path=empty,
+        engineering_graph=False,
+        graph_store=FakeGraphStore(),
+    )
+    assert report.get("error") == "no API operations extracted"
+    kept = store.read_interface("emptyapi")
+    assert kept is not None
+    assert kept.commit_sha == "old"
+    assert kept.operations == prior.operations
 
 
 @pytest.mark.asyncio

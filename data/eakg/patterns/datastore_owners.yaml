@@ -1,0 +1,10 @@
+# ADR-029 approved patterns — catalog name → owning application_id.
+owners:
+  loanservicing: loanservices
+  fee: fees
+  escrow: escrow
+  escrowcore: escrow
+added_by: bootstrap
+approved_by: adr-029
+approved_at: "2026-10-15"
+motivating: []
