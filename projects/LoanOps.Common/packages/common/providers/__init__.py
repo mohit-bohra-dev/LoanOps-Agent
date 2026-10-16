@@ -30,6 +30,7 @@ from packages.common.providers.content_safety import (
     SafetyVerdict,
 )
 from packages.common.providers.embedding import EmbeddingProvider, EmbeddingResult
+from packages.common.providers.reranker import RerankerProvider, RerankResult
 
 # ── Factory functions ────────────────────────────────────────────────────
 from packages.common.providers.credential_broker import (
@@ -42,7 +43,15 @@ from packages.common.providers.credential_broker import (
     CredentialUnavailable,
     Principal,
 )
+from packages.common.providers.agent_runtime import (
+    AgentRuntimeProvider,
+    AgentTurnRequest,
+    AgentTurnResult,
+    AgentValidatorResult,
+    ToolCallRecord,
+)
 from packages.common.providers.factory import (
+    get_agent_runtime_provider,
     get_audit_sink_provider,
     get_chat_provider,
     get_content_safety_provider,
@@ -86,6 +95,8 @@ __all__ = [
     "ToolCallRequest",
     "EmbeddingProvider",
     "EmbeddingResult",
+    "RerankerProvider",
+    "RerankResult",
     "VectorStoreProvider",
     "VectorDocument",
     "SearchResult",
@@ -119,6 +130,12 @@ __all__ = [
     "get_session_store_provider",
     "get_credential_broker",
     "get_graph_store",
+    "get_agent_runtime_provider",
+    "AgentRuntimeProvider",
+    "AgentTurnRequest",
+    "AgentTurnResult",
+    "AgentValidatorResult",
+    "ToolCallRecord",
     "AbstractGraphStore",
     "GraphStoreError",
     "AbstractCredentialBroker",

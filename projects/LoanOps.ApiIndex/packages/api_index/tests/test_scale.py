@@ -227,22 +227,21 @@ async def test_top5_recall(tmp_path: Path, scale_sizes: tuple[int, int, int]) ->
 async def test_discovery_p95_local(tmp_path: Path, scale_sizes: tuple[int, int, int]) -> None:
     """SC-003 local bge+Qdrant — records budgets; skips when providers unavailable."""
     apps, ops, queries = scale_sizes
-    # Concrete providers only inside provider packages (AGENTS.md).
-    # Overrides .env pgvector — uses local bge + Qdrant server when up.
-    try:
-        from provider_contracts.embedding.sentence_transformers import (
-            SentenceTransformerEmbeddingProvider,
-        )
-        from provider_contracts.vector_store.qdrant import QdrantVectorStoreProvider
-    except Exception as exc:  # noqa: BLE001
-        pytest.skip(f"local provider modules unavailable: {exc}")
+    # Providers only via factory (AGENTS.md). Needs EMBEDDING__PROVIDER=local_bge
+    # and VECTOR_STORE__PROVIDER=qdrant with a live Qdrant server.
+    from packages.common.providers.factory import (
+        get_embedding_provider,
+        get_vector_store_provider,
+    )
+    from packages.common.settings import get_settings
+
+    cfg = get_settings()
+    if cfg.embedding.provider != "local_bge" or cfg.vector_store.provider != "qdrant":
+        pytest.skip("requires EMBEDDING__PROVIDER=local_bge and VECTOR_STORE__PROVIDER=qdrant")
 
     try:
-        emb = SentenceTransformerEmbeddingProvider(model_name="BAAI/bge-small-en-v1.5")
-        vs = QdrantVectorStoreProvider(
-            url="http://127.0.0.1:6333",
-            collection="scale_ops",
-        )
+        emb = get_embedding_provider()
+        vs = get_vector_store_provider()
         await emb.embed("probe")
         await vs.ensure_namespace("probe_ns", vector_size=384)
     except Exception as exc:  # noqa: BLE001

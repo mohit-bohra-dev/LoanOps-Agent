@@ -22,7 +22,7 @@ from packages.sse.types import (
     OperationRefResolver,
     Rejection,
 )
-from provider_contracts.audit_sink import AbstractAuditSinkProvider
+from packages.common.providers.audit_sink import AuditSinkProvider
 
 SSE_TOOL_NAMES = (
     "search_sse_apis",
@@ -312,7 +312,7 @@ async def handle_call_sse_api(
     cache: Any | None = None,
     credentials: AbstractCredentialBroker | None = None,
     breaker: BreakerRegistry | None = None,
-    audit: AbstractAuditSinkProvider | None = None,
+    audit: AuditSinkProvider | None = None,
     resolver: OperationRefResolver | None = None,
     principal: Principal | None = None,
     registry_mode: bool | None = None,
@@ -432,7 +432,7 @@ async def dispatch_sse_tool(
     api_search: Any | None = None,
     credentials: AbstractCredentialBroker | None = None,
     breaker: BreakerRegistry | None = None,
-    audit: AbstractAuditSinkProvider | None = None,
+    audit: AuditSinkProvider | None = None,
     resolver: OperationRefResolver | None = None,
     principal: Principal | None = None,
     registry_mode: bool | None = None,

@@ -60,7 +60,7 @@ Windsurf, etc.).
 |-------|-------------|----------------|
 | Language | Python 3.11 | Python 3.11 |
 | API framework | FastAPI | FastAPI on ECS Fargate |
-| Orchestration | Microsoft Agent Framework | Same + Prompt Flow |
+| Orchestration | provider_contracts agent_runtime (LangGraph / native) | Same |
 | LLM | Ollama Llama 3.1 8B | Amazon Bedrock GPT-4o |
 | Embeddings | bge-small-en-v1.5 | text-embedding-3-large |
 | Vector store | Qdrant (Docker) | Qdrant Cloud |
@@ -80,13 +80,32 @@ import a concrete provider class directly.
 - Protocols live in `packages/common/providers/<name>.py`
 - Factories: `get_chat_provider()`, `get_vector_store_provider()`,
   `get_credential_broker()`, etc. in `packages/common/providers/factory.py`
-  (`get_credential_broker` is the 14th `get_*` there; `get_graph_store` is 15th).
+  (`get_credential_broker` is the 14th `get_*`; `get_graph_store` is 15th;
+  `get_agent_runtime_provider` is 16th — ADR-031).
   Tools client factory is `get_tools_client_provider()` in `packages/tools/factory.py`.
 - Selection is by env var via `packages/common/settings.py` only
 - Provider categories (common factory): chat, embedding, vector_store, pii,
   content_safety, audit_sink, secrets, telemetry, prompt_store, session_store,
-  reranker, loan_data, policy_source, credential_broker, graph_store
-  (+ tools_client in Tools)
+  reranker, loan_data, policy_source, credential_broker, graph_store,
+  agent_runtime (+ tools_client in Tools)
+
+### LoanOps + provider_contracts lockstep (new libraries)
+
+Whenever a new external provider SDK or orchestration engine is introduced
+(`langgraph`, `aioboto3`, `pgvector`, `presidio`, SPARQL client, OAuth broker,
+etc.):
+
+1. Add ABC + concrete + mock + optional extra + contract test in
+   **`provider_contracts` first**.
+2. Re-export via `packages/common/providers/<name>.py`, `factory.py`, and
+   `testing.py` in **LoanOps.Common**.
+3. Domain packages (`LoanOps.AgentCore`, Docs, GraphRag, …) depend only on
+   `loanops-common` (plus approved domain/transport libs such as FastAPI,
+   MCP, networkx, tree-sitter). They must **never** import `provider_contracts`
+   or vendor SDKs directly.
+
+CI: `scripts/check_project_refs.py` +
+`packages/common/providers/contract_tests/test_provider_boundaries.py`.
 
 ## Rules (non-negotiable)
 

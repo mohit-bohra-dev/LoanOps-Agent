@@ -392,6 +392,12 @@ class GraphRagConfig(BaseModel):
     artifact_dir: str = "data/graphrag"
 
 
+class AgentRuntimeConfig(BaseModel):
+    """Agent orchestration engine (ADR-031). Selected via AGENT_RUNTIME__PROVIDER."""
+
+    provider: Literal["langgraph", "native", "mock"] = "langgraph"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -423,6 +429,7 @@ class Settings(BaseSettings):
     graph_store: GraphStoreConfig = Field(default_factory=GraphStoreConfig)
     eakg_store: EakgStoreConfig = Field(default_factory=EakgStoreConfig)
     graphrag: GraphRagConfig = Field(default_factory=GraphRagConfig)
+    agent_runtime: AgentRuntimeConfig = Field(default_factory=AgentRuntimeConfig)
     agent_role: str = Field(default="system", validation_alias="AGENT_ROLE")
 
 

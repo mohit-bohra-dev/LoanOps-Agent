@@ -1,6 +1,6 @@
 import pytest
 from packages.common.providers.testing import MockPiiProvider
-from provider_contracts.pii import PiiResult
+from packages.common.providers.pii import PiiResult
 
 
 @pytest.mark.asyncio

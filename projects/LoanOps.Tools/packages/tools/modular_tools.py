@@ -22,9 +22,8 @@ from packages.tools.capability_catalog import CapabilityCatalogService
 from packages.tools.eakg_tools import dispatch_eakg_tool
 from packages.tools.policy import ToolPolicyError, assert_sse_read_only, body_present
 from packages.wiki.tools import WIKI_TOOL_NAMES, dispatch_wiki_tool
-from provider_contracts.audit_sink import AbstractAuditSinkProvider
-from provider_contracts.tools_client import ToolCall, ToolResult
-from provider_contracts.tools_client._base import AbstractToolsClientProvider
+from packages.common.providers.audit_sink import AuditSinkProvider
+from packages.common.providers.tools_client import ToolCall, ToolResult, ToolsClientProvider
 
 _LOCAL_TOOLS = (
     *SSE_TOOL_NAMES,
@@ -39,7 +38,7 @@ _LOCAL_TOOLS = (
 CapabilityBlock = Callable[[str, int], Awaitable[str | None]]
 
 
-class ModularToolsClient(AbstractToolsClientProvider):
+class ModularToolsClient(ToolsClientProvider):
     """Single tools client for the modular product."""
 
     def __init__(
@@ -59,7 +58,7 @@ class ModularToolsClient(AbstractToolsClientProvider):
         api_search: Any | None = None,
         credentials: AbstractCredentialBroker | None = None,
         breaker: BreakerRegistry | None = None,
-        audit: AbstractAuditSinkProvider | None = None,
+        audit: AuditSinkProvider | None = None,
         registry_mode: bool = False,
         invoke_ring: LastInvokeRing | None = None,
     ) -> None:

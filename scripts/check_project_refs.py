@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Fail if a workspace project imports packages.* / apps.* without a loanops-* dep.
 
+Also enforces provider_contracts lockstep: only loanops-common may depend on
+provider-contracts; domain projects may only use an allowlisted set of
+third-party (non-provider-SDK) dependencies.
+
 Mirrors .csproj ProjectReference checks for the uv workspace.
 """
 
@@ -39,6 +43,54 @@ APP_TO_DIST: dict[str, str] = {
 }
 
 _DEP_NAME = re.compile(r"^([A-Za-z0-9_.-]+)")
+
+# Domain/transport libs OK outside Common. Provider SDKs are NOT listed here.
+_DOMAIN_THIRD_PARTY_ALLOW: frozenset[str] = frozenset(
+    {
+        "fastapi",
+        "uvicorn",
+        "mcp",
+        "httpx",
+        "aioodbc",
+        "networkx",
+        "rdflib",
+        "pyyaml",
+        "tree-sitter",
+        "tree-sitter-javascript",
+        "tree-sitter-typescript",
+        "tree-sitter-python",
+        "markitdown",
+        "ragas",
+        "numpy",
+        "pydantic",
+        "pydantic-settings",
+    }
+)
+
+# Banned provider SDKs / engines — must go through provider_contracts.
+_PROVIDER_SDK_BAN: frozenset[str] = frozenset(
+    {
+        "provider-contracts",
+        "langgraph",
+        "langchain",
+        "langchain-core",
+        "openai",
+        "anthropic",
+        "google-genai",
+        "aioboto3",
+        "boto3",
+        "qdrant-client",
+        "sentence-transformers",
+        "presidio-analyzer",
+        "presidio-anonymizer",
+        "redis",
+        "asyncpg",
+        "pgvector",
+        "sqlalchemy",
+        "agent-framework",
+        "langfuse",
+    }
+)
 
 
 def _dep_names(raw: list[str]) -> set[str]:
@@ -88,6 +140,40 @@ def _owned_pkg(project_dir: Path) -> str | None:
     return None
 
 
+def check_third_party_allowlist(project_dir: Path, deps: set[str], dist_name: str) -> list[str]:
+    """Enforce provider_contracts lockstep on pyproject dependencies."""
+    errors: list[str] = []
+    is_common = dist_name == "loanops-common"
+    for dep in sorted(deps):
+        if dep.startswith("loanops-"):
+            continue
+        if dep == "provider-contracts":
+            if not is_common:
+                errors.append(
+                    f"{project_dir.name}: only loanops-common may depend on "
+                    f"provider-contracts (found in {dist_name}). Add adapters in "
+                    "provider_contracts + packages/common/providers/ instead."
+                )
+            continue
+        if dep in _PROVIDER_SDK_BAN and not is_common:
+            errors.append(
+                f"{project_dir.name}: banned provider SDK {dep!r} — add it to "
+                "provider_contracts (ABC + concrete + mock + extra) and expose via "
+                "LoanOps.Common factory first."
+            )
+            continue
+        if not is_common and dep not in _DOMAIN_THIRD_PARTY_ALLOW and dep not in _PROVIDER_SDK_BAN:
+            # Unknown third-party: allow if clearly domain; otherwise warn as error
+            # for lockstep discipline. Common may pull anything via provider extras.
+            errors.append(
+                f"{project_dir.name}: third-party dep {dep!r} is not on the domain "
+                "allowlist in scripts/check_project_refs.py. If it is a provider SDK, "
+                "put it in provider_contracts; if domain/transport, add it to "
+                "_DOMAIN_THIRD_PARTY_ALLOW."
+            )
+    return errors
+
+
 def check_project(project_dir: Path) -> list[str]:
     pyproject = project_dir / "pyproject.toml"
     if not pyproject.is_file():
@@ -95,7 +181,9 @@ def check_project(project_dir: Path) -> list[str]:
     data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
     deps = _dep_names(list(data.get("project", {}).get("dependencies", [])))
     owned = _owned_pkg(project_dir)
+    dist_name = str(data.get("project", {}).get("name") or "")
     errors: list[str] = []
+    errors.extend(check_third_party_allowlist(project_dir, deps, dist_name))
 
     for py in project_dir.rglob("*.py"):
         if "tests" in py.parts or py.name.startswith("test_"):
@@ -110,7 +198,6 @@ def check_project(project_dir: Path) -> list[str]:
             if dist is None:
                 continue
             if dist not in deps and dist != data.get("project", {}).get("name"):
-                # self-import via packages.X when this project owns X is OK
                 if owned == name or owned == f"apps.{name}":
                     continue
                 rel = py.relative_to(ROOT)

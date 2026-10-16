@@ -10,7 +10,7 @@ from packages.common.providers.factory import (
     get_vector_store_provider,
 )
 from packages.rag.chunker import MarkdownChunker
-from provider_contracts.vector_store import VectorDocument
+from packages.common.providers.vector_store import VectorDocument
 
 logger = logging.getLogger(__name__)
 

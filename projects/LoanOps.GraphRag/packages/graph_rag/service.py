@@ -8,11 +8,8 @@ from packages.docs.service import DOCS_NAMESPACE, DocsService
 from packages.graph_rag.artifact import ArtifactStatus, GraphRagArtifact, load_artifact
 from packages.graph_rag.communities import SUMMARIES_NAMESPACE
 from packages.graph_rag.route import Route, select_route
-from provider_contracts.embedding import AbstractEmbeddingProvider as EmbeddingProvider
-from provider_contracts.vector_store import (
-    AbstractVectorStoreProvider as VectorStoreProvider,
-)
-from provider_contracts.vector_store import SearchResult
+from packages.common.providers.embedding import EmbeddingProvider
+from packages.common.providers.vector_store import SearchResult, VectorStoreProvider
 
 DocsSearchMode = Literal[
     "flat", "rerank_hop", "graphrag_local", "graphrag_global", "graphrag_degraded"

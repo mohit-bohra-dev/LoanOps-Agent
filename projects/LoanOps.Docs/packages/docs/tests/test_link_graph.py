@@ -7,10 +7,10 @@ from pathlib import Path
 import pytest
 from packages.docs.link_graph import DocLinkGraph, build_doc_links
 from packages.docs.service import DocsService
-from provider_contracts.embedding import EmbeddingResult
-from provider_contracts.reranker import AbstractRerankerProvider, RerankResult
-from provider_contracts.vector_store import VectorDocument
-from provider_contracts.vector_store.mock import MockVectorStoreProvider
+from packages.common.providers.embedding import EmbeddingResult
+from packages.common.providers.reranker import RerankResult, RerankerProvider
+from packages.common.providers.testing import MockVectorStoreProvider
+from packages.common.providers.vector_store import VectorDocument
 
 
 class _FakeEmbed:
@@ -24,7 +24,7 @@ class _FakeEmbed:
         return [await self.embed(t) for t in texts]
 
 
-class _FakeReranker(AbstractRerankerProvider):
+class _FakeReranker(RerankerProvider):
     async def rerank(self, query: str, documents: list[str]) -> list[RerankResult]:
         # Prefer documents that mention "disaster"
         scored = sorted(

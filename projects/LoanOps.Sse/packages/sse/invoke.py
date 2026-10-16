@@ -23,7 +23,7 @@ from packages.sse.invoke_outcomes import LastInvokeRing
 from packages.sse.loader import OpenApiCatalogService, assert_allowed_url
 from packages.sse.types import ApiOperation, AppTarget, BreakerRegistry
 from pydantic import BaseModel
-from provider_contracts.audit_sink import AbstractAuditSinkProvider
+from packages.common.providers.audit_sink import AuditSinkProvider
 
 
 async def _record_invoke_metrics(
@@ -194,7 +194,7 @@ def _msg_unavailable(label: str, app_id: str) -> str:
 
 
 async def _emit_live_read(
-    audit: AbstractAuditSinkProvider | None,
+    audit: AuditSinkProvider | None,
     *,
     application_id: str | None,
     operation_id: str | None,
@@ -272,7 +272,7 @@ async def invoke_sse_api(
     target: AppTarget | None = None,
     credentials: AbstractCredentialBroker | None = None,
     breaker: BreakerRegistry | None = None,
-    audit: AbstractAuditSinkProvider | None = None,
+    audit: AuditSinkProvider | None = None,
     principal: Principal | None = None,
     registry_mode: bool = False,
     transport: httpx.AsyncBaseTransport | None = None,

@@ -154,7 +154,7 @@ def test_gate_accepts_no_finding() -> None:
 
 @pytest.mark.asyncio
 async def test_investigate_item_mock_chat_no_finding(tmp_path: Path) -> None:
-    from provider_contracts.llm import LLMMessage, LLMResponse, ToolCallRequest
+    from packages.common.providers.chat import LLMMessage, LLMResponse, ToolCallRequest
 
     class FakeChat:
         async def chat(self, messages: list[LLMMessage], **kwargs: Any) -> LLMResponse:

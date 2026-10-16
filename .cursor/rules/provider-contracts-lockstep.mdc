@@ -1,0 +1,29 @@
+---
+description: LoanOps and provider_contracts must stay lockstep when adding provider SDKs or agent frameworks
+alwaysApply: true
+---
+
+# Provider Contracts Lockstep
+
+When adding or swapping an **external provider SDK** or **agent orchestration
+framework** (LLM, embeddings, vector store, reranker, PII, SPARQL, OAuth
+broker, LangGraph, etc.):
+
+1. Implement in **`provider_contracts` first**: `_base.py` ABC, concrete
+   adapter, `mock.py`, optional extra in `pyproject.toml`, contract test.
+2. Re-export in **`LoanOps.Common`**: `packages/common/providers/<name>.py`,
+   `factory.get_*_provider()`, `testing.py` Mock*.
+3. Domain packages import only `packages.common.providers` (or `.testing`).
+   Never `from provider_contracts...` and never vendor SDK imports outside
+   `packages/common/providers/factory.py` and `testing.py`.
+
+**Allowed without a new provider:** domain/transport libs (FastAPI, uvicorn,
+MCP, httpx for app HTTP, networkx, tree-sitter, rdflib for ontology *authoring*,
+aioodbc, markitdown, ragas, pyyaml, pydantic).
+
+**Banned outside Common:** `langgraph`, `openai`, `aioboto3`, `qdrant-client`,
+`sentence-transformers`, `presidio-*`, `google-genai`, `anthropic`, and other
+provider SDKs — add them via `provider_contracts` extras instead.
+
+Gates: `scripts/check_project_refs.py`,
+`contract_tests/test_provider_boundaries.py`.

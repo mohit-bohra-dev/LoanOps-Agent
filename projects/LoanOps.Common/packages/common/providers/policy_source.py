@@ -165,9 +165,9 @@ async def _scrub_async(text: str, mode: Literal["regex", "presidio", "off"]) -> 
         return text
     if mode == "presidio":
         try:
-            from provider_contracts.pii.presidio import PresidioPiiProvider
+            from packages.common.providers.factory import get_pii_provider
 
-            result = await PresidioPiiProvider().anonymise(text)
+            result = await get_pii_provider().anonymise(text)
             return result.anonymised
         except Exception as exc:
             logger.warning("Presidio scrub failed (%s); falling back to regex", exc)

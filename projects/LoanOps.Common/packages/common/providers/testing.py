@@ -6,12 +6,15 @@ concrete provider classes directly.
 """
 
 from packages.common.providers.graph_store import FakeGraphStore
+from provider_contracts.agent_runtime.mock import MockAgentRuntimeProvider
 from provider_contracts.audit_sink.mock import MockAuditSinkProvider
 from provider_contracts.content_safety.mock import MockContentSafetyProvider
+from provider_contracts.credential_broker.mock import MockCredentialBroker
 from provider_contracts.embedding.mock import MockEmbeddingProvider
 from provider_contracts.llm.mock import MockLLMProvider
 from provider_contracts.pii.mock import MockPiiProvider
 from provider_contracts.prompt_store.mock import MockPromptStoreProvider
+from provider_contracts.reranker.mock import MockRerankerProvider
 from provider_contracts.secrets.mock import MockSecretsProvider
 from provider_contracts.session_store.mock import MockSessionStoreProvider
 from provider_contracts.telemetry.mock import MockTelemetryProvider
@@ -30,5 +33,8 @@ __all__ = [
     "MockToolsClientProvider",
     "MockPromptStoreProvider",
     "MockSessionStoreProvider",
+    "MockRerankerProvider",
+    "MockCredentialBroker",
+    "MockAgentRuntimeProvider",
     "FakeGraphStore",
 ]

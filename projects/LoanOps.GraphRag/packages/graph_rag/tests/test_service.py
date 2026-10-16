@@ -9,7 +9,7 @@ import pytest
 
 from packages.graph_rag.artifact import GraphRagArtifact, write_artifact
 from packages.graph_rag.service import GraphRagService
-from provider_contracts.vector_store import SearchResult
+from packages.common.providers.vector_store import SearchResult
 
 
 def _docs_mock() -> MagicMock:

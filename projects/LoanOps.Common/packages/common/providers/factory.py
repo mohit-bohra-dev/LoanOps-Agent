@@ -13,19 +13,20 @@ from __future__ import annotations
 from functools import lru_cache
 
 from packages.common.providers.base import ProviderConfigError
-from packages.common.providers.credential_broker import AbstractCredentialBroker
-from packages.common.providers.graph_store import AbstractGraphStore
 from packages.common.providers.loan_data import AbstractLoanDataProvider
 from packages.common.providers.policy_source import AbstractPolicySourceProvider
 from packages.common.providers.session_store import AbstractSessionStoreProvider
 from packages.common.settings import Settings, get_settings
 
 # ---------------------------------------------------------------------------
-# Type imports (ABCs) â€” for return annotations only
+# Type imports (ABCs) — for return annotations only
 # ---------------------------------------------------------------------------
+from provider_contracts.agent_runtime import AbstractAgentRuntimeProvider
 from provider_contracts.audit_sink import AbstractAuditSinkProvider
 from provider_contracts.content_safety import AbstractContentSafetyProvider
+from provider_contracts.credential_broker import AbstractCredentialBroker
 from provider_contracts.embedding import AbstractEmbeddingProvider
+from provider_contracts.graph_store import AbstractGraphStore
 from provider_contracts.llm import AbstractLLMProvider
 from provider_contracts.pii import AbstractPiiProvider
 from provider_contracts.prompt_store import AbstractPromptStoreProvider
@@ -410,7 +411,7 @@ def get_reranker_provider() -> AbstractRerankerProvider:
 def get_credential_broker() -> AbstractCredentialBroker:
     """Return the configured credential broker (CREDENTIALS__PROVIDER)."""
     cfg = _get_settings()
-    from packages.common.providers.credential_broker import (
+    from provider_contracts.credential_broker import (
         Auth0M2MCredentialBroker,
         CachingCredentialBroker,
         MockCredentialBroker,
@@ -428,8 +429,12 @@ def get_credential_broker() -> AbstractCredentialBroker:
     if cfg.credentials.provider == "mock":
         return CachingCredentialBroker(MockCredentialBroker({}))
     if cfg.credentials.provider == "auth0_m2m":
+        import importlib
+
         from packages.common.auth0_destination import resolve_destination
-        from packages.eakg.runtime import eakg_runtime
+
+        # Avoid hard ProjectReference on loanops-eakg (would cycle Common↔Eakg).
+        eakg_runtime = importlib.import_module("packages.eakg.runtime").eakg_runtime
 
         cred = cfg.credentials
         if not cred.auth0_client_id or not cred.auth0_client_secret:
@@ -463,7 +468,7 @@ def get_credential_broker() -> AbstractCredentialBroker:
 @lru_cache(maxsize=1)
 def get_graph_store() -> AbstractGraphStore:
     """Return the HTTP SPARQL graph store (GRAPH_STORE__*)."""
-    from packages.common.providers.graph_store import HttpSparqlGraphStore
+    from provider_contracts.graph_store.sparql_http import HttpSparqlGraphStore
 
     cfg = _get_settings().graph_store
     return HttpSparqlGraphStore(
@@ -471,4 +476,38 @@ def get_graph_store() -> AbstractGraphStore:
         update_url=cfg.update_url,
         auth_token=cfg.auth_token,
         timeout_seconds=cfg.timeout_seconds,
+    )
+
+
+# ── Agent runtime (16th get_*) — ADR-031 ───────────────────────────────────
+@lru_cache(maxsize=1)
+def get_agent_runtime_provider() -> AbstractAgentRuntimeProvider:
+    """Return the configured agent runtime (AGENT_RUNTIME__PROVIDER).
+
+    Stateless adapter: pass ``llm`` / ``tools`` / ``validator`` into ``run()``.
+    """
+    cfg = _get_settings()
+    if cfg.agent_runtime.provider == "langgraph":
+        try:
+            from provider_contracts.agent_runtime.langgraph import (
+                LangGraphAgentRuntimeProvider,
+            )
+
+            return LangGraphAgentRuntimeProvider()
+        except ImportError:
+            from provider_contracts.agent_runtime.native import (
+                NativeLoopAgentRuntimeProvider,
+            )
+
+            return NativeLoopAgentRuntimeProvider()
+    if cfg.agent_runtime.provider == "native":
+        from provider_contracts.agent_runtime.native import NativeLoopAgentRuntimeProvider
+
+        return NativeLoopAgentRuntimeProvider()
+    if cfg.agent_runtime.provider == "mock":
+        from provider_contracts.agent_runtime.mock import MockAgentRuntimeProvider
+
+        return MockAgentRuntimeProvider()
+    raise ProviderConfigError(
+        f"Unknown agent runtime provider: {cfg.agent_runtime.provider}"
     )

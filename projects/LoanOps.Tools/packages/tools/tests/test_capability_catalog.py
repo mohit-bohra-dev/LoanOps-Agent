@@ -67,7 +67,7 @@ async def test_eakg_tool_via_modular_client(tmp_path: Path) -> None:
     from packages.eakg.graph_upload import upload_graph
     from packages.sse.loader import OpenApiCatalogService
     from packages.tools.modular_tools import ModularToolsClient
-    from provider_contracts.tools_client import ToolCall
+    from packages.common.providers.tools_client import ToolCall
     from rdflib import Graph
 
     gs = FakeGraphStore()

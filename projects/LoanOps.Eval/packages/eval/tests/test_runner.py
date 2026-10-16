@@ -82,7 +82,7 @@ def _safety_escalation_item() -> GoldenItem:
 
 def _make_tools_client() -> MockToolsClientProvider:
     """Create a tools client mock with canned responses for all tools."""
-    from provider_contracts.tools_client import ToolResult
+    from packages.common.providers.tools_client import ToolResult
 
     client = MockToolsClientProvider()
     for tool_name in [

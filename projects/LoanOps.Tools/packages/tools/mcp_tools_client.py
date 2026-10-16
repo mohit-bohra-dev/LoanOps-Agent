@@ -8,8 +8,7 @@ from mcp import ClientSession
 from mcp.client.streamable_http import streamablehttp_client
 from mcp.types import CallToolResult, TextContent
 from packages.common.scopes import tools_for_role
-from provider_contracts.tools_client import ToolCall, ToolResult
-from provider_contracts.tools_client._base import AbstractToolsClientProvider
+from packages.common.providers.tools_client import ToolCall, ToolResult, ToolsClientProvider
 
 
 class McpSessionHooks(Protocol):
@@ -88,7 +87,7 @@ class StreamableHttpMcpSession:
             return True, text
 
 
-class McpToolsClient(AbstractToolsClientProvider):
+class McpToolsClient(ToolsClientProvider):
     """Agent-side tools client. Server still runs ModularToolsClient."""
 
     def __init__(

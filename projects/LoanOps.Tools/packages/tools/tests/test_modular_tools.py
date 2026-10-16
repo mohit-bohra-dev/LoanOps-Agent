@@ -10,7 +10,7 @@ from packages.db.client import DbConfig, SqlServerClient
 from packages.sse.fixture import FIXTURE_OPENAPI
 from packages.sse.loader import OpenApiCatalogService
 from packages.tools.modular_tools import ModularToolsClient
-from provider_contracts.tools_client import ToolCall
+from packages.common.providers.tools_client import ToolCall
 
 
 @pytest.mark.asyncio

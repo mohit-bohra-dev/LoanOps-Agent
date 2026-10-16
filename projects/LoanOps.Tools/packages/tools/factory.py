@@ -13,10 +13,10 @@ from packages.common.providers.factory import (
     get_vector_store_provider,
 )
 from packages.common.settings import Settings, get_settings
-from provider_contracts.tools_client import AbstractToolsClientProvider
+from packages.common.providers.tools_client import ToolsClientProvider
 
 
-def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClientProvider:
+def build_modular_tools_client(cfg: Settings, *, role: str) -> ToolsClientProvider:
     """Build the in-process tools client for a role. Shared by the agent and MCP server."""
     import json
     from pathlib import Path
@@ -216,7 +216,7 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
     )
 
 
-def build_mcp_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClientProvider:
+def build_mcp_tools_client(cfg: Settings, *, role: str) -> ToolsClientProvider:
     """Build the agent-side MCP tools client. Requires a running mcp_server process."""
     from packages.tools.mcp_tools_client import (
         McpToolsClient,
@@ -240,7 +240,7 @@ def build_mcp_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClientPr
 
 
 @lru_cache(maxsize=1)
-def get_tools_client_provider() -> AbstractToolsClientProvider:
+def get_tools_client_provider() -> ToolsClientProvider:
     """Return the configured tools client provider."""
     cfg = get_settings()
     # LAYER2-BP A2: branch modular vs mcp

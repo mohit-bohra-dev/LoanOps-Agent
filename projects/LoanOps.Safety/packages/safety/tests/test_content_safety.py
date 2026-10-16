@@ -1,6 +1,6 @@
 import pytest
 from packages.common.providers.testing import MockContentSafetyProvider
-from provider_contracts.content_safety import SafetyVerdict
+from packages.common.providers.content_safety import SafetyVerdict
 
 
 @pytest.mark.asyncio

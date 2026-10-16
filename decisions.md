@@ -17,8 +17,8 @@ and supports production-grade agents, tool use, workflows, telemetry, and AWS de
 development, combining agent abstractions, tool orchestration, workflows, telemetry,
 and AWS integration while preserving a clean provider boundary in this repo.
 
-**Status:** Accepted â€” this overrides the original orchestration default in
-`docs/01-servicing-agent-prompts.md`.
+**Status:** Superseded by ADR-031 — `agent-framework` was never imported;
+orchestration now lives in `provider_contracts.agent_runtime`.
 
 ---
 
@@ -860,4 +860,27 @@ proposes patterns so the pipeline needs the model less over time.
 
 **Status:** Accepted 2026-10-15 (revised from gap-fill / LLM-primary after
 design review). Flag default off.
+
+---
+
+## ADR-031 — Agent runtime via provider_contracts (LangGraph)
+
+**Decision:** Orchestration engines live in `provider_contracts.agent_runtime`
+(`LangGraphAgentRuntimeProvider`, `NativeLoopAgentRuntimeProvider`,
+`MockAgentRuntimeProvider`). `LoanOps.AgentCore` selects via
+`AGENT_RUNTIME__PROVIDER` and `get_agent_runtime_provider()`. Domain policy
+(prompts, tool schemas, citation/schema validator) stays in LoanOps.
+
+**Context:** ADR-001 listed Microsoft Agent Framework, but the package was
+unused; `_agent.py` used a hand-rolled loop. Need swappable engines that still
+expose parallel tool fan-out, validator retry, streaming events, and
+in-memory checkpoint/resume without leaking framework types into domain code.
+
+**Alternatives:** Keep manual loop; adopt Microsoft Agent Framework; bind
+LangGraph only inside LoanOps.AgentCore (rejected — breaks provider lockstep).
+
+**Reasoning:** Same pattern as LLM/vector_store — swap engines with `.env`;
+CI boundary keeps SDKs in `provider_contracts`.
+
+**Status:** Accepted. Supersedes ADR-001.
 

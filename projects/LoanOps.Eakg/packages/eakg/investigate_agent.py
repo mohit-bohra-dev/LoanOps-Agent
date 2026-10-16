@@ -151,7 +151,7 @@ def _tool_defs() -> list[ToolSpec]:
 
 def _to_provider_tools(specs: list[ToolSpec]) -> list[Any]:
     try:
-        from provider_contracts.llm import ToolDefinition
+        from packages.common.providers.chat import ToolDefinition
     except ImportError:  # pragma: no cover
         from packages.common.providers.chat import ToolDefinition  # type: ignore[attr-defined]
 
@@ -311,7 +311,7 @@ async def investigate_item(
     )
     messages: list[Any] = []
     try:
-        from provider_contracts.llm import LLMMessage
+        from packages.common.providers.chat import LLMMessage
     except ImportError:  # pragma: no cover
         from packages.common.providers.chat import LLMMessage  # type: ignore[attr-defined]
 

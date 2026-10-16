@@ -26,7 +26,7 @@ from packages.graph_rag.extract import extract_chunk
 from packages.graph_rag.graph_merge import merge_doc_and_entity_edges, resolve_entities
 from packages.graph_rag.schema import PROMPT_VERSION, SCHEMA_VERSION
 from packages.rag.chunker import MarkdownChunker
-from provider_contracts.vector_store import VectorDocument
+from packages.common.providers.vector_store import VectorDocument
 
 logger = logging.getLogger(__name__)
 

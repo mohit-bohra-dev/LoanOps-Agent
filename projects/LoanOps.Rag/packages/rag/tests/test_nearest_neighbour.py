@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 from packages.common.providers.factory import get_embedding_provider, get_vector_store_provider
 from packages.rag.chunker import MarkdownChunker
-from provider_contracts.vector_store import VectorDocument
+from packages.common.providers.vector_store import VectorDocument
 
 
 @pytest.mark.integration

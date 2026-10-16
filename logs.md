@@ -1,4 +1,21 @@
+## [2026-10-16] — Provider contracts lockstep + agent_runtime (LangGraph)
+
+**Session type:** Implementation
+
+**Completed:**
+- `provider_contracts`: `graph_store/`, `credential_broker/`, `reranker/mock.py`, `agent_runtime/` (langgraph/native/mock) + contract tests
+- LoanOps.Common re-exports + `get_agent_runtime_provider()`; `AGENT_RUNTIME__PROVIDER`; ADR-031 (supersedes ADR-001)
+- `LoanOps.AgentCore` uses `AgentRuntimeProvider.run()`; dropped unused `agent-framework`
+- Domain packages: no direct `provider_contracts` imports; policy_source uses `get_pii_provider()`
+- Gates: lockstep rule, `check_project_refs` allowlist, `test_provider_boundaries.py`
+- Tests: PC agent/graph/cred 9 passed; AgentCore+boundaries 44; Tools 14; check_project_refs OK
+
+**Next:** Wire AgentApi SSE to `stream_events`; optional Postgres checkpointer; migrate `investigate_agent` loop later.
+
+---
+
 ## [2026-10-15] — Doc GraphRAG P5 LLM extract
+
 
 **Session type:** Implementation
 

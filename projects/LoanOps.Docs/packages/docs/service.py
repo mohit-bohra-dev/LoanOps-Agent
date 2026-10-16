@@ -8,12 +8,13 @@ from typing import Any
 
 from packages.docs.link_graph import DocLinkGraph
 from packages.rag.chunker import MarkdownChunker
-from provider_contracts.embedding import AbstractEmbeddingProvider as EmbeddingProvider
-from provider_contracts.reranker import AbstractRerankerProvider
-from provider_contracts.vector_store import (
-    AbstractVectorStoreProvider as VectorStoreProvider,
+from packages.common.providers.embedding import EmbeddingProvider
+from packages.common.providers.reranker import RerankerProvider
+from packages.common.providers.vector_store import (
+    SearchResult,
+    VectorDocument,
+    VectorStoreProvider,
 )
-from provider_contracts.vector_store import SearchResult, VectorDocument
 
 DOCS_NAMESPACE = "docs"
 DOCS_TOOL_NAMES = ("search_docs", "index_docs")
@@ -91,7 +92,7 @@ class DocsService:
         vector_store: VectorStoreProvider,
         *,
         namespace: str = DOCS_NAMESPACE,
-        reranker: AbstractRerankerProvider | None = None,
+        reranker: RerankerProvider | None = None,
         link_graph: DocLinkGraph | None = None,
         candidate_k: int = 20,
     ) -> None:

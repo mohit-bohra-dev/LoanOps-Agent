@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 from packages.tools.mcp_tools_client import McpToolsClient, mcp_endpoint_url
-from provider_contracts.tools_client import ToolCall
+from packages.common.providers.tools_client import ToolCall
 
 
 class FakeMcpSession:
