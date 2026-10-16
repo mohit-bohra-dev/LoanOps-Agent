@@ -11,6 +11,7 @@ dependencies = [
     "loanops-wiki",
     "loanops-rag",
     "loanops-docs",
+    "loanops-graphrag",
     "loanops-sse",
     "loanops-capability-kg",
     "loanops-eakg",
@@ -53,6 +54,7 @@ mypy_path = [
     "projects/LoanOps.Wiki",
     "projects/LoanOps.Rag",
     "projects/LoanOps.Docs",
+    "projects/LoanOps.GraphRag",
     "projects/LoanOps.Sse",
     "projects/LoanOps.CapabilityKg",
     "projects/LoanOps.Eakg",
@@ -76,6 +78,7 @@ pythonpath = [
     "projects/LoanOps.Wiki",
     "projects/LoanOps.Rag",
     "projects/LoanOps.Docs",
+    "projects/LoanOps.GraphRag",
     "projects/LoanOps.Sse",
     "projects/LoanOps.CapabilityKg",
     "projects/LoanOps.Eakg",
@@ -108,6 +111,7 @@ loanops-db = { workspace = true }
 loanops-wiki = { workspace = true }
 loanops-rag = { workspace = true }
 loanops-docs = { workspace = true }
+loanops-graphrag = { workspace = true }
 loanops-sse = { workspace = true }
 loanops-capability-kg = { workspace = true }
 loanops-eakg = { workspace = true }

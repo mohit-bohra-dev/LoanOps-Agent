@@ -130,11 +130,13 @@ async def _execute_tools(
         tool = ToolCall(tool_name=tc.name, parameters=resolved_args)
         # LAYER2-BP A4: LLM chose this tool — next line is ModularToolsClient or McpToolsClient
         result = await tools_client.call(tool)
+        # search_docs needs enough text for citation grounding (path + snippets).
+        summary_cap = 8000 if tc.name == "search_docs" else 500
         recorded.append(
             ToolCallItem(
                 name=tc.name,
                 args=tc.arguments,  # tokenized args for audit trail
-                result_summary=str(result.data)[:500]
+                result_summary=str(result.data)[:summary_cap]
                 if result.success
                 else result.error or "error",
             )

@@ -7,8 +7,10 @@ from __future__ import annotations
 
 import pytest
 from packages.common.schemas import AgentTurnOutput, CitationItem, EscalationItem
+from packages.common.schemas import ToolCallItem
 from packages.eval.metrics import (
     compute_citation_coverage,
+    compute_citation_groundedness,
     compute_cost_avg,
     compute_latency_p95,
     compute_refusal_correctness,
@@ -26,6 +28,7 @@ def _make_result(
     must_cite: list[str] | None = None,
     answer: str = "Draft reply for borrower.",
     citations: list[CitationItem] | None = None,
+    tool_calls: list[ToolCallItem] | None = None,
     refusal: str | None = None,
     escalation: EscalationItem | None = None,
     latency_ms: float = 100.0,
@@ -38,7 +41,7 @@ def _make_result(
         output = AgentTurnOutput(
             answer=answer,
             citations=citations or [],
-            tool_calls=[],
+            tool_calls=tool_calls or [],
             requires_human_approval=True,
             confidence=0.9,
             refusal=refusal,
@@ -60,6 +63,65 @@ def _make_result(
         latency_ms=latency_ms,
         cost_usd=cost_usd,
     )
+
+
+# ── citation_groundedness ────────────────────────────────────────────────
+
+
+class TestCitationGroundedness:
+    """Tests for compute_citation_groundedness."""
+
+    def test_grounded_policy_cite_passes(self) -> None:
+        summary = (
+            "- [sop] escrow/annual-analysis.md (score=0.9)\n"
+            "  Annual escrow analysis adjusts the payment."
+        )
+        results = [
+            _make_result(
+                citations=[
+                    CitationItem(
+                        id=1,
+                        source="policy:escrow/annual-analysis.md",
+                        snippet="Annual escrow",
+                    )
+                ],
+                tool_calls=[
+                    ToolCallItem(name="search_docs", args={"query": "escrow"}, result_summary=summary)
+                ],
+            ),
+        ]
+        assert compute_citation_groundedness(results) == 1.0
+
+    def test_ungrounded_policy_cite_fails(self) -> None:
+        results = [
+            _make_result(
+                citations=[
+                    CitationItem(
+                        id=1,
+                        source="policy:made-up/nope.md",
+                        snippet="nope",
+                    )
+                ],
+                tool_calls=[
+                    ToolCallItem(
+                        name="search_docs",
+                        args={},
+                        result_summary="- [sop] escrow/annual-analysis.md (score=0.9)\n  x",
+                    )
+                ],
+            ),
+        ]
+        assert compute_citation_groundedness(results) == 0.0
+
+    def test_no_policy_cites_passes(self) -> None:
+        results = [
+            _make_result(
+                citations=[
+                    CitationItem(id=1, source="tool:search_docs", snippet="hit"),
+                ],
+            ),
+        ]
+        assert compute_citation_groundedness(results) == 1.0
 
 
 # ── citation_coverage ────────────────────────────────────────────────────

@@ -23,6 +23,7 @@ PKG_TO_DIST: dict[str, str] = {
     "wiki": "loanops-wiki",
     "rag": "loanops-rag",
     "docs": "loanops-docs",
+    "graph_rag": "loanops-graphrag",
     "sse": "loanops-sse",
     "capability_kg": "loanops-capability-kg",
     "eakg": "loanops-eakg",

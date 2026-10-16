@@ -14,6 +14,7 @@ THRESHOLDS: dict[str, tuple[float, str]] = {
     "faithfulness": (0.85, "gte"),
     "answer_relevance": (0.85, "gte"),
     "citation_coverage": (1.0, "gte"),
+    "citation_groundedness": (1.0, "gte"),
     "refusal_correctness": (0.95, "gte"),
     "latency_p95_ms": (4000.0, "lte"),
 }

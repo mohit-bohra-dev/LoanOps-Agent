@@ -10,7 +10,25 @@ import json
 import re
 from typing import Any
 
+from packages.agent_core._citation_grounding import ground_citations
 from packages.common.schemas import AgentTurnOutput
+
+# Live agent tools (must stay in sync with ``_agent._SSE_ANSWER_TOOLS`` names).
+# Used only to choose ``tool:`` vs ``policy:`` prefix when the model omits one.
+_TOOL_NAMES = frozenset(
+    {
+        "search_sse_apis",
+        "list_sse_apis",
+        "call_sse_api",
+        "search_docs",
+        "index_docs",
+        # Legacy loan fixtures still referenced in older golden / tests:
+        "lookup_loan",
+        "get_payment_schedule",
+        "get_escrow_breakdown",
+        "check_hardship_eligibility",
+    }
+)
 
 
 class AgentParseError(Exception):
@@ -59,17 +77,6 @@ def _strip_thinking_tags(text: str) -> str:
     JSON extractor can find the real payload.
     """
     return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
-
-
-_TOOL_NAMES = frozenset(
-    {
-        "lookup_loan",
-        "get_payment_schedule",
-        "get_escrow_breakdown",
-        "check_hardship_eligibility",
-        "search_policy",
-    }
-)
 
 
 def _fix_citations(data: dict[str, Any], recorded_tools: list[Any] | None = None) -> None:
@@ -142,6 +149,7 @@ def parse_agent_output(raw: str, recorded_tools: list[Any] | None = None) -> Age
 
     # Best-effort fixups for smaller local models before Pydantic validation
     _fix_citations(data, recorded_tools)
+    ground_citations(data, recorded_tools)
 
     try:
         return AgentTurnOutput(**data)

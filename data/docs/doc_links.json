@@ -1,0 +1,515 @@
+{
+  "version": 1,
+  "edges": [
+    {
+      "from": "complaints/complaint-handling.md",
+      "to": "complaints/escalation-procedure.md",
+      "kind": "category"
+    },
+    {
+      "from": "complaints/complaint-handling.md",
+      "to": "complaints/identity-theft.md",
+      "kind": "category"
+    },
+    {
+      "from": "complaints/complaint-handling.md",
+      "to": "complaints/quality-assurance.md",
+      "kind": "category"
+    },
+    {
+      "from": "complaints/escalation-procedure.md",
+      "to": "complaints/identity-theft.md",
+      "kind": "category"
+    },
+    {
+      "from": "complaints/escalation-procedure.md",
+      "to": "complaints/quality-assurance.md",
+      "kind": "category"
+    },
+    {
+      "from": "complaints/identity-theft.md",
+      "to": "complaints/quality-assurance.md",
+      "kind": "category"
+    },
+    {
+      "from": "escrow/annual-analysis.md",
+      "to": "escrow/escrow-disbursements.md",
+      "kind": "category"
+    },
+    {
+      "from": "escrow/annual-analysis.md",
+      "to": "escrow/escrow-dispute.md",
+      "kind": "category"
+    },
+    {
+      "from": "escrow/annual-analysis.md",
+      "to": "escrow/escrow-qa.md",
+      "kind": "category"
+    },
+    {
+      "from": "escrow/annual-analysis.md",
+      "to": "escrow/escrow-voluntary-removal.md",
+      "kind": "category"
+    },
+    {
+      "from": "escrow/escrow-disbursements.md",
+      "to": "escrow/escrow-dispute.md",
+      "kind": "category"
+    },
+    {
+      "from": "escrow/escrow-disbursements.md",
+      "to": "escrow/escrow-qa.md",
+      "kind": "category"
+    },
+    {
+      "from": "escrow/escrow-disbursements.md",
+      "to": "escrow/escrow-voluntary-removal.md",
+      "kind": "category"
+    },
+    {
+      "from": "escrow/escrow-dispute.md",
+      "to": "escrow/escrow-qa.md",
+      "kind": "category"
+    },
+    {
+      "from": "escrow/escrow-dispute.md",
+      "to": "escrow/escrow-voluntary-removal.md",
+      "kind": "category"
+    },
+    {
+      "from": "escrow/escrow-qa.md",
+      "to": "escrow/escrow-voluntary-removal.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/covid-forbearance.md",
+      "to": "hardship/disaster-forbearance.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/covid-forbearance.md",
+      "to": "hardship/forbearance.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/covid-forbearance.md",
+      "to": "hardship/hardship-assistance-overview.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/covid-forbearance.md",
+      "to": "hardship/military-scra.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/covid-forbearance.md",
+      "to": "hardship/repayment-plan.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/disaster-forbearance.md",
+      "to": "hardship/forbearance.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/disaster-forbearance.md",
+      "to": "hardship/hardship-assistance-overview.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/disaster-forbearance.md",
+      "to": "hardship/military-scra.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/disaster-forbearance.md",
+      "to": "hardship/repayment-plan.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/forbearance.md",
+      "to": "hardship/hardship-assistance-overview.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/forbearance.md",
+      "to": "hardship/military-scra.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/forbearance.md",
+      "to": "hardship/repayment-plan.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/hardship-assistance-overview.md",
+      "to": "hardship/military-scra.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/hardship-assistance-overview.md",
+      "to": "hardship/repayment-plan.md",
+      "kind": "category"
+    },
+    {
+      "from": "hardship/military-scra.md",
+      "to": "hardship/repayment-plan.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/foreclosure-prevention.md",
+      "to": "loss-mitigation/hardship-evaluation-criteria.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/foreclosure-prevention.md",
+      "to": "loss-mitigation/loan-modification.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/foreclosure-prevention.md",
+      "to": "loss-mitigation/loss-mitigation-application.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/foreclosure-prevention.md",
+      "to": "loss-mitigation/payment-deferral.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/foreclosure-prevention.md",
+      "to": "loss-mitigation/short-sale-dil.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/hardship-evaluation-criteria.md",
+      "to": "loss-mitigation/loan-modification.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/hardship-evaluation-criteria.md",
+      "to": "loss-mitigation/loss-mitigation-application.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/hardship-evaluation-criteria.md",
+      "to": "loss-mitigation/payment-deferral.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/hardship-evaluation-criteria.md",
+      "to": "loss-mitigation/short-sale-dil.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/loan-modification.md",
+      "to": "loss-mitigation/loss-mitigation-application.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/loan-modification.md",
+      "to": "loss-mitigation/payment-deferral.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/loan-modification.md",
+      "to": "loss-mitigation/short-sale-dil.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/loss-mitigation-application.md",
+      "to": "loss-mitigation/payment-deferral.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/loss-mitigation-application.md",
+      "to": "loss-mitigation/short-sale-dil.md",
+      "kind": "category"
+    },
+    {
+      "from": "loss-mitigation/payment-deferral.md",
+      "to": "loss-mitigation/short-sale-dil.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/auto-pay-enrollment.md",
+      "to": "payments/late-fee-waiver.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/auto-pay-enrollment.md",
+      "to": "payments/payment-assistance.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/auto-pay-enrollment.md",
+      "to": "payments/payment-disputes.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/auto-pay-enrollment.md",
+      "to": "payments/payment-history-inquiry.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/auto-pay-enrollment.md",
+      "to": "payments/payment-methods.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/auto-pay-enrollment.md",
+      "to": "payments/payment-processing.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/auto-pay-enrollment.md",
+      "to": "payments/payment-schedule.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/auto-pay-enrollment.md",
+      "to": "payments/principal-only-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/auto-pay-enrollment.md",
+      "to": "payments/returned-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/late-fee-waiver.md",
+      "to": "payments/payment-assistance.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/late-fee-waiver.md",
+      "to": "payments/payment-disputes.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/late-fee-waiver.md",
+      "to": "payments/payment-history-inquiry.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/late-fee-waiver.md",
+      "to": "payments/payment-methods.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/late-fee-waiver.md",
+      "to": "payments/payment-processing.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/late-fee-waiver.md",
+      "to": "payments/payment-schedule.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/late-fee-waiver.md",
+      "to": "payments/principal-only-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/late-fee-waiver.md",
+      "to": "payments/returned-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-assistance.md",
+      "to": "payments/payment-disputes.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-assistance.md",
+      "to": "payments/payment-history-inquiry.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-assistance.md",
+      "to": "payments/payment-methods.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-assistance.md",
+      "to": "payments/payment-processing.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-assistance.md",
+      "to": "payments/payment-schedule.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-assistance.md",
+      "to": "payments/principal-only-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-assistance.md",
+      "to": "payments/returned-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-disputes.md",
+      "to": "payments/payment-history-inquiry.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-disputes.md",
+      "to": "payments/payment-methods.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-disputes.md",
+      "to": "payments/payment-processing.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-disputes.md",
+      "to": "payments/payment-schedule.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-disputes.md",
+      "to": "payments/principal-only-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-disputes.md",
+      "to": "payments/returned-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-history-inquiry.md",
+      "to": "payments/payment-methods.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-history-inquiry.md",
+      "to": "payments/payment-processing.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-history-inquiry.md",
+      "to": "payments/payment-schedule.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-history-inquiry.md",
+      "to": "payments/principal-only-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-history-inquiry.md",
+      "to": "payments/returned-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-methods.md",
+      "to": "payments/payment-processing.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-methods.md",
+      "to": "payments/payment-schedule.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-methods.md",
+      "to": "payments/principal-only-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-methods.md",
+      "to": "payments/returned-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-processing.md",
+      "to": "payments/payment-schedule.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-processing.md",
+      "to": "payments/principal-only-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-processing.md",
+      "to": "payments/returned-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-schedule.md",
+      "to": "payments/principal-only-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/payment-schedule.md",
+      "to": "payments/returned-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payments/principal-only-payments.md",
+      "to": "payments/returned-payments.md",
+      "kind": "category"
+    },
+    {
+      "from": "payoff/payoff-information.md",
+      "to": "payoff/payoff-process.md",
+      "kind": "category"
+    },
+    {
+      "from": "state-specific/california-policy.md",
+      "to": "state-specific/florida-policy.md",
+      "kind": "category"
+    },
+    {
+      "from": "state-specific/california-policy.md",
+      "to": "state-specific/new-york-policy.md",
+      "kind": "category"
+    },
+    {
+      "from": "state-specific/california-policy.md",
+      "to": "state-specific/ohio-policy.md",
+      "kind": "category"
+    },
+    {
+      "from": "state-specific/california-policy.md",
+      "to": "state-specific/texas-policy.md",
+      "kind": "category"
+    },
+    {
+      "from": "state-specific/florida-policy.md",
+      "to": "state-specific/new-york-policy.md",
+      "kind": "category"
+    },
+    {
+      "from": "state-specific/florida-policy.md",
+      "to": "state-specific/ohio-policy.md",
+      "kind": "category"
+    },
+    {
+      "from": "state-specific/florida-policy.md",
+      "to": "state-specific/texas-policy.md",
+      "kind": "category"
+    },
+    {
+      "from": "state-specific/new-york-policy.md",
+      "to": "state-specific/ohio-policy.md",
+      "kind": "category"
+    },
+    {
+      "from": "state-specific/new-york-policy.md",
+      "to": "state-specific/texas-policy.md",
+      "kind": "category"
+    },
+    {
+      "from": "state-specific/ohio-policy.md",
+      "to": "state-specific/texas-policy.md",
+      "kind": "category"
+    }
+  ]
+}

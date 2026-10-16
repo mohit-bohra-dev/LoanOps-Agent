@@ -192,7 +192,10 @@ def validate_golden() -> int:
         "get_payment_schedule",
         "get_escrow_breakdown",
         "check_hardship_eligibility",
-        "search_policy",
+        "search_docs",
+        "search_sse_apis",
+        "list_sse_apis",
+        "call_sse_api",
     }
     seen_ids: set[str] = set()
     refusal_count = 0

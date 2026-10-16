@@ -385,6 +385,13 @@ class EakgStoreConfig(BaseModel):
     file_shard_dir: str = ""
 
 
+class GraphRagConfig(BaseModel):
+    """Doc GraphRAG summary routing (ADR-030 / doc-graphrag P4). Default off."""
+
+    enabled: bool = False
+    artifact_dir: str = "data/graphrag"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -415,6 +422,7 @@ class Settings(BaseSettings):
     credentials: CredentialsConfig = Field(default_factory=CredentialsConfig)
     graph_store: GraphStoreConfig = Field(default_factory=GraphStoreConfig)
     eakg_store: EakgStoreConfig = Field(default_factory=EakgStoreConfig)
+    graphrag: GraphRagConfig = Field(default_factory=GraphRagConfig)
     agent_role: str = Field(default="system", validation_alias="AGENT_ROLE")
 
 

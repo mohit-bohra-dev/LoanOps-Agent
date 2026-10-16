@@ -24,6 +24,7 @@ members = [
     "loanops-docs",
     "loanops-eakg",
     "loanops-eval",
+    "loanops-graphrag",
     "loanops-mcp-server",
     "loanops-rag",
     "loanops-safety",
@@ -1742,6 +1743,23 @@ requires-dist = [
 ]
 
 [[package]]
+name = "loanops-graphrag"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.GraphRag" }
+dependencies = [
+    { name = "loanops-common" },
+    { name = "loanops-docs" },
+    { name = "networkx" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "loanops-common", editable = "projects/LoanOps.Common" },
+    { name = "loanops-docs", editable = "projects/LoanOps.Docs" },
+    { name = "networkx", specifier = ">=3.2" },
+]
+
+[[package]]
 name = "loanops-mcp-server"
 version = "0.1.0"
 source = { editable = "projects/LoanOps.McpServer" }
@@ -1818,6 +1836,7 @@ dependencies = [
     { name = "loanops-db" },
     { name = "loanops-docs" },
     { name = "loanops-eakg" },
+    { name = "loanops-graphrag" },
     { name = "loanops-sse" },
     { name = "loanops-wiki" },
     { name = "mcp" },
@@ -1831,6 +1850,7 @@ requires-dist = [
     { name = "loanops-db", editable = "projects/LoanOps.Db" },
     { name = "loanops-docs", editable = "projects/LoanOps.Docs" },
     { name = "loanops-eakg", editable = "projects/LoanOps.Eakg" },
+    { name = "loanops-graphrag", editable = "projects/LoanOps.GraphRag" },
     { name = "loanops-sse", editable = "projects/LoanOps.Sse" },
     { name = "loanops-wiki", editable = "projects/LoanOps.Wiki" },
     { name = "mcp", specifier = ">=1.27.1" },
@@ -3851,6 +3871,7 @@ dependencies = [
     { name = "loanops-docs" },
     { name = "loanops-eakg" },
     { name = "loanops-eval" },
+    { name = "loanops-graphrag" },
     { name = "loanops-mcp-server" },
     { name = "loanops-rag" },
     { name = "loanops-safety" },
@@ -3883,6 +3904,7 @@ requires-dist = [
     { name = "loanops-docs", editable = "projects/LoanOps.Docs" },
     { name = "loanops-eakg", editable = "projects/LoanOps.Eakg" },
     { name = "loanops-eval", editable = "projects/LoanOps.Eval" },
+    { name = "loanops-graphrag", editable = "projects/LoanOps.GraphRag" },
     { name = "loanops-mcp-server", editable = "projects/LoanOps.McpServer" },
     { name = "loanops-rag", editable = "projects/LoanOps.Rag" },
     { name = "loanops-safety", editable = "projects/LoanOps.Safety" },

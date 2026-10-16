@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "corpus_hash": "6050897de4ed80b7fb71d20c681c6f88facbc776e63db5d6d88841c5371e3063",
+  "doc_links_version": 1,
+  "summary_kind": "extractive",
+  "louvain_seed": 42,
+  "phase": "p4"
+}

@@ -9,6 +9,7 @@ from packages.common.providers.factory import (
     get_audit_sink_provider,
     get_credential_broker,
     get_embedding_provider,
+    get_reranker_provider,
     get_vector_store_provider,
 )
 from packages.common.settings import Settings, get_settings
@@ -89,7 +90,38 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> AbstractToolsClie
     )
     docs: DocsService | None = None
     try:
-        docs = DocsService(get_embedding_provider(), get_vector_store_provider())
+        from packages.docs.link_graph import DocLinkGraph
+
+        link_graph = None
+        links_path = Path("data/docs/doc_links.json")
+        if links_path.is_file():
+            link_graph = DocLinkGraph.from_json_file(links_path)
+        reranker = None
+        try:
+            reranker = get_reranker_provider()
+        except Exception:  # noqa: BLE001 — rerank optional; flat search still works
+            reranker = None
+        embedding = get_embedding_provider()
+        vector_store = get_vector_store_provider()
+        docs = DocsService(
+            embedding,
+            vector_store,
+            reranker=reranker,
+            link_graph=link_graph,
+            candidate_k=20,
+        )
+        if cfg.graphrag.enabled:
+            try:
+                from packages.graph_rag.service import GraphRagService
+
+                docs = GraphRagService.maybe_wrap(
+                    docs,
+                    embedding,
+                    vector_store,
+                    cfg.graphrag.artifact_dir,
+                )
+            except Exception:  # noqa: BLE001 — stay on DocsService
+                pass
     except Exception:  # noqa: BLE001
         docs = None
 

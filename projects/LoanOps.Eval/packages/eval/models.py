@@ -46,6 +46,7 @@ class MetricValues(BaseModel):
     faithfulness: float | None = None
     answer_relevance: float | None = None
     citation_coverage: float = 0.0
+    citation_groundedness: float = 0.0
     refusal_correctness: float = 0.0
     latency_p95_ms: float = 0.0
     cost_avg_usd: float = 0.0

@@ -1,3 +1,66 @@
+## [2026-10-15] — Doc GraphRAG P5 LLM extract
+
+**Session type:** Implementation
+
+**Completed (P5):**
+- Extract pipeline: cache key (content|model|prompt|schema), grounding filter, PII scrub + state/vocab allowlist, gap-ledger shape (no eakg import)
+- `graph.json` + `gap_ledger.json` + richer `manifest.json`; Confluence/`--write-repo-artifact` refuse; `--rebuild` model pin
+- CLI: `uv run python -m packages.graph_rag.build --extract`
+- Unit tests: cache, grounding, PII, refuse, cache-hit (12 GraphRag tests green)
+
+**Next:** Run `--extract` on local corpus when ready (Bedrock cost); P6 ADR-030 append on human approval; gate2 still deferred.
+
+---
+
+## [2026-10-15] — Doc GraphRAG P4 summary routing (golden deferred)
+
+**Session type:** Implementation
+
+**Completed (P4):**
+- New `projects/LoanOps.GraphRag` (`loanops-graphrag`): Louvain communities (seed=42), extractive summaries, `GraphRagService` wrap, artifact load/fallback
+- Settings: `GRAPHRAG__ENABLED` (default false), `GRAPHRAG__ARTIFACT_DIR=data/graphrag`
+- Factory injects wrap when enabled; build CLI `python -m packages.graph_rag.build`
+- Unit tests: route, Louvain determinism, degraded/global search
+- Owner skipped golden/gate2; ADR-030 still draft
+
+**Next:** `uv run python -m packages.graph_rag.build`; set `GRAPHRAG__ENABLED=true`; gate2 when ready; P5 only if gate2 warrants.
+
+---
+
+## [2026-10-15] — Doc GraphRAG P1–P3 implementation + kill-gate STOP
+
+**Session type:** Implementation
+
+**Completed (P1):**
+- `ground_citations` + live `_TOOL_NAMES` (`search_docs` not mangled to `policy:`)
+- `citation_groundedness` metric + threshold 1.0; faithfulness contexts from tool results
+- Path-normalised frozen chunk metadata; `ingest_sops` → `docs` namespace
+- Golden: `search_policy`→`search_docs` (34); `data/golden_global.jsonl` (22 items)
+
+**Completed (P3):**
+- DocsService reranker (`candidate_k=20`) + `DocLinkGraph` one-hop; `data/docs/doc_links.json`
+- Factory wires optional reranker + links file
+- Unit tests: citation grounding, path meta, link graph + rerank
+
+**P2 / kill gate:** Live eval blocked — SSO token expired. Recorded STOP: no P4+ GraphRAG until credentials refreshed and slice re-measured. ADR-025 stands meantime.
+
+**Next:** Refresh LLM SSO; re-run `python -m packages.eval.run --golden data/golden_global.jsonl`; decide kill gate; only then P4+.
+
+---
+
+## [2026-10-15] — Doc GraphRAG spec package authored
+
+**Session type:** Spec authoring
+
+**Completed:**
+- `.ai/specs/doc-graphrag/` — README, story, spec, plan (P1–P6 kill-gated)
+- `ADR-030.draft.md` — pending human approval; not appended to `decisions.md`
+- Architect review folded in: citation grounding + tool-context faithfulness before any GraphRAG code
+
+**Next:** Execute plan P1 (metric approval + grounding); stop at P3 kill gate unless authorized.
+
+---
+
 ## [2026-10-15] — ADR-029 investigator + pattern feedback (implemented)
 
 **Session type:** Implementation

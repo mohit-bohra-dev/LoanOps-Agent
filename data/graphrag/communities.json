@@ -1,0 +1,134 @@
+[
+  {
+    "id": "c0000",
+    "member_paths": [
+      "complaints/complaint-handling.md",
+      "complaints/escalation-procedure.md",
+      "complaints/identity-theft.md",
+      "complaints/quality-assurance.md"
+    ],
+    "member_chunk_ids": [
+      "complaints/complaint-handling.md",
+      "complaints/escalation-procedure.md",
+      "complaints/identity-theft.md",
+      "complaints/quality-assurance.md"
+    ],
+    "summary": "complaints/complaint-handling.md: # Complaint Handling ## Overview All borrower complaints must be logged, tracked, and resolved within regulatory timelines. ## Complaint Categories 1. Servicing: payment posting, escrow, billing dispu | complaints/escalation-procedure.md: # Escalation Procedure ## When to Escalate Reps must escalate immediately if: - Borrower mentions CFPB, attorney general, BBB complaint. - Borrower expresses suicidal ideation, self-harm, or threats.  | complaints/identity-theft.md: # Identity Theft and Fraud ## Overview If a borrower reports suspected identity theft or unauthorized account access, the case must be escalated immediately. ## Immediate Steps 1. Stop any pending dis | complaints/quality-assurance.md: # Quality Assurance and Call Monitoring ## Overview All calls are recorded and subject to quality assurance review. Minimum 3 calls per rep per month are reviewed. ## QA Scoring Criteria 1. Greeting a"
+  },
+  {
+    "id": "c0001",
+    "member_paths": [
+      "escrow/annual-analysis.md",
+      "escrow/escrow-disbursements.md",
+      "escrow/escrow-dispute.md",
+      "escrow/escrow-qa.md",
+      "escrow/escrow-voluntary-removal.md"
+    ],
+    "member_chunk_ids": [
+      "escrow/annual-analysis.md",
+      "escrow/escrow-disbursements.md",
+      "escrow/escrow-dispute.md",
+      "escrow/escrow-qa.md",
+      "escrow/escrow-voluntary-removal.md"
+    ],
+    "summary": "escrow/annual-analysis.md: # Annual Escrow Analysis ## Overview Each year, the escrow account is analyzed to ensure sufficient funds to pay projected tax and insurance disbursements. This is required by RESPA Section 10. ## Tim | escrow/escrow-disbursements.md: # Escrow Disbursements ## Disbursement Schedule - Property taxes paid from escrow before the delinquency date. - Hazard insurance paid at policy renewal. - Flood insurance paid at policy renewal. - Mo | escrow/escrow-dispute.md: # Escrow Dispute Resolution ## Overview Borrowers may dispute escrow analysis results, including shortage amounts or disbursement errors. ## Dispute Handling Steps 1. Review the escrow analysis worksh | escrow/escrow-qa.md: # Escrow Q&A for Reps ## Common Borrower Questions ### Why did my escrow payment go up? Causes include: - County property tax reassessment. - Hazard insurance premium increase. - Prior-year shortage b"
+  },
+  {
+    "id": "c0002",
+    "member_paths": [
+      "hardship/covid-forbearance.md",
+      "hardship/disaster-forbearance.md",
+      "hardship/forbearance.md",
+      "hardship/hardship-assistance-overview.md",
+      "hardship/military-scra.md",
+      "hardship/repayment-plan.md"
+    ],
+    "member_chunk_ids": [
+      "hardship/covid-forbearance.md",
+      "hardship/disaster-forbearance.md",
+      "hardship/forbearance.md",
+      "hardship/hardship-assistance-overview.md",
+      "hardship/military-scra.md",
+      "hardship/repayment-plan.md"
+    ],
+    "summary": "hardship/covid-forbearance.md: # COVID-19 Forbearance ## Overview COVID-19 related forbearance follows the CARES Act provisions. While the national emergency has ended, borrowers experiencing COVID-related hardship may still be eli | hardship/disaster-forbearance.md: # Disaster Forbearance ## Overview Borrowers in FEMA-declared disaster areas may qualify for disaster forbearance regardless of loan investor. ## Eligibility - Property located in declared disaster ar | hardship/forbearance.md: # Forbearance Program ## Overview Forbearance allows a borrower to temporarily pause or reduce monthly payments due to a qualifying hardship. ## Qualifying Hardships - Job loss or reduction in income. | hardship/hardship-assistance-overview.md: # Hardship Assistance Overview ## Available Programs 1. Forbearance (standard and disaster). 2. Repayment plan. 3. Loan modification. 4. Payment deferral. 5. Short sale (pre-foreclosure). 6. Deed-in-l"
+  },
+  {
+    "id": "c0003",
+    "member_paths": [
+      "loss-mitigation/foreclosure-prevention.md",
+      "loss-mitigation/hardship-evaluation-criteria.md",
+      "loss-mitigation/loan-modification.md",
+      "loss-mitigation/loss-mitigation-application.md",
+      "loss-mitigation/payment-deferral.md",
+      "loss-mitigation/short-sale-dil.md"
+    ],
+    "member_chunk_ids": [
+      "loss-mitigation/foreclosure-prevention.md",
+      "loss-mitigation/hardship-evaluation-criteria.md",
+      "loss-mitigation/loan-modification.md",
+      "loss-mitigation/loss-mitigation-application.md",
+      "loss-mitigation/payment-deferral.md",
+      "loss-mitigation/short-sale-dil.md"
+    ],
+    "summary": "loss-mitigation/foreclosure-prevention.md: # Foreclosure Prevention ## Overview The goal of loss mitigation is to avoid foreclosure whenever possible. ## Foreclosure Alternatives (Ordered by Preference) 1. Loan modification: permanent payment  | loss-mitigation/hardship-evaluation-criteria.md: # Hardship Evaluation Criteria ## Evaluation Factors Loss mitigation applications are evaluated based on: ### Financial - Income stability and sufficiency. - Debt-to-income ratio (DTI). - Assets and r | loss-mitigation/loan-modification.md: # Loan Modification ## Overview A loan modification permanently changes one or more terms of the mortgage to make payments affordable. ## Modification Types 1. Rate reduction: lower the interest rate  | loss-mitigation/loss-mitigation-application.md: # Loss Mitigation Application Process ## Overview The loss mitigation application is the formal request for a loan modification or other workout option. ## Application Steps 1. Collect financial works"
+  },
+  {
+    "id": "c0004",
+    "member_paths": [
+      "payments/auto-pay-enrollment.md",
+      "payments/late-fee-waiver.md",
+      "payments/payment-assistance.md",
+      "payments/payment-disputes.md",
+      "payments/payment-history-inquiry.md",
+      "payments/payment-methods.md",
+      "payments/payment-processing.md",
+      "payments/payment-schedule.md",
+      "payments/principal-only-payments.md",
+      "payments/returned-payments.md"
+    ],
+    "member_chunk_ids": [
+      "payments/auto-pay-enrollment.md",
+      "payments/late-fee-waiver.md",
+      "payments/payment-assistance.md",
+      "payments/payment-disputes.md",
+      "payments/payment-history-inquiry.md",
+      "payments/payment-methods.md",
+      "payments/payment-processing.md",
+      "payments/payment-schedule.md",
+      "payments/principal-only-payments.md",
+      "payments/returned-payments.md"
+    ],
+    "summary": "payments/auto-pay-enrollment.md: # Auto-Pay Enrollment ## Overview Borrowers may enroll in automatic ACH payments from their checking or savings account. Auto-pay deducts the monthly payment on the due date. ## Enrollment Process 1.  | payments/late-fee-waiver.md: # Late Fee Waiver Policy ## Eligibility Criteria One courtesy late-fee waiver per rolling 12-month period. ## Waiver Process 1. Verify borrower has not used waiver in last 12 months. 2. Confirm paymen | payments/payment-assistance.md: # Payment Assistance Programs ## Overview Various federal and state programs provide payment assistance to eligible borrowers. ## Federal Programs - HAF (Homeowner Assistance Fund): state-administered | payments/payment-disputes.md: # Payment Disputes ## Overview Payment disputes arise when a borrower claims a payment was made but not credited, or credited incorrectly. ## Investigation Process 1. Verify payment details: amount, d"
+  },
+  {
+    "id": "c0005",
+    "member_paths": [
+      "payoff/payoff-information.md",
+      "payoff/payoff-process.md"
+    ],
+    "member_chunk_ids": [
+      "payoff/payoff-information.md",
+      "payoff/payoff-process.md"
+    ],
+    "summary": "payoff/payoff-information.md: # Payoff Information ## Overview Payoff information provides the borrower with an explanation of what would be required to fully satisfy the loan. This is informational only and not a binding payoff q | payoff/payoff-process.md: # Payoff Process ## Requesting a Payoff Statement - Formal payoff statements are issued by the Payoff Quote team. - Standard processing time: 3 business days. - Payoff statements are valid for 10-30 d"
+  },
+  {
+    "id": "c0006",
+    "member_paths": [
+      "state-specific/california-policy.md",
+      "state-specific/florida-policy.md",
+      "state-specific/new-york-policy.md",
+      "state-specific/ohio-policy.md",
+      "state-specific/texas-policy.md"
+    ],
+    "member_chunk_ids": [
+      "state-specific/california-policy.md",
+      "state-specific/florida-policy.md",
+      "state-specific/new-york-policy.md",
+      "state-specific/ohio-policy.md",
+      "state-specific/texas-policy.md"
+    ],
+    "summary": "state-specific/california-policy.md: # California-Specific Policies ## California Foreclosure Laws - Non-judicial foreclosure is the primary method. - Notice of Default (NOD) recorded after 30 days delinquency. - 90-day reinstatement per | state-specific/florida-policy.md: # Florida-Specific Policies ## Florida Foreclosure Laws - Judicial foreclosure required. - Notice of lis pendens filed with court. - Borrower has 20 days to respond to complaint. - Fore sale timeline: | state-specific/new-york-policy.md: # New York-Specific Policies ## New York Foreclosure Laws - Judicial foreclosure required. - 90-day pre-foreclosure notice required before filing (RPAPL 1304). - Settlement conference required for own | state-specific/ohio-policy.md: # Ohio-Specific Policies ## Ohio Foreclosure Laws - Judicial foreclosure required. - Complaint filed in county court of common pleas. - Borrower has 28 days to respond to complaint. - Foreclosure time"
+  }
+]

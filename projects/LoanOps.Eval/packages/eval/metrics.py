@@ -11,6 +11,50 @@ import math
 from packages.eval.models import EvalItemResult
 
 
+def compute_citation_groundedness(results: list[EvalItemResult]) -> float:
+    """Fraction of eligible items whose every ``policy:`` citation is grounded.
+
+    A policy citation is grounded when some ``search_docs`` (or doc-search)
+    tool result on the turn contains that path. Items with no policy
+    citations pass. Refusal/escalation/error items are excluded.
+
+    Relies on parser-side ``ground_citations`` plus a post-hoc path check
+    against ``output.tool_calls`` so regressions in the parser still fail.
+    """
+    from packages.agent_core._citation_grounding import extract_paths_and_texts
+
+    eligible: list[EvalItemResult] = []
+    for r in results:
+        if r.output is None or r.error is not None:
+            continue
+        if r.expected.refusal or r.expected.escalation is not None:
+            continue
+        eligible.append(r)
+
+    if not eligible:
+        return 1.0
+
+    passed = 0
+    for r in eligible:
+        assert r.output is not None  # noqa: S101 — guarded above
+        policy_cites = [c for c in r.output.citations if c.source.startswith("policy:")]
+        if not policy_cites:
+            passed += 1
+            continue
+
+        paths, _texts = extract_paths_and_texts(list(r.output.tool_calls))
+        if not paths:
+            # Policy cites with no search_docs evidence — ungrounded
+            continue
+
+        from packages.agent_core._citation_grounding import policy_citation_grounded
+
+        if all(policy_citation_grounded(c.source, paths) for c in policy_cites):
+            passed += 1
+
+    return passed / len(eligible)
+
+
 def compute_citation_coverage(results: list[EvalItemResult]) -> float:
     """Fraction of non-refusal/non-escalation items that have correct citations.
 

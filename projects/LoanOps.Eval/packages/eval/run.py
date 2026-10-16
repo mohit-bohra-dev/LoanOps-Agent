@@ -32,6 +32,7 @@ from packages.common.providers.factory import (
 )
 from packages.eval.metrics import (
     compute_citation_coverage,
+    compute_citation_groundedness,
     compute_cost_avg,
     compute_latency_p95,
     compute_refusal_correctness,
@@ -127,7 +128,13 @@ async def _compute_ragas_metrics(
 
         questions.append(r.rep_prompt)
         answers.append(r.output.answer)
-        ctx = [c.snippet for c in r.output.citations if c.snippet]
+        # Faithfulness must judge against retrieved evidence, not model footnotes.
+        tool_ctx = [
+            t.result_summary
+            for t in r.output.tool_calls
+            if t.result_summary and t.result_summary != "error"
+        ]
+        ctx = tool_ctx or [c.snippet for c in r.output.citations if c.snippet]
         contexts.append(ctx if ctx else ["No context available."])
 
     if not questions:
@@ -210,6 +217,7 @@ async def run_eval(
 
     # 4. Compute structural metrics
     citation_cov = compute_citation_coverage(results)
+    citation_ground = compute_citation_groundedness(results)
     refusal_corr = compute_refusal_correctness(results)
     p95 = compute_latency_p95(results)
     cost = compute_cost_avg(results)
@@ -218,6 +226,7 @@ async def run_eval(
 
     metric_values = MetricValues(
         citation_coverage=round(citation_cov, 4),
+        citation_groundedness=round(citation_ground, 4),
         refusal_correctness=round(refusal_corr, 4),
         latency_p95_ms=round(p95, 2),
         cost_avg_usd=round(cost, 6),
@@ -247,6 +256,7 @@ async def run_eval(
     # 6. Check thresholds
     metrics_dict: dict[str, float] = {
         "citation_coverage": metric_values.citation_coverage,
+        "citation_groundedness": metric_values.citation_groundedness,
         "refusal_correctness": metric_values.refusal_correctness,
         "latency_p95_ms": metric_values.latency_p95_ms,
     }
