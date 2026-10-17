@@ -5,6 +5,8 @@ from __future__ import annotations
 import contextlib
 import time
 import uuid
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from typing import Any, Protocol, cast
@@ -16,6 +18,7 @@ from mcp.server.fastmcp.exceptions import ToolError
 from mcp.types import ToolAnnotations
 from packages.common.providers import AuditEvent, ToolCall, ToolResult
 from packages.common.providers.factory import get_audit_sink_provider
+from packages.common.providers.telemetry import TelemetryProvider
 from packages.common.scopes import tools_for_role
 from packages.common.settings import Settings, get_settings
 from packages.mcp_server.capability_authz import (
@@ -78,6 +81,80 @@ class _Tools(Protocol):
 
 class _Audit(Protocol):
     async def emit(self, event: AuditEvent) -> None: ...
+
+
+async def _record_mcp_metrics(
+    tel: TelemetryProvider | None,
+    *,
+    tool_name: str,
+    outcome: str,
+    latency_ms: float,
+) -> None:
+    """Fail-open MCP tool metrics (Langfuse when TELEMETRY__PROVIDER=langfuse)."""
+    if tel is None:
+        return
+    try:
+        attrs = {"tool": tool_name, "outcome": outcome}
+        await tel.record_metric(
+            "mcp.tool.latency_ms",
+            float(latency_ms),
+            unit="ms",
+            attributes=attrs,
+        )
+        await tel.record_metric(
+            "mcp.tool.outcome",
+            1.0,
+            unit="1",
+            attributes=attrs,
+        )
+    except Exception:  # noqa: BLE001
+        return
+
+
+@asynccontextmanager
+async def _tool_span(
+    tel: TelemetryProvider | None,
+    *,
+    tool_name: str,
+    role: str,
+    user: str | None,
+    tenant: str | None,
+) -> AsyncIterator[None]:
+    """Fail-open span around a tool call; missing/broken telemetry still runs the tool."""
+    if tel is None:
+        yield
+        return
+    attrs = {
+        "tool": tool_name,
+        "role": role,
+        "user": user or "",
+        "tenant": tenant or "",
+    }
+    try:
+        cm = tel.span("mcp.tool.call", attributes=attrs)
+        await cm.__aenter__()
+    except Exception:  # noqa: BLE001
+        yield
+        return
+    try:
+        yield
+    except BaseException as exc:
+        await cm.__aexit__(type(exc), exc, exc.__traceback__)
+        raise
+    else:
+        await cm.__aexit__(None, None, None)
+
+
+def _resolve_telemetry(
+    telemetry: TelemetryProvider | None,
+) -> TelemetryProvider | None:
+    if telemetry is not None:
+        return telemetry
+    with contextlib.suppress(Exception):
+        from packages.common.providers.factory import get_telemetry_provider
+
+        return get_telemetry_provider()
+    return None
 
 
 class StaticTokenVerifier(TokenVerifier):
@@ -147,118 +224,147 @@ async def execute_tool(
     settings: Settings,
     client: _Tools,
     audit: _Audit | None,
+    telemetry: TelemetryProvider | None = None,
 ) -> str:
     """Auth, scope, GET-only, then the existing tools client. Raises AuthError or PolicyError."""
+    tel = _resolve_telemetry(telemetry)
     started = time.perf_counter()
     error: str | None = None
     success = False
     summary = ""
     decision = "denied"
     call_args = dict(arguments)
-    try:
-        # LAYER2-BP C2: MCP auth/scope then EAKG or ModularToolsClient
-        if not bearer_matches(authorization, settings.mcp.auth_token):
-            raise AuthError("unauthorized")
-        allowed = tools_for_role(settings.mcp.role)
-        assert_tool_allowed(name, allowed)
+    outcome = "error"
+    eff_user = user or (settings.mcp.principal_user or None)
+    eff_tenant = tenant or (settings.mcp.principal_tenant or None)
 
-        if name == "call_sse_api":
-            # Gap 1: capability_id → SPARQL resolve (ADR-026; no shard merge).
-            from packages.common.providers.factory import get_graph_store
-            from packages.common.providers.graph_store import GraphStoreError
+    async with _tool_span(
+        tel,
+        tool_name=name,
+        role=settings.mcp.role,
+        user=eff_user,
+        tenant=eff_tenant,
+    ):
+        try:
+            # LAYER2-BP C2: MCP auth/scope then EAKG or ModularToolsClient
+            if not bearer_matches(authorization, settings.mcp.auth_token):
+                raise AuthError("unauthorized")
+            allowed = tools_for_role(settings.mcp.role)
+            assert_tool_allowed(name, allowed)
 
-            has_capability_id = bool(str(call_args.get("capability_id") or "").strip())
-            required_perm: str | None = None
-            if settings.capability_kg.require_capability_bind or has_capability_id:
-                if not settings.capability_kg.enabled:
-                    raise PolicyError("capability catalog unavailable for bind")
-                resolver = client.operation_resolver()
-                try:
-                    call_args, required_perm = await apply_capability_bind_async(
-                        call_args,
-                        get_graph_store(),
-                        require_bind=settings.capability_kg.require_capability_bind,
-                        namespace=settings.capability_kg.namespace,
-                        resolver=resolver,
-                    )
-                except GraphStoreError as exc:
-                    raise PolicyError(f"graph store unavailable: {exc}") from exc
+            if name == "call_sse_api":
+                # Gap 1: capability_id → SPARQL resolve (ADR-026; no shard merge).
+                from packages.common.providers.factory import get_graph_store
+                from packages.common.providers.graph_store import GraphStoreError
 
-            # Gap 2: requiresPermission from bound capability (flag-gated).
-            assert_capability_permission(
-                required=required_perm,
-                allowed=allowed_permissions_for_role(
-                    settings.mcp.role,
-                    settings.capability_kg.allowed_permissions,
-                ),
-                enforce=settings.capability_kg.enforce_permissions,
-            )
+                has_capability_id = bool(str(call_args.get("capability_id") or "").strip())
+                required_perm: str | None = None
+                if settings.capability_kg.require_capability_bind or has_capability_id:
+                    if not settings.capability_kg.enabled:
+                        raise PolicyError("capability catalog unavailable for bind")
+                    resolver = client.operation_resolver()
+                    try:
+                        call_args, required_perm = await apply_capability_bind_async(
+                            call_args,
+                            get_graph_store(),
+                            require_bind=settings.capability_kg.require_capability_bind,
+                            namespace=settings.capability_kg.namespace,
+                            resolver=resolver,
+                        )
+                    except GraphStoreError as exc:
+                        raise PolicyError(f"graph store unavailable: {exc}") from exc
 
-            method_arg = call_args.get("method")
-            method_text = str(method_arg) if method_arg is not None else None
-            if body_present(call_args.get("body")):
-                raise PolicyError("call_sse_api body is not allowed")
-            if method_text is not None and method_text.strip().upper() != "GET":
-                raise PolicyError("call_sse_api method must be GET")
-            op_id = call_args.get("operation_id")
-            path = call_args.get("path")
-            operation = await client.find_sse_operation(
-                operation_id=str(op_id) if op_id else None,
-                method=method_text,
-                path=str(path) if path else None,
-            )
-            resolved = operation.method if operation is not None else None
-            assert_sse_read_only(method_arg=method_text, body=None, resolved_method=resolved)
-            # Principal → enterprise request headers (service bearer still SSE__API_KEY).
-            headers_raw = call_args.get("headers")
-            headers: dict[str, Any] = dict(headers_raw) if isinstance(headers_raw, dict) else {}
-            eff_user = user or (settings.mcp.principal_user or None)
-            eff_tenant = tenant or (settings.mcp.principal_tenant or None)
-            if eff_user:
-                headers.setdefault("x-loanops-user", eff_user)
-            if eff_tenant:
-                headers.setdefault("x-loanops-tenant", eff_tenant)
-            if headers:
-                call_args["headers"] = headers
-
-        decision = "allowed"
-        result = await client.call(ToolCall(tool_name=name, parameters=call_args))
-        success = result.success
-        if result.success:
-            data = result.data or {}
-            text = data.get("text")
-            full = str(text if text is not None else data)
-            summary = full[:500]
-            return full
-        error = result.error or "tool failed"
-        summary = error[:500]
-        raise ToolError(error)
-    except (AuthError, PolicyError) as exc:
-        error = str(exc)
-        summary = error
-        raise
-    finally:
-        if audit is not None:
-            elapsed = round((time.perf_counter() - started) * 1000, 2)
-            with contextlib.suppress(Exception):
-                await audit.emit(
-                    AuditEvent(
-                        event_id=str(uuid.uuid4()),
-                        event_type="mcp.tool.call",
-                        user_id=user or (settings.mcp.principal_user or None),
-                        payload={
-                            "tool_name": name,
-                            "role": settings.mcp.role,
-                            "tenant": tenant or (settings.mcp.principal_tenant or None),
-                            "arguments": sanitize_args(call_args),
-                            "authorization": decision,
-                            "success": success,
-                            "latency_ms": elapsed,
-                            "error": error,
-                            "result_summary": summary[:500],
-                        },
-                    )
+                # Gap 2: requiresPermission from bound capability (flag-gated).
+                assert_capability_permission(
+                    required=required_perm,
+                    allowed=allowed_permissions_for_role(
+                        settings.mcp.role,
+                        settings.capability_kg.allowed_permissions,
+                    ),
+                    enforce=settings.capability_kg.enforce_permissions,
                 )
+
+                method_arg = call_args.get("method")
+                method_text = str(method_arg) if method_arg is not None else None
+                if body_present(call_args.get("body")):
+                    raise PolicyError("call_sse_api body is not allowed")
+                if method_text is not None and method_text.strip().upper() != "GET":
+                    raise PolicyError("call_sse_api method must be GET")
+                op_id = call_args.get("operation_id")
+                path = call_args.get("path")
+                operation = await client.find_sse_operation(
+                    operation_id=str(op_id) if op_id else None,
+                    method=method_text,
+                    path=str(path) if path else None,
+                )
+                resolved = operation.method if operation is not None else None
+                assert_sse_read_only(
+                    method_arg=method_text, body=None, resolved_method=resolved
+                )
+                # Principal → enterprise request headers (service bearer still SSE__API_KEY).
+                headers_raw = call_args.get("headers")
+                headers: dict[str, Any] = (
+                    dict(headers_raw) if isinstance(headers_raw, dict) else {}
+                )
+                if eff_user:
+                    headers.setdefault("x-loanops-user", eff_user)
+                if eff_tenant:
+                    headers.setdefault("x-loanops-tenant", eff_tenant)
+                if headers:
+                    call_args["headers"] = headers
+
+            decision = "allowed"
+            result = await client.call(ToolCall(tool_name=name, parameters=call_args))
+            success = result.success
+            if result.success:
+                data = result.data or {}
+                text = data.get("text")
+                full = str(text if text is not None else data)
+                summary = full[:500]
+                outcome = "ok"
+                return full
+            error = result.error or "tool failed"
+            summary = error[:500]
+            outcome = "error"
+            raise ToolError(error)
+        except AuthError as exc:
+            error = str(exc)
+            summary = error
+            outcome = "denied"
+            raise
+        except PolicyError as exc:
+            error = str(exc)
+            summary = error
+            outcome = "policy"
+            raise
+        finally:
+            elapsed = round((time.perf_counter() - started) * 1000, 2)
+            if audit is not None:
+                with contextlib.suppress(Exception):
+                    await audit.emit(
+                        AuditEvent(
+                            event_id=str(uuid.uuid4()),
+                            event_type="mcp.tool.call",
+                            user_id=eff_user,
+                            payload={
+                                "tool_name": name,
+                                "role": settings.mcp.role,
+                                "tenant": eff_tenant,
+                                "arguments": sanitize_args(call_args),
+                                "authorization": decision,
+                                "success": success,
+                                "latency_ms": elapsed,
+                                "error": error,
+                                "result_summary": summary[:500],
+                            },
+                        )
+                    )
+            await _record_mcp_metrics(
+                tel,
+                tool_name=name,
+                outcome=outcome,
+                latency_ms=elapsed,
+            )
 
 
 def create_app(cfg: Settings | None = None) -> Starlette:

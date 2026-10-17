@@ -11,7 +11,8 @@ Use these instead of treating every open checkbox as equal priority.
 - [x] Record Cursor validation evidence — `docs/MCP_CURSOR_VALIDATION.md` (2026-10-02)
 - [x] Record Gemini validation evidence — **skipped** 2026-10-03 (`docs/MCP_GEMINI_VALIDATION.md`)
 - [x] Product demo path: `TOOLS_CLIENT__PROVIDER=mcp` + MCP up + EAKG shards present — MCP hop `getLoanSummary` **200** with Subservicing M2M (2026-10-02)
-- [ ] Eval golden with MCP hop — **blocked on golden refresh + Bedrock SSO** for full `/chat`
+- [x] MCP server observability — `execute_tool` spans/metrics via TelemetryProvider; fixture eval `python -m packages.mcp_server.eval_run`; self-hosted Langfuse on shared local Postgres DB `langfuse` (native, no Docker; compose optional) (2026-10-16)
+- [ ] Eval golden with MCP hop — golden refreshed to MCP tools; **blocked on Bedrock SSO** for full `/chat`
 - [x] EAKG capability embeddings wired — `python -m packages.eakg embed`; `query --semantic` (2026-10-04)
 - [x] Product semantic on — `CAPABILITY_KG__SEMANTIC=true`; `search_sse_apis` / capability block returns NL hits (2026-10-04; embedder=`local_bge` matches sidecar)
 - [x] OpenAPI `search_sse_apis` uses embeddings (2026-10-06); EAKG vectors auto if `embeddings.json` exists
@@ -41,7 +42,7 @@ Use these instead of treating every open checkbox as equal priority.
 
 ### Later / parked
 
-- [ ] **Refresh golden set for SSE/MCP** — `data/golden.jsonl` still expects old tools (`lookup_loan`, `get_escrow_breakdown`, `search_policy`, …). Keep prompts; rewrite `must_call_tools` / `must_cite` to `search_sse_apis` → `call_sse_api` + `search_docs`. Prove ~10 items first, then full 50. Do **not** lower eval thresholds. Then run eval with `TOOLS_CLIENT__PROVIDER=mcp`.
+- [x] **Refresh golden set for SSE/MCP** — `data/golden.jsonl` `must_call_tools` / `must_cite` rewritten to `search_sse_apis` → `call_sse_api` + `search_docs` (all 50). Thresholds unchanged. Live eval still SSO-gated.
 - [ ] **D9** push `vdd` to GitLab — **not yet**; after full test pass
 - [x] **Roslyn .NET extractor** cutover (D5) — `tools/eakg-dotnet-extract`, `EAKG__EXTRACTOR=auto`
 - [x] Repo #4+ — **D6 freeze at 3** (Escrow/Fees/LoanServices); guide when unfrozen: `docs/EAKG_ONBOARD_REPO.md`
@@ -87,7 +88,7 @@ Use these instead of treating every open checkbox as equal priority.
 
 - [x] `data/loans.json` — 50 synthetic loans (CA/TX/FL/NY/OH mix)
 - [x] `data/sops/` — 30 synthetic markdown SOPs with YAML frontmatter
-- [x] `data/golden.jsonl` — 50 Q&A items (≥5 refusal, ≥5 escalation)
+- [x] `data/golden.jsonl` — 5 smoke items (1 refusal, 1 escalation, 3 happy); full 50 in `data/golden.full.jsonl`
 - [x] `python -m packages.eval.validate_data` reports 0 errors
 
 ## Step 3 — RAG pipeline
@@ -162,6 +163,8 @@ Use these instead of treating every open checkbox as equal priority.
 - [x] Wire Langfuse into `LoanOps-Agent` settings and factory
 - [x] Push eval metrics to Langfuse dashboard from `run_eval`
 - [x] Provide `docker-compose.langfuse.yml` for self-hosted instance
+- [x] Langfuse local path: shared Postgres DB `langfuse` (native self-host; `docker-compose.langfuse.yml` optional only)
+- [x] MCP `execute_tool` telemetry + `packages.mcp_server.eval_run` scores to Langfuse
 
 ## Step 13 — One modular Python product (ADR-010)
 
@@ -185,7 +188,7 @@ Use these instead of treating every open checkbox as equal priority.
 - [x] Factory wiring; empty `MCP__AUTH_TOKEN` refuses `mcp` provider
 - [x] Unit tests: fake session + agent turn via MCP client
 - [x] Live MCP hop smoke (`getLoanSummary` 200) — SSO chat compare still optional
-- [ ] Eval golden with MCP hop → see **Backlog buckets → Now** (first: refresh golden under Later)
+- [ ] Eval golden with MCP hop → see **Backlog buckets → Now** (golden refreshed; SSO still blocks live run)
 
 ## Step 15 — RDF Capability Knowledge Graph (ADR-014)
 

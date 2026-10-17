@@ -1,18 +1,13 @@
+# OPTIONAL — only if you use Docker. LoanOps local default path is native Langfuse
+# (no Docker): create DB `langfuse` on the same Postgres as `loanops`, run Langfuse
+# per upstream self-host docs with DATABASE_URL=...@localhost:5432/langfuse, then
+# TELEMETRY__PROVIDER=langfuse → http://localhost:3000.
+#
+# Create DB once:  psql -U postgres -h localhost -c "CREATE DATABASE langfuse;"
+# Override: LANGFUSE_DATABASE_URL=postgresql://user:pass@host.docker.internal:5432/langfuse
 version: '3.8'
 
 services:
-  langfuse-db:
-    image: postgres:16
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=langfuse
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   langfuse-clickhouse:
     image: clickhouse/clickhouse-server:24.6
     environment:
@@ -40,8 +35,10 @@ services:
     image: langfuse/langfuse:latest
     ports:
       - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment: &langfuse-env
-      - DATABASE_URL=postgresql://postgres:postgres@langfuse-db:5432/langfuse
+      - DATABASE_URL=${LANGFUSE_DATABASE_URL:-postgresql://postgres:postgres@host.docker.internal:5432/langfuse}
       - CLICKHOUSE_URL=http://langfuse-clickhouse:8123
       - CLICKHOUSE_MIGRATION_URL=clickhouse://langfuse-clickhouse:9000
       - CLICKHOUSE_USER=default
@@ -70,24 +67,16 @@ services:
       - LANGFUSE_INIT_PROJECT_PUBLIC_KEY=pk-lf-local
       - LANGFUSE_INIT_PROJECT_SECRET_KEY=sk-lf-local
     depends_on:
-      langfuse-db:
-        condition: service_healthy
-      langfuse-clickhouse:
-        condition: service_started
-      langfuse-redis:
-        condition: service_started
-      langfuse-minio:
-        condition: service_started
+      - langfuse-clickhouse
+      - langfuse-redis
+      - langfuse-minio
 
   langfuse-worker:
     image: langfuse/langfuse-worker:latest
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment: *langfuse-env
     depends_on:
-      langfuse-db:
-        condition: service_healthy
-      langfuse-clickhouse:
-        condition: service_started
-      langfuse-redis:
-        condition: service_started
-      langfuse-minio:
-        condition: service_started
+      - langfuse-clickhouse
+      - langfuse-redis
+      - langfuse-minio

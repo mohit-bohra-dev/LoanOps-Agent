@@ -6,6 +6,7 @@ from typing import Any
 
 import pytest
 from packages.common.providers import AuditEvent, ToolCall, ToolResult
+from packages.common.providers.testing import MockTelemetryProvider
 from packages.common.settings import McpConfig, Settings
 from packages.mcp_server.policy import AuthError, PolicyError
 from packages.mcp_server.server import create_app, execute_tool
@@ -72,6 +73,7 @@ def _settings(role: str = "system") -> Settings:
 async def test_missing_and_wrong_bearer_rejected() -> None:
     client = FakeClient()
     audit = FakeAudit()
+    tel = MockTelemetryProvider()
     settings = _settings()
     with pytest.raises(AuthError):
         await execute_tool(
@@ -83,6 +85,7 @@ async def test_missing_and_wrong_bearer_rejected() -> None:
             settings=settings,
             client=client,
             audit=audit,
+            telemetry=tel,
         )
     with pytest.raises(AuthError):
         await execute_tool(
@@ -94,10 +97,17 @@ async def test_missing_and_wrong_bearer_rejected() -> None:
             settings=settings,
             client=client,
             audit=audit,
+            telemetry=tel,
         )
     assert client.calls == []
     assert audit.events[-1].payload["authorization"] == "denied"
     assert "secret-token" not in str(audit.events[-1].payload)
+    outcomes = [
+        m for m in tel.recorded_metrics if m["name"] == "mcp.tool.outcome"
+    ]
+    assert len(outcomes) == 2
+    assert all(m["attributes"]["outcome"] == "denied" for m in outcomes)
+    assert all(s["name"] == "mcp.tool.call" for s in tel.recorded_spans)
 
 
 @pytest.mark.asyncio
@@ -151,6 +161,7 @@ async def test_call_sse_api_rejects_post_and_body() -> None:
 async def test_call_sse_api_get_reaches_client() -> None:
     client = FakeClient(method="get")
     audit = FakeAudit()
+    tel = MockTelemetryProvider()
     text = await execute_tool(
         name="call_sse_api",
         arguments={"operation_id": "getLoanSummary", "path_params": {"loan_id": "1000002245"}},
@@ -160,6 +171,7 @@ async def test_call_sse_api_get_reaches_client() -> None:
         settings=_settings(),
         client=client,
         audit=audit,
+        telemetry=tel,
     )
     assert text == "ok"
     assert client.calls[0].tool_name == "call_sse_api"
@@ -168,6 +180,14 @@ async def test_call_sse_api_get_reaches_client() -> None:
     assert payload["success"] is True
     assert payload["tenant"] == "servicing"
     assert payload["tool_name"] == "call_sse_api"
+    assert tel.recorded_spans[0]["name"] == "mcp.tool.call"
+    assert tel.recorded_spans[0]["attributes"]["tool"] == "call_sse_api"
+    latency = [m for m in tel.recorded_metrics if m["name"] == "mcp.tool.latency_ms"]
+    outcome = [m for m in tel.recorded_metrics if m["name"] == "mcp.tool.outcome"]
+    assert len(latency) == 1
+    assert latency[0]["attributes"]["outcome"] == "ok"
+    assert len(outcome) == 1
+    assert outcome[0]["attributes"]["outcome"] == "ok"
 
 
 @pytest.mark.asyncio

@@ -511,9 +511,10 @@ Later MCP selection eval can keep this runner and add checks on `tool_calls[].na
 | Latency | Turn-level only | `latency_ms` on the audit record. SSE invoke also computes `duration_ms` inside the tool payload. |
 | Errors | Yes | Failed tools set `result_summary` to the error. Uncaught `/chat` errors are SSE payloads and are not audited. |
 | Token usage | No | `cost_usd` is hard-coded `0.0`. Chat provider usage is not copied onto the audit record. |
-| Telemetry provider | Configured, not used by `/chat` | `get_telemetry_provider` is not called from `main.py` or `_agent.py`. Console / Langfuse exist for other call sites. App Insights factory raises. |
+| Telemetry provider | Partial | `/chat` does not call it. MCP `execute_tool` emits span `mcp.tool.call` + metrics `mcp.tool.latency_ms` / `mcp.tool.outcome` via `get_telemetry_provider` (console default; self-hosted Langfuse when `TELEMETRY__PROVIDER=langfuse`). SSE invoke also records metrics. App Insights factory raises. |
+| MCP fixture eval | Yes | `python -m packages.mcp_server.eval_run` — in-code fixtures; scores `eval.mcp.*` to telemetry only (no report file). |
 | PII / safety events | Yes | `pii.redacted`, `safety.evaluated` via `AuditSinkProvider` |
-| Audit sink | JSONL default | `AUDIT__SINK=jsonl`, directory `AUDIT__JSONL_DIR`. Flushed on shutdown. |
+| Audit sink | JSONL default | `AUDIT__SINK=jsonl`, directory `AUDIT__JSONL_DIR`. Flushed on shutdown. MCP tool calls still audit to JSONL; durable MCP traces/scores go to self-hosted Langfuse when `TELEMETRY__PROVIDER=langfuse` (Postgres DB `langfuse` on the same local server as LoanOps DB `loanops`; native Langfuse process — Docker not required). |
 
 ---
 

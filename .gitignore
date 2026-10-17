@@ -16,6 +16,9 @@ build/
 node_modules/
 apps/web_ui/dist/
 
+# Local Langfuse self-host checkout (native, no Docker)
+.tools/
+
 # Tools
 .pytest_cache/
 .mypy_cache/

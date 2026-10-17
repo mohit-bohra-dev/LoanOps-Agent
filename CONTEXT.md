@@ -43,9 +43,7 @@
 | `apps/agent_api/tests/test_agent_api.py` | Unit tests for Agent API |
 | `packages/sse/` | OpenAPI catalog + live `call_sse_api` (replaces tools_api) |
 | `apps/web_ui/` | React + TypeScript rep UI (Vite + Tailwind v4) |
-| `.github/workflows/ci.yml` | CI: lint + mypy + unit tests on PR |
-| `.github/workflows/eval-gate.yml` | Eval gate: nightly + PR eval runner |
-| `data/golden.jsonl` | 50 Q&A golden items |
+| `data/golden.jsonl` | 5 Q&A smoke golden items (MCP tools); full 50 in `data/golden.full.jsonl` |
 | `data/sops/` | 38 synthetic SOP markdown files |
 | `data/loans.json` | 55 synthetic loans |
 
@@ -80,7 +78,9 @@
 | `AUDIT__SINK` | `jsonl` | `jsonl` / `appinsights` |
 | `AUDIT__JSONL_DIR` | `./audit` | JSONL output directory |
 | `SECRETS__PROVIDER` | `env` | `env` / `keyvault` |
-| `TELEMETRY__PROVIDER` | `console` | `console` / `appinsights` |
+| `TELEMETRY__PROVIDER` | `console` | `console` / `langfuse` / `appinsights` — MCP + eval use this; Langfuse = self-hosted only |
+| `TELEMETRY__LANGFUSE__HOST` | `http://localhost:3000` | Native self-hosted Langfuse UI (no Docker required); not Langfuse Cloud |
+| `TELEMETRY__LANGFUSE__PUBLIC_KEY` / `SECRET_KEY` | `pk-lf-local` / `sk-lf-local` | Match compose `LANGFUSE_INIT_PROJECT_*` |
 | `TOOLS_CLIENT__PROVIDER` | `modular` | `modular` (in-process) / `mcp` (Streamable HTTP → `:8001`, ADR-013) |
 | `AGENT_ROLE` | `system` | Role allow-list (`system`/`user`/`dev`/`pm`/…; `care_rep`=`user` alias) |
 | `MCP__HOST` / `MCP__PORT` / `MCP__PATH` | `127.0.0.1` / `8001` / `/mcp` | MCP listener bind + path |
@@ -297,6 +297,21 @@ make demo        # Agent API :8000 + Vite :5173
 make down        # kill background processes
 ```
 
+MCP observability (self-hosted Langfuse, shared local Postgres — **no Docker**):
+
+```bash
+# once on same Postgres server as loanops:
+psql -U postgres -h localhost -c "CREATE DATABASE langfuse;"
+# Run Langfuse natively (upstream self-host) with:
+#   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/langfuse
+# UI http://localhost:3000 — keys pk-lf-local / sk-lf-local (or your project keys)
+# TELEMETRY__PROVIDER=langfuse  (+ TELEMETRY__LANGFUSE__* in .env)
+python -m packages.mcp_server.eval_run   # fixture scores → telemetry only
+# Without Langfuse running: leave TELEMETRY__PROVIDER=console (spans/metrics to stdout)
+# Optional (Docker users only): docker compose -f docker-compose.langfuse.yml up -d
+```
+
+
 ---
 
 ## 10. PII patterns (Presidio)
@@ -400,7 +415,7 @@ projects/
   LoanOps.CapabilityKg/ [DONE]        RDF capability catalog
   LoanOps.Eakg/       [DONE]          Enterprise capability KG
   LoanOps.ApiIndex/   [DONE]          Unified ops + vector search (ADR-024)
-  LoanOps.Eval/       [PARTIAL]       validate_data done; Step 8 pending
+  LoanOps.Eval/       [DONE]          harness + thresholds; golden on MCP tools; live MCP eval still SSO-gated
 ```
 
 ---
@@ -415,7 +430,8 @@ data/
                      loss-mitigation, payments, payoff, state-specific
   sops/_confluence/ — gitignored Confluence export cache
                       (DATA__SOP_SOURCE=confluence|both + MODE=cache|live)
-  golden.jsonl     — 50 Q&A items (5 refusal, 10 escalate, 35 happy-path)
+  golden.jsonl     — 5 smoke items (1 refusal, 1 escalate, 3 happy-path)
+  golden.full.jsonl — full 50-item suite (archive)
 ```
 
 SOP selection (`DATA__SOP_SOURCE`): `local` | `confluence` | `both`.
@@ -470,12 +486,7 @@ Proxy: Vite proxies `/api` → Agent API `:8000` only (tools_api removed).
 
 ## 17. CI / CD (`.github/workflows/`)
 
-| Workflow | File | Trigger | Purpose |
-|----------|------|---------|---------|
-| CI | `ci.yml` | PR | Lint + mypy + unit tests |
-| Eval gate | `eval-gate.yml` | Nightly + PR | Eval runner; uploads `out/eval.json` artifact |
-
-> **Note:** Both workflow files exist on disk but IaC (Bicep) modules in `infra/bicep/` are **not yet scaffolded** (Step 10).
+No workflow YAMLs on disk yet (`make lint` / `make test` / `make eval` local). Eval gate + PR CI still to add.
 
 ---
 

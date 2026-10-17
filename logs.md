@@ -1,3 +1,32 @@
+## [2026-10-16] — MCP observability (self-hosted Langfuse)
+
+**Session type:** Implementation
+
+**Completed:**
+- `execute_tool`: span `mcp.tool.call` + metrics `mcp.tool.latency_ms` / `mcp.tool.outcome` via TelemetryProvider (injectable; fail-open)
+- In-code MCP fixture eval: `python -m packages.mcp_server.eval_run` → `eval.mcp.*` scores only (no report file)
+- Local Langfuse: shared Postgres DB `langfuse` (same server as `loanops`); **native self-host, no Docker required**; compose file optional only
+- Docs: ARCHITECTURE §14, CONTEXT, TASKS, `.env.example`
+- MockTelemetry `recorded_spans` for assertions
+
+**Next:** Native Langfuse against local Postgres; agent MCP-hop golden still SSO-gated.
+
+---
+
+## [2026-10-16] — Eval golden MCP refresh (remove stale)
+
+**Session type:** Maintenance
+
+**Completed:**
+- `data/golden.jsonl`: all 50 items `must_call_tools` / `tool:` cites → MCP (`search_sse_apis`, `call_sse_api`, `search_docs`)
+- `validate_data` allowlist drops legacy tools; DATA_DIR resolves repo-root `data/`
+- CONTEXT/TASKS: Eval DONE, phantom `eval-gate.yml` claims removed; golden refresh checked off
+- Eval unit tests: 34 passed
+
+**Next:** Live `make eval` with MCP + Bedrock SSO; add real `.github/workflows/eval-gate.yml` when ready.
+
+---
+
 ## [2026-10-16] — Provider contracts lockstep + agent_runtime (LangGraph)
 
 **Session type:** Implementation

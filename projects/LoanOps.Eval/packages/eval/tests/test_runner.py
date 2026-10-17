@@ -86,11 +86,10 @@ def _make_tools_client() -> MockToolsClientProvider:
 
     client = MockToolsClientProvider()
     for tool_name in [
-        "lookup_loan",
-        "get_payment_schedule",
-        "get_escrow_breakdown",
-        "check_hardship_eligibility",
-        "search_policy",
+        "search_sse_apis",
+        "list_sse_apis",
+        "call_sse_api",
+        "search_docs",
     ]:
         client.register(
             tool_name,
