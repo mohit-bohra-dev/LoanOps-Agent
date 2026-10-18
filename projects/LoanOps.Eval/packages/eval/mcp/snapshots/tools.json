@@ -1,0 +1,338 @@
+[
+  {
+    "name": "call_sse_api",
+    "description": "Invoke a GET SSE REST operation. Prefer capability_id from search_capabilities (binds operation_id). Else operation_id or method+path (registry mode requires application with raw method+path). Non-GET methods and bodies are rejected. If outcome is no_access or unavailable, tell the user the error text as-is and continue with parts of the answer that do not depend on that application.",
+    "inputSchema": {
+      "properties": {
+        "capability_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Capability Id"
+        },
+        "operation_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Operation Id"
+        },
+        "method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Method"
+        },
+        "path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path"
+        },
+        "application": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Application"
+        },
+        "path_params": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path Params"
+        },
+        "query": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Query"
+        },
+        "body": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Body"
+        }
+      },
+      "title": "call_sse_apiArguments",
+      "type": "object"
+    },
+    "readOnlyHint": true
+  },
+  {
+    "name": "describe_application",
+    "description": "Describe one application's interface surface from the EAKG graph: outbound ServiceProxy classes, SdkPackages, EventTopics, connection/service URL keys, and route compositions. Falls back to stored interface.json when the graph has no surface.",
+    "inputSchema": {
+      "properties": {
+        "application_id": {
+          "title": "Application Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "application_id"
+      ],
+      "title": "describe_application_toolArguments",
+      "type": "object"
+    },
+    "readOnlyHint": true
+  },
+  {
+    "name": "explain_capability",
+    "description": "Explain one capability: application, API operation, code unit, permission/authzSource, and evidence.",
+    "inputSchema": {
+      "properties": {
+        "capability_id": {
+          "title": "Capability Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "capability_id"
+      ],
+      "title": "explain_capability_toolArguments",
+      "type": "object"
+    },
+    "readOnlyHint": true
+  },
+  {
+    "name": "find_providers",
+    "description": "Which application/API provides a capability or operation name. Returns all methods (including POST). mcp_invoke true means call_sse_api can run it; false is discovery-only.",
+    "inputSchema": {
+      "properties": {
+        "query": {
+          "title": "Query",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "title": "find_providers_toolArguments",
+      "type": "object"
+    },
+    "readOnlyHint": true
+  },
+  {
+    "name": "impact_of_change",
+    "description": "Which applications depend on an API/application via callsOperation/consumesSdk (evidence included).",
+    "inputSchema": {
+      "properties": {
+        "target": {
+          "title": "Target",
+          "type": "string"
+        }
+      },
+      "required": [
+        "target"
+      ],
+      "title": "impact_of_change_toolArguments",
+      "type": "object"
+    },
+    "readOnlyHint": true
+  },
+  {
+    "name": "list_sse_apis",
+    "description": "List discovered SSE REST operations. Optional source_label filters one app.",
+    "inputSchema": {
+      "properties": {
+        "source_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Label"
+        },
+        "limit": {
+          "default": 50,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "refresh": {
+          "default": false,
+          "title": "Refresh",
+          "type": "boolean"
+        }
+      },
+      "title": "list_sse_apisArguments",
+      "type": "object"
+    },
+    "readOnlyHint": true
+  },
+  {
+    "name": "search_capabilities",
+    "description": "Search the enterprise capability knowledge graph for invoke discovery. GET hits are preferred; non-GET are omitted when any GET exists (non_get_omitted counts dropped writes). mcp_invoke true means call_sse_api can run it. Provenance included when available.",
+    "inputSchema": {
+      "properties": {
+        "query": {
+          "title": "Query",
+          "type": "string"
+        },
+        "limit": {
+          "default": 15,
+          "title": "Limit",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "title": "search_capabilities_toolArguments",
+      "type": "object"
+    },
+    "readOnlyHint": true
+  },
+  {
+    "name": "search_code",
+    "description": "Search one app's Graphify AST (engineering/graph.json on the EAKG shard) for class/method/file hits. Requires prior sync/onboard with EAKG__ENGINEERING_GRAPH. Not the LoanOps-Agent graphify-out/.",
+    "inputSchema": {
+      "properties": {
+        "application_id": {
+          "title": "Application Id",
+          "type": "string"
+        },
+        "query": {
+          "title": "Query",
+          "type": "string"
+        },
+        "limit": {
+          "default": 20,
+          "title": "Limit",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "application_id",
+        "query"
+      ],
+      "title": "search_code_toolArguments",
+      "type": "object"
+    },
+    "readOnlyHint": true
+  },
+  {
+    "name": "search_docs",
+    "description": "Search indexed documentation (SOPs / wiki narratives). Not for live loan numbers.",
+    "inputSchema": {
+      "properties": {
+        "query": {
+          "title": "Query",
+          "type": "string"
+        },
+        "top_k": {
+          "default": 5,
+          "title": "Top K",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "title": "search_docsArguments",
+      "type": "object"
+    },
+    "readOnlyHint": true
+  },
+  {
+    "name": "search_sse_apis",
+    "description": "Search SSE OpenAPI operations. Look for the line `backend: vector_index`, `backend: sidecar`, or `backend: keyword` \u2014 repeat that label; do not call it keyword search unless that line says keyword. Each hit has invoke: call_sse_api (GET only) or invoke: not via call_sse_api (GET-only). Pass only call_sse_api hits to call_sse_api. params: none in cached spec means the spec cache has no parameters, not that the live API has none. Optional application and permission filters narrow results. When the tool reports no confident match, say no matching operation was found rather than guessing.",
+    "inputSchema": {
+      "properties": {
+        "query": {
+          "title": "Query",
+          "type": "string"
+        },
+        "limit": {
+          "default": 15,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "application": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Application"
+        },
+        "permission": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Permission"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "title": "search_sse_apisArguments",
+      "type": "object"
+    },
+    "readOnlyHint": true
+  }
+]

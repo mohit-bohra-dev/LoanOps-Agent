@@ -1594,7 +1594,9 @@ source = { editable = "projects/LoanOps.Eval" }
 dependencies = [
     { name = "loanops-agent-core" },
     { name = "loanops-common" },
+    { name = "loanops-mcp-server" },
     { name = "loanops-tools" },
+    { name = "mcp" },
     { name = "numpy" },
     { name = "ragas" },
 ]
@@ -1603,7 +1605,9 @@ dependencies = [
 requires-dist = [
     { name = "loanops-agent-core", editable = "projects/LoanOps.AgentCore" },
     { name = "loanops-common", editable = "projects/LoanOps.Common" },
+    { name = "loanops-mcp-server", editable = "projects/LoanOps.McpServer" },
     { name = "loanops-tools", editable = "projects/LoanOps.Tools" },
+    { name = "mcp", specifier = ">=1.27.1" },
     { name = "numpy", specifier = "<2" },
     { name = "ragas", specifier = "==0.4.3" },
 ]

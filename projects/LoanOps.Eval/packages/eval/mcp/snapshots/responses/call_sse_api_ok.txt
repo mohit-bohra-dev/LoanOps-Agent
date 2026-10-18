@@ -1,0 +1,1 @@
+{"loanId":"100245","status":"active","fixture":true}
