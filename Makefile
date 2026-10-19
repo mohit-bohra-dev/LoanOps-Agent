@@ -1,4 +1,4 @@
-.PHONY: install lint test ingest eval eval-mcp-l1 ui-install fixtures demo down
+.PHONY: install lint test ingest eval eval-mcp-l1 eval-l2 ui-install fixtures demo down
 
 install:
 	uv sync
@@ -19,6 +19,9 @@ eval:
 
 eval-mcp-l1:
 	uv run python -m packages.eval.mcp --report out/eval-mcp-l1.json
+
+eval-l2:
+	uv run python -m packages.eval.selection --report out/eval-l2.json
 
 ui-install:
 	cd apps/web_ui && npm install

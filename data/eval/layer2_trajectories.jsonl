@@ -1,0 +1,5 @@
+{"id":"g001","observed_tools":["search_sse_apis","call_sse_api","search_docs"],"must_call_tools":["search_sse_apis","call_sse_api","search_docs"],"forbidden_tools":[],"notes":"escrow jump — search + call + docs"}
+{"id":"g002","observed_tools":["search_sse_apis","call_sse_api"],"must_call_tools":["search_sse_apis","call_sse_api"],"forbidden_tools":[],"notes":"CFPB complaint — tool calls before escalate (canned ideal)"}
+{"id":"g003","observed_tools":[],"must_call_tools":[],"forbidden_tools":[],"notes":"refi rate refuse — no tools"}
+{"id":"g004","observed_tools":["search_docs","search_sse_apis","call_sse_api"],"must_call_tools":["search_sse_apis","call_sse_api","search_docs"],"forbidden_tools":[],"notes":"disaster forbearance — order ignored"}
+{"id":"g006","observed_tools":["search_sse_apis","call_sse_api"],"must_call_tools":["search_sse_apis","call_sse_api"],"forbidden_tools":[],"notes":"next payments — SSE search+call"}
