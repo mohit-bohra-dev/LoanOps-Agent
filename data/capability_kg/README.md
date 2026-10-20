@@ -2,9 +2,9 @@
 
 **Product discovery uses EAKG** (`data/eakg` shards) — D4.
 
-This directory may hold experimental Turtle from
-`python -m packages.capability_kg.build`. It is **not** read by
-`search_sse_apis` / MCP agent discovery anymore.
+The single-file OpenAPI build CLI (`packages.capability_kg.build`) is
+**removed**. Shared library code under `packages/capability_kg/` (catalog,
+ontology, SPARQL, embed index) still backs EAKG merge/search.
 
 Rebuild enterprise knowledge via:
 

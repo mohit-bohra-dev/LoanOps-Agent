@@ -1,3 +1,31 @@
+## [2026-10-20] — Pipelines source→output doc
+
+**Session type:** Docs
+
+**Completed:**
+- Added [`docs/PIPELINES.md`](docs/PIPELINES.md) — product batch jobs + Graphify (dev-only)
+- Data→knowledge transform table (Code/OpenAPI/SOP paths); commands removed (ops how-to elsewhere)
+- Per-pipeline source→output examples; Engineering KG called out
+- Linked from CONTEXT.md
+
+**Next:** none.
+
+---
+
+## [2026-10-20] — Drop same-purpose pipeline duplicates
+
+**Session type:** Cleanup
+
+**Completed:**
+- Removed `packages.capability_kg.build` / `__main__` and `CAPABILITY_KG__TTL_PATH` (D4 EAKG-only; shared library kept)
+- SOP ingest: `DocsService.index_directory` is the only writer; `packages.rag.ingest` → subprocess `packages.docs.ingest`
+- Removed `packages.sse.embed_openapi`; sidecar rebuild = `python -m packages.api_index.refresh all --sidecar-only`
+- Docs: ARCHITECTURE §11, CONTEXT, decisions ADR-014/023, DECIDE D4, PHASE_9, EAKG_COMMITTED_VS_LOCAL, `.env.example`
+
+**Next:** none for this cut.
+
+---
+
 ## [2026-10-16] — MCP observability (self-hosted Langfuse)
 
 **Session type:** Implementation

@@ -1,7 +1,7 @@
 [project]
 name = "loanops-rag"
 version = "0.1.0"
-description = "LoanOps markdown chunker and SOP ingest"
+description = "LoanOps markdown chunker; SOP ingest CLI shims to DocsService"
 requires-python = ">=3.11,<3.13"
 dependencies = [
     "loanops-common",

@@ -343,15 +343,16 @@ enables human-in-the-loop without requiring manual creation of every capability.
 Remote SPARQL store can replace the file later behind the same facade.
 
 **Settings:** `CAPABILITY_KG__ENABLED`, `CAPABILITY_KG__NAMESPACE`,
-`CAPABILITY_KG__TTL_PATH`, `CAPABILITY_KG__APPROVED_ONLY`,
+`CAPABILITY_KG__APPROVED_ONLY`,
 `CAPABILITY_KG__SEMANTIC` (Phase 9 cosine sidecar).
 
 **Status:** Accepted.
 
 **Amendment (2026-10-02 / D4):** **EAKG is the only product discovery source.**
 `search_sse_apis` reads `data/eakg` shards only (no single-TTL fallback).
-`CAPABILITY_KG__TTL_PATH` / `packages.capability_kg.build` remain for offline
-experiments; they do not feed agent/MCP search.
+
+**Amendment (2026-10-20):** Removed `packages.capability_kg.build` and
+`CAPABILITY_KG__TTL_PATH`. Shared `capability_kg` library remains for EAKG.
 
 ---
 
@@ -560,7 +561,8 @@ stable for Cursor `tools/list`. Full registry can follow later.
 on shard file mtimes/sizes). Persist OpenAPI operation embeddings at
 `<EAKG__SHARD_DIR>/enterprise/openapi_embeddings.json`. Semantic flag is
 `CAPABILITY_KG__SEMANTIC` **or** sidecar present (same rule for search and bind).
-Rebuild OpenAPI sidecar with `uv run python -m packages.sse.embed_openapi`.
+Rebuild OpenAPI sidecar with
+`uv run python -m packages.api_index.refresh all --sidecar-only`.
 MCP `/health` is liveness; `/ready` reports catalog/EAKG/sidecar status.
 
 **Context:** Cursor tool calls were re-merging RDF and optionally embedding every
@@ -579,8 +581,9 @@ Fingerprint invalidation is enough for local MCP demos.
 
 **Status:** Proposed 2026-04-08. **Superseded as primary OpenAPI discovery** once
 `API_INDEX__ENABLED=true` (ADR-024 vector index). Sidecar remains the labeled
-fallback when the vector store is unavailable; `embed_openapi` thin-wraps
-`packages.api_index.refresh` (`--sidecar-only`).
+fallback when the vector store is unavailable. Sidecar rebuild is
+`packages.api_index.refresh` (`--sidecar-only`); the old `sse.embed_openapi`
+wrapper CLI was removed.
 
 ---
 

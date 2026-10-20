@@ -302,8 +302,6 @@ class CapabilityKgConfig(BaseModel):
 
     enabled: bool = True
     namespace: str = "https://loanops.local/ontology/"
-    # Deprecated for product discovery (D4). Kept for `capability_kg.build` experiments only.
-    ttl_path: str = "data/capability_kg/capabilities.ttl"
     approved_only: bool = False
     # Phase 9: cosine over embeddings.json; ignored unless enabled=true
     semantic: bool = False

@@ -15,7 +15,7 @@ ADR-014 single TTL fallback **removed** from product search.
 | `data/eakg/registry/repositories.yaml` | Repo registry (ids, GitLab URLs, index metadata) |
 | `data/eakg/fixtures/` | Redacted TAAC / synthetic configs only |
 | `docs/EAKG_*.md`, `ci/eakg.gitlab-ci.yml`, `scripts/eakg/` | Ops + docs |
-| `packages/capability_kg/` + `data/capability_kg/README.md` | Catalog facade + build CLI (not product discovery) |
+| `packages/capability_kg/` + `data/capability_kg/README.md` | Catalog facade / ontology shared by EAKG (not a separate discovery pipeline) |
 
 ## Local only (gitignored — never commit)
 

@@ -50,8 +50,6 @@ uv run python -m packages.eakg embed
 # smoke: uv run python -m packages.eakg query search "when is the next payment due" --semantic
 ```
 
-Old OpenAPI-only TTL (not product discovery): `python -m packages.capability_kg.build --embed`
-
 MCP `search_sse_apis` uses the shard sidecar when `CAPABILITY_KG__SEMANTIC=true`.
 
 ## Code

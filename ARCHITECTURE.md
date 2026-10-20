@@ -441,24 +441,24 @@ KG discovery defaults on (`CAPABILITY_KG__ENABLED=true`); set `false` to disable
 
 ## 11. RAG
 
-Two pipelines exist. Only one is on the agent path.
+One writer for the policy vector index: `DocsService` (namespace `"docs"`).
 
 **Agent path — `search_docs`**
 
-- Source: markdown under `data/sops` when someone calls `index_docs` (not the default role).
+- Source: markdown under `data/sops` when indexed.
 - Chunker: `MarkdownChunker`, about 600 words, 80 overlap, header-aware. `packages/rag/chunker.py`.
 - Embed: `get_embedding_provider()` (default Gemini).
 - Store: `get_vector_store_provider()`, namespace `"docs"` (`packages/docs/service.py`).
 - Retrieve: embed the query, `vector_store.search`, top_k default 5. No reranker.
 - Agent use: tool result text pasted back into the next LLM message. Citations in the JSON contract are whatever the model emits (`policy:` / `tool:` prefixes). The API does not auto-attach vector hits as citations. `retrieved_chunk_ids` in the audit record only copies citations whose source starts with `policy:`.
 
-**Ingest CLI — `packages/rag/ingest.py` `ingest_sops`**
+**Ingest — `DocsService.index_directory`**
 
-- Source: `get_policy_source_provider()` (local SOP files and/or Confluence, per `DATA__SOP_*`).
-- Store: collection name `"sops"`, not namespace `"docs"`.
-- Not called by `search_docs`. Indexed SOPs in the `sops` collection are invisible to the agent tool unless a separate process also indexes them through `DocsService`.
+- CLI: `make ingest` → `python -m packages.rag.ingest data/sops` (subprocess shim) → `python -m packages.docs.ingest` → `DocsService.index_directory`.
+- Runtime: scoped `index_docs` tool calls the same `DocsService` method.
+- Local SOP markdown only (Confluence is not an ingest writer on this path).
 
-RAG and a future MCP capability catalog should stay separate. `search_docs` answers policy questions. MCP tool discovery should describe callable APIs. Mixing them will make the model treat SOP chunks as operations.
+RAG and MCP capability discovery stay separate. `search_docs` answers policy questions. MCP tool discovery should describe callable APIs. Mixing them will make the model treat SOP chunks as operations.
 
 GraphRAG (entity extraction, community summaries, graph retrieval over SOPs) is **not** in scope. ADR-025; write-up `docs/GRAPHRAG_REVIEW.md`. EAKG remains the graph for capabilities and cross-app impact.
 
