@@ -44,7 +44,7 @@
 | `packages/sse/` | OpenAPI catalog + live `call_sse_api` (replaces tools_api) |
 | `apps/web_ui/` | React + TypeScript rep UI (Vite + Tailwind v4) |
 | `data/golden.jsonl` | 5 Q&A smoke golden items (MCP tools); full 50 in `data/golden.full.jsonl` |
-| `data/sops/` | 38 synthetic SOP markdown files |
+| `data/sops/_confluence/` | Confluence SOP cache (gitignored; product corpus) |
 | `data/loans.json` | 55 synthetic loans |
 
 ---
@@ -289,7 +289,7 @@ Every agent turn produces a JSON object matching `AgentTurnOutput` in `packages/
 make install     # uv sync (install all deps)
 make lint        # ruff check + ruff format --check + mypy --strict
 make test        # pytest (all tests)
-make ingest      # python -m packages.rag.ingest data/sops
+make ingest      # python -m packages.rag.ingest data/sops/_confluence
 make eval        # python -m packages.eval.run --golden data/golden.jsonl --report out/eval.json
 make ui-install  # npm install in apps/web_ui
 make demo        # Agent API :8000 + Vite :5173
@@ -359,7 +359,7 @@ uv run mypy --strict packages
 uv run ruff check . && uv run ruff format --check .
 
 # Ingest SOPs
-uv run python -m packages.rag.ingest data/sops
+uv run python -m packages.rag.ingest data/sops/_confluence
 
 # Validate synthetic data
 uv run python -m packages.eval.validate_data

@@ -15,9 +15,9 @@ def main() -> None:
     build.add_argument(
         "corpus_root",
         nargs="?",
-        default="data/sops",
+        default="data/sops/_confluence",
         type=Path,
-        help="SOP corpus root (default: data/sops)",
+        help="SOP corpus root (default: Confluence cache)",
     )
     build.add_argument(
         "-o",

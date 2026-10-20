@@ -12,7 +12,7 @@ test:
 	uv run pytest
 
 ingest:
-	uv run python -m packages.rag.ingest data/sops
+	uv run python -m packages.rag.ingest data/sops/_confluence
 
 eval:
 	uv run python -m packages.eval.run --golden data/golden.jsonl --report out/eval.json

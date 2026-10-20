@@ -21,8 +21,8 @@ Related: [`EAKG_COMMITTED_VS_LOCAL.md`](EAKG_COMMITTED_VS_LOCAL.md),
 | **OpenAPI → EAKG (KG)** | API specs | Same EAKG, richer ops + summaries | Discovery with better labels |
 | **OpenAPI → ApiIndex vectors** | API specs | Searchable operation vectors (+ sidecar) | Fast find-the-right-call |
 | **EAKG → capability embeddings** | Capability text in the KG | `embeddings.json` | Natural language → capability |
-| **SOP → docs embeddings** | Policy markdown | Vectors in namespace `docs` | Cited policy answers |
-| **SOP → GraphRAG (doc KG)** | Same SOPs | Document communities / topic map | Multi-doc policy context |
+| **SOP → docs embeddings** | Confluence SOP markdown (`_confluence`) | Vectors in namespace `docs` | Cited policy answers |
+| **SOP → GraphRAG (doc KG)** | Same Confluence SOPs | Document communities / topic map | Multi-doc policy context |
 | **Code → Engineering KG** | App AST (Graphify on clones) | `engineering/graph.json` (+ links) | “Where in code is this op?” (dev; not main chat discovery) |
 
 ```text
@@ -52,7 +52,7 @@ Engineering KG is optional code navigation, not the default agent menu.
 |---|---|---|---|---|
 | **EAKG sync** (repo / nightly / audit) | Registered app repos (git), cached OpenAPI specs, TAAC app list, extractors | `data/eakg/repos/`, `data/eakg/enterprise/`, proposals / audit reports | OpenAPI `getPaymentSchedules` → `repos/loanservices/graph.ttl` capability | Enterprise map of apps, APIs, capabilities, and cross-app links |
 | **API index refresh** | EAKG registry + OpenAPI specs (live or cached) | Unified operations + vector/sidecar search index | Same op → `api_index/<env>/operations.json` public_id `loanservices:getPaymentSchedules` | Searchable menu of callable API operations |
-| **SOP / policy ingest** | Local markdown under `data/sops` | Vector namespace `docs` (same store `search_docs` reads) | `escrow/annual-analysis.md` → chunk in `docs` with `path=escrow/annual-analysis.md` | Loads SOPs so the agent can answer with policy citations |
+| **SOP / policy ingest** | Confluence cache `data/sops/_confluence` | Vector namespace `docs` (same store `search_docs` reads) | `escrow/annual-analysis.md` → chunk in `docs` with that path | Loads Confluence SOPs so the agent can answer with policy citations |
 | **GraphRAG build** | SOP / doc corpus (local markdown) | GraphRAG artifact dir (communities, summaries, related vectors) | Escrow SOP cluster → `data/graphrag/communities.json` id `c0001` | Offline document map (topics / links) for richer doc answers |
 | **EAKG capability embeddings** | Merged EAKG capability text from shards | `data/eakg/enterprise/embeddings.json` | `get_payment_schedules` text → vector row in `embeddings.json` | Natural-language ranking for capability search |
 | **TAAC refresh** | Live TAAC config via `glab` (never committed) | Local drop under `.eakg-workspace/` | GitLab TAAC config → `.eakg-workspace/taac-client-config.json` | Pulls enterprise app inventory into the workspace |
@@ -142,44 +142,27 @@ index.manifest.json        # build metadata / hashes
 
 ### 3. SOP / policy ingest
 
-**Source (example)** — `data/sops/escrow/annual-analysis.md`:
-```markdown
-# Annual Escrow Analysis
-## Shortage Handling
-- Shortage under one month's escrow: optional lump sum or spread over 12 months.
-```
+**Source (example)** — Confluence cache page
+`data/sops/_confluence/escrow/annual-analysis.md` (gitignored; refresh via live Confluence).
 
 **Output** — vectors in namespace `docs`, metadata like:
 ```json
 {
   "corpus": "sop",
   "path": "escrow/annual-analysis.md",
-  "category": "escrow",
-  "state": "national",
-  "heading_path": "Shortage Handling"
+  "category": "escrow"
 }
 ```
 
-**Why:** doc search can cite `policy:escrow/annual-analysis.md`.
+**Why:** doc search can cite Confluence-backed policy paths.
 
 ---
 
 ### 4. GraphRAG build
 
-**Source** — same SOP corpus as ingest (linked document set).
+**Source** — same Confluence SOP corpus as ingest (`data/sops/_confluence`).
 
-**Output (example)** — `data/graphrag/communities.json`:
-```json
-{
-  "id": "c0001",
-  "member_paths": [
-    "escrow/annual-analysis.md",
-    "escrow/escrow-disbursements.md",
-    "escrow/escrow-dispute.md"
-  ],
-  "summary": "escrow/annual-analysis.md: # Annual Escrow Analysis … | escrow/escrow-dispute.md: # Escrow Dispute …"
-}
-```
+**Output (example)** — `data/graphrag/communities.json` (community of related Confluence SOP paths + summary).
 
 Plus `data/graphrag/manifest.json` (corpus hash, phase, model pin).
 
@@ -328,7 +311,7 @@ App repos + OpenAPI + TAAC  ──►  EAKG shards  ──►  discovery / impac
                               └─►  capability embeddings  ──►  NL capability rank
                               └─►  Engineering KG (optional)  ──►  code wiring
 
-data/sops markdown          ──►  docs embeddings  ──►  search_docs
+Confluence SOP cache        ──►  docs embeddings  ──►  search_docs
                               └─►  GraphRAG (optional)  ──►  related-policy context
 
 This repo source            ──►  graphify-out/  ──►  dev code map only

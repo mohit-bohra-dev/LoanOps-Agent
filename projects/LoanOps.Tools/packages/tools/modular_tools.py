@@ -66,7 +66,7 @@ class ModularToolsClient(ToolsClientProvider):
         self._db = db
         self._docs = docs
         self._cache = cache
-        self._docs_root = docs_root or Path("data/sops")
+        self._docs_root = docs_root or Path("data/sops/_confluence")
         self._capability_block = capability_block
         self._catalog_service = catalog_service
         self._operation_catalog = operation_catalog

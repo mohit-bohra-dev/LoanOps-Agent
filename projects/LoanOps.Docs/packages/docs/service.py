@@ -146,7 +146,13 @@ class DocsService:
         total = 0
         root = root.resolve()
         for path in sorted(root.rglob("*.md")):
-            if any(part.startswith("_") for part in path.parts):
+            # Skip underscore dirs under the corpus (e.g. nested drafts).
+            # Do not skip when the corpus root itself is named _confluence.
+            try:
+                rel_parts = path.relative_to(root).parts
+            except ValueError:
+                continue
+            if any(part.startswith("_") for part in rel_parts[:-1]):
                 continue
             total += await self.index_markdown_file(
                 path, corpus=corpus, corpus_root=root

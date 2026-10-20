@@ -195,7 +195,9 @@ def main() -> int:
     logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(description="Build GraphRAG communities (+ optional P5 extract)")
     parser.add_argument("--doc-links", type=Path, default=Path("data/docs/doc_links.json"))
-    parser.add_argument("--corpus", type=Path, default=Path("data/sops"))
+    parser.add_argument(
+        "--corpus", type=Path, default=Path("data/sops/_confluence")
+    )
     parser.add_argument("--artifact-dir", type=Path, default=Path("data/graphrag"))
     parser.add_argument(
         "--extract",

@@ -1,3 +1,19 @@
+## [2026-10-20] — Drop synthetic SOPs; Confluence-only corpus
+
+**Session type:** Cleanup
+
+**Completed:**
+- Deleted synthetic category trees under `data/sops/` (escrow, payments, …); kept `_confluence`
+- Defaults: ingest / docs_root / GraphRAG corpus → `data/sops/_confluence`
+- `DocsService.index_directory` skips `_` dirs relative to corpus root (so `_confluence` as root still indexes)
+- README under `data/sops/`; CONTEXT + PIPELINES updated
+
+**Risk:** `data/golden.jsonl` still cites old synthetic paths — re-align citations after Confluence paths stabilize. GraphRAG artifact may need rebuild.
+
+**Next:** re-ingest + optional GraphRAG rebuild from `_confluence`.
+
+---
+
 ## [2026-10-20] — Pipelines source→output doc
 
 **Session type:** Docs
