@@ -1551,12 +1551,14 @@ version = "0.1.0"
 source = { editable = "projects/LoanOps.Docs" }
 dependencies = [
     { name = "loanops-common" },
+    { name = "loanops-eakg" },
     { name = "loanops-rag" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "loanops-common", editable = "projects/LoanOps.Common" },
+    { name = "loanops-eakg", editable = "projects/LoanOps.Eakg" },
     { name = "loanops-rag", editable = "projects/LoanOps.Rag" },
 ]
 
@@ -1619,6 +1621,7 @@ source = { editable = "projects/LoanOps.GraphRag" }
 dependencies = [
     { name = "loanops-common" },
     { name = "loanops-docs" },
+    { name = "loanops-eakg" },
     { name = "loanops-rag" },
     { name = "networkx" },
 ]
@@ -1627,6 +1630,7 @@ dependencies = [
 requires-dist = [
     { name = "loanops-common", editable = "projects/LoanOps.Common" },
     { name = "loanops-docs", editable = "projects/LoanOps.Docs" },
+    { name = "loanops-eakg", editable = "projects/LoanOps.Eakg" },
     { name = "loanops-rag", editable = "projects/LoanOps.Rag" },
     { name = "networkx", specifier = ">=3.2" },
 ]

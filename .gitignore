@@ -47,9 +47,13 @@ data/eakg/enterprise/
 data/eakg/catalog/
 data/eakg/proposals/
 data/eakg/decisions/
-# keep registry + redacted fixtures
+# File-mode pipeline store (mirrors GraphDB / Postgres / pgvector)
+data/pipeline_store/**
+!data/pipeline_store/README.md
+# keep registry + redacted fixtures + patterns
 !data/eakg/registry/
 !data/eakg/fixtures/
+!data/eakg/patterns/
 
 # AI tool local state
 .cursor/plans/*.plan.md

@@ -6,6 +6,7 @@ requires-python = ">=3.11,<3.13"
 dependencies = [
     "loanops-common",
     "loanops-docs",
+    "loanops-eakg",
     "loanops-rag",
     "networkx>=3.2",
 ]

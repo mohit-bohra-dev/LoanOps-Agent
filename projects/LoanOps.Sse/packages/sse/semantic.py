@@ -64,8 +64,14 @@ def text_hash(text: str) -> str:
 
 
 def openapi_embeddings_path(shard_dir: str | Path) -> Path:
-    """Sidecar next to EAKG enterprise embeddings (gitignored)."""
-    return Path(shard_dir) / "enterprise" / "openapi_embeddings.json"
+    """File-mode offline sidecar under Pgvector/ (product uses live vector store)."""
+    return (
+        Path(shard_dir)
+        / "Pgvector"
+        / "api_index"
+        / "local"
+        / "openapi_embeddings.json"
+    )
 
 
 def _cosine(a: list[float], b: list[float]) -> float:

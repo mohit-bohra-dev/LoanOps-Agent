@@ -382,9 +382,11 @@ class ConfluencePolicyProvider(AbstractPolicySourceProvider):
         metadata: dict[str, str],
         body: str,
     ) -> None:
-        out_dir = self._artifact_dir / category
-        out_dir.mkdir(parents=True, exist_ok=True)
-        path = out_dir / f"{slug}.md"
+        from packages.common.settings import get_settings
+
+        # Product postgres: skip repo/file cache (live pages embed via Docs ingest).
+        if get_settings().eakg_store.backend == "postgres":
+            return
         frontmatter_lines = [
             "---",
             f"id: {metadata.get('id', '')}",
@@ -397,5 +399,9 @@ class ConfluencePolicyProvider(AbstractPolicySourceProvider):
             "---",
             "",
         ]
-        path.write_text("\n".join(frontmatter_lines) + body + "\n", encoding="utf-8")
+        text = "\n".join(frontmatter_lines) + body + "\n"
+        out_dir = self._artifact_dir / category
+        out_dir.mkdir(parents=True, exist_ok=True)
+        path = out_dir / f"{slug}.md"
+        path.write_text(text, encoding="utf-8")
         logger.info("Wrote Confluence artifact %s", path)

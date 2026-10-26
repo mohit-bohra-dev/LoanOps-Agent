@@ -1,50 +1,51 @@
 # EAKG: committed vs local-only
 
-Quick map so clean clones and CI do not confuse registry seed with live enterprise shards.
+Quick map so clean clones and CI do not confuse registry seed with live enterprise data.
 
-**How TAAC becomes graph (simple):** [`EAKG_TAAC.md`](EAKG_TAAC.md).
+**How TAAC becomes graph (simple):** [`EAKG_TAAC.md`](EAKG_TAAC.md).  
+**Pipelines / stores:** [`PIPELINES.md`](PIPELINES.md).
 
-**Source of truth (D4):** EAKG shards / approved catalog only.  
-ADR-014 single TTL fallback **removed** from product search.
+**Source of truth (D4):** EAKG (GraphDB / Neptune) + Postgres artifacts + pgvector.  
+ADR-014 single TTL fallback **removed** from product search. **No S3.**
 
 ## In git (safe to commit)
 
 | Path | What |
 |---|---|
 | `packages/eakg/` | Pipeline code + synthetic fixture tests |
-| `data/eakg/registry/repositories.yaml` | Repo registry (ids, GitLab URLs, index metadata) |
+| `data/eakg/registry/repositories.yaml` | Repo registry seed (ids, GitLab URLs) |
 | `data/eakg/fixtures/` | Redacted TAAC / synthetic configs only |
+| `data/eakg/patterns/` | Detector patterns |
+| `data/pipeline_store/README.md` | File-mode layout note (contents gitignored) |
 | `docs/EAKG_*.md`, `ci/eakg.gitlab-ci.yml`, `scripts/eakg/` | Ops + docs |
-| `packages/capability_kg/` + `data/capability_kg/README.md` | Catalog facade / ontology shared by EAKG (not a separate discovery pipeline) |
+| `packages/capability_kg/` + `data/capability_kg/README.md` | Catalog facade / ontology shared by EAKG |
 
-## Local only (gitignored — never commit)
+## Product stores (`EAKG_STORE__BACKEND=postgres`)
 
-| Path | What | Role |
-|---|---|---|
-| `.eakg-workspace/` | `glab` clones of Escrow/Fees/LoanServices (+ live TAAC drop) | Input |
-| `.eakg-workspace/graphify/` | Optional local Graphify AST dumps of those clones | **Not pipeline** — see [`ENGINEERING_GRAPH_ANALYSIS.md`](ENGINEERING_GRAPH_ANALYSIS.md) |
-| `data/eakg/repos/` | Per-repo `graph.ttl` / `interface.json` shards (+ optional `engineering/`) | **Truth** |
-| `data/eakg/enterprise/` | Merged apps + `cross_app.ttl` | **Truth** |
-| `data/eakg/catalog/` | `approved.ttl` publish output | **Truth** (reviewed slice) |
-| `data/eakg/proposals/` | LLM semantic proposal queue | Overlay |
-| `data/eakg/decisions/` | Append-only review decisions JSONL | Audit |
+| Store | Holds |
+|---|---|
+| GraphDB / Neptune | RDF named graphs (apps, cross-app, approved) |
+| Postgres | Registry, interface, OpenAPI, operations, embeddings, proposals, decisions, engineering, GraphRAG, SOP page cache |
+| pgvector | API index + SOP/doc vectors |
 
-## Rebuild after clone
+**Zero** product pipeline output under the repo (`data/eakg/repos`, `data/pipeline_store`, …).
 
-```powershell
-# register already in yaml for pilot three
-uv run python -m packages.eakg onboard --id escrow
-uv run python -m packages.eakg onboard --id fees
-uv run python -m packages.eakg onboard --id loanservices
-uv run python -m packages.eakg cross-app
-uv run python -m packages.eakg review --pilot
-```
+## File mode (`EAKG_STORE__BACKEND=file`) — tests / offline
 
-Or nightly: `.\scripts\eakg\sync-nightly.ps1` (needs `glab` auth).
+Root: `EAKG_STORE__FILE_SHARD_DIR` (default `data/pipeline_store`, gitignored except README).
+
+| Path | Mirrors |
+|---|---|
+| `GraphDb/named_graphs/*.ttl` | SPARQL named graphs |
+| `Postgres/…` | Artifact tables (interface, ops, embeddings, engineering, …) |
+| `Pgvector/…` | Optional offline vector sidecars |
+
+Legacy `data/eakg/repos|enterprise|…` shards are **not** product layout anymore.
+
+## Rebuild after clone (product)
+
+Point env at GraphDB + Postgres + pgvector, then onboard / cross-app / ApiIndex refresh as in [`PIPELINES.md`](PIPELINES.md). File-mode operators use `EAKG_STORE__BACKEND=file` and the pipeline_store tree.
 
 ## Agent / MCP
 
-When `CAPABILITY_KG__ENABLED=true` and `data/eakg/repos/*` exist, `search_sse_apis`
-merges **EAKG**. If no shards → OpenAPI keyword search only (no TTL fallback).
-Product agent path: `TOOLS_CLIENT__PROVIDER=mcp` → same MCP tools. See
-[`MCP_CLIENT_INTEGRATION.md`](MCP_CLIENT_INTEGRATION.md).
+When `CAPABILITY_KG__ENABLED=true`, discovery reads GraphStore / merged file mirrors. No shards → OpenAPI keyword search only. Product agent path: `TOOLS_CLIENT__PROVIDER=mcp`. See [`MCP_CLIENT_INTEGRATION.md`](MCP_CLIENT_INTEGRATION.md).

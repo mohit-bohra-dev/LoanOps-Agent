@@ -1,4 +1,4 @@
-"""EAKG non-graph artifact store (ADR-027) — file or Postgres."""
+"""EAKG non-graph artifact store (ADR-027) — Postgres product; file mirror under Postgres/."""
 
 from __future__ import annotations
 
@@ -11,6 +11,8 @@ from pathlib import Path
 from typing import Any, Literal
 
 import yaml  # type: ignore[import-untyped]
+
+from packages.eakg.pipeline_layout import postgres_dir, resolve_file_shard_dir
 
 Backend = Literal["file", "postgres"]
 
@@ -40,8 +42,14 @@ def content_hash_payload(payload: Any) -> str:
     return hashlib.sha256(blob).hexdigest()
 
 
+def _loads_obj(raw: object) -> Any:
+    if isinstance(raw, str):
+        return json.loads(raw)
+    return raw
+
+
 class AbstractEakgArtifactStore(ABC):
-    """Registry + interface + OpenAPI + manifest + operations catalog."""
+    """Registry + interface + OpenAPI + ops + embeddings / proposals / engineering / GraphRAG."""
 
     @property
     @abstractmethod
@@ -94,12 +102,59 @@ class AbstractEakgArtifactStore(ABC):
     @abstractmethod
     def get_operations(self, environment: str) -> dict[str, Any] | None: ...
 
+    @abstractmethod
+    def put_embeddings(self, payload: dict[str, Any]) -> None: ...
+
+    @abstractmethod
+    def get_embeddings(self) -> dict[str, Any] | None: ...
+
+    @abstractmethod
+    def append_proposal(self, repository_id: str, row: dict[str, Any]) -> None: ...
+
+    @abstractmethod
+    def read_proposals(self, repository_id: str) -> list[dict[str, Any]]: ...
+
+    @abstractmethod
+    def append_decision(self, row: dict[str, Any]) -> None: ...
+
+    @abstractmethod
+    def read_decisions(self) -> list[dict[str, Any]]: ...
+
+    @abstractmethod
+    def put_engineering(
+        self, repository_id: str, artifact_name: str, payload: dict[str, Any]
+    ) -> None: ...
+
+    @abstractmethod
+    def get_engineering(
+        self, repository_id: str, artifact_name: str
+    ) -> dict[str, Any] | None: ...
+
+    @abstractmethod
+    def put_graphrag(self, artifact_key: str, payload: Any) -> None: ...
+
+    @abstractmethod
+    def get_graphrag(self, artifact_key: str) -> Any | None: ...
+
+    @abstractmethod
+    def put_kv(self, key: str, payload: dict[str, Any]) -> None: ...
+
+    @abstractmethod
+    def get_kv(self, key: str) -> dict[str, Any] | None: ...
+
+    @abstractmethod
+    def put_sop_page(self, path: str, body: str) -> None: ...
+
+    @abstractmethod
+    def get_sop_page(self, path: str) -> str | None: ...
+
 
 class FileEakgArtifactStore(AbstractEakgArtifactStore):
-    """Disk layout under shard_dir (tests / offline)."""
+    """Disk mirror under ``<root>/Postgres/…`` (tests / offline)."""
 
     def __init__(self, shard_dir: str | Path, *, registry_path: str | Path) -> None:
         self.root = Path(shard_dir)
+        self.pg = postgres_dir(self.root)
         self.registry_path = Path(registry_path)
 
     @property
@@ -107,13 +162,16 @@ class FileEakgArtifactStore(AbstractEakgArtifactStore):
         return "file"
 
     def ensure_schema(self) -> None:
-        self.root.mkdir(parents=True, exist_ok=True)
+        self.pg.mkdir(parents=True, exist_ok=True)
         self.registry_path.parent.mkdir(parents=True, exist_ok=True)
 
     def load_registry(self) -> list[dict[str, Any]]:
-        if not self.registry_path.is_file():
+        path = self.pg / "registry.yaml"
+        if not path.is_file():
+            path = self.registry_path
+        if not path.is_file():
             return []
-        raw = yaml.safe_load(self.registry_path.read_text(encoding="utf-8")) or {}
+        raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
         repos = raw.get("repositories") or []
         return [r for r in repos if isinstance(r, dict) and r.get("repository_id")]
 
@@ -122,33 +180,31 @@ class FileEakgArtifactStore(AbstractEakgArtifactStore):
         payload = {
             "repositories": sorted(repositories, key=lambda x: str(x.get("repository_id") or ""))
         }
-        self.registry_path.write_text(
-            yaml.safe_dump(payload, sort_keys=False, allow_unicode=True),
-            encoding="utf-8",
-        )
-
-    def _repo_dir(self, repository_id: str) -> Path:
-        return self.root / "repos" / repository_id
+        text = yaml.safe_dump(payload, sort_keys=False, allow_unicode=True)
+        dest = self.pg / "registry.yaml"
+        dest.write_text(text, encoding="utf-8")
+        self.registry_path.parent.mkdir(parents=True, exist_ok=True)
+        self.registry_path.write_text(text, encoding="utf-8")
 
     def put_interface(self, repository_id: str, payload: dict[str, Any]) -> None:
-        dest = self._repo_dir(repository_id) / "interface.json"
+        dest = self.pg / "interface" / f"{repository_id}.json"
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     def get_interface(self, repository_id: str) -> dict[str, Any] | None:
-        path = self._repo_dir(repository_id) / "interface.json"
+        path = self.pg / "interface" / f"{repository_id}.json"
         if not path.is_file():
             return None
         raw: object = json.loads(path.read_text(encoding="utf-8"))
         return raw if isinstance(raw, dict) else None
 
     def put_manifest(self, repository_id: str, payload: dict[str, Any]) -> None:
-        dest = self._repo_dir(repository_id) / "manifest.json"
+        dest = self.pg / "manifest" / f"{repository_id}.json"
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     def get_manifest(self, repository_id: str) -> dict[str, Any] | None:
-        path = self._repo_dir(repository_id) / "manifest.json"
+        path = self.pg / "manifest" / f"{repository_id}.json"
         if not path.is_file():
             return None
         raw: object = json.loads(path.read_text(encoding="utf-8"))
@@ -162,52 +218,146 @@ class FileEakgArtifactStore(AbstractEakgArtifactStore):
         pointer: dict[str, Any],
         spec: dict[str, Any] | None,
     ) -> None:
-        env_dir = self._repo_dir(repository_id) / "openapi" / environment
-        env_dir.mkdir(parents=True, exist_ok=True)
-        (env_dir / "current.json").write_text(
-            json.dumps(pointer, indent=2), encoding="utf-8"
-        )
-        if spec is not None:
-            spec_hash = str(pointer.get("spec_hash") or content_hash_payload(spec))
-            (env_dir / f"{spec_hash}.json").write_text(
-                json.dumps(spec, indent=2), encoding="utf-8"
-            )
+        dest = self.pg / "openapi" / repository_id / f"{environment}.json"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        blob = {"pointer": pointer, "spec": spec}
+        dest.write_text(json.dumps(blob, indent=2), encoding="utf-8")
 
     def get_openapi_pointer(
         self, repository_id: str, environment: str
     ) -> dict[str, Any] | None:
-        path = self._repo_dir(repository_id) / "openapi" / environment / "current.json"
+        path = self.pg / "openapi" / repository_id / f"{environment}.json"
         if not path.is_file():
             return None
         raw: object = json.loads(path.read_text(encoding="utf-8"))
-        return raw if isinstance(raw, dict) else None
+        if not isinstance(raw, dict):
+            return None
+        pointer = raw.get("pointer")
+        return pointer if isinstance(pointer, dict) else None
 
     def get_openapi_spec(
         self, repository_id: str, environment: str
     ) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
-        pointer = self.get_openapi_pointer(repository_id, environment)
-        if pointer is None:
-            return None, None
-        spec_hash = str(pointer.get("spec_hash") or "")
-        if not spec_hash:
-            return None, pointer
-        path = self._repo_dir(repository_id) / "openapi" / environment / f"{spec_hash}.json"
+        path = self.pg / "openapi" / repository_id / f"{environment}.json"
         if not path.is_file():
-            return None, pointer
+            return None, None
         raw: object = json.loads(path.read_text(encoding="utf-8"))
-        return (raw if isinstance(raw, dict) else None), pointer
+        if not isinstance(raw, dict):
+            return None, None
+        pointer = raw.get("pointer")
+        spec = raw.get("spec")
+        return (
+            spec if isinstance(spec, dict) else None,
+            pointer if isinstance(pointer, dict) else None,
+        )
 
     def put_operations(self, environment: str, payload: dict[str, Any]) -> None:
-        dest = self.root / "enterprise" / "api_index" / environment / "operations.json"
+        dest = self.pg / "operations" / f"{environment}.json"
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     def get_operations(self, environment: str) -> dict[str, Any] | None:
-        path = self.root / "enterprise" / "api_index" / environment / "operations.json"
+        path = self.pg / "operations" / f"{environment}.json"
         if not path.is_file():
             return None
         raw: object = json.loads(path.read_text(encoding="utf-8"))
         return raw if isinstance(raw, dict) else None
+
+    def put_embeddings(self, payload: dict[str, Any]) -> None:
+        dest = self.pg / "embeddings.json"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    def get_embeddings(self) -> dict[str, Any] | None:
+        path = self.pg / "embeddings.json"
+        if not path.is_file():
+            return None
+        raw: object = json.loads(path.read_text(encoding="utf-8"))
+        return raw if isinstance(raw, dict) else None
+
+    def append_proposal(self, repository_id: str, row: dict[str, Any]) -> None:
+        path = self.pg / "proposals" / f"{repository_id}.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(row) + "\n")
+
+    def read_proposals(self, repository_id: str) -> list[dict[str, Any]]:
+        path = self.pg / "proposals" / f"{repository_id}.jsonl"
+        if not path.is_file():
+            return []
+        out: list[dict[str, Any]] = []
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                out.append(json.loads(line))
+        return out
+
+    def append_decision(self, row: dict[str, Any]) -> None:
+        path = self.pg / "decisions" / "decisions.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(row) + "\n")
+
+    def read_decisions(self) -> list[dict[str, Any]]:
+        path = self.pg / "decisions" / "decisions.jsonl"
+        if not path.is_file():
+            return []
+        out: list[dict[str, Any]] = []
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                out.append(json.loads(line))
+        return out
+
+    def put_engineering(
+        self, repository_id: str, artifact_name: str, payload: dict[str, Any]
+    ) -> None:
+        dest = self.pg / "engineering" / repository_id / artifact_name
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    def get_engineering(
+        self, repository_id: str, artifact_name: str
+    ) -> dict[str, Any] | None:
+        path = self.pg / "engineering" / repository_id / artifact_name
+        if not path.is_file():
+            return None
+        raw: object = json.loads(path.read_text(encoding="utf-8"))
+        return raw if isinstance(raw, dict) else None
+
+    def put_graphrag(self, artifact_key: str, payload: Any) -> None:
+        dest = self.pg / "graphrag" / f"{artifact_key}.json"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    def get_graphrag(self, artifact_key: str) -> Any | None:
+        path = self.pg / "graphrag" / f"{artifact_key}.json"
+        if not path.is_file():
+            return None
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    def put_kv(self, key: str, payload: dict[str, Any]) -> None:
+        safe = key.replace("/", "__")
+        dest = self.pg / "kv" / f"{safe}.json"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    def get_kv(self, key: str) -> dict[str, Any] | None:
+        safe = key.replace("/", "__")
+        path = self.pg / "kv" / f"{safe}.json"
+        if not path.is_file():
+            return None
+        raw: object = json.loads(path.read_text(encoding="utf-8"))
+        return raw if isinstance(raw, dict) else None
+
+    def put_sop_page(self, path: str, body: str) -> None:
+        dest = self.pg / "sop_page_cache" / path
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(body, encoding="utf-8")
+
+    def get_sop_page(self, path: str) -> str | None:
+        dest = self.pg / "sop_page_cache" / path
+        if not dest.is_file():
+            return None
+        return dest.read_text(encoding="utf-8")
 
 
 _SCHEMA_SQL = (Path(__file__).parent / "sql" / "eakg_artifacts.sql").read_text(encoding="utf-8")
@@ -231,7 +381,10 @@ class PostgresEakgArtifactStore(AbstractEakgArtifactStore):
 
         conn = await asyncpg.connect(self._dsn)
         try:
-            await conn.execute(_SCHEMA_SQL)
+            # asyncpg execute() runs one statement; split the DDL file.
+            for stmt in (s.strip() for s in _SCHEMA_SQL.split(";")):
+                if stmt:
+                    await conn.execute(stmt)
         finally:
             await conn.close()
 
@@ -246,9 +399,7 @@ class PostgresEakgArtifactStore(AbstractEakgArtifactStore):
             row = await conn.fetchrow("SELECT payload FROM eakg_registry WHERE id = 1")
             if row is None:
                 return []
-            payload = row["payload"]
-            if isinstance(payload, str):
-                payload = json.loads(payload)
+            payload = _loads_obj(row["payload"])
             repos = payload.get("repositories") if isinstance(payload, dict) else None
             if not isinstance(repos, list):
                 return []
@@ -317,7 +468,7 @@ class PostgresEakgArtifactStore(AbstractEakgArtifactStore):
         ))
 
     def put_manifest(self, repository_id: str, payload: dict[str, Any]) -> None:
-        _run_sync(self._put_kv("eakg_manifest", repository_id, payload))
+        _run_sync(self._put_repo_row("eakg_manifest", repository_id, payload))
 
     def get_manifest(self, repository_id: str) -> dict[str, Any] | None:
         return _run_sync(self._get_json(
@@ -392,9 +543,7 @@ class PostgresEakgArtifactStore(AbstractEakgArtifactStore):
             )
             if row is None:
                 return None
-            pointer = row["pointer"]
-            if isinstance(pointer, str):
-                pointer = json.loads(pointer)
+            pointer = _loads_obj(row["pointer"])
             return pointer if isinstance(pointer, dict) else None
         finally:
             await conn.close()
@@ -421,14 +570,10 @@ class PostgresEakgArtifactStore(AbstractEakgArtifactStore):
             )
             if row is None:
                 return None, None
-            pointer = row["pointer"]
-            if isinstance(pointer, str):
-                pointer = json.loads(pointer)
+            pointer = _loads_obj(row["pointer"])
             if not isinstance(pointer, dict):
                 pointer = None
-            payload = row["payload"]
-            if isinstance(payload, str):
-                payload = json.loads(payload)
+            payload = _loads_obj(row["payload"])
             if payload is not None and not isinstance(payload, dict):
                 payload = None
             return payload, pointer
@@ -436,7 +581,7 @@ class PostgresEakgArtifactStore(AbstractEakgArtifactStore):
             await conn.close()
 
     def put_operations(self, environment: str, payload: dict[str, Any]) -> None:
-        _run_sync(self._put_kv_env("eakg_operations", environment, payload))
+        _run_sync(self._put_env_row("eakg_operations", environment, payload))
 
     def get_operations(self, environment: str) -> dict[str, Any] | None:
         return _run_sync(self._get_json(
@@ -444,7 +589,259 @@ class PostgresEakgArtifactStore(AbstractEakgArtifactStore):
             environment,
         ))
 
-    async def _put_kv(self, table: str, repository_id: str, payload: dict[str, Any]) -> None:
+    def put_embeddings(self, payload: dict[str, Any]) -> None:
+        _run_sync(self._put_singleton("eakg_capability_embeddings", payload))
+
+    def get_embeddings(self) -> dict[str, Any] | None:
+        return _run_sync(self._get_json(
+            "SELECT payload FROM eakg_capability_embeddings WHERE id = 1",
+            "",
+            singleton=True,
+        ))
+
+    def append_proposal(self, repository_id: str, row: dict[str, Any]) -> None:
+        _run_sync(self._append_proposal(repository_id, row))
+
+    async def _append_proposal(self, repository_id: str, row: dict[str, Any]) -> None:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            await conn.execute(
+                """
+                INSERT INTO eakg_proposals (repository_id, payload, created_at)
+                VALUES ($1, $2::jsonb, now())
+                """,
+                repository_id,
+                json.dumps(row),
+            )
+        finally:
+            await conn.close()
+
+    def read_proposals(self, repository_id: str) -> list[dict[str, Any]]:
+        return _run_sync(self._read_proposals(repository_id))
+
+    async def _read_proposals(self, repository_id: str) -> list[dict[str, Any]]:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            rows = await conn.fetch(
+                """
+                SELECT payload FROM eakg_proposals
+                WHERE repository_id = $1
+                ORDER BY seq
+                """,
+                repository_id,
+            )
+            out: list[dict[str, Any]] = []
+            for row in rows:
+                payload = _loads_obj(row["payload"])
+                if isinstance(payload, dict):
+                    out.append(payload)
+            return out
+        finally:
+            await conn.close()
+
+    def append_decision(self, row: dict[str, Any]) -> None:
+        _run_sync(self._append_decision(row))
+
+    async def _append_decision(self, row: dict[str, Any]) -> None:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            await conn.execute(
+                """
+                INSERT INTO eakg_decisions (payload, created_at)
+                VALUES ($1::jsonb, now())
+                """,
+                json.dumps(row),
+            )
+        finally:
+            await conn.close()
+
+    def read_decisions(self) -> list[dict[str, Any]]:
+        return _run_sync(self._read_decisions())
+
+    async def _read_decisions(self) -> list[dict[str, Any]]:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            rows = await conn.fetch(
+                "SELECT payload FROM eakg_decisions ORDER BY seq"
+            )
+            out: list[dict[str, Any]] = []
+            for row in rows:
+                payload = _loads_obj(row["payload"])
+                if isinstance(payload, dict):
+                    out.append(payload)
+            return out
+        finally:
+            await conn.close()
+
+    def put_engineering(
+        self, repository_id: str, artifact_name: str, payload: dict[str, Any]
+    ) -> None:
+        _run_sync(self._put_engineering(repository_id, artifact_name, payload))
+
+    async def _put_engineering(
+        self, repository_id: str, artifact_name: str, payload: dict[str, Any]
+    ) -> None:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            await conn.execute(
+                """
+                INSERT INTO eakg_engineering
+                    (repository_id, artifact_name, payload, updated_at)
+                VALUES ($1, $2, $3::jsonb, now())
+                ON CONFLICT (repository_id, artifact_name) DO UPDATE
+                SET payload = EXCLUDED.payload, updated_at = now()
+                """,
+                repository_id,
+                artifact_name,
+                json.dumps(payload),
+            )
+        finally:
+            await conn.close()
+
+    def get_engineering(
+        self, repository_id: str, artifact_name: str
+    ) -> dict[str, Any] | None:
+        return _run_sync(self._get_engineering(repository_id, artifact_name))
+
+    async def _get_engineering(
+        self, repository_id: str, artifact_name: str
+    ) -> dict[str, Any] | None:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            row = await conn.fetchrow(
+                """
+                SELECT payload FROM eakg_engineering
+                WHERE repository_id = $1 AND artifact_name = $2
+                """,
+                repository_id,
+                artifact_name,
+            )
+            if row is None:
+                return None
+            payload = _loads_obj(row["payload"])
+            return payload if isinstance(payload, dict) else None
+        finally:
+            await conn.close()
+
+    def put_graphrag(self, artifact_key: str, payload: Any) -> None:
+        _run_sync(self._put_graphrag(artifact_key, payload))
+
+    async def _put_graphrag(self, artifact_key: str, payload: Any) -> None:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            await conn.execute(
+                """
+                INSERT INTO eakg_graphrag (artifact_key, payload, updated_at)
+                VALUES ($1, $2::jsonb, now())
+                ON CONFLICT (artifact_key) DO UPDATE
+                SET payload = EXCLUDED.payload, updated_at = now()
+                """,
+                artifact_key,
+                json.dumps(payload),
+            )
+        finally:
+            await conn.close()
+
+    def get_graphrag(self, artifact_key: str) -> Any | None:
+        return _run_sync(self._get_graphrag(artifact_key))
+
+    async def _get_graphrag(self, artifact_key: str) -> Any | None:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            row = await conn.fetchrow(
+                "SELECT payload FROM eakg_graphrag WHERE artifact_key = $1",
+                artifact_key,
+            )
+            if row is None:
+                return None
+            return _loads_obj(row["payload"])
+        finally:
+            await conn.close()
+
+    def put_kv(self, key: str, payload: dict[str, Any]) -> None:
+        _run_sync(self._put_kv_row(key, payload))
+
+    def get_kv(self, key: str) -> dict[str, Any] | None:
+        return _run_sync(self._get_json(
+            "SELECT payload FROM eakg_kv WHERE key = $1",
+            key,
+        ))
+
+    def put_sop_page(self, path: str, body: str) -> None:
+        _run_sync(self._put_sop_page(path, body))
+
+    async def _put_sop_page(self, path: str, body: str) -> None:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            await conn.execute(
+                """
+                INSERT INTO sop_page_cache (path, body, updated_at)
+                VALUES ($1, $2, now())
+                ON CONFLICT (path) DO UPDATE
+                SET body = EXCLUDED.body, updated_at = now()
+                """,
+                path,
+                body,
+            )
+        finally:
+            await conn.close()
+
+    def get_sop_page(self, path: str) -> str | None:
+        return _run_sync(self._get_sop_page(path))
+
+    async def _get_sop_page(self, path: str) -> str | None:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            row = await conn.fetchrow(
+                "SELECT body FROM sop_page_cache WHERE path = $1",
+                path,
+            )
+            if row is None:
+                return None
+            return str(row["body"])
+        finally:
+            await conn.close()
+
+    async def _put_singleton(self, table: str, payload: dict[str, Any]) -> None:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            await conn.execute(
+                f"""
+                INSERT INTO {table} (id, payload, updated_at)
+                VALUES (1, $1::jsonb, now())
+                ON CONFLICT (id) DO UPDATE
+                SET payload = EXCLUDED.payload, updated_at = now()
+                """,
+                json.dumps(payload),
+            )
+        finally:
+            await conn.close()
+
+    async def _put_repo_row(
+        self, table: str, repository_id: str, payload: dict[str, Any]
+    ) -> None:
         import asyncpg
 
         conn = await asyncpg.connect(self._dsn)
@@ -462,7 +859,7 @@ class PostgresEakgArtifactStore(AbstractEakgArtifactStore):
         finally:
             await conn.close()
 
-    async def _put_kv_env(
+    async def _put_env_row(
         self, table: str, environment: str, payload: dict[str, Any]
     ) -> None:
         import asyncpg
@@ -482,17 +879,35 @@ class PostgresEakgArtifactStore(AbstractEakgArtifactStore):
         finally:
             await conn.close()
 
-    async def _get_json(self, sql: str, key: str) -> dict[str, Any] | None:
+    async def _put_kv_row(self, key: str, payload: dict[str, Any]) -> None:
         import asyncpg
 
         conn = await asyncpg.connect(self._dsn)
         try:
-            row = await conn.fetchrow(sql, key)
+            await conn.execute(
+                """
+                INSERT INTO eakg_kv (key, payload, updated_at)
+                VALUES ($1, $2::jsonb, now())
+                ON CONFLICT (key) DO UPDATE
+                SET payload = EXCLUDED.payload, updated_at = now()
+                """,
+                key,
+                json.dumps(payload),
+            )
+        finally:
+            await conn.close()
+
+    async def _get_json(
+        self, sql: str, key: str, *, singleton: bool = False
+    ) -> dict[str, Any] | None:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            row = await conn.fetchrow(sql) if singleton else await conn.fetchrow(sql, key)
             if row is None:
                 return None
-            payload = row["payload"]
-            if isinstance(payload, str):
-                payload = json.loads(payload)
+            payload = _loads_obj(row["payload"])
             return payload if isinstance(payload, dict) else None
         finally:
             await conn.close()
@@ -517,5 +932,5 @@ def get_eakg_artifact_store(settings: Any | None = None) -> AbstractEakgArtifact
         store: AbstractEakgArtifactStore = PostgresEakgArtifactStore(resolve_eakg_store_dsn(cfg))
         store.ensure_schema()
         return store
-    shard = cfg.eakg_store.file_shard_dir.strip() or cfg.eakg.shard_dir
+    shard = resolve_file_shard_dir(cfg.eakg_store.file_shard_dir)
     return FileEakgArtifactStore(shard, registry_path=cfg.eakg.registry_path)

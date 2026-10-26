@@ -255,6 +255,7 @@ async def onboard_repository(
                     if gpath.is_file() and facts:
                         payload = project_links(iface, facts, gpath, commit_sha=commit)
                         store.write_engineering_links(record.repository_id, payload)
+                    store.persist_engineering_dir(record.repository_id, eng_dir)
                     eng_status = "ok"
         report["stages"].append(
             {"engineering_graph": eng_status, **({"error": eng_error} if eng_error else {})}
@@ -402,8 +403,10 @@ async def rebuild_cross_app(
     taac_path = cfg.eakg.taac_config_path or cfg.eakg.taac_fixture_path
     url_map: dict[str, str] = {}
     conn_map: dict[str, str] = {}
+    apps_graph = None
     if Path(taac_path).is_file():
         ent = ingest_taac_file(taac_path)
+        apps_graph = ent
         store.write_enterprise_apps(ent)
         url_map = load_service_url_map(taac_path)
         conn_map = load_connection_catalogs(taac_path)
@@ -421,11 +424,17 @@ async def rebuild_cross_app(
 
     # short-circuit if all hashes unchanged vs last cross_app manifest
     cross_manifest = store.enterprise_root / "cross_app.manifest.json"
-    if cross_manifest.is_file() and not force:
+    if not force:
         import json
 
-        prev = json.loads(cross_manifest.read_text(encoding="utf-8"))
-        if prev.get("interface_hashes") == hashes:
+        prev: dict[str, object] | None = None
+        arts_pre = store._artifacts  # noqa: SLF001
+        if arts_pre is not None:
+            prev = arts_pre.get_kv("enterprise/cross_app.manifest")
+        if prev is None and cross_manifest.is_file():
+            loaded = json.loads(cross_manifest.read_text(encoding="utf-8"))
+            prev = loaded if isinstance(loaded, dict) else None
+        if prev is not None and prev.get("interface_hashes") == hashes:
             return {"skipped": True, "reason": "interface hashes unchanged"}
 
     patterns = load_patterns(cfg.eakg.patterns_dir)
@@ -453,27 +462,44 @@ async def rebuild_cross_app(
         dropped += d
         all_near.extend(collect_near_misses(iface, index))
 
+    arts = store._artifacts  # noqa: SLF001 — same runtime wiring
     if all_near:
         import json
 
-        near_path = store.enterprise_root / "near_misses.json"
-        store.enterprise_root.mkdir(parents=True, exist_ok=True)
-        near_path.write_text(json.dumps(all_near, indent=2), encoding="utf-8")
-        # Append near-miss ledger under enterprise
         from packages.eakg.gap_ledger import from_detector_near_misses
 
         near_items = from_detector_near_misses(
             [dict(x) for x in all_near],
             repository_id="cross_app",
         )
-        ledger_path = store.enterprise_root / "gap_ledger.json"
-        existing: list[dict[str, object]] = []
-        if ledger_path.is_file():
-            existing = json.loads(ledger_path.read_text(encoding="utf-8"))
-        by_id = {str(r.get("item_id")): r for r in existing if isinstance(r, dict)}
-        for it in near_items:
-            by_id[it.item_id] = it.to_dict()
-        ledger_path.write_text(json.dumps(list(by_id.values()), indent=2), encoding="utf-8")
+        near_payload = {"items": all_near}
+        ledger_by_id = {it.item_id: it.to_dict() for it in near_items}
+        if arts is not None:
+            arts.put_kv("enterprise/near_misses", near_payload)
+            existing_kv = arts.get_kv("enterprise/gap_ledger") or {}
+            existing_items = existing_kv.get("items") if isinstance(existing_kv, dict) else None
+            by_id: dict[str, object] = {}
+            if isinstance(existing_items, list):
+                for r in existing_items:
+                    if isinstance(r, dict) and r.get("item_id"):
+                        by_id[str(r["item_id"])] = r
+            by_id.update(ledger_by_id)
+            arts.put_kv("enterprise/gap_ledger", {"items": list(by_id.values())})
+        if store._file_mode:  # noqa: SLF001
+            store.enterprise_root.mkdir(parents=True, exist_ok=True)
+            (store.enterprise_root / "near_misses.json").write_text(
+                json.dumps(all_near, indent=2), encoding="utf-8"
+            )
+            ledger_path = store.enterprise_root / "gap_ledger.json"
+            existing: list[dict[str, object]] = []
+            if ledger_path.is_file():
+                existing = json.loads(ledger_path.read_text(encoding="utf-8"))
+            by_id_f = {str(r.get("item_id")): r for r in existing if isinstance(r, dict)}
+            for it in near_items:
+                by_id_f[it.item_id] = it.to_dict()
+            ledger_path.write_text(
+                json.dumps(list(by_id_f.values()), indent=2), encoding="utf-8"
+            )
 
     # dedupe by relationship_id
     by_id = {r.relationship_id: r for r in all_rels}
@@ -483,20 +509,37 @@ async def rebuild_cross_app(
     from packages.eakg.graph_upload import upload_graph
 
     gs = graph_store if graph_store is not None else get_graph_store()
+    if apps_graph is not None:
+        await upload_graph(
+            gs,
+            "applications",
+            apps_graph,
+            namespace=cfg.capability_kg.namespace,
+        )
     await upload_graph(
         gs,
         "cross_app",
         graph,
         namespace=cfg.capability_kg.namespace,
     )
+    if store._file_mode:  # noqa: SLF001
+        store.write_cross_app(graph)
 
     import json
 
-    store.enterprise_root.mkdir(parents=True, exist_ok=True)
-    cross_manifest.write_text(
-        json.dumps({"interface_hashes": hashes, "relationships": len(by_id), "dropped": dropped}, indent=2),
-        encoding="utf-8",
-    )
+    manifest_payload = {
+        "interface_hashes": hashes,
+        "relationships": len(by_id),
+        "dropped": dropped,
+    }
+    if arts is not None:
+        arts.put_kv("enterprise/cross_app.manifest", manifest_payload)
+    if store._file_mode:  # noqa: SLF001
+        store.enterprise_root.mkdir(parents=True, exist_ok=True)
+        cross_manifest.write_text(
+            json.dumps(manifest_payload, indent=2),
+            encoding="utf-8",
+        )
     return {"relationships": len(by_id), "dropped": dropped, "skipped": False}
 
 

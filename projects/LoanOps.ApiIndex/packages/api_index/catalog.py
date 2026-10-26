@@ -118,34 +118,33 @@ def build_operations(
 
 def write_operations(shard_dir: str | Path, op_set: OperationSet) -> Path:
     payload = op_set.model_dump(mode="json")
-    try:
-        from packages.eakg.artifact_store import get_eakg_artifact_store
+    from packages.eakg.artifact_store import FileEakgArtifactStore, get_eakg_artifact_store
 
-        arts = get_eakg_artifact_store()
-        if arts.backend == "postgres":
-            arts.put_operations(op_set.environment, payload)
-            return operations_path(shard_dir, op_set.environment)
-    except Exception:  # noqa: BLE001 — fall back to file
-        pass
-    path = operations_path(shard_dir, op_set.environment)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    tmp.replace(path)
-    return path
+    arts = get_eakg_artifact_store()
+    if arts.backend == "postgres":
+        arts.put_operations(op_set.environment, payload)
+    else:
+        # Honor caller's shard_dir (tmp_path in tests; pipeline_store in ops).
+        FileEakgArtifactStore(
+            shard_dir, registry_path=Path(shard_dir) / "_registry.yaml"
+        ).put_operations(op_set.environment, payload)
+    return operations_path(shard_dir, op_set.environment)
 
 
 def load_operations(shard_dir: str | Path, environment: str) -> OperationSet | None:
-    try:
-        from packages.eakg.artifact_store import get_eakg_artifact_store
+    from packages.eakg.artifact_store import FileEakgArtifactStore, get_eakg_artifact_store
 
-        arts = get_eakg_artifact_store()
-        if arts.backend == "postgres":
-            raw_db = arts.get_operations(environment)
-            if isinstance(raw_db, dict):
-                return OperationSet.model_validate(raw_db)
-    except Exception:  # noqa: BLE001 — fall back to file
-        pass
+    arts = get_eakg_artifact_store()
+    if arts.backend == "postgres":
+        raw_db = arts.get_operations(environment)
+        if isinstance(raw_db, dict):
+            return OperationSet.model_validate(raw_db)
+    else:
+        raw_file = FileEakgArtifactStore(
+            shard_dir, registry_path=Path(shard_dir) / "_registry.yaml"
+        ).get_operations(environment)
+        if isinstance(raw_file, dict):
+            return OperationSet.model_validate(raw_file)
     path = operations_path(shard_dir, environment)
     if not path.is_file():
         return None

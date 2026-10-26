@@ -55,9 +55,12 @@ def build_modular_tools_client(cfg: Settings, *, role: str) -> ToolsClientProvid
     elif mode == "swagger_links":
         catalog_fixture = None
 
+    from packages.eakg.pipeline_layout import resolve_file_shard_dir
     from packages.sse.semantic import openapi_embeddings_path
 
-    embed_sidecar = str(openapi_embeddings_path(cfg.eakg.shard_dir))
+    embed_sidecar = str(
+        openapi_embeddings_path(resolve_file_shard_dir(cfg.eakg_store.file_shard_dir))
+    )
     sse = OpenApiCatalogService(
         swagger_links=swagger_links,
         api_base_url=cfg.sse.api_base_url,

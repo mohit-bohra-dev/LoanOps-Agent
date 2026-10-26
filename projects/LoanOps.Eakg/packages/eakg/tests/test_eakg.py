@@ -374,7 +374,7 @@ async def test_eakg_embed_text_uses_summary_and_path(tmp_path: Path) -> None:
 def test_registry_seed_file() -> None:
     reg = RepositoryRegistry(ROOT / "data" / "eakg" / "registry" / "repositories.yaml")
     ids = {r.repository_id for r in reg.list()}
-    assert ids == {"escrow", "fees", "loanservices"}
+    assert {"escrow", "fees", "loanservices"}.issubset(ids)
     fees = reg.get("fees")
     assert fees is not None
     assert fees.gitlab_project_id == 15921

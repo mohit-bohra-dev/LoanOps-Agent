@@ -90,9 +90,9 @@ async def sync_nightly(*, settings: Settings | None = None) -> dict[str, object]
 
 def sync_audit(*, settings: Settings | None = None) -> dict[str, object]:
     cfg = settings or Settings()
-    from packages.eakg.store import ShardStore
+    from packages.eakg.runtime import eakg_runtime
 
-    store = ShardStore(cfg.eakg.shard_dir)
+    _registry, store, _arts = eakg_runtime(cfg)
     stale = audit_stale_proposals(store, stale_days=cfg.eakg.review_stale_days)
     # orphan / missing evidence check (lightweight)
     issues: list[str] = []

@@ -11,6 +11,13 @@ Related: [`EAKG_COMMITTED_VS_LOCAL.md`](EAKG_COMMITTED_VS_LOCAL.md),
 [`ENGINEERING_GRAPH_ANALYSIS.md`](ENGINEERING_GRAPH_ANALYSIS.md),
 [`ARCHITECTURE.md`](../ARCHITECTURE.md) §11 (RAG).
 
+### Where outputs live
+
+| Mode | Switch | Stores |
+|---|---|---|
+| **Product** | `EAKG_STORE__BACKEND=postgres` | GraphDB/Neptune + Postgres + pgvector — **no S3**, no repo file truth |
+| **File** (tests/offline) | `EAKG_STORE__BACKEND=file` | `data/pipeline_store/{GraphDb,Postgres,Pgvector}/` mirrors those stores |
+
 ---
 
 ## Data → knowledge (AI-accessible)
@@ -21,7 +28,7 @@ Related: [`EAKG_COMMITTED_VS_LOCAL.md`](EAKG_COMMITTED_VS_LOCAL.md),
 | **OpenAPI → EAKG (KG)** | API specs | Same EAKG, richer ops + summaries | Discovery with better labels |
 | **OpenAPI → ApiIndex vectors** | API specs | Searchable operation vectors (+ sidecar) | Fast find-the-right-call |
 | **EAKG → capability embeddings** | Capability text in the KG | `embeddings.json` | Natural language → capability |
-| **SOP → docs embeddings** | Confluence SOP markdown (`_confluence`) | Vectors in namespace `docs` | Cited policy answers |
+| **SOP → docs embeddings** | Live Confluence (product) / file SOP cache | Vectors in namespace `docs` (pgvector) | Cited policy answers |
 | **SOP → GraphRAG (doc KG)** | Same Confluence SOPs | Document communities / topic map | Multi-doc policy context |
 | **Code → Engineering KG** | App AST (Graphify on clones) | `engineering/graph.json` (+ links) | “Where in code is this op?” (dev; not main chat discovery) |
 
@@ -50,11 +57,11 @@ Engineering KG is optional code navigation, not the default agent menu.
 
 | Name | Source (input) | Output | Example (one line) | Description |
 |---|---|---|---|---|
-| **EAKG sync** (repo / nightly / audit) | Registered app repos (git), cached OpenAPI specs, TAAC app list, extractors | `data/eakg/repos/`, `data/eakg/enterprise/`, proposals / audit reports | OpenAPI `getPaymentSchedules` → `repos/loanservices/graph.ttl` capability | Enterprise map of apps, APIs, capabilities, and cross-app links |
-| **API index refresh** | EAKG registry + OpenAPI specs (live or cached) | Unified operations + vector/sidecar search index | Same op → `api_index/<env>/operations.json` public_id `loanservices:getPaymentSchedules` | Searchable menu of callable API operations |
-| **SOP / policy ingest** | Confluence cache `data/sops/_confluence` | Vector namespace `docs` (same store `search_docs` reads) | `escrow/annual-analysis.md` → chunk in `docs` with that path | Loads Confluence SOPs so the agent can answer with policy citations |
-| **GraphRAG build** | SOP / doc corpus (local markdown) | GraphRAG artifact dir (communities, summaries, related vectors) | Escrow SOP cluster → `data/graphrag/communities.json` id `c0001` | Offline document map (topics / links) for richer doc answers |
-| **EAKG capability embeddings** | Merged EAKG capability text from shards | `data/eakg/enterprise/embeddings.json` | `get_payment_schedules` text → vector row in `embeddings.json` | Natural-language ranking for capability search |
+| **EAKG sync** (repo / nightly / audit) | Registered app repos (git), OpenAPI, TAAC, extractors | **Product:** GraphDB + Postgres. **File:** `pipeline_store/GraphDb` + `Postgres/` | OpenAPI `getPaymentSchedules` → named graph / interface row | Enterprise map of apps, APIs, capabilities, and cross-app links |
+| **API index refresh** | EAKG registry + OpenAPI specs | **Product:** Postgres ops + pgvector. **File:** `Postgres/operations/` (+ optional `Pgvector/` sidecar) | public_id `loanservices:getPaymentSchedules` | Searchable menu of callable API operations |
+| **SOP / policy ingest** | Live Confluence (product) or file SOP cache | Vector namespace `docs` (pgvector) | Confluence page → chunk in `docs` | Loads SOPs so the agent can answer with policy citations |
+| **GraphRAG build** | SOP / doc corpus | **Product:** Postgres `eakg_graphrag`. **File:** `Postgres/graphrag/` | Escrow SOP cluster → communities id `c0001` | Offline document map (topics / links) for richer doc answers |
+| **EAKG capability embeddings** | Merged EAKG capability text | **Product:** Postgres embeddings table. **File:** `Postgres/embeddings.json` | capability text → vector row | Natural-language ranking for capability search |
 | **TAAC refresh** | Live TAAC config via `glab` (never committed) | Local drop under `.eakg-workspace/` | GitLab TAAC config → `.eakg-workspace/taac-client-config.json` | Pulls enterprise app inventory into the workspace |
 | **Eval gate** | Golden Q&A, MCP cases, live/fixture tools | Scores / pass-fail (CI or local report) | Golden `g001` escrow prompt → pass/fail + citation metrics | Quality bar for agent and tools |
 | **`index_docs` (on demand)** | Same local SOP markdown (or path the tool indexes) | Same `docs` vector namespace as SOP ingest | Tool `index_docs` → same writer as SOP ingest | Runtime re-index; **same writer** as ingest (`DocsService`) |
@@ -78,12 +85,12 @@ Engineering KG is optional code navigation, not the default agent menu.
 - OpenAPI: `getPaymentSchedules` on `/api/Loans/{loan_id}/PaymentSchedules`
 - Optional TAAC app list
 
-**Output (shape)**
+**Output (shape)** — product: GraphDB named graphs + Postgres rows. File mode:
 ```text
-data/eakg/repos/loanservices/graph.ttl      # capabilities + ops for that app
-data/eakg/repos/loanservices/interface.json # structured interface for ApiIndex
-data/eakg/enterprise/cross_app.ttl          # links across apps (nightly)
-data/eakg/proposals/…                      # items needing human review
+pipeline_store/GraphDb/named_graphs/loanservices.ttl
+pipeline_store/Postgres/interface/loanservices.json
+pipeline_store/GraphDb/named_graphs/cross_app.ttl
+pipeline_store/Postgres/proposals/…
 ```
 
 Turtle flavor (capability):
@@ -111,11 +118,11 @@ loanops:cap_get_payment_schedules a loanops:Capability ;
 }
 ```
 
-**Output (shape)** — under `data/eakg/enterprise/api_index/<env>/`:
+**Output (shape)** — product: Postgres `eakg_operations` + pgvector. File mode:
 ```text
-operations.json            # unified op list
-openapi_embeddings.json    # local vector sidecar (fallback)
-index.manifest.json        # build metadata / hashes
+pipeline_store/Postgres/operations/<env>.json
+pipeline_store/Pgvector/api_index/<env>/openapi_embeddings.json   # offline aid
+pipeline_store/Postgres/api_index/<env>/index.manifest.json
 ```
 
 `operations.json` flavor:
@@ -142,10 +149,10 @@ index.manifest.json        # build metadata / hashes
 
 ### 3. SOP / policy ingest
 
-**Source (example)** — Confluence cache page
-`data/sops/_confluence/escrow/annual-analysis.md` (gitignored; refresh via live Confluence).
+**Source (example)** — live Confluence page (product) or file-mode
+`pipeline_store/Postgres/sop_page_cache/escrow/annual-analysis.md`.
 
-**Output** — vectors in namespace `docs`, metadata like:
+**Output** — vectors in pgvector namespace `docs`, metadata like:
 ```json
 {
   "corpus": "sop",
@@ -160,11 +167,10 @@ index.manifest.json        # build metadata / hashes
 
 ### 4. GraphRAG build
 
-**Source** — same Confluence SOP corpus as ingest (`data/sops/_confluence`).
+**Source** — same SOP corpus as ingest (live Confluence or file cache).
 
-**Output (example)** — `data/graphrag/communities.json` (community of related Confluence SOP paths + summary).
-
-Plus `data/graphrag/manifest.json` (corpus hash, phase, model pin).
+**Output (example)** — product: Postgres `eakg_graphrag`; file:
+`pipeline_store/Postgres/graphrag/communities.json` (+ `manifest.json`).
 
 **Why:** groups related policies so doc answers can use community context, not only one chunk.
 
@@ -186,7 +192,8 @@ get payment schedules. Get payment schedules for loan. operation getPaymentSched
 path /api/Loans/{loan_id}/PaymentSchedules. Loans Payment Schedules. domain loan servicing.
 ```
 
-**Output** — `data/eakg/enterprise/embeddings.json`:
+**Output** — product: Postgres `eakg_capability_embeddings`; file:
+`pipeline_store/Postgres/embeddings.json`:
 ```json
 {
   "capabilities": [
@@ -265,8 +272,9 @@ Then nightly / TAAC ingest can turn this into enterprise app nodes.
 
 **Output**
 ```text
-data/eakg/repos/<id>/engineering/graph.json
-data/eakg/repos/<id>/engineering/links.json
+# product: eakg_engineering table; file mode:
+pipeline_store/Postgres/engineering/<id>/graph.json
+pipeline_store/Postgres/engineering/<id>/links.json
 ```
 
 **Why:** join API operations back to code symbols for debugging / “where is this implemented?” — not the primary MCP capability menu.

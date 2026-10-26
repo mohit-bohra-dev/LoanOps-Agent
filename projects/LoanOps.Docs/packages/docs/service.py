@@ -108,21 +108,19 @@ class DocsService:
         dims = await self._embedding.get_dimensions()
         await self._store.create_collection(self._namespace, dims)
 
-    async def index_markdown_file(
+    async def index_markdown_text(
         self,
-        path: Path,
+        text: str,
         *,
+        rel_path: str,
         corpus: str = "sop",
-        corpus_root: Path | None = None,
         extra_metadata: dict[str, Any] | None = None,
     ) -> int:
-        text = path.read_text(encoding="utf-8")
-        root = corpus_root if corpus_root is not None else path.parent
-        rel = relative_corpus_path(path, root)
+        """Index markdown body (live Confluence / cache) into the docs namespace."""
         fm = _parse_frontmatter(text)
         meta = build_chunk_metadata(
             corpus=corpus,
-            rel_path=rel,
+            rel_path=rel_path.replace("\\", "/"),
             frontmatter=fm,
             extra=extra_metadata,
         )
@@ -141,6 +139,24 @@ class DocsService:
         if docs:
             await self._store.upsert(docs, namespace=self._namespace)
         return len(docs)
+
+    async def index_markdown_file(
+        self,
+        path: Path,
+        *,
+        corpus: str = "sop",
+        corpus_root: Path | None = None,
+        extra_metadata: dict[str, Any] | None = None,
+    ) -> int:
+        text = path.read_text(encoding="utf-8")
+        root = corpus_root if corpus_root is not None else path.parent
+        rel = relative_corpus_path(path, root)
+        return await self.index_markdown_text(
+            text,
+            rel_path=rel,
+            corpus=corpus,
+            extra_metadata=extra_metadata,
+        )
 
     async def index_directory(self, root: Path, *, corpus: str = "sop") -> int:
         total = 0

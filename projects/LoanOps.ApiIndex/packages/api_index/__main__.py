@@ -8,8 +8,7 @@ import sys
 
 from packages.common.settings import Settings
 from packages.eakg.merge import catalog_from_shards
-from packages.eakg.registry import RepositoryRegistry
-from packages.eakg.store import ShardStore
+from packages.eakg.runtime import eakg_runtime
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -28,8 +27,7 @@ def main(argv: list[str] | None = None) -> int:
 
     cfg = Settings()
     env = args.env or cfg.eakg.environment
-    registry = RepositoryRegistry(cfg.eakg.registry_path)
-    store = ShardStore(cfg.eakg.shard_dir)
+    registry, store, _arts = eakg_runtime(cfg)
     store.ensure_layout()
     caps = None
     if cfg.capability_kg.enabled and store.root.is_dir():

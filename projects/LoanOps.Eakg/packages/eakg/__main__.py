@@ -544,26 +544,50 @@ def main(argv: list[str] | None = None) -> int:
         path = args.path or cfg.eakg.taac_config_path or cfg.eakg.taac_fixture_path
         g = ingest_taac_file(path)
         dest = store.write_enterprise_apps(g)
-        print(json.dumps({"wrote": str(dest), "triples": len(g)}))
+
+        async def _upload_apps() -> str:
+            from packages.common.providers.factory import get_graph_store
+            from packages.eakg.graph_upload import upload_graph
+
+            return await upload_graph(
+                get_graph_store(),
+                "applications",
+                g,
+                namespace=cfg.capability_kg.namespace,
+            )
+
+        iri = asyncio.run(_upload_apps())
+        print(
+            json.dumps(
+                {
+                    "wrote": str(dest),
+                    "triples": len(g),
+                    "named_graph": iri,
+                    "path": path,
+                },
+                indent=2,
+            )
+        )
         return 0
 
     if args.cmd == "embed":
 
         async def _embed_cli() -> dict[str, object]:
             from packages.common.providers.factory import get_embedding_provider
-            from packages.eakg.embed import embed_shards
+            from packages.eakg.embed import embed_from_settings
 
             async def _embed(text: str) -> list[float]:
                 result = await get_embedding_provider().embed(text)
                 return list(result.vector)
 
-            dest = await embed_shards(
-                store.root,
-                _embed,
-                namespace=cfg.capability_kg.namespace,
-                approved_only=cfg.capability_kg.approved_only,
-            )
-            return {"wrote": str(dest)}
+            dest = await embed_from_settings(_embed)
+            from packages.eakg.artifact_store import get_eakg_artifact_store
+
+            arts = get_eakg_artifact_store(cfg)
+            payload = arts.get_embeddings() or {}
+            caps = payload.get("capabilities") if isinstance(payload, dict) else None
+            n = len(caps) if isinstance(caps, list) else 0
+            return {"wrote": str(dest), "capabilities": n, "backend": arts.backend}
 
         print(json.dumps(asyncio.run(_embed_cli()), indent=2))
         return 0

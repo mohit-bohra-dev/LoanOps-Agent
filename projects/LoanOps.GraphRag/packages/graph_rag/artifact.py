@@ -28,7 +28,39 @@ def load_artifact(
     *,
     expected_corpus_hash: str | None = None,
 ) -> GraphRagArtifact:
-    """Load communities.json + manifest.json (+ optional graph.json)."""
+    """Load communities + manifest (+ optional graph) from Postgres or file mirror."""
+    from packages.common.settings import get_settings
+
+    if get_settings().eakg_store.backend == "postgres":
+        from packages.eakg.artifact_store import get_eakg_artifact_store
+
+        arts = get_eakg_artifact_store()
+        communities_raw = arts.get_graphrag("communities")
+        manifest = arts.get_graphrag("manifest")
+        if isinstance(communities_raw, list) and isinstance(manifest, dict):
+            communities: list[dict[str, Any]] = []
+            for row in communities_raw:
+                if not isinstance(row, dict) or "id" not in row or "summary" not in row:
+                    return GraphRagArtifact(
+                        communities=[], manifest={}, status="corrupt"
+                    )
+                communities.append(row)
+            graph_raw = arts.get_graphrag("graph")
+            graph = graph_raw if isinstance(graph_raw, dict) else None
+            if expected_corpus_hash is not None:
+                got = str(manifest.get("corpus_hash") or "")
+                if got != expected_corpus_hash:
+                    return GraphRagArtifact(
+                        communities=communities,
+                        manifest=manifest,
+                        status="stale",
+                        graph=graph,
+                    )
+            return GraphRagArtifact(
+                communities=communities, manifest=manifest, status="ok", graph=graph
+            )
+        return GraphRagArtifact(communities=[], manifest={}, status="absent")
+
     communities_path = artifact_dir / "communities.json"
     manifest_path = artifact_dir / "manifest.json"
     if not communities_path.is_file() or not manifest_path.is_file():
@@ -78,18 +110,6 @@ def write_artifact(
     summary_kind: str = "extractive",
     gap_ledger: list[dict[str, Any]] | None = None,
 ) -> None:
-    artifact_dir.mkdir(parents=True, exist_ok=True)
-    (artifact_dir / "communities.json").write_text(
-        json.dumps(communities, indent=2) + "\n", encoding="utf-8"
-    )
-    if graph is not None:
-        (artifact_dir / "graph.json").write_text(
-            json.dumps(graph, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-        )
-    if gap_ledger is not None:
-        (artifact_dir / "gap_ledger.json").write_text(
-            json.dumps(gap_ledger, indent=2) + "\n", encoding="utf-8"
-        )
     manifest: dict[str, Any] = {
         "version": 1,
         "corpus_hash": corpus_hash,
@@ -105,6 +125,36 @@ def write_artifact(
         manifest["prompt_version"] = prompt_version
     if schema_version is not None:
         manifest["schema_version"] = schema_version
+
+    from packages.common.settings import get_settings
+
+    # Product postgres: persist via EAKG artifact store (caller/eakg owns DSN).
+    # File mode: write under artifact_dir (default Postgres/graphrag mirror).
+    cfg = get_settings()
+    if cfg.eakg_store.backend == "postgres":
+        from packages.eakg.artifact_store import get_eakg_artifact_store
+
+        arts = get_eakg_artifact_store(cfg)
+        arts.put_graphrag("communities", communities)
+        arts.put_graphrag("manifest", manifest)
+        if graph is not None:
+            arts.put_graphrag("graph", graph)
+        if gap_ledger is not None:
+            arts.put_graphrag("gap_ledger", gap_ledger)
+        return
+
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+    (artifact_dir / "communities.json").write_text(
+        json.dumps(communities, indent=2) + "\n", encoding="utf-8"
+    )
+    if graph is not None:
+        (artifact_dir / "graph.json").write_text(
+            json.dumps(graph, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+    if gap_ledger is not None:
+        (artifact_dir / "gap_ledger.json").write_text(
+            json.dumps(gap_ledger, indent=2) + "\n", encoding="utf-8"
+        )
     (artifact_dir / "manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )

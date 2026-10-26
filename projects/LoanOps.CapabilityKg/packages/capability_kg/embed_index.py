@@ -94,8 +94,8 @@ def embeddings_path_for_ttl(ttl_path: str | Path) -> Path:
 
 
 def embeddings_path_for_shards(shard_dir: str | Path) -> Path:
-    """Sidecar for merged EAKG (gitignored under data/eakg/enterprise/)."""
-    return Path(shard_dir) / "enterprise" / "embeddings.json"
+    """File-mode mirror under Postgres/ (product uses artifact store)."""
+    return Path(shard_dir) / "Postgres" / "embeddings.json"
 
 
 def cosine(a: list[float], b: list[float]) -> float:

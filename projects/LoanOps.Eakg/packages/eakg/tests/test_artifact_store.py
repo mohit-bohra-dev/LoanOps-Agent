@@ -10,7 +10,8 @@ from packages.eakg.registry import RepositoryRegistry
 
 def test_file_store_registry_and_interface(tmp_path: Path) -> None:
     reg_path = tmp_path / "repositories.yaml"
-    store = FileEakgArtifactStore(tmp_path / "eakg", registry_path=reg_path)
+    root = tmp_path / "pipeline_store"
+    store = FileEakgArtifactStore(root, registry_path=reg_path)
     store.ensure_schema()
     store.save_registry(
         [
@@ -22,6 +23,7 @@ def test_file_store_registry_and_interface(tmp_path: Path) -> None:
             }
         ]
     )
+    assert (root / "Postgres" / "registry.yaml").is_file()
     registry = RepositoryRegistry(reg_path, artifact_store=store)
     assert registry.get("fees") is not None
     store.put_interface(
@@ -34,6 +36,7 @@ def test_file_store_registry_and_interface(tmp_path: Path) -> None:
             "packages": [],
         },
     )
+    assert (root / "Postgres" / "interface" / "fees.json").is_file()
     iface = store.get_interface("fees")
     assert iface is not None
     assert iface["commit_sha"] == "abc"
@@ -48,3 +51,11 @@ def test_file_store_registry_and_interface(tmp_path: Path) -> None:
     assert pointer["spec_hash"] == "deadbeef"
     assert spec is not None
     assert spec["openapi"] == "3.0.0"
+    store.put_embeddings({"version": 1, "capabilities": []})
+    assert store.get_embeddings() is not None
+    store.append_proposal("fees", {"id": "p1"})
+    assert store.read_proposals("fees")[0]["id"] == "p1"
+    store.put_engineering("fees", "links.json", {"edges": []})
+    assert store.get_engineering("fees", "links.json") == {"edges": []}
+    store.put_sop_page("escrow/x.md", "# hi\n")
+    assert store.get_sop_page("escrow/x.md") == "# hi\n"

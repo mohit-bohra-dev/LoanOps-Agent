@@ -1,3 +1,20 @@
+## [2026-10-20] — DB-only pipeline storage + file-mode mirrors
+
+**Session type:** Storage cutover
+
+**Completed:**
+- Product: GraphDB + Postgres + pgvector (`EAKG_STORE__BACKEND=postgres`); no S3; no repo product truth
+- File mode: `data/pipeline_store/{GraphDb,Postgres,Pgvector}/` layout; `FileEakgArtifactStore` under `Postgres/`
+- Schema: embeddings, proposals, decisions, engineering, graphrag, kv, sop_page_cache
+- SOP ingest: live Confluence → pgvector; file cache under `Postgres/sop_page_cache`
+- Docs: PIPELINES, EAKG_COMMITTED, CONTEXT, ADR-027 amendment; `.env.example` product defaults
+
+**Risk:** Local `.env` with `BACKEND=postgres` needs live DBs; GraphRAG/Docs now depend on `loanops-eakg`.
+
+**Next:** migrate any leftover disk shards; verify onboard against GraphDB+Postgres.
+
+---
+
 ## [2026-10-20] — Drop synthetic SOPs; Confluence-only corpus
 
 **Session type:** Cleanup

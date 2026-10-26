@@ -40,7 +40,8 @@ class ConfluenceConfig(BaseModel):
     ancestor_ids: list[str] = Field(default_factory=list)
     expand_children: bool = True
     pii_scrub: Literal["regex", "presidio", "off"] = "regex"
-    artifact_dir: str = "data/sops/_confluence"
+    # Offline SOP bodies (file mode). Product live Confluence skips this as truth.
+    artifact_dir: str = "data/pipeline_store/Postgres/sop_page_cache"
 
 
 class DataConfig(BaseModel):
@@ -375,19 +376,25 @@ class GraphStoreConfig(BaseModel):
 
 
 class EakgStoreConfig(BaseModel):
-    """Non-graph EAKG artifacts (ADR-027): registry, interface, OpenAPI, ApiIndex ops."""
+    """Non-graph EAKG artifacts (ADR-027): registry, interface, OpenAPI, ApiIndex ops.
+
+    Product: ``backend=postgres`` (GraphDB + Postgres + pgvector; no repo file truth).
+    Tests/offline: ``backend=file`` under ``file_shard_dir`` mirroring
+    ``GraphDb/``, ``Postgres/``, ``Pgvector/``.
+    """
 
     backend: Literal["file", "postgres"] = "file"
     # Empty → derive from VECTOR_STORE__PGVECTOR_DSN (strip +asyncpg).
     dsn: str = ""
-    file_shard_dir: str = ""
+    file_shard_dir: str = "data/pipeline_store"
 
 
 class GraphRagConfig(BaseModel):
     """Doc GraphRAG summary routing (ADR-030 / doc-graphrag P4). Default off."""
 
     enabled: bool = False
-    artifact_dir: str = "data/graphrag"
+    # File-mode mirror; product persists via EAKG artifact store (eakg_graphrag).
+    artifact_dir: str = "data/pipeline_store/Postgres/graphrag"
 
 
 class AgentRuntimeConfig(BaseModel):

@@ -8,6 +8,9 @@ import json
 import sys
 from typing import Any
 
+import tempfile
+from pathlib import Path
+
 from packages.api_index.catalog import build_operations, load_operations, write_operations
 from packages.api_index.indexer import reindex
 from packages.api_index.paths import manifest_path, sidecar_path
@@ -19,7 +22,8 @@ from packages.common.providers.factory import (
     get_vector_store_provider,
 )
 from packages.common.settings import Settings, get_settings
-from packages.eakg.registry import RepositoryRegistry
+from packages.eakg.pipeline_layout import resolve_file_shard_dir
+from packages.eakg.runtime import eakg_runtime
 from packages.eakg.spec_cache import refresh_all as refresh_all_specs
 from packages.eakg.spec_cache import refresh_spec
 from packages.eakg.store import ShardStore
@@ -58,6 +62,10 @@ def _exit_code(failed: int, fatal: bool = False) -> int:
     return 0
 
 
+def _pipeline_root(cfg: Settings) -> Path:
+    return Path(resolve_file_shard_dir(cfg.eakg_store.file_shard_dir))
+
+
 async def _run_reindex(
     cfg: Settings,
     op_set: OperationSet,
@@ -66,14 +74,23 @@ async def _run_reindex(
 ) -> dict[str, Any]:
     embedder = get_embedding_provider()
     store = None if sidecar_only else get_vector_store_provider()
+    root = _pipeline_root(cfg)
+    # Product + live pgvector: no repo sidecar/manifest trees.
+    if cfg.eakg_store.backend == "postgres" and not sidecar_only:
+        tmp = Path(tempfile.mkdtemp(prefix="api-index-"))
+        mpath = tmp / "index.manifest.json"
+        spath = tmp / "openapi_embeddings.json"
+    else:
+        mpath = manifest_path(root, op_set.environment)
+        spath = sidecar_path(root, op_set.environment)
     report = await reindex(
         op_set.environment,
         op_set,
         vector_store=store,
         embedder=embedder,
-        manifest_path=manifest_path(cfg.eakg.shard_dir, op_set.environment),
+        manifest_path=mpath,
         namespace_prefix=cfg.api_index.namespace_prefix,
-        sidecar_path=sidecar_path(cfg.eakg.shard_dir, op_set.environment),
+        sidecar_path=spath,
         sidecar_only=sidecar_only,
     )
     return report.model_dump(mode="json")
@@ -92,8 +109,7 @@ async def refresh_app(
 
     started = time.perf_counter()
     cfg = cfg or get_settings()
-    registry = RepositoryRegistry(cfg.eakg.registry_path)
-    store = ShardStore(cfg.eakg.shard_dir)
+    registry, store, _arts = eakg_runtime(cfg)
     store.ensure_layout()
     record = next(
         (r for r in registry.list_active(environment) if r.repository_id == repository_id
@@ -176,8 +192,7 @@ async def refresh_all(
     sidecar_only: bool = False,
 ) -> dict[str, Any]:
     cfg = cfg or get_settings()
-    registry = RepositoryRegistry(cfg.eakg.registry_path)
-    store = ShardStore(cfg.eakg.shard_dir)
+    registry, store, _arts = eakg_runtime(cfg)
     store.ensure_layout()
     token = await _token_source(cfg)
     spec_report = await refresh_all_specs(registry, environment, store, token)
@@ -213,8 +228,7 @@ async def refresh_nightly(
 ) -> dict[str, Any]:
     """Refresh specs; rebuild/reindex when spec_hash or interface_hash changed."""
     cfg = cfg or get_settings()
-    registry = RepositoryRegistry(cfg.eakg.registry_path)
-    store = ShardStore(cfg.eakg.shard_dir)
+    registry, store, _arts = eakg_runtime(cfg)
     store.ensure_layout()
     prior = load_operations(store.root, environment)
     token = await _token_source(cfg)

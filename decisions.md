@@ -756,18 +756,28 @@ catalog without repo-local JSON blobs.
 |-----|------|
 | `EAKG_STORE__BACKEND` | `postgres` (product) \| `file` (tests) |
 | `EAKG_STORE__DSN` | asyncpg DSN; empty → derive from `VECTOR_STORE__PGVECTOR_DSN` |
-| `EAKG_STORE__FILE_SHARD_DIR` | File-backend root (default `EAKG__SHARD_DIR`) |
+| `EAKG_STORE__FILE_SHARD_DIR` | File-backend root (default `data/pipeline_store`) |
 
-**Tables:** `eakg_registry` (single JSONB doc), `eakg_interface`, `eakg_openapi`,
-`eakg_manifest`, `eakg_operations` (per environment).
+**Tables:** `eakg_registry`, `eakg_interface`, `eakg_openapi`, `eakg_manifest`,
+`eakg_operations`, plus `eakg_capability_embeddings`, `eakg_proposals`,
+`eakg_decisions`, `eakg_engineering`, `eakg_graphrag`, `eakg_kv`, `sop_page_cache`.
+
+**Amendment (2026-10-20):** Product path is DB-only — GraphDB + Postgres +
+pgvector. **No S3.** File backend mirrors those stores under
+`data/pipeline_store/{GraphDb,Postgres,Pgvector}` for tests/offline. Legacy
+`data/eakg/repos|enterprise|…` is not product layout. SOP product ingest is
+live Confluence → pgvector `docs` (optional file-mode cache under
+`Postgres/sop_page_cache`).
 
 **Alternatives:** Keep YAML/JSON files (rejected for product); S3-only blobs
-(no transactional registry); stuff RDF into Postgres (rejected — SPARQL stays GraphDB).
+(rejected — no transactional registry, extra ops surface); stuff RDF into
+Postgres (rejected — SPARQL stays GraphDB).
 
 **Reasoning:** One DB for vectors + catalog metadata; GraphDB for graph query;
-file backend keeps `make test` / CI without Postgres.
+file backend keeps `make test` / CI without Postgres and mirrors folder names
+to the real stores.
 
-**Status:** Accepted 2026-10-12 (user directed cutover).
+**Status:** Accepted 2026-10-12; amended 2026-10-20 (DB-only + mirrored file layout).
 
 ---
 

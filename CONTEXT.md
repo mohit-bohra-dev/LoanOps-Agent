@@ -44,7 +44,7 @@
 | `packages/sse/` | OpenAPI catalog + live `call_sse_api` (replaces tools_api) |
 | `apps/web_ui/` | React + TypeScript rep UI (Vite + Tailwind v4) |
 | `data/golden.jsonl` | 5 Q&A smoke golden items (MCP tools); full 50 in `data/golden.full.jsonl` |
-| `data/sops/_confluence/` | Confluence SOP cache (gitignored; product corpus) |
+| `data/pipeline_store/` | File-mode store mirror only (`GraphDb`/`Postgres`/`Pgvector`); product uses DBs |
 | `data/loans.json` | 55 synthetic loans |
 
 ---
@@ -95,7 +95,7 @@
 | — | — | Discovery = EAKG only: `docs/EAKG_COMMITTED_VS_LOCAL.md` |
 | `EAKG__WORKSPACE_DIR` | `.eakg-workspace` | Cloned enterprise repos (gitignored) |
 | `EAKG__REGISTRY_PATH` | `data/eakg/registry/repositories.yaml` | Repository Registry |
-| `EAKG__SHARD_DIR` | `data/eakg` | Sharded Turtle/JSON store root |
+| `EAKG__SHARD_DIR` | `data/eakg` | Legacy seed root (registry/fixtures); file mode uses `EAKG_STORE__FILE_SHARD_DIR` |
 | `EAKG__GITLAB_HOST` | `gitlab.pnmac.com` | glab/SSH host for onboarding |
 | `EAKG__OPENAPI_MODE` | `hybrid` | `static` \| `hybrid` \| `live` OpenAPI enrichment |
 | `EAKG__LIVE_SPEC_TOKEN` | `""` | Bearer for live swagger fetch |
@@ -105,11 +105,11 @@
 | `EAKG__REVIEW_STALE_DAYS` | `14` | Weekly audit stale-proposal age |
 | `EAKG__TAAC_FIXTURE_PATH` | `data/eakg/fixtures/taac-client-config.redacted.json` | Redacted TAAC for CI |
 | `EAKG__EXTRACTOR` | `auto` | `auto`\|`roslyn`\|`regex` — Roslyn primary (D5) |
-| `EAKG__ENGINEERING_GRAPH` | `true` | Graphify AST → `data/eakg/repos/<id>/engineering/graph.json` on sync (non-fatal) |
+| `EAKG__ENGINEERING_GRAPH` | `true` | Graphify AST → Postgres eng table / `Postgres/engineering/` (file) |
 | `EAKG__ENVIRONMENT` | `local` | Registry env: `local` \| `dev` \| `stage` \| `prod` |
-| `EAKG_STORE__BACKEND` | `file` | `postgres` (product) \| `file` (tests) — ADR-027 |
+| `EAKG_STORE__BACKEND` | `file` | Code default `file` (tests); product `.env` → `postgres` — ADR-027 |
 | `EAKG_STORE__DSN` | `""` | Empty → `VECTOR_STORE__PGVECTOR_DSN` |
-| `EAKG_STORE__FILE_SHARD_DIR` | (shard dir) | File-backend root when `backend=file` |
+| `EAKG_STORE__FILE_SHARD_DIR` | `data/pipeline_store` | File-backend root (`GraphDb`/`Postgres`/`Pgvector`) |
 | `SSE__CATALOG_SOURCE` | `auto` | `auto` \| `registry` \| `swagger_links` \| `fixture`. `auto`: explicit swagger links, else registry with a usable spec, else fixture |
 | `SSE__USE_FIXTURE` | `true` | Legacy fixture switch. Does not override an explicit `SSE__CATALOG_SOURCE` |
 | `API_INDEX__ENABLED` | `false` | When true, `search_sse_apis` uses `ApiSearchService` (two-stage vector+keyword). Default keeps sidecar/keyword path |
@@ -135,7 +135,7 @@
 | `PROMPT_STORE__FILE_BASE_DIR` | `./docs` | Prompt file directory |
 | `DATA__LOAN_SOURCE` | `mock` | `mock` (fixtures) / `real` (Loan Services API) |
 | `DATA__SOP_SOURCE` | `local` | `local` / `confluence` / `both` |
-| `DATA__SOP_CONFLUENCE_MODE` | `cache` | `cache` (`data/sops/_confluence`) / `live` (Confluence REST) |
+| `DATA__SOP_CONFLUENCE_MODE` | `cache` | Product: `live` → Confluence → pgvector; `cache` → `Postgres/sop_page_cache` |
 | `DATA__MODE` | — | **Deprecated.** `mock`→loan mock+sop local; `real`→loan real+sop both+live |
 | `DATA__CONFLUENCE__BASE_URL` | `""` | Confluence site (e.g. `https://pennymac.atlassian.net`) |
 | `DATA__CONFLUENCE__USERNAME` | `""` | Atlassian account email |
@@ -144,7 +144,7 @@
 | `DATA__CONFLUENCE__ANCESTOR_IDS` | `[]` | Book page IDs (expand to leaf children) |
 | `DATA__CONFLUENCE__EXPAND_CHILDREN` | `true` | Expand ancestors to direct leaf children |
 | `DATA__CONFLUENCE__PII_SCRUB` | `regex` | `regex` / `presidio` / `off` |
-| `DATA__CONFLUENCE__ARTIFACT_DIR` | `data/sops/_confluence` | Local markdown cache (gitignored) |
+| `DATA__CONFLUENCE__ARTIFACT_DIR` | `data/pipeline_store/Postgres/sop_page_cache` | File-mode SOP bodies (not product truth) |
 
 > Loan answers: `search_sse_apis` → `call_sse_api` (live OpenAPI). No `apps/tools_api`.
 
