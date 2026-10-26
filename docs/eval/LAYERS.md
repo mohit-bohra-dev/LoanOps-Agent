@@ -142,7 +142,7 @@ Also in the original brief (full vision): capture runs as OTel spans (query, eac
 
 **Not** Layer 2 (set of tools, order ignored), Layer 3 (args), Layer 5 (answer text), or Layer 1 (protocol).
 
-**Status:** Designed / planned; **no dedicated runner package yet** (L2 “trajectories” file is tool-*selection* canned data, not L4).
+**Status:** Built. Docs: [layer4-trajectory.md](layer4-trajectory.md). Run: `make eval-l4`.
 
 ---
 
@@ -263,8 +263,9 @@ Each case should declare `eval_methods[]` (which checkers run), e.g.:
 
 1. `make eval-mcp-l1` — L1  
 2. `make eval-l2` — L2  
-3. Layer 3 arguments module — L3  
-4. `make eval` — L5-ish golden (citations / refusal / optional Ragas)
+3. `make eval-l3` — L3  
+4. `make eval-l4` — L4  
+5. `make eval` — L5-ish golden (citations / refusal / optional Ragas)
 
 ---
 
@@ -276,4 +277,5 @@ Each case should declare `eval_methods[]` (which checkers run), e.g.:
 | [layer1-mcp.md](layer1-mcp.md) | L1 how-to |
 | [layer2-tool-selection.md](layer2-tool-selection.md) | L2 how-to |
 | [layer3-arguments.md](layer3-arguments.md) | L3 how-to |
+| [layer4-trajectory.md](layer4-trajectory.md) | L4 how-to |
 | `packages/eval/thresholds.py` | Sacred golden thresholds (do not lower) |
