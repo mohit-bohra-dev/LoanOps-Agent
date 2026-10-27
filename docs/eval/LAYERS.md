@@ -162,9 +162,9 @@ Also in the original brief (full vision): capture runs as OTel spans (query, eac
 
 ### Locked portal rule
 
-**Include a small L5 set in the PoC.** An agent can pass L1–L4 and still give a wrong answer.
+**Include a small L5 set in the PoC.** An agent can pass L1–L4 and still give a wrong answer. Score groundedness + completeness vs tool-result strings (v1 writes out of scope).
 
-**Status:** Partial via `make eval` (citation coverage/groundedness, refusal; optional Ragas; latency). Thresholds in `packages/eval/thresholds.py` — **do not lower**. Full business-state checks still thin.
+**Status:** Built (deterministic canned + optional `--live` structural). Docs: [layer5-outcomes.md](layer5-outcomes.md). Run: `make eval-l5`. Existing `make eval` still owns Ragas / sacred thresholds — **do not lower**. Business-state mutation checks still out of scope.
 
 ---
 
