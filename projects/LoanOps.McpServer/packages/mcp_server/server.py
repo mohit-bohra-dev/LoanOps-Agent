@@ -119,6 +119,7 @@ async def _tool_span(
     role: str,
     user: str | None,
     tenant: str | None,
+    client_name: str | None = None,
 ) -> AsyncIterator[None]:
     """Fail-open span around a tool call; missing/broken telemetry still runs the tool."""
     if tel is None:
@@ -129,6 +130,7 @@ async def _tool_span(
         "role": role,
         "user": user or "",
         "tenant": tenant or "",
+        "mcp.client_name": client_name or "unknown",
     }
     try:
         cm = tel.span("mcp.tool.call", attributes=attrs)
@@ -244,6 +246,7 @@ async def execute_tool(
         role=settings.mcp.role,
         user=eff_user,
         tenant=eff_tenant,
+        client_name=settings.mcp.client_name or "unknown",
     ):
         try:
             # LAYER2-BP C2: MCP auth/scope then EAKG or ModularToolsClient

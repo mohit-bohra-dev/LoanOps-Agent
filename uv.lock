@@ -1600,6 +1600,7 @@ dependencies = [
     { name = "loanops-tools" },
     { name = "mcp" },
     { name = "numpy" },
+    { name = "pyyaml" },
     { name = "ragas" },
 ]
 
@@ -1611,6 +1612,7 @@ requires-dist = [
     { name = "loanops-tools", editable = "projects/LoanOps.Tools" },
     { name = "mcp", specifier = ">=1.27.1" },
     { name = "numpy", specifier = "<2" },
+    { name = "pyyaml", specifier = ">=6.0" },
     { name = "ragas", specifier = "==0.4.3" },
 ]
 

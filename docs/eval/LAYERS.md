@@ -192,7 +192,7 @@ Security failures are **hard / non-compensatory**.
 
 Nondeterministic cases: **N repeats + defined pass-rate threshold**.
 
-**Status:** Missing (no N-repeat harness yet).
+**Status:** Built. Docs: [layer7-robustness.md](layer7-robustness.md). Run: `make eval-l7`.
 
 ---
 
@@ -206,7 +206,7 @@ Nondeterministic cases: **N repeats + defined pass-rate threshold**.
 
 **Separate** production monitoring metrics from offline evaluation scores (connected dashboards, different stores/gates).
 
-**Status:** Missing as an eval layer (telemetry hooks exist; no prod-vs-offline split / alert thresholds in-repo).
+**Status:** Built (fixture traces + EvalStore; Langfuse optional). Docs: [layer8-operations.md](layer8-operations.md). Run: `make eval-l8`.
 
 ---
 
@@ -220,7 +220,7 @@ Nondeterministic cases: **N repeats + defined pass-rate threshold**.
 
 Dataset approval, **rubric versioning**, reviewer disagreement / adjudication.
 
-**Status:** Missing (no promotion workflow / rubric versions in-repo). Phase 3 in the original brief covers Golden JSONL fields, promotion PR flow, CI gates, `evals run --layer`, department reports.
+**Status:** Built (registry + rubrics + validate/sync/agreement/calibrate/promote). Docs: [layer9-governance.md](layer9-governance.md). Run: `make eval-l9`. ADR-032.
 
 ---
 
@@ -265,7 +265,13 @@ Each case should declare `eval_methods[]` (which checkers run), e.g.:
 2. `make eval-l2` — L2  
 3. `make eval-l3` — L3  
 4. `make eval-l4` — L4  
-5. `make eval` — L5-ish golden (citations / refusal / optional Ragas)
+5. `make eval-l5` — L5 outcomes (canned)
+6. `make eval-l7` — L7 robustness (canned replays)
+7. `make eval-l8` — L8 ops (fixture traces)
+8. `make eval-l9` — L9 governance validate
+9. `make eval` — golden Ragas / sacred thresholds (unchanged)
+
+Related: [layer5-outcomes.md](layer5-outcomes.md), [layer7-robustness.md](layer7-robustness.md), [layer8-operations.md](layer8-operations.md), [layer9-governance.md](layer9-governance.md).
 
 ---
 
@@ -278,4 +284,8 @@ Each case should declare `eval_methods[]` (which checkers run), e.g.:
 | [layer2-tool-selection.md](layer2-tool-selection.md) | L2 how-to |
 | [layer3-arguments.md](layer3-arguments.md) | L3 how-to |
 | [layer4-trajectory.md](layer4-trajectory.md) | L4 how-to |
+| [layer5-outcomes.md](layer5-outcomes.md) | L5 how-to |
+| [layer7-robustness.md](layer7-robustness.md) | L7 how-to |
+| [layer8-operations.md](layer8-operations.md) | L8 how-to |
+| [layer9-governance.md](layer9-governance.md) | L9 how-to |
 | `packages/eval/thresholds.py` | Sacred golden thresholds (do not lower) |

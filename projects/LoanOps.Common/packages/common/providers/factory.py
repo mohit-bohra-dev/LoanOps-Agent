@@ -32,6 +32,7 @@ from provider_contracts.pii import AbstractPiiProvider
 from provider_contracts.prompt_store import AbstractPromptStoreProvider
 from provider_contracts.reranker import AbstractRerankerProvider
 from provider_contracts.secrets import AbstractSecretsProvider
+from provider_contracts.eval_store import AbstractEvalStoreProvider
 from provider_contracts.telemetry import AbstractTelemetryProvider
 from provider_contracts.vector_store import AbstractVectorStoreProvider
 
@@ -346,12 +347,38 @@ def get_telemetry_provider() -> AbstractTelemetryProvider:
             public_key=cfg.telemetry.langfuse.public_key,
             secret_key=cfg.telemetry.langfuse.secret_key,
             host=cfg.telemetry.langfuse.host,
+            environment=cfg.telemetry.langfuse.environment,
         )
     if cfg.telemetry.provider == "appinsights":
         raise ProviderConfigError(
             "App Insights telemetry provider not yet implemented in provider_contracts"
         )
     raise ProviderConfigError(f"Unknown telemetry provider: {cfg.telemetry.provider}")
+
+
+@lru_cache(maxsize=1)
+def get_eval_store_provider() -> AbstractEvalStoreProvider:
+    """Return the configured eval store (ADR-032; 17th get_*)."""
+    cfg = _get_settings()
+    if cfg.eval_store.provider == "jsonl":
+        from provider_contracts.eval_store.jsonl import JsonlEvalStoreProvider
+
+        return JsonlEvalStoreProvider(directory=cfg.eval_store.jsonl_dir)
+    if cfg.eval_store.provider == "langfuse":
+        from provider_contracts.eval_store.langfuse import LangfuseEvalStoreProvider
+
+        lf = cfg.telemetry.langfuse
+        if lf is None:
+            raise ProviderConfigError(
+                "TELEMETRY__LANGFUSE config required when EVAL_STORE__PROVIDER=langfuse"
+            )
+        return LangfuseEvalStoreProvider(
+            public_key=lf.public_key,
+            secret_key=lf.secret_key,
+            host=lf.host,
+            environment=lf.environment,
+        )
+    raise ProviderConfigError(f"Unknown eval_store provider: {cfg.eval_store.provider}")
 
 
 @lru_cache(maxsize=1)

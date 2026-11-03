@@ -50,6 +50,14 @@ from packages.common.providers.agent_runtime import (
     AgentValidatorResult,
     ToolCallRecord,
 )
+from packages.common.providers.eval_store import (
+    DatasetItem,
+    EvalStoreProvider,
+    ReviewLabel,
+    RunHandle,
+    ScoreRecord,
+    TraceRecord,
+)
 from packages.common.providers.factory import (
     get_agent_runtime_provider,
     get_audit_sink_provider,
@@ -57,6 +65,7 @@ from packages.common.providers.factory import (
     get_content_safety_provider,
     get_credential_broker,
     get_embedding_provider,
+    get_eval_store_provider,
     get_graph_store,
     get_pii_provider,
     get_prompt_store_provider,
@@ -111,6 +120,12 @@ __all__ = [
     "SecretsProvider",
     "TelemetryProvider",
     "SpanContext",
+    "EvalStoreProvider",
+    "DatasetItem",
+    "ReviewLabel",
+    "RunHandle",
+    "ScoreRecord",
+    "TraceRecord",
     "ToolsClientProvider",
     "ToolCall",
     "ToolResult",
@@ -126,6 +141,7 @@ __all__ = [
     "get_audit_sink_provider",
     "get_secrets_provider",
     "get_telemetry_provider",
+    "get_eval_store_provider",
     "get_prompt_store_provider",
     "get_session_store_provider",
     "get_credential_broker",

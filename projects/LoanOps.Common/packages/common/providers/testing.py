@@ -17,9 +17,13 @@ from provider_contracts.prompt_store.mock import MockPromptStoreProvider
 from provider_contracts.reranker.mock import MockRerankerProvider
 from provider_contracts.secrets.mock import MockSecretsProvider
 from provider_contracts.session_store.mock import MockSessionStoreProvider
+from provider_contracts.eval_store.mock import MockEvalStoreProvider
 from provider_contracts.telemetry.mock import MockTelemetryProvider
 from provider_contracts.tools_client.mock import MockToolsClientProvider
 from provider_contracts.vector_store.mock import MockVectorStoreProvider
+
+# Alias matching plan naming (InMemoryEvalStore).
+InMemoryEvalStore = MockEvalStoreProvider
 
 __all__ = [
     "MockLLMProvider",
@@ -37,4 +41,6 @@ __all__ = [
     "MockCredentialBroker",
     "MockAgentRuntimeProvider",
     "FakeGraphStore",
+    "MockEvalStoreProvider",
+    "InMemoryEvalStore",
 ]

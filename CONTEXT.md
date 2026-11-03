@@ -19,6 +19,9 @@
 | `decisions.md` | Architecture Decision Records |
 | `logs.md` | Dated session log |
 | `Makefile` | `install`, `lint`, `test`, `ingest`, `eval`, `demo`, `down` |
+| `scripts/dev/start-stack.ps1` | Local full stack: SSO + M2M + GraphDB + MCP + Agent + UI |
+| `scripts/dev/stop-stack.ps1` | Stop Agent/MCP/UI (optional GraphDB) |
+| `scripts/dev/stack_ops.py` | `status` / `health` / `wait` / `refresh-index` |
 | `scripts/check_project_refs.py` | ProjectReference gate (loanops-* deps vs imports) |
 | `docs/01-servicing-agent-prompts.md` | Full project brief (source of truth) |
 | `docs/PRD.md` | Product requirements document |
@@ -81,6 +84,9 @@
 | `TELEMETRY__PROVIDER` | `console` | `console` / `langfuse` / `appinsights` — MCP + eval use this; Langfuse = self-hosted only |
 | `TELEMETRY__LANGFUSE__HOST` | `http://localhost:3000` | Native self-hosted Langfuse UI (no Docker required); not Langfuse Cloud |
 | `TELEMETRY__LANGFUSE__PUBLIC_KEY` / `SECRET_KEY` | `pk-lf-local` / `sk-lf-local` | Match compose `LANGFUSE_INIT_PROJECT_*` |
+| `TELEMETRY__LANGFUSE__ENVIRONMENT` | `local` | Separates prod MCP spans from offline `eval` scores (ADR-032 / L8) |
+| `EVAL_STORE__PROVIDER` | `jsonl` | `jsonl` / `langfuse` — L7–L9 datasets/runs/scores (ADR-032) |
+| `EVAL_STORE__JSONL_DIR` | `./out/eval_store` | Local EvalStore root when provider=jsonl |
 | `TOOLS_CLIENT__PROVIDER` | `modular` | `modular` (in-process) / `mcp` (Streamable HTTP → `:8001`, ADR-013) |
 | `AGENT_ROLE` | `system` | Role allow-list (`system`/`user`/`dev`/`pm`/…; `care_rep`=`user` alias) |
 | `MCP__HOST` / `MCP__PORT` / `MCP__PATH` | `127.0.0.1` / `8001` / `/mcp` | MCP listener bind + path |

@@ -1403,3 +1403,19 @@ Updated ARCHITECTURE, PRD, ANALYSIS, CONTEXT, demo/query docs, and STEP 4 in
 - Smoke: `describe_application` loanservices → 5 proxies; `search_code` Proxy hits; Facade → 0 (no *Facade* in AST)
 
 **Reason:** User: do 1-4 (graphify, sync, restart MCP, smoke ENG queries).
+
+## [2026-10-29] — Layers 7-9 on Langfuse (EvalStore)
+
+**Session type:** Eval layers
+
+**Completed:**
+- ADR-032: EvalStore provider (jsonl default + langfuse) for L7-L9
+- provider_contracts.eval_store + telemetry environment; MCP `mcp.client_name` on tool spans
+- L7 robustness (canned replays + Wilson pass-rate; `make eval-l7`)
+- L8 operations (fixture MCP traces + ops_slos.yaml; `make eval-l8`)
+- L9 governance (registry + rubrics + validate/sync/agreement/calibrate/promote; `make eval-l9`)
+- Sacred `thresholds.py` / `GoldenExpected` untouched
+
+**Risk:** Live Langfuse path needs running instance; CI uses jsonl/fixtures.
+
+**Next:** L6 security hard-fail suite; optional Langfuse dashboard wiring.

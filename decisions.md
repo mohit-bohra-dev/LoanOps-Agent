@@ -897,3 +897,33 @@ CI boundary keeps SDKs in `provider_contracts`.
 
 **Status:** Accepted. Supersedes ADR-001.
 
+
+## ADR-032 — EvalStore via Langfuse for Layers 7-9
+
+**Decision:** Langfuse is the eval system of record for L7 robustness, L8
+operations, and L9 governance, accessed only through a new
+`EvalStore` provider in `provider_contracts` (ABC + `langfuse` +
+`jsonl` + `mock`). LoanOps.Common exposes `get_eval_store_provider()`.
+Default provider is `jsonl` so CI and local demos need zero Langfuse
+credentials. Telemetry and eval scores are separated by Langfuse
+`environment` (`prod` vs `eval` / `local`).
+
+**Context:** Layers 1-5 are deterministic/canned runners. L7 needs N-repeat
+pass-rates, L8 needs prod MCP trace SLOs separate from offline scores, L9
+needs dataset approval, rubric versions, and adjudication. Langfuse is
+already the `langfuse` extra, backs `TelemetryProvider`, and receives
+MCP `mcp.tool.call` spans. Sacred `packages/eval/thresholds.py` must
+not change; L7 pass-rates and L8 SLOs live in new files.
+
+**Alternatives:** Promptfoo for L7 + Langfuse for L8/L9; DeepEval/Confident;
+Inspect AI; Braintrust; LangSmith datasets.
+
+**Reasoning:** One system covers datasets, experiment runs, scores, score
+configs (rubrics), annotation queues, and environments. Provider lockstep
+keeps the SDK out of domain packages. JSONL default preserves local-first.
+
+**New env vars:** `EVAL_STORE__PROVIDER` (`jsonl`|`langfuse`, default
+`jsonl`), `EVAL_STORE__JSONL_DIR` (default `./out/eval_store`),
+`TELEMETRY__LANGFUSE__ENVIRONMENT` (default `local`).
+
+**Status:** Accepted 2026-10-29 (plan implementation).

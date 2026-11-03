@@ -1,0 +1,7 @@
+name: tool_selection
+version: "1"
+data_type: CATEGORICAL
+categories:
+  - pass
+  - fail
+description: Correct tool set chosen (L2).

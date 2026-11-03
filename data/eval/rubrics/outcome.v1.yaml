@@ -1,0 +1,7 @@
+name: outcome
+version: "1"
+data_type: CATEGORICAL
+categories:
+  - pass
+  - fail
+description: Final answer grounded and structurally correct (L5).

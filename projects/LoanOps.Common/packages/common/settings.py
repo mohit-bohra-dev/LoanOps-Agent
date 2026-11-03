@@ -214,11 +214,20 @@ class LangfuseConfig(BaseModel):
     secret_key: str = "sk-lf-local"
     host: str = "http://localhost:3000"
     flush_on_shutdown: bool = True
+    # Separates prod MCP spans from offline eval scores (ADR-032 / L8).
+    environment: str = "local"
 
 
 class TelemetryConfig(BaseModel):
     provider: Literal["console", "appinsights", "langfuse"] = "console"
     langfuse: LangfuseConfig | None = None
+
+
+class EvalStoreConfig(BaseModel):
+    """L7–L9 eval system of record (ADR-032). Default jsonl = zero credentials."""
+
+    provider: Literal["jsonl", "langfuse"] = "jsonl"
+    jsonl_dir: str = "./out/eval_store"
 
 
 class ToolsClientConfig(BaseModel):
@@ -296,6 +305,8 @@ class McpConfig(BaseModel):
     # Not a substitute for OBO; SSE__API_KEY remains the service bearer.
     principal_user: str = ""
     principal_tenant: str = ""
+    # Default mcp.client_name on tool spans when initialize clientInfo is absent.
+    client_name: str = "unknown"
 
 
 class CapabilityKgConfig(BaseModel):
@@ -420,6 +431,7 @@ class Settings(BaseSettings):
     audit: AuditConfig = Field(default_factory=AuditConfig)
     secrets: SecretsConfig = Field(default_factory=SecretsConfig)
     telemetry: TelemetryConfig = Field(default_factory=TelemetryConfig)
+    eval_store: EvalStoreConfig = Field(default_factory=EvalStoreConfig)
     tools_client: ToolsClientConfig = Field(default_factory=ToolsClientConfig)
     prompt_store: PromptStoreConfig = Field(default_factory=PromptStoreConfig)
     session_store: SessionStoreConfig = Field(default_factory=SessionStoreConfig)

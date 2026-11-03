@@ -1,0 +1,27 @@
+# Layer 8 operations SLOs — separate from sacred packages/eval/thresholds.py
+window_hours: 24
+min_sample_size: 5
+sample_rate: 0.05
+max_drift_delta: 0.15
+review_queue: loanops-ops-review
+default:
+  p95_latency_ms: 2000
+  error_rate: 0.05
+  is_error_rate: 0.05
+tools:
+  search_docs:
+    p95_latency_ms: 1500
+    error_rate: 0.05
+    is_error_rate: 0.05
+  search_sse_apis:
+    p95_latency_ms: 1500
+    error_rate: 0.05
+    is_error_rate: 0.05
+  call_sse_api:
+    p95_latency_ms: 2500
+    error_rate: 0.08
+    is_error_rate: 0.08
+  list_sse_apis:
+    p95_latency_ms: 1000
+    error_rate: 0.05
+    is_error_rate: 0.05

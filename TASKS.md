@@ -225,3 +225,6 @@ Use these instead of treating every open checkbox as equal priority.
 - [ ] Operator follow-up: live SC-006 smoke with per-app `APP_TOKEN_*` when tokens available
 - [ ] Enable `API_INDEX__ENABLED=true` in shared envs after index build; non-static broker when OQ-1 decided
 
+
+- [x] Layers 7-9 EvalStore/Langfuse (ADR-032) — L7 robustness, L8 ops, L9 governance (2026-10-29)
+
