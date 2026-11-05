@@ -1,13 +1,105 @@
-# MCP / SSE smoke queries (loan 1000002245)
-# Paste into Cursor→MCP or Agent /chat. Expect search_* then call_sse_api (or capability tools).
+# Working query log — MCP / Agent /chat
+# Loan under test: 1000002245
+# Status: OK = search → call_sse_api + real data | PARTIAL = tools fired, bad op/404 | FAIL | UNTESTED
+# Update this file when a free-form or paste query proves out.
+
+## Verified working (OK)
+
+# Forced / explicit escrow path (earlier session) — call_sse_api GetEscrowByLoanNumber
+3. Get escrow details for loan 1000002245
+   OK — live escrow payload when operation_id resolves to escrow GetEscrowByLoanNumber
+
+## Free-form planning (post OpenAPI-first + discovery nudge)
+
+F1. Why did escrow jump on loan 1000002245?
+   PARTIAL — 2026-11-05: search_sse_apis → call_sse_api auto; picked loanservices:GET_api_escrows_id → 404
+   (ApiIndex rank miss vs escrow:GetEscrowByLoanNumber). Planning fix OK; ranking still weak for query "escrow".
+
+## Smoke set (paste into /chat or MCP) — re-verify after stack recycle
 
 1. Show me the loan summary for 1000002245
-2. What are the payment schedules for loan 1000002245?
-3. Get escrow details for loan 1000002245
-4. What fees apply for loan 1000002245?
-5. Which app provides GetLoanSummary? Explain it.
+   UNTESTED — expect search_sse_apis → call_sse_api (GetLoanSummary / similar)
 
-# ENG — interface surface (describe_application) + AST (search_code after sync)
+2. Show payment schedule for loan 1000002245
+   OK — 2026-11-05: search_sse_apis → call_sse_api loanservices:GET_api_loans_id_paymentschedules → 200
+   trace 0246a0efa79f2a1f8518917e873c3b00. Wording tested was "Show payment schedule…", not "What are the payment schedules…".
+
+4. What fees apply for loan 1000002245?
+   UNTESTED
+
+5. Which app provides GetLoanSummary? Explain it.
+   OK — 2026-11-05: find_providers GetLoanSummary → explain_capability GetLoanSummary
+   loanservices GET LoansController.GetLoanSummary. trace 039846ee18abc4d87f721e2341c47349
+
+## ENG — interface surface + AST
+
 6. Does loanservices use outbound proxies? List them.
+   OK — 2026-11-05: describe_application loanservices → graph proxies
+   BulkUploadProxy, LampApiProxy, EscrowApiProxy, CashApiProxy, LafaApiProxy
+   trace 604f30b868e2822d51b2a673aa2ad71f
+   Earlier same day FAIL (search_docs only) trace 8ac598162251d0fe6a4b7cd92047cb46
+
 7. Describe the loanservices application interface (proxies, packages, topics).
+   OK — 2026-11-05: describe_application loanservices → proxies/packages/topics
+   trace de7ff71ca11bc5d8d091687cdf6865a4
+
 8. Does loanservices use any Facades? List them.
+   PARTIAL — 2026-11-05: search_code loanservices query Facade fired; engineering graph missing
+   (needs EAKG__ENGINEERING_GRAPH onboard). trace d65d1a76dd2f9fc8b4153040c130978a
+
+9. Which applications depend on the escrow API?
+   OK — 2026-11-05: impact_of_change target "escrow API" → empty dependents (tool OK)
+   trace 8b0c136ada27ee1243f83d203855e5e3
+
+## Source coverage set — one query per knowledge source the /chat agent can reach
+# /chat tools: search_sse_apis, list_sse_apis, call_sse_api, describe_application,
+#   search_capabilities, explain_capability, find_providers, impact_of_change,
+#   search_code, search_docs.
+# Expect = tool(s) the agent should call. Mark OK/PARTIAL/FAIL + trace id after each run.
+
+S1. Live loan API (call_sse_api) — Show me the loan summary for 1000002245
+   Expect: search_sse_apis → call_sse_api loanservices loan summary. UNTESTED
+
+S2. Live loan API, second app (escrow) — Get escrow details for loan 1000002245
+   Expect: search_sse_apis → call_sse_api escrow GetEscrowByLoanNumber. OK (trace 655680b6746c1f6e5bf6f10eed0891ca)
+
+S3. ApiIndex search only (search_sse_apis) — Which API returns the payment schedule for a loan? Don't call it.
+   Expect: search_sse_apis only; answer names loanservices GET /api/Loans/{id}/PaymentSchedules. UNTESTED
+
+S4. Catalog listing (list_sse_apis) — List the operations available in the Fees app.
+   Expect: list_sse_apis source_label Fees. UNTESTED
+
+S5. EAKG capability block (inside search_sse_apis) — Which application provides escrow disbursement capabilities?
+   Expect: search_sse_apis; answer uses the "Capabilities (EAKG)" block (application: escrow). UNTESTED
+
+S6. EAKG interface graph (describe_application) — Does loanservices use outbound proxies? List them.
+   Expect: describe_application loanservices. OK (trace 604f30b868e2822d51b2a673aa2ad71f)
+
+S7. EAKG interface graph, other surface — Which SDK packages and event topics does escrow use?
+   Expect: describe_application escrow → packages + topics. UNTESTED
+
+S8. SOP docs (search_docs) — What is the procedure for an escrow dispute?
+   Expect: search_docs → escrow/escrow-dispute.md, citation tool:search_docs. UNTESTED
+
+S9. SOP docs, state policy — What does the California policy say about late fees?
+   PARTIAL — 2026-11-05: search_docs x2 query "California policy on late fees" (top_k 3).
+   Hit hardship/disaster-forbearance-plan-procedure.md (score 0.279, "CA Disaster"), not state-specific/california-policy.md.
+   Model refused: no specific California late-fee policy. Citations tool:search_docs.
+   trace 80c4bf0b1518fe83665cad2b435610c5
+
+S10. SOP docs, hardship — What forbearance options exist for military borrowers (SCRA)?
+   Expect: search_docs → hardship/military-scra.md. UNTESTED
+
+S11. Docs + live API together — Loan 1000002245 escrow jumped. Pull the escrow record and explain what the annual analysis SOP says.
+   Expect: search_sse_apis → call_sse_api escrow + search_docs escrow/annual-analysis.md. UNTESTED
+
+S12. Interface + docs together — Which apps does loanservices call outbound, and is there an SOP for escrow disbursements?
+   Expect: describe_application loanservices + search_docs escrow/escrow-disbursements.md. UNTESTED
+
+# Still not wired into /chat (or search expansion):
+#  process KG (hasStep edges), GraphRAG communities (GRAPHRAG__ENABLED default off).
+
+## How to log
+# After a good run, flip UNTESTED → OK and one line: date, tools called, op id, note.
+# PARTIAL/FAIL: keep failing op id + error so next pass knows what broke.
+# Question-type checklist: docs/query-checklist.md

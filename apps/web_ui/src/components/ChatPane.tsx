@@ -11,13 +11,13 @@ interface Message {
   output?: AgentTurnOutput;
 }
 
-export function ChatPane({ activeLoanId }: { activeLoanId?: string }) {
+export function ChatPane() {
   const [sessionId, setSessionId] = useState(() => crypto.randomUUID());
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "init",
       role: "agent",
-      text: "Hello. I am the Servicing Agent. How can I assist you with this borrower today?",
+      text: "Hello. I am the Servicing Agent. How can I assist you today?",
     }
   ]);
   const [input, setInput] = useState("");
@@ -81,7 +81,7 @@ export function ChatPane({ activeLoanId }: { activeLoanId?: string }) {
       {
         id: "init",
         role: "agent",
-        text: "Hello. I am the Servicing Agent. How can I assist you with this borrower today?",
+        text: "Hello. I am the Servicing Agent. How can I assist you today?",
       }
     ]);
   };
@@ -113,7 +113,6 @@ export function ChatPane({ activeLoanId }: { activeLoanId?: string }) {
           message: userText,
           session_id: sessionId,
           rep_id: "rep-456",
-          loan_id: activeLoanId,
         }),
       });
 

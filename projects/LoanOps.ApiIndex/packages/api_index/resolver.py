@@ -22,6 +22,12 @@ def _aliases(rec: UnifiedOperation) -> set[str]:
     if rec.eakg_operation_key:
         out.add(f"{app}:{alias_key(rec.eakg_operation_key)}")
         out.add(alias_key(rec.eakg_operation_key))
+    # Path tail (e.g. /api/Escrow/GetEscrowByLoanNumber) — agents often pass this name
+    # when OpenAPI has no operationId and public_id is method_path slug.
+    path_tail = (rec.path or "").rstrip("/").split("/")[-1]
+    if path_tail and "{" not in path_tail:
+        out.add(alias_key(path_tail))
+        out.add(f"{app}:{alias_key(path_tail)}")
     for cid in rec.capability_ids:
         out.add(alias_key(cid))
     return out

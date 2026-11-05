@@ -194,6 +194,66 @@ class TestOutputParser:
         with pytest.raises(AgentParseError):
             parse_agent_output("Just some regular text without any JSON object.")
 
+    def test_normalize_explanation_alias_with_tools(self) -> None:
+        """Post-tool JSON using explanation + missing confidence should parse."""
+        from packages.common.schemas import ToolCallItem
+
+        raw = json.dumps(
+            {
+                "explanation": "Escrow pending monthly amount is 280.24.",
+                "citations": [{"source": "tool:call_sse_api", "snippet": "Pending=280.24"}],
+            }
+        )
+        tools = [
+            ToolCallItem(
+                name="call_sse_api",
+                args={"operation_id": "GetEscrowByLoanNumber"},
+                result_summary='{"ok": true, "status": 200}',
+            )
+        ]
+        result = parse_agent_output(raw, tools)
+        assert result.answer.startswith("Escrow pending")
+        assert result.confidence == 0.85
+        assert result.refusal is None
+        assert result.requires_human_approval is True
+
+    def test_normalize_dict_answer_with_tools(self) -> None:
+        from packages.common.schemas import ToolCallItem
+
+        raw = json.dumps(
+            {
+                "answer": {
+                    "LastEscrowAnalysisDate": "2014-03-01T00:00:00",
+                    "PendingTotalAndInterestMonthlyAmount": 280.24,
+                },
+                "citations": [],
+            }
+        )
+        tools = [
+            ToolCallItem(
+                name="call_sse_api",
+                args={},
+                result_summary="ok",
+            )
+        ]
+        result = parse_agent_output(raw, tools)
+        assert "LastEscrowAnalysisDate" in result.answer
+        assert "280.24" in result.answer
+        assert result.confidence == 0.85
+
+    def test_normalize_error_object_to_refusal_with_tools(self) -> None:
+        from packages.common.schemas import ToolCallItem
+
+        raw = json.dumps({"error": "Insufficient data to analyze escrow jumps."})
+        tools = [
+            ToolCallItem(name="call_sse_api", args={}, result_summary="ok")
+        ]
+        result = parse_agent_output(raw, tools)
+        assert result.answer == ""
+        assert result.refusal is not None
+        assert "Insufficient data" in result.refusal
+        assert result.confidence == 0.0
+
 
 # ── Prompt Loader Tests ────────────────────────────────────────────────────
 
@@ -504,3 +564,195 @@ async def test_agent_turn_via_mcp_tools_client(
     assert result.tool_calls[0].name == "search_sse_apis"
     assert "getLoanSummary" in result.tool_calls[0].result_summary
     assert session.calls == [("search_sse_apis", {"query": "loan summary"})]
+
+
+def test_eakg_tools_are_advertised() -> None:
+    from packages.agent_core._agent import _SSE_ANSWER_TOOLS, _tools_for_client
+    from packages.common.scopes import tools_for_role
+
+    names = [t.name for t in _SSE_ANSWER_TOOLS]
+    for expected in (
+        "describe_application",
+        "search_capabilities",
+        "explain_capability",
+        "find_providers",
+        "impact_of_change",
+        "search_code",
+    ):
+        assert expected in names
+
+    class _Scoped:
+        allowed_tools = tools_for_role("system")
+
+    filtered = {t.name for t in _tools_for_client(_Scoped())}  # type: ignore[arg-type]
+    for expected in (
+        "describe_application",
+        "search_capabilities",
+        "explain_capability",
+        "find_providers",
+        "impact_of_change",
+        "search_code",
+    ):
+        assert expected in filtered
+
+
+def test_tool_result_text_unwraps_dict_text() -> None:
+    from packages.agent_core._agent import _normalize_legacy_tool_names, _tool_result_text
+
+    assert _tool_result_text({"text": "line1\nline2"}) == "line1\nline2"
+    assert _tool_result_text("plain") == "plain"
+    assert _tool_result_text({"n": 1}) == str({"n": 1})
+    normalized = _normalize_legacy_tool_names(
+        "Call lookup_loan then get_escrow_breakdown; use search_policy."
+    )
+    assert "lookup_loan" not in normalized
+    assert "get_escrow_breakdown" not in normalized
+    assert "search_policy" not in normalized
+    assert "search_sse_apis" in normalized
+    assert "call_sse_api" in normalized
+    assert "search_docs" in normalized
+
+
+@pytest.mark.asyncio
+async def test_execute_tools_unwraps_text_payload(
+    mock_tools_client: MockToolsClientProvider,
+) -> None:
+    from packages.agent_core._agent import _execute_tools
+    from packages.common.providers import ToolCallRequest, ToolResult
+
+    mock_tools_client.register(
+        "search_sse_apis",
+        ToolResult(
+            tool_name="search_sse_apis",
+            success=True,
+            data={"text": "OpenAPI operations:\n- id: escrow:GetEscrow"},
+        ),
+    )
+    items = await _execute_tools(
+        [ToolCallRequest(name="search_sse_apis", arguments={"query": "escrow"})],
+        mock_tools_client,
+    )
+    assert items[0].result_summary.startswith("OpenAPI operations:")
+    assert "{'text'" not in items[0].result_summary
+
+
+@pytest.mark.asyncio
+async def test_free_form_loan_query_nudged_to_call_sse_api(
+    mock_prompt_store: MockPromptStoreProvider,
+) -> None:
+    """Discovery-only stop on a loan query must be nudged into call_sse_api."""
+    from packages.common.providers import ToolCallRequest, ToolResult
+
+    tools = MockToolsClientProvider()
+    tools.register(
+        "search_sse_apis",
+        ToolResult(
+            tool_name="search_sse_apis",
+            success=True,
+            data={
+                "text": (
+                    "OpenAPI operations:\n"
+                    "- id: escrow:GetEscrowByLoanNumber"
+                )
+            },
+        ),
+    )
+    tools.register(
+        "call_sse_api",
+        ToolResult(
+            tool_name="call_sse_api",
+            success=True,
+            data={"text": '{"monthlyEscrow": 615.30}'},
+        ),
+    )
+    tools.register(
+        "list_sse_apis",
+        ToolResult(tool_name="list_sse_apis", success=True, data={"text": "ok"}),
+    )
+    tools.register(
+        "search_docs",
+        ToolResult(tool_name="search_docs", success=True, data={"text": "ok"}),
+    )
+
+    call_count = 0
+    saw_nudge = False
+
+    async def scripted_chat(
+        self: MockLLMProvider,
+        messages: list[LLMMessage],
+        *,
+        temperature: float = 0.7,
+        max_tokens: int = 2048,
+        json_mode: bool = False,
+        **kwargs: Any,
+    ) -> LLMResponse:
+        nonlocal call_count, saw_nudge
+        call_count += 1
+        blob = "\n".join(str(m.content or "") for m in messages)
+        if "have NOT fetched live data yet" in blob:
+            saw_nudge = True
+        tools_arg = kwargs.get("tools")
+        if tools_arg and call_count == 1:
+            return LLMResponse(
+                content="",
+                model="mock",
+                tool_calls=[
+                    ToolCallRequest(
+                        name="search_sse_apis",
+                        arguments={"query": "escrow jump"},
+                    ),
+                ],
+            )
+        if tools_arg and call_count == 2 and not saw_nudge:
+            return LLMResponse(
+                content="I need to search the documentation for escrow changes.",
+                model="mock",
+            )
+        if tools_arg and saw_nudge:
+            has_invoke = any(
+                "[call_sse_api]" in str(m.content or "") for m in messages
+            )
+            if not has_invoke:
+                return LLMResponse(
+                    content="",
+                    model="mock",
+                    tool_calls=[
+                        ToolCallRequest(
+                            name="call_sse_api",
+                            arguments={
+                                "operation_id": "escrow:GetEscrowByLoanNumber",
+                                "query": {"loanNumber": "1000002245"},
+                            },
+                        ),
+                    ],
+                )
+        return LLMResponse(
+            content=build_valid_json_output(
+                answer="Escrow rose due to tax reassessment.",
+                confidence=0.9,
+                citations=[
+                    {
+                        "id": 1,
+                        "source": "tool:call_sse_api",
+                        "snippet": "monthlyEscrow=615.30",
+                    }
+                ],
+            ),
+            model="mock",
+        )
+
+    chat = MockLLMProvider()
+    chat.chat = MethodType(scripted_chat, chat)  # type: ignore[method-assign]
+
+    result = await run_agent_turn(
+        prompt="Why did escrow jump on loan 1000002245?",
+        chat_provider=chat,
+        tools_client=tools,
+        prompt_store=mock_prompt_store,
+    )
+
+    names = [t.name for t in result.tool_calls]
+    assert "search_sse_apis" in names
+    assert "call_sse_api" in names
+    assert saw_nudge is True
+    assert "Escrow rose" in result.answer

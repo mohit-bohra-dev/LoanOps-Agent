@@ -394,13 +394,32 @@ Governance:
 
 ---
 
-## 9. Immediate next actions (when implementation approved)
+## 9. Portal blueprint (locked) — 2026-11-03
 
-1. ADR/approval: AgentCore → TelemetryProvider spans.  
-2. Spec stub: Layer 6 safety eval + retrieval eval harness (Promp under `.ai/specs/`).  
-3. Product decision: agent tool surface vs MCP-complete.  
-4. Ship `POST /feedback` + reason codes (smallest closed loop).  
-5. Restore CI eval gates on GitHub.
+Product name: **Enterprise AI Evaluation & Improvement Platform**.
+
+**Workflow:** Test → Observe → Review → Discover → Diagnose → Improve → Validate.  
+**Portal IA:** Observe / Evaluate / Learn ([Arize](https://arize.com/) UX patterns only; Langfuse + EvalStore remain SoR per ADR-032).  
+**Rule:** Error analysis and failure taxonomy before proliferating LLM judges.
+
+### Spec package (authoritative for implementation)
+
+| Artifact | Path |
+|---|---|
+| README | [`.ai/specs/eval-improvement-platform/README.md`](../../.ai/specs/eval-improvement-platform/README.md) |
+| Story (WHAT/WHY) | [`.ai/specs/eval-improvement-platform/eval-improvement-platform.story.md`](../../.ai/specs/eval-improvement-platform/eval-improvement-platform.story.md) |
+| Spec (HOW) | [`.ai/specs/eval-improvement-platform/eval-improvement-platform.spec.md`](../../.ai/specs/eval-improvement-platform/eval-improvement-platform.spec.md) |
+| Plan | [`.ai/specs/eval-improvement-platform/eval-improvement-platform.plan.md`](../../.ai/specs/eval-improvement-platform/eval-improvement-platform.plan.md) |
+
+This assessment remains the evidence-based gap analysis. The Promp package is the build contract.
+
+## 10. Immediate next actions (when implementation approved)
+
+1. Execute plan Phase 1: approval for AgentCore → TelemetryProvider spans.  
+2. Ship `AgentTrace` + taxonomy + `POST /eval/feedback`.  
+3. Retrieval harness + L6 skeleton + CI eval-gate workflow.  
+4. Thin Observe/Evaluate/Learn portal shell.  
+5. Product decision (parallel): agent tool surface vs MCP-complete.
 
 ---
 

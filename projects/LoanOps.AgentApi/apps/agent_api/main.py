@@ -17,6 +17,7 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from typing import Any
 
+from apps.agent_api.eval_routes import router as eval_router
 from apps.agent_api.mcp_routes import router as mcp_router
 from apps.agent_api.models import (
     AuditRecord,
@@ -172,6 +173,7 @@ app.add_middleware(
 )
 
 app.include_router(mcp_router)
+app.include_router(eval_router)
 
 
 # ---------------------------------------------------------------------------
@@ -288,6 +290,9 @@ async def chat(request: ChatRequest) -> StreamingResponse:
                 history=history,
                 pii_token_map=pii_token_map,
             )
+            # Prefer agent-emitted trace_id; fall back to turn_id
+            if not output.trace_id:
+                output = output.model_copy(update={"trace_id": turn_id})
 
             # 2.1 Detokenize the final answer for the rep (they already know the names)
             if pii_token_map:
@@ -338,6 +343,31 @@ async def chat(request: ChatRequest) -> StreamingResponse:
 
             latency_ms = round((time.perf_counter() - t0) * 1000, 2)
             output_dict = output.model_dump()
+
+            # 2.6 Persist AgentTrace for Observe / feedback (fail-open)
+            try:
+                from packages.eval.traces import build_agent_trace, persist_agent_trace
+
+                lf = get_settings().telemetry.langfuse
+                env = lf.environment if lf is not None else "local"
+                if env not in ("prod", "eval", "local"):
+                    env = "local"
+                persist_agent_trace(
+                    build_agent_trace(
+                        trace_id=output.trace_id or turn_id,
+                        user_query=sanitize_result.anonymized_text,
+                        answer=output.answer,
+                        citations=output.citations,
+                        tool_calls=output.tool_calls,
+                        refusal=output.refusal,
+                        escalation=output.escalation,
+                        environment=env,  # type: ignore[arg-type]
+                        session_id=request.session_id,
+                        latency_ms=latency_ms,
+                    )
+                )
+            except Exception:  # noqa: BLE001
+                pass
 
             # 3. Build audit record (always uses redacted prompt — no real PII)
             audit_payload = AuditRecord(

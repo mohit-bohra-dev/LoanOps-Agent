@@ -55,6 +55,22 @@ def test_aliases_resolve_short_and_qualified() -> None:
         assert hit.public_id == "loanservices:getLoanSummary"
 
 
+def test_resolve_by_openapi_path_tail_when_public_id_is_slug() -> None:
+    """Agents pass GetEscrowByLoanNumber when swagger has no operationId."""
+    resolver = OperationResolver(
+        [
+            _op(
+                app="escrow",
+                public_id="escrow:GET_api_escrow_getescrowbyloannumber",
+                path="/api/Escrow/GetEscrowByLoanNumber",
+            )
+        ]
+    )
+    hit = resolver.resolve("GetEscrowByLoanNumber")
+    assert isinstance(hit, Resolved)
+    assert hit.public_id == "escrow:GET_api_escrow_getescrowbyloannumber"
+
+
 def test_ambiguous_when_two_apps_share_short_name() -> None:
     resolver = OperationResolver(
         [

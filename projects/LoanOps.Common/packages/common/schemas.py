@@ -131,3 +131,4 @@ class AgentTurnOutput(BaseModel):
     confidence: float
     refusal: str | None = None
     escalation: EscalationItem | None = None
+    trace_id: str | None = None

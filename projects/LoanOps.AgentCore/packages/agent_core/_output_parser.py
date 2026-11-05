@@ -21,6 +21,12 @@ _TOOL_NAMES = frozenset(
         "list_sse_apis",
         "call_sse_api",
         "search_docs",
+        "describe_application",
+        "search_capabilities",
+        "explain_capability",
+        "find_providers",
+        "impact_of_change",
+        "search_code",
         "index_docs",
         # Legacy loan fixtures still referenced in older golden / tests:
         "lookup_loan",
@@ -77,6 +83,106 @@ def _strip_thinking_tags(text: str) -> str:
     JSON extractor can find the real payload.
     """
     return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+
+
+_ANSWER_ALIASES = ("explanation", "response", "summary", "message", "draft", "reply")
+
+
+def _stringify_answer(value: Any) -> str:
+    """Coerce non-string model answers into readable prose."""
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict):
+        # Prefer nested prose keys, else bulletize
+        for key in ("answer", "text", "summary", "explanation", "message"):
+            nested = value.get(key)
+            if isinstance(nested, str) and nested.strip():
+                return nested
+        lines = [f"- {k}: {v}" for k, v in value.items() if v is not None]
+        return "\n".join(lines)
+    if isinstance(value, list):
+        parts: list[str] = []
+        for item in value:
+            if isinstance(item, str):
+                parts.append(f"- {item}")
+            else:
+                parts.append(f"- {json.dumps(item, default=str)}")
+        return "\n".join(parts)
+    return str(value)
+
+
+def _normalize_turn_payload(
+    data: dict[str, Any],
+    recorded_tools: list[Any] | None,
+) -> None:
+    """Best-effort schema repair for smaller models after tool rounds.
+
+    Soft fixes always apply. Defaults for confidence / requires_human_approval
+    only when *recorded_tools* is not None (live agent validation path), so
+    strict unit tests with recorded_tools=None still catch missing fields.
+    """
+    # Alias keys → answer
+    if "answer" not in data or data.get("answer") in (None,):
+        for alias in _ANSWER_ALIASES:
+            if alias in data and data[alias] not in (None, ""):
+                data["answer"] = data[alias]
+                break
+
+    if "answer" in data and not isinstance(data.get("answer"), str):
+        data["answer"] = _stringify_answer(data.get("answer"))
+
+    # {"error": "..."} with empty answer → refusal
+    err = data.get("error")
+    answer = data.get("answer")
+    if (
+        isinstance(err, str)
+        and err.strip()
+        and not data.get("refusal")
+        and (answer in (None, "") or not str(answer).strip())
+    ):
+        data["answer"] = ""
+        data["refusal"] = err.strip()
+        data["confidence"] = 0.0
+
+    # Citation snippet must be a string
+    citations = data.get("citations")
+    if isinstance(citations, list):
+        for cite in citations:
+            if not isinstance(cite, dict):
+                continue
+            snip = cite.get("snippet")
+            if snip is None:
+                cite["snippet"] = ""
+            elif not isinstance(snip, str):
+                cite["snippet"] = str(snip)
+
+    if recorded_tools is None:
+        return
+
+    data["requires_human_approval"] = True
+    if "confidence" not in data or data.get("confidence") is None:
+        refusal = data.get("refusal")
+        ans = data.get("answer") or ""
+        if refusal or not str(ans).strip():
+            data["confidence"] = 0.0
+        else:
+            data["confidence"] = 0.85
+    else:
+        try:
+            data["confidence"] = float(data["confidence"])
+        except (TypeError, ValueError):
+            data["confidence"] = 0.85 if (data.get("answer") or "").strip() else 0.0
+
+    if "citations" not in data or data.get("citations") is None:
+        data["citations"] = []
+    if "answer" not in data:
+        data["answer"] = ""
+    if "refusal" not in data:
+        data["refusal"] = None
+    if "escalation" not in data:
+        data["escalation"] = None
 
 
 def _fix_citations(data: dict[str, Any], recorded_tools: list[Any] | None = None) -> None:
@@ -148,6 +254,7 @@ def parse_agent_output(raw: str, recorded_tools: list[Any] | None = None) -> Age
         raise AgentParseError(f"Invalid JSON: {exc}", raw) from exc
 
     # Best-effort fixups for smaller local models before Pydantic validation
+    _normalize_turn_payload(data, recorded_tools)
     _fix_citations(data, recorded_tools)
     ground_citations(data, recorded_tools)
 

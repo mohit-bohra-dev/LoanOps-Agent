@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from collections.abc import Awaitable, Callable
 from typing import Any
@@ -210,6 +211,27 @@ def resolve_invoke_target(
     )
 
 
+_OPENAPI_INVOKE_HINT = (
+    "To fetch live data, call call_sse_api with an operation_id and params below:"
+)
+
+
+def _assemble_search_parts(
+    *,
+    openapi_body: str | None,
+    kg_block: str | None,
+) -> str:
+    """OpenAPI hits first (actionable), EAKG capabilities after (context only)."""
+    parts: list[str] = []
+    if openapi_body:
+        parts.append(f"{_OPENAPI_INVOKE_HINT}\n{openapi_body}")
+    if kg_block:
+        parts.append(kg_block)
+    if not parts:
+        return "No matching SSE API operations."
+    return "\n\n".join(parts)
+
+
 async def handle_search_sse_apis(
     service: OpenApiCatalogService,
     args: dict[str, Any],
@@ -226,9 +248,10 @@ async def handle_search_sse_apis(
     permission_s = str(permission).strip() if isinstance(permission, str) and permission.strip() else None
     application_ids = _application_ids(args)
 
+    # Cap EAKG rows so noisy alphabetical SPARQL hits do not drown OpenAPI ops.
     kg_block: str | None = None
     if capability_block is not None:
-        kg_block = await capability_block(query, limit)
+        kg_block = await capability_block(query, min(limit, 5))
 
     if api_search is not None:
         # Duck-typed ApiSearchService — sse must not import api_index (dep direction).
@@ -247,12 +270,8 @@ async def handle_search_sse_apis(
         hits = getattr(outcome, "hits", None) or []
         if not hits and not kg_block:
             return "No matching SSE API operations."
-        parts: list[str] = []
-        if kg_block:
-            parts.append(kg_block)
-        if hits:
-            parts.append(body)
-        return "\n\n".join(parts)
+        openapi_body = body if hits else None
+        return _assemble_search_parts(openapi_body=openapi_body, kg_block=kg_block)
 
     embed_fn = embed if embed is not None else _live_embed()
     hits, used_semantic = await search_operations_with_embeddings(
@@ -265,15 +284,23 @@ async def handle_search_sse_apis(
     )
     if not hits and not kg_block:
         return "No matching SSE API operations."
-    parts = []
-    if kg_block:
-        parts.append(kg_block)
+    openapi_body: str | None = None
     if hits:
         header = "OpenAPI operations:"
         if not used_semantic:
             header = "(keyword search — embeddings unavailable)\n" + header
-        parts.append(header + "\n" + "\n".join(summarize_operation(op) for op in hits))
-    return "\n\n".join(parts)
+        openapi_body = header + "\n" + "\n".join(summarize_operation(op) for op in hits)
+    return _assemble_search_parts(openapi_body=openapi_body, kg_block=kg_block)
+
+
+def _matches_source_filter(op: ApiOperation, needle: str) -> bool:
+    """Match source_label arg against application id or label (agents pass either)."""
+    n = needle.strip().lower()
+    if not n:
+        return True
+    sid = op.source_id.lower()
+    slabel = op.source_label.lower()
+    return n == sid or n == slabel or n in sid or n in slabel
 
 
 async def handle_list_sse_apis(
@@ -286,23 +313,94 @@ async def handle_list_sse_apis(
     ops = catalog.operations
     label = args.get("source_label")
     if isinstance(label, str) and label.strip():
-        ops = [o for o in ops if o.source_label.lower() == label.strip().lower()]
+        ops = [o for o in ops if _matches_source_filter(o, label)]
     ops = ops[:limit]
     source_lines = []
     for src in catalog.sources:
-        err = f" ERROR={src.error}" if src.error else ""
+        # Soften per-source fetch failures — other apps may still be healthy.
+        # Agents were treating "ERROR=getaddrinfo" as a total catalog failure.
+        if src.error:
+            note = f" unavailable ({src.error})"
+        else:
+            note = ""
         source_lines.append(
-            f"  - {src.label} ({src.id}): {src.operation_count} ops{err}"
+            f"  - {src.label} ({src.id}): {src.operation_count} ops{note}"
         )
+    ok_ops = sum(1 for s in catalog.sources if not s.error)
     header = (
         f"Loaded {len(catalog.operations)} operations from "
-        f"{len(catalog.sources)} sources at {catalog.loaded_at}\n"
+        f"{ok_ops}/{len(catalog.sources)} healthy sources at {catalog.loaded_at}\n"
         + "\n".join(source_lines)
         + "\n"
     )
     if not ops:
         return header + "No operations to list."
     return header + "\n".join(summarize_operation(op) for op in ops)
+
+
+_LOAN_ID_KEYS = frozenset({"loan_id", "loanid", "loannumber", "id"})
+
+
+def _path_placeholders(path: str) -> set[str]:
+    return set(re.findall(r"\{([^}]+)\}", path or ""))
+
+
+def route_invoke_params(
+    use_path: str,
+    path_params: dict[str, Any] | None,
+    query: dict[str, Any] | None,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    """Move non-path keys out of path_params into query; fill lone path placeholder.
+
+    Agents often pass ``path_params: {loanNumber: ...}`` for query-param endpoints
+    (e.g. GetEscrowByLoanNumber). Those keys must become query params.
+    """
+    path_in = dict(path_params) if isinstance(path_params, dict) else {}
+    query_out = dict(query) if isinstance(query, dict) else {}
+    placeholders = _path_placeholders(use_path)
+
+    path_out: dict[str, Any] = {}
+    for key, value in path_in.items():
+        if key in placeholders:
+            path_out[key] = value
+        else:
+            # Prefer existing query value if already set
+            query_out.setdefault(key, value)
+
+    # Single missing placeholder: map common loan-id aliases case-insensitively
+    missing = [p for p in placeholders if p not in path_out or path_out[p] in (None, "")]
+    if len(missing) == 1:
+        want = missing[0]
+        want_l = want.lower()
+        candidates: list[tuple[str, Any]] = []
+        for src in (path_in, query_out):
+            for k, v in src.items():
+                if v in (None, ""):
+                    continue
+                kl = str(k).lower().replace("_", "")
+                if (
+                    str(k).lower() == want_l
+                    or kl == want_l.replace("_", "")
+                    or kl in _LOAN_ID_KEYS
+                    or str(k).lower() in _LOAN_ID_KEYS
+                ):
+                    candidates.append((str(k), v))
+        if candidates:
+            path_out[want] = candidates[0][1]
+            # Drop from query if we promoted the same value into the path
+            for k, v in list(query_out.items()):
+                if v == candidates[0][1] and str(k).lower().replace("_", "") in {
+                    want_l.replace("_", ""),
+                    "loanid",
+                    "loannumber",
+                    "id",
+                }:
+                    # Keep query keys that are intentionally query params on the op;
+                    # only remove exact alias duplicates that were solely for the path.
+                    if k not in placeholders and str(k) != want:
+                        pass  # leave query alone — loanNumber may be both styles
+
+    return (path_out or None, query_out or None)
 
 
 async def handle_call_sse_api(
@@ -384,14 +482,23 @@ async def handle_call_sse_api(
     use_method = op.method if op else str(method)
     use_path = op.path if op else str(path)
     public_id = op.id if op else None
+    query_arg = args.get("query")
+    if not isinstance(query_arg, dict):
+        query_arg = args.get("query_params")
+    path_params_arg = (
+        args.get("path_params") if isinstance(args.get("path_params"), dict) else None
+    )
+    routed_path, routed_query = route_invoke_params(
+        str(use_path),
+        path_params_arg if isinstance(path_params_arg, dict) else None,
+        query_arg if isinstance(query_arg, dict) else None,
+    )
     result = await invoke_sse_api(
         service,
         method=use_method,
         path=use_path,
-        path_params=args.get("path_params")
-        if isinstance(args.get("path_params"), dict)
-        else None,
-        query=args.get("query") if isinstance(args.get("query"), dict) else None,
+        path_params=routed_path,
+        query=routed_query,
         headers=args.get("headers") if isinstance(args.get("headers"), dict) else None,
         body=args.get("body"),
         operation=op,

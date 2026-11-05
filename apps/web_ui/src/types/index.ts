@@ -1,16 +1,3 @@
-export interface LoanSummary {
-  loan_id: string;
-  borrower_first_name: string;
-  state: string;
-  status: string;
-  product: string;
-  escrowed: boolean;
-  current_balance_usd: number;
-  next_due_date: string | null;
-  delinquency_days: number;
-  flags: string[];
-}
-
 export interface CitationItem {
   id: number;
   source: string;

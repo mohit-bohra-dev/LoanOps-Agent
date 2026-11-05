@@ -1,3 +1,19 @@
+## [2026-11-03] — Eval Improvement Platform Phase 1
+
+**Session type:** Implementation (spec Phase 1)
+
+**Completed:**
+- Spec package already authored; Phase 1 code: `AgentTrace` + taxonomy, AgentCore `agent.turn`/`mcp.tool.call` spans + `trace_id` on `AgentTurnOutput`
+- APIs: `POST /eval/feedback`, `GET /eval/traces/{id}`, `GET /eval/health`, `POST /eval/promote`
+- Promote accepts fail→draft candidates; L6 skeleton + retrieval stage harness; `eval-gate.yml`; thin Eval Portal UI
+- Tests: taxonomy + eval routes + agent_core green (34 focused)
+
+**Risk:** L6 is skeleton (not full injection corpus). Portal is thin (no native timeline yet).
+
+**Next:** Phase 2 Signal Inbox + native Trace Explorer; expand L6 cases.
+
+---
+
 ## [2026-10-20] — DB-only pipeline storage + file-mode mirrors
 
 **Session type:** Storage cutover

@@ -179,12 +179,17 @@ def find_operation(
                 f"ambiguous operation '{by_id}': {detail} — pass the application-qualified id"
             )
     if by_id:
+        needle = by_id.lower()
         for op in catalog_ops:
+            op_id_l = op.id.lower()
+            short = (op.operation_id or "").lower()
             if (
                 op.id == by_id
                 or op.operation_id == by_id
                 or op.id.endswith(f":{by_id}")
-                or op.id.lower() == by_id.lower()
+                or op_id_l == needle
+                or short == needle
+                or op_id_l.endswith(f":{needle}")
             ):
                 return op
     m = (method or "").strip().lower()

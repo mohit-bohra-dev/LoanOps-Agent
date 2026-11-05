@@ -45,19 +45,23 @@ It is **not** a public borrower chatbot. Mutating business actions stay out of v
 ## How it works (short)
 
 ```
-Chat UI / Cursor → Agent API or MCP :8001
+Cursor → MCP :8001                    (protocol / tool proof)
+Chat UI → Agent API → MCP :8001       (built to evaluate MCP under chat turns)
                  → search_sse_apis / EAKG / search_docs
                  → call_sse_api → grounded draft
 ```
 
+- **MCP-first:** Chat UI exists so we can evaluate the MCP tool room, not as the finished product surface yet
 - **Hybrid:** same Python codebase local (Ollama + Qdrant) or cloud (Bedrock + Qdrant Cloud) via env swap
 - **Providers:** chat, embeddings, vector store, audit — backends swapped by config
-- **Quality gate:** refusal / escalation behaviour plus an eval gate on groundedness and citation coverage
+- **Quality gate:** interactive Chat UI harness + offline golden eval (groundedness / citations / refusals)
 
 ---
 
 ## Links
 
+- Current vs possible (plain-language explainer): `docs/10-loanops-explainer.md`
+- Runtime visuals: [Lucid chart](https://lucid.app/lucidchart/214feeb3-4a57-4947-b742-38e660794ada/edit?invitationId=inv_2762b1f0-d514-4b3f-8209-6b9a048b0edf&page=fzdJNN-SrbJ0#)
 - ADR-021 (audience): `decisions.md`
 - PRD (historical care-rep framing): `docs/PRD.md`
 - Demo pitch: `presentations/demo-pitch/slides.md`

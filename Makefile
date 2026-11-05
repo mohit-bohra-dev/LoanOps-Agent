@@ -1,4 +1,4 @@
-.PHONY: install lint test ingest eval eval-mcp-l1 eval-l2 eval-l3 eval-l4 eval-l5 eval-l7 eval-l8 eval-l9 ui-install fixtures demo down
+.PHONY: install lint test ingest eval eval-mcp-l1 eval-l2 eval-l3 eval-l4 eval-l5 eval-l6 eval-l7 eval-l8 eval-l9 eval-retrieval ui-install fixtures demo down
 
 install:
 	uv sync
@@ -31,6 +31,12 @@ eval-l4:
 
 eval-l5:
 	uv run python -m packages.eval.outcomes --report out/eval-l5.json
+
+eval-l6:
+	uv run python -m packages.eval.safety --report out/eval-l6.json
+
+eval-retrieval:
+	uv run python -m packages.eval.retrieval --report out/eval-retrieval.json
 
 eval-l7:
 	uv run python -m packages.eval.robustness --report out/eval-l7.json

@@ -227,4 +227,6 @@ Use these instead of treating every open checkbox as equal priority.
 
 
 - [x] Layers 7-9 EvalStore/Langfuse (ADR-032) — L7 robustness, L8 ops, L9 governance (2026-10-29)
+- [x] Eval Improvement Platform Phase 1 — AgentTrace + taxonomy + `/eval/*` APIs + AgentCore spans + L6/retrieval skeleton + thin portal + eval-gate CI (2026-11-03)
+- [ ] Eval Improvement Platform Phase 2 — native Trace Explorer, Signal Inbox, multi-reviewer, ImprovementCycle UI
 

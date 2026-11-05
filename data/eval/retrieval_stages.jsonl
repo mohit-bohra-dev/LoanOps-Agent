@@ -1,0 +1,2 @@
+{"id":"ret-001","expect":{"capability_ids":["cap.loan.summary"],"operation_ids":["getLoanSummary"],"doc_ids":["sops/payments.md"]},"retrieved":{"eakg":["cap.loan.summary"],"api_index":["getLoanSummary","listLoans"],"docs":["sops/payments.md","sops/escrow.md"]}}
+{"id":"ret-002","expect":{"doc_ids":["sops/hardship.md"]},"retrieved":{"docs":["sops/hardship.md"]}}
