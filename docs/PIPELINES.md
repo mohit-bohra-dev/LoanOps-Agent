@@ -324,3 +324,33 @@ Confluence SOP cache        ──►  docs embeddings  ──►  search_docs
 
 This repo source            ──►  graphify-out/  ──►  dev code map only
 ```
+
+---
+
+## Control plane (ADR-033)
+
+Thin LoanOps-owned layer over the callables above. Does **not** replace pipeline
+logic — only catalog, trigger, and run history.
+
+| Piece | Where |
+|---|---|
+| Catalog + runner | `projects/LoanOps.Pipelines` (`packages.pipelines`) |
+| Ledger | Postgres `eakg_pipeline_runs` (or file `Postgres/pipeline_runs/`) |
+| API | `GET /pipelines/catalog`, `POST /pipelines/{id}/runs`, `GET /pipelines/runs`, `GET /pipelines/runs/{run_id}` |
+| UI | Eval Portal → **Pipelines** tab |
+| Child / ECS entry | `python -m packages.pipelines execute <run_id>` |
+| CLI (foreground) | `python -m packages.pipelines start openapi_to_api_index --env dev` |
+
+**Phase 1 catalog:** `openapi_to_api_index` only (calls `refresh_all` / `refresh_app`).
+
+**Ledger payload fields:** `status` (`queued`\|`running`\|`succeeded`\|`partial`\|`failed`),
+`params`, `triggered_by`, `report`, `error`, `started_at`, `finished_at`,
+`duration_ms`, `log_path`.
+
+**Local launch:** API inserts a `queued` row then `subprocess.Popen` the execute
+command (stdout/stderr → `logs/pipelines/<run_id>.log`). **AWS (later):** same
+command via Step Functions → ECS `RunTask`.
+
+**Postgres ApiIndex manifest:** under `EAKG_STORE__BACKEND=postgres`, reindex
+seeds/writes `eakg_kv` key `api_index.manifest.{env}` so incremental embeds work
+(no more tempfile-only manifests).

@@ -26,6 +26,7 @@ members = [
     "loanops-eval",
     "loanops-graphrag",
     "loanops-mcp-server",
+    "loanops-pipelines",
     "loanops-rag",
     "loanops-safety",
     "loanops-sse",
@@ -1446,6 +1447,7 @@ dependencies = [
     { name = "loanops-agent-core" },
     { name = "loanops-common" },
     { name = "loanops-eval" },
+    { name = "loanops-pipelines" },
     { name = "loanops-safety" },
     { name = "loanops-sse" },
     { name = "loanops-tools" },
@@ -1458,6 +1460,7 @@ requires-dist = [
     { name = "loanops-agent-core", editable = "projects/LoanOps.AgentCore" },
     { name = "loanops-common", editable = "projects/LoanOps.Common" },
     { name = "loanops-eval", editable = "projects/LoanOps.Eval" },
+    { name = "loanops-pipelines", editable = "projects/LoanOps.Pipelines" },
     { name = "loanops-safety", editable = "projects/LoanOps.Safety" },
     { name = "loanops-sse", editable = "projects/LoanOps.Sse" },
     { name = "loanops-tools", editable = "projects/LoanOps.Tools" },
@@ -1662,6 +1665,23 @@ requires-dist = [
     { name = "loanops-tools", editable = "projects/LoanOps.Tools" },
     { name = "mcp", specifier = ">=1.27.1" },
     { name = "uvicorn", extras = ["standard"], specifier = "==0.47.0" },
+]
+
+[[package]]
+name = "loanops-pipelines"
+version = "0.1.0"
+source = { editable = "projects/LoanOps.Pipelines" }
+dependencies = [
+    { name = "loanops-api-index" },
+    { name = "loanops-common" },
+    { name = "loanops-eakg" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "loanops-api-index", editable = "projects/LoanOps.ApiIndex" },
+    { name = "loanops-common", editable = "projects/LoanOps.Common" },
+    { name = "loanops-eakg", editable = "projects/LoanOps.Eakg" },
 ]
 
 [[package]]
@@ -3459,6 +3479,7 @@ dependencies = [
     { name = "loanops-eval" },
     { name = "loanops-graphrag" },
     { name = "loanops-mcp-server" },
+    { name = "loanops-pipelines" },
     { name = "loanops-rag" },
     { name = "loanops-safety" },
     { name = "loanops-sse" },
@@ -3492,6 +3513,7 @@ requires-dist = [
     { name = "loanops-eval", editable = "projects/LoanOps.Eval" },
     { name = "loanops-graphrag", editable = "projects/LoanOps.GraphRag" },
     { name = "loanops-mcp-server", editable = "projects/LoanOps.McpServer" },
+    { name = "loanops-pipelines", editable = "projects/LoanOps.Pipelines" },
     { name = "loanops-rag", editable = "projects/LoanOps.Rag" },
     { name = "loanops-safety", editable = "projects/LoanOps.Safety" },
     { name = "loanops-sse", editable = "projects/LoanOps.Sse" },

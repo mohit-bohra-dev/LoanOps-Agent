@@ -83,3 +83,13 @@ CREATE TABLE IF NOT EXISTS sop_page_cache (
     body TEXT NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE TABLE IF NOT EXISTS eakg_pipeline_runs (
+    run_id TEXT PRIMARY KEY,
+    pipeline_id TEXT NOT NULL,
+    payload JSONB NOT NULL,
+    started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS eakg_pipeline_runs_by_pipeline
+    ON eakg_pipeline_runs (pipeline_id, started_at DESC);

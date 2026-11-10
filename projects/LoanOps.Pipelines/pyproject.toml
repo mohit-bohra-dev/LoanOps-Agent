@@ -1,0 +1,20 @@
+[project]
+name = "loanops-pipelines"
+version = "0.1.0"
+description = "LoanOps knowledge pipeline catalog and run ledger control plane"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "loanops-common",
+    "loanops-eakg",
+    "loanops-api-index",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["packages/pipelines"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"packages/pipelines" = "packages/pipelines"

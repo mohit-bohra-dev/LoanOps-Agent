@@ -12,7 +12,7 @@ import tempfile
 from pathlib import Path
 
 from packages.api_index.catalog import build_operations, load_operations, write_operations
-from packages.api_index.indexer import reindex
+from packages.api_index.indexer import IndexManifest, reindex, write_manifest
 from packages.api_index.paths import manifest_path, sidecar_path
 from packages.api_index.records import Environment, OperationSet
 from packages.common.providers.credential_broker import broker_token_source
@@ -22,6 +22,7 @@ from packages.common.providers.factory import (
     get_vector_store_provider,
 )
 from packages.common.settings import Settings, get_settings
+from packages.eakg.artifact_store import AbstractEakgArtifactStore
 from packages.eakg.pipeline_layout import resolve_file_shard_dir
 from packages.eakg.runtime import eakg_runtime
 from packages.eakg.spec_cache import refresh_all as refresh_all_specs
@@ -66,20 +67,30 @@ def _pipeline_root(cfg: Settings) -> Path:
     return Path(resolve_file_shard_dir(cfg.eakg_store.file_shard_dir))
 
 
+def _manifest_kv_key(environment: str) -> str:
+    return f"api_index.manifest.{environment}"
+
+
 async def _run_reindex(
     cfg: Settings,
     op_set: OperationSet,
     *,
+    arts: AbstractEakgArtifactStore | None = None,
     sidecar_only: bool = False,
 ) -> dict[str, Any]:
     embedder = get_embedding_provider()
     store = None if sidecar_only else get_vector_store_provider()
     root = _pipeline_root(cfg)
-    # Product + live pgvector: no repo sidecar/manifest trees.
-    if cfg.eakg_store.backend == "postgres" and not sidecar_only:
+    # Product + live pgvector: no repo sidecar/manifest trees — seed from eakg_kv.
+    persist_kv = cfg.eakg_store.backend == "postgres" and not sidecar_only and arts is not None
+    if persist_kv:
+        assert arts is not None
         tmp = Path(tempfile.mkdtemp(prefix="api-index-"))
         mpath = tmp / "index.manifest.json"
         spath = tmp / "openapi_embeddings.json"
+        prior = arts.get_kv(_manifest_kv_key(op_set.environment))
+        if prior is not None:
+            write_manifest(mpath, IndexManifest.model_validate(prior))
     else:
         mpath = manifest_path(root, op_set.environment)
         spath = sidecar_path(root, op_set.environment)
@@ -93,6 +104,11 @@ async def _run_reindex(
         sidecar_path=spath,
         sidecar_only=sidecar_only,
     )
+    if persist_kv and mpath.is_file():
+        assert arts is not None
+        raw: object = json.loads(mpath.read_text(encoding="utf-8"))
+        if isinstance(raw, dict):
+            arts.put_kv(_manifest_kv_key(op_set.environment), raw)
     return report.model_dump(mode="json")
 
 
@@ -109,7 +125,7 @@ async def refresh_app(
 
     started = time.perf_counter()
     cfg = cfg or get_settings()
-    registry, store, _arts = eakg_runtime(cfg)
+    registry, store, arts = eakg_runtime(cfg)
     store.ensure_layout()
     record = next(
         (r for r in registry.list_active(environment) if r.repository_id == repository_id
@@ -152,7 +168,9 @@ async def refresh_app(
     op_set = build_operations(registry, store, _env(environment), capabilities=caps)
     write_operations(store.root, op_set)
     try:
-        index_report = await _run_reindex(cfg, op_set, sidecar_only=sidecar_only)
+        index_report = await _run_reindex(
+            cfg, op_set, arts=arts, sidecar_only=sidecar_only
+        )
     except Exception as exc:  # noqa: BLE001
         report = {
             "repository_id": repository_id,
@@ -192,7 +210,7 @@ async def refresh_all(
     sidecar_only: bool = False,
 ) -> dict[str, Any]:
     cfg = cfg or get_settings()
-    registry, store, _arts = eakg_runtime(cfg)
+    registry, store, arts = eakg_runtime(cfg)
     store.ensure_layout()
     token = await _token_source(cfg)
     spec_report = await refresh_all_specs(registry, environment, store, token)
@@ -201,7 +219,9 @@ async def refresh_all(
     write_operations(store.root, op_set)
     failed = sum(1 for v in spec_report.values() if v.get("status") == "failed")
     try:
-        index_report = await _run_reindex(cfg, op_set, sidecar_only=sidecar_only)
+        index_report = await _run_reindex(
+            cfg, op_set, arts=arts, sidecar_only=sidecar_only
+        )
     except Exception as exc:  # noqa: BLE001
         return {
             "environment": environment,
@@ -228,7 +248,7 @@ async def refresh_nightly(
 ) -> dict[str, Any]:
     """Refresh specs; rebuild/reindex when spec_hash or interface_hash changed."""
     cfg = cfg or get_settings()
-    registry, store, _arts = eakg_runtime(cfg)
+    registry, store, arts = eakg_runtime(cfg)
     store.ensure_layout()
     prior = load_operations(store.root, environment)
     token = await _token_source(cfg)
@@ -249,7 +269,9 @@ async def refresh_nightly(
     write_operations(store.root, op_set)
     index_report: dict[str, Any] | None = None
     if changed:
-        index_report = await _run_reindex(cfg, op_set, sidecar_only=False)
+        index_report = await _run_reindex(
+            cfg, op_set, arts=arts, sidecar_only=False
+        )
     failed = sum(1 for v in spec_report.values() if v.get("status") == "failed")
     return {
         "environment": environment,

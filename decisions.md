@@ -927,3 +927,32 @@ keeps the SDK out of domain packages. JSONL default preserves local-first.
 `TELEMETRY__LANGFUSE__ENVIRONMENT` (default `local`).
 
 **Status:** Accepted 2026-10-29 (plan implementation).
+
+
+## ADR-033 — Pipeline control plane: FastAPI + Postgres ledger; Step Functions on AWS
+
+**Decision:** Knowledge pipelines are managed by a LoanOps-owned control plane:
+FastAPI `/pipelines/*` routes + a Postgres (or file) run ledger
+(`eakg_pipeline_runs`) + an Eval Portal Pipelines tab. Local PoC launches
+`python -m packages.pipelines execute <run_id>` via `subprocess.Popen`.
+On AWS, the same entrypoint runs under Step Functions → ECS `RunTask`
+(existing Fargate sync task). Dagster stays an optional later engine for
+asset lineage / cascade — not required for Phase 1.
+
+**Context:** Seven knowledge pipelines already exist as Python callables
+(EAKG, ApiIndex, embeddings, docs, GraphRAG, Engineering KG). Ops today
+is CLI / optional in-process scheduler / EventBridge→ECS for EAKG only.
+Assessment rejected n8n, Airflow/MWAA, Kestra, Glue, and Bedrock Knowledge
+Bases as the primary orchestrator: they add UI/infra without replacing the
+need for LoanOps-specific catalog, hash freshness, and eval linkage.
+
+**Alternatives:** Dagster as primary; Amazon MWAA; Step Functions alone
+(no LoanOps UI/ledger); keep CLI-only.
+
+**Reasoning:** One entrypoint keeps local `make demo` (zero AWS) and AWS
+Fargate identical. Ledger lives next to existing ADR-027 artifacts.
+Step Functions only wraps ECS for multi-step / scheduled AWS runs.
+Provider lockstep (`PipelineOrchestratorProvider`) deferred until AWS
+engine lands (new env var needs approval).
+
+**Status:** Accepted 2026-11-10 (Phase 1 PoC).

@@ -148,6 +148,17 @@ class AbstractEakgArtifactStore(ABC):
     @abstractmethod
     def get_sop_page(self, path: str) -> str | None: ...
 
+    @abstractmethod
+    def put_pipeline_run(self, run_id: str, pipeline_id: str, payload: dict[str, Any]) -> None: ...
+
+    @abstractmethod
+    def get_pipeline_run(self, run_id: str) -> dict[str, Any] | None: ...
+
+    @abstractmethod
+    def list_pipeline_runs(
+        self, pipeline_id: str | None = None, *, limit: int = 50
+    ) -> list[dict[str, Any]]: ...
+
 
 class FileEakgArtifactStore(AbstractEakgArtifactStore):
     """Disk mirror under ``<root>/Postgres/…`` (tests / offline)."""
@@ -358,6 +369,36 @@ class FileEakgArtifactStore(AbstractEakgArtifactStore):
         if not dest.is_file():
             return None
         return dest.read_text(encoding="utf-8")
+
+    def put_pipeline_run(self, run_id: str, pipeline_id: str, payload: dict[str, Any]) -> None:
+        dest = self.pg / "pipeline_runs" / f"{run_id}.json"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        row = {"run_id": run_id, "pipeline_id": pipeline_id, **payload}
+        dest.write_text(json.dumps(row, indent=2), encoding="utf-8")
+
+    def get_pipeline_run(self, run_id: str) -> dict[str, Any] | None:
+        path = self.pg / "pipeline_runs" / f"{run_id}.json"
+        if not path.is_file():
+            return None
+        raw: object = json.loads(path.read_text(encoding="utf-8"))
+        return raw if isinstance(raw, dict) else None
+
+    def list_pipeline_runs(
+        self, pipeline_id: str | None = None, *, limit: int = 50
+    ) -> list[dict[str, Any]]:
+        root = self.pg / "pipeline_runs"
+        if not root.is_dir():
+            return []
+        rows: list[dict[str, Any]] = []
+        for path in root.glob("*.json"):
+            raw: object = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(raw, dict):
+                continue
+            if pipeline_id is not None and raw.get("pipeline_id") != pipeline_id:
+                continue
+            rows.append(raw)
+        rows.sort(key=lambda r: str(r.get("started_at") or ""), reverse=True)
+        return rows[: max(0, limit)]
 
 
 _SCHEMA_SQL = (Path(__file__).parent / "sql" / "eakg_artifacts.sql").read_text(encoding="utf-8")
@@ -819,6 +860,92 @@ class PostgresEakgArtifactStore(AbstractEakgArtifactStore):
             if row is None:
                 return None
             return str(row["body"])
+        finally:
+            await conn.close()
+
+    def put_pipeline_run(self, run_id: str, pipeline_id: str, payload: dict[str, Any]) -> None:
+        _run_sync(self._put_pipeline_run(run_id, pipeline_id, payload))
+
+    async def _put_pipeline_run(
+        self, run_id: str, pipeline_id: str, payload: dict[str, Any]
+    ) -> None:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            await conn.execute(
+                """
+                INSERT INTO eakg_pipeline_runs (run_id, pipeline_id, payload, started_at, updated_at)
+                VALUES ($1, $2, $3::jsonb, COALESCE(($3::jsonb->>'started_at')::timestamptz, now()), now())
+                ON CONFLICT (run_id) DO UPDATE
+                SET pipeline_id = EXCLUDED.pipeline_id,
+                    payload = EXCLUDED.payload,
+                    updated_at = now()
+                """,
+                run_id,
+                pipeline_id,
+                json.dumps({"run_id": run_id, "pipeline_id": pipeline_id, **payload}),
+            )
+        finally:
+            await conn.close()
+
+    def get_pipeline_run(self, run_id: str) -> dict[str, Any] | None:
+        return _run_sync(self._get_pipeline_run(run_id))
+
+    async def _get_pipeline_run(self, run_id: str) -> dict[str, Any] | None:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            row = await conn.fetchrow(
+                "SELECT payload FROM eakg_pipeline_runs WHERE run_id = $1",
+                run_id,
+            )
+            if row is None:
+                return None
+            payload = _loads_obj(row["payload"])
+            return payload if isinstance(payload, dict) else None
+        finally:
+            await conn.close()
+
+    def list_pipeline_runs(
+        self, pipeline_id: str | None = None, *, limit: int = 50
+    ) -> list[dict[str, Any]]:
+        return _run_sync(self._list_pipeline_runs(pipeline_id, limit=limit))
+
+    async def _list_pipeline_runs(
+        self, pipeline_id: str | None, *, limit: int
+    ) -> list[dict[str, Any]]:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            if pipeline_id is None:
+                rows = await conn.fetch(
+                    """
+                    SELECT payload FROM eakg_pipeline_runs
+                    ORDER BY started_at DESC
+                    LIMIT $1
+                    """,
+                    max(0, limit),
+                )
+            else:
+                rows = await conn.fetch(
+                    """
+                    SELECT payload FROM eakg_pipeline_runs
+                    WHERE pipeline_id = $1
+                    ORDER BY started_at DESC
+                    LIMIT $2
+                    """,
+                    pipeline_id,
+                    max(0, limit),
+                )
+            out: list[dict[str, Any]] = []
+            for row in rows:
+                payload = _loads_obj(row["payload"])
+                if isinstance(payload, dict):
+                    out.append(payload)
+            return out
         finally:
             await conn.close()
 

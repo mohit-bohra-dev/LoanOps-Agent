@@ -8,6 +8,7 @@ Use these instead of treating every open checkbox as equal priority.
 
 ### Now (MCP platform)
 
+- [x] Pipeline control plane Phase 1 PoC (ADR-033) — `openapi_to_api_index` via `/pipelines/*` + ledger + Eval Portal Pipelines tab (2026-11-10)
 - [x] Record Cursor validation evidence — `docs/MCP_CURSOR_VALIDATION.md` (2026-10-02)
 - [x] Record Gemini validation evidence — **skipped** 2026-10-03 (`docs/MCP_GEMINI_VALIDATION.md`)
 - [x] Product demo path: `TOOLS_CLIENT__PROVIDER=mcp` + MCP up + EAKG shards present — MCP hop `getLoanSummary` **200** with Subservicing M2M (2026-10-02)

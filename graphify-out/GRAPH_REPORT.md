@@ -1,17 +1,17 @@
 # Graph Report - LoanOps-Agent  (2026-11-10)
 
 ## Corpus Check
-- 825 files · ~657,611 words
+- 837 files · ~662,625 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 39 file(s) not represented in the graph (top: .jsonl 17, (none) 7, .template 4)
 
 ## Summary
-- 10674 nodes · 22040 edges · 758 communities (471 shown, 287 thin omitted)
-- Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 3051 edges (avg confidence: 0.92)
+- 10798 nodes · 22355 edges · 753 communities (468 shown, 285 thin omitted)
+- Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 3094 edges (avg confidence: 0.92)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6f13fe27`
+- Built from commit: `46c2f28b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -19,21 +19,21 @@
 - test_prompt_store.py
 - Feature Specification: Enterprise App Scale
 - vis-network.min.js
-- onboard_repository
+- test_treesitter_extract.py
 - _
-- .bind
+- constructor
 - devDependencies
 - explain_capability
 - Program
 - test_loan_data.py
-- eakg_runtime
+- onboard_repository
 - wu
 - properties
 - MockLLMProvider
 - FileEakgArtifactStore
 - compilerOptions
 - compilerOptions
-- layer5.py
+- score_outcome
 - properties
 - test_adr029_investigate.py
 - agent_api/main.py
@@ -54,54 +54,54 @@
 - tsconfig.json
 - permissions
 - str
-- _FakeClient
-- test_agent_core.py
-- layer1.py
+- eval_run.py
+- _agent.py
+- .bind
 - layer3.py
-- ApiSearchService
+- modular_tools.py
 - execute_tool
 - Create Worktree
 - AuditSinkProvider
 - demo-pitch/package.json
 - Setup Worktrees
-- _make_result
-- t
+- run_eval
+- .replace
 - run_agent_turn
 - settings.py
-- score_trajectory
+- layer4.py
 - Merge Worktree
 - Commit and Push
 - test_capability_kg.py
 - GEMINI.md
 - invoke_sse_api
-- fc
+- r
 - create_app
-- AppTarget
+- layer5.py
 - reindex
 - properties
 - Implementation Plan: Enterprise App Scale
-- ApiOperation
+- test_catalog.py
 - LastEscrowAnalysisDate
 - EvalPortal.tsx
 - Instructions
 - PiiProvider
 - v
-- capability_text
+- embed_index.py
 - ControllerBase
-- OpenApiCatalogService
+- _op
 - Constrained Decoding — Simple Guide
 - Create and Switch Worktree
-- build_operations_from_openapi
+- scheduler.py
 - Enterprise App Scale
 - CapabilityCatalog
-- eakg/models.py
+- dotnet.py
 - run.py
 - properties
-- test_extract.py
+- json
 - lucide-react
 - Core Entities
 - test_capability_authz.py
-- o
+- code
 - Technical Specification: Eval Improvement Platform
 - Any
 - Remove Worktree
@@ -112,7 +112,7 @@
 - Push
 - Um
 - e
-- po
+- score_tool_selection
 - PiiTokenizer
 - properties
 - Any
@@ -122,60 +122,60 @@
 - worktrees
 - Spec Review Rubric
 - Story Authoring
-- ingest_sops
+- docs/ingest.py
 - tools_for_role
-- test_memory_endpoint.py
-- test_taxonomy.py
-- test_interface_surface.py
+- _make_mock_session_store
+- FeedbackRequest
+- LocalFilePolicyProvider
 - Step 2 — Generate commit message
-- mcp/harness.py
+- pytest
 - PostgresEakgArtifactStore
 - Any
 - schemas.py
 - cli.py
-- onboard.py
+- runner.py
 - McpToolsClient
 - Qc
 - Examples (source → output)
-- search_docs
+- DocsService
 - EAKG extractor upgrade
 - pb
 - sse/semantic.py
 - LoanOps Agent
-- RepoInterface
+- typing
 - ShardStore
 - layer7.py
-- test_search.py
+- ApiSearchService
 - build_deck.py
 - test_scale.py
 - SqlServerClient
-- eval_routes.py
+- pydantic
 - parse_agent_output
-- layer4.py
-- traces.py
+- ap
+- Evaluation System — Phase 1 Analysis
 - Workflow
 - promote_candidates
 - Enterprise AI Evaluation & Improvement Platform — Architecture Assessment
-- 4. End-to-End Request Flow
-- AsgiMcpDriver
+- .operation_id
+- FaultyToolsClient
 - GraphRagService
 - Feature Specification: Web UI Process Pipeline
 - Eval Improvement Platform — Implementation Plan
 - bl
 - Eval layers — plain English
-- cases.py
+- i
 - doc-graphrag - Implementation Plan
 - retrieval/harness.py
 - pipeline_store/README.md
 - sops/README.md
 - review-tracker.ts
 - Open GitLab Merge Request
-- graph_rag/service.py
+- build_community_records
 - Step 3: Verify Each Project
 - React + TypeScript + Vite
 - GitLab CI/CD Prompts
 - Web UI Process Pipeline — Implementation Plan
-- LastInvokeRing
+- BreakerRegistry
 - validate.py
 - api_index/catalog.py
 - Web UI Process Pipeline — Technical Specification
@@ -183,10 +183,10 @@
 - Git Workflow Prompts
 - EvalSpreadsheet.tsx
 - PHASE_STATUS.md
-- scheduler.py
+- run_nightly_locked
 - test_tools_client.py
 - policy_source.py
-- Ff
+- t
 - build_modular_tools_client
 - LoanOps Agent — One-Pager (archived draft)
 - Ak
@@ -198,7 +198,7 @@
 - copilot-instructions.md
 - project.md
 - LoanOps — Current State & Possible Future
-- layer8.py
+- operations/metrics.py
 - version
 - Doc GraphRAG
 - Instructions
@@ -214,14 +214,14 @@
 - layer6.py
 - ChatPane.tsx
 - Servicing Agent â€” Architecture Decision Records
-- get_graph_store
+- get_credential_broker
 - Story ⇄ Jira Sync
 - Web UI Process Pipeline
 - LoanOps.Common/packages/common/providers/contract_tests/test_chat.py
 - test_embedding.py
 - test_vector_store.py
 - mcp_routes.py
-- Phase 1 Plan
+- aggregate.py
 - servicing-agent
 - Feature Specification: Eval Improvement Platform
 - test_validate.py
@@ -229,7 +229,7 @@
 - sparql.py
 - Story Jira Lifecycle: State + Assignment + Estimate
 - Instructions
-- .defaults
+- Version History
 - .fail
 - TraceReviewDrawer.tsx
 - Search Jira (Atlassian Search Source)
@@ -253,10 +253,10 @@
 - MonthlyHazardInsuranceAmount
 - MonthlyMortgageInsuranceAmount
 - PaidOffFlag
-- extract_openapi.py
+- build_graph_from_operations
 - CapabilityCatalogService
 - Jira Field Mappings
-- x
+- CompositePolicyProvider
 - me
 - MCP Tool Usage for Jira Issue Management
 - LoanServiceApi
@@ -268,7 +268,7 @@
 - stack_ops.py
 - server.py
 - Story Examples
-- r
+- S
 - glab CLI Command Map
 - Instructions
 - loan-summary.schema.json
@@ -285,7 +285,7 @@
 - Instructions
 - MailingRegion
 - PropertyRegion
-- test_ingest_sops_indexes_markdown
+- get_settings
 - Story ⇄ Story Dependency Linking
 - build.py
 - Create Technical Specification
@@ -366,7 +366,7 @@
 - Spec Plan Format
 - Spec Research Grounding
 - Technical Spec Authoring
-- Review Spec Design
+- Auth in simple words — Wiki, MCP Gateway, and LoanOps
 - Story Review
 - test-worktree-resolve.sh
 - GitLab Backend Resolution
@@ -403,7 +403,7 @@
 - PiiSpan
 - layer2.py
 - SanitizeResult
-- test_graph_store.py
+- asyncio
 - ThresholdBreach
 - react
 - react-dom
@@ -441,7 +441,7 @@
 - StaticTokenVerifier
 - Usage
 - GitLab Pipeline Log Retrieval Prompt
-- ApiIndexConfig
+- LoanOps Agent — Demo Architecture
 - LAYERS.md
 - tom-select.complete.min.js
 - Spec Research
@@ -452,7 +452,7 @@
 - cloudId
 - properties
 - CONTEXT.md — Quick-Reference Companion
-- extract_chunk
+- gm
 - Test Session: 2026-06-05
 - Retrieval Steps
 - Create Jira Epic
@@ -462,7 +462,7 @@
 - Eval Improvement Platform
 - .verify
 - Spec Author
-- AbstractLoanDataProvider
+- JsonFileLoanProvider
 - Spec Section Examples
 - Settings
 - Story Reviewer
@@ -486,14 +486,14 @@
 - Update Jira Bug
 - Update Jira Story
 - Update Jira Task
-- loan_data.py
+- 4. End-to-End Request Flow
 - projects
 - Change Routing Matrix
 - Quality-Gate Detection
 - .description
 - 12. Safety & Responsible AI
-- pytest
-- Story ⇄ Jira Field Mapping
+- LoanOps.Common/packages/common/providers/contract_tests/test_content_safety.py
+- validate_data.py
 - resolve_destination
 - Revise Story
 - Skills
@@ -503,7 +503,7 @@
 - Push Errors (delegated to {{prompt:push}})
 - Examples
 - Workflow
-- packages_common_providers_testing
+- docs/service.py
 - Step 3: Retrieve Pipeline Status for Commit
 - Step 0: Determine Project ID (if not provided)
 - Spec Execution Coordinator
@@ -521,8 +521,8 @@
 - Step 2: Pull
 - Commit Errors (delegated to {{prompt:commit}})
 - Pull Errors (delegated to {{prompt:pull}})
-- sample_score.py
-- 3. Algorithms & Logic
+- ADR-030 — Doc GraphRAG under kill gate (draft)
+- api_index/tests/conftest.py
 - Step 2: Stash Local Changes
 - Step 3: Pull with Rebase
 - Step 4: Verify Pull Success
@@ -532,8 +532,8 @@
 - Error Handling
 - Target Architecture
 - Spec Design Reviewer
-- secrets
-- ._load_bundle
+- test_credential_broker.py
+- test_search_capabilities_no_explain_and_caches_dumps
 - Step 2: Verify GitLab Project Access
 - Step 4: Identify Failed Jobs
 - Step 6: Format and Present Results
@@ -572,41 +572,41 @@
 - probe_loan_api.py
 - pg
 - DataConfig
-- UnifiedOperation
+- Required Changes
 - Pointing Policy
 - .query
 - TestSecretsProviderContract
 - Link Story Dependencies
 - Ba
-- sse/tools.py
+- OpenApiCatalogService
 - Examples
 - server.js
-- test_handle_search_parallel_and_skips_load_when_api_search
+- Story Author
 - dispatch_wiki_tool
 - dependencies
-- pattern_backtest.py
-- LoanOps.Safety/packages/safety/tests/test_content_safety.py
+- How TAAC becomes part of the knowledge graph
+- test_rule_based_content_safety
 - test_pii.py
-- JsonFileLoanProvider
+- _inspect_swagger.py
 - MCP Gemini Validation
 - gen_scale_fixture.py
 - selectNodes
-- re
-- MCP + Capability KG + ARD — Phase Status
-- test_eakg.py
-- save_graph
+- test_provider_boundaries.py
+- 2.1 Capability rollup
+- RepoInterface
+- 5. Technical Decisions
 - RDF and SPARQL Demo
 - TestCredentialBrokerContract
 - Sync Story to Jira
 - ay
-- live_mcp_server
+- Offline / batch pipelines (source → knowledge)
 - Local stack scripts
 - Section A â€” Project Brief
 - Capability Knowledge Graph
 - Algorithms
 - Author Specification
 - 7. Target Architecture
-- 13. Evaluation & Quality Gates
+- .GetEscrowByLoanNumber
 - ARD Resource Choice (decision draft)
 - Confluence Search Source
 - Link Story to Epic
@@ -615,56 +615,53 @@
 - FHA with Non-Impound Lines
 - 7. Non-Functional Requirements
 - patterns/README.md
-- docs/service.py
+- test_path_metadata.py
 - Step 1: Resolve the update target(s)
 - LoanOps AWS Terraform
 - Multi-user scenario testing
 - Invocation Contract
 - EAKG index schedule (ops)
 - Step 1: Verify the submodule exists
-- User Scenarios & Testing *(mandatory)*
+- LoanOps Agent — Internal AI Platform
 - capability_kg/README.md
 - visualize.py
 - Graphify Setup
 - Malformed Synthetic
 - account_maintenance.md
-- Workflow
+- 3. Algorithms & Logic
 - Phase 3 — Continual improvement UX
 - 13. Prioritized Implementation Roadmap
 - EAKG: committed vs local-only
 - ARD Integration (later)
 - MinimalApi.Web.csproj
 - pythonapi-fixture
-- test_invoke_read_only.py
-- Phase 3 — Flows, review, graph
-- sanitize_inbound
+- catalog_from_graph_store
+- 8.3 UI chat / Agent API
+- test_evaluate_outbound_unit
 - Technical Decisions
-- scrub_extraction
+- 17. Constraints & Assumptions
 - Og
 - Ask app teams: export OpenAPI in CI (`dotnet swagger tofile`)
 - .put_interface
 - LoanOps Complete Guide
-- mcp_tools_client.py
+- get_tools_client_provider
 - 1. Stack and structure
-- Overview
+- mock_session_store_factory
 - Review Story
-- GoldenExpected
+- .evaluate_outbound
 - 8. System Architecture
 - MCP Client Integration
-- Phase 1 — Approval, inventory, fixtures
+- uri_to_str
 - Phase 4 — Related steps in search (optional, flag-gated)
 - 5. Reuse vs Build Analysis
 - 6. Langfuse Integration Strategy
-- test_pii_redaction.py
-- Architecture
+- normalize_asyncpg_dsn
 - 4. Open-Source Project Comparison
-- EakgConfig
 - 9. Human Review Workflow
-- get_credential_broker
+- get_chat_provider
 - Onboard repository #N (registry-only)
-- ToolsClientConfig
 - Stack layer decisions
-- [2026-10-09] — ADR-026 SPARQL graph store (GraphDB / Neptune path)
+- catalog_from_shards
 
 ## God Nodes (most connected - your core abstractions)
 1. `_` - 525 edges
@@ -676,7 +673,7 @@
 7. `invoke_sse_api()` - 88 edges
 8. `ShardStore` - 87 edges
 9. `n()` - 78 edges
-10. `Settings` - 77 edges
+10. `Settings` - 78 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `3. Graphify on LoanOps-Agent (checked-in)` --references--> `_`  [INFERRED]
@@ -693,7 +690,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (758 total, 287 thin omitted)
+## Communities (753 total, 285 thin omitted)
 
 ### Community 1 - "Feature Specification: Enterprise App Scale"
 Cohesion: 0.07
@@ -701,43 +698,43 @@ Nodes (28): Business Constraints, Dependencies & Constraints, Edge Cases, Extern
 
 ### Community 2 - "vis-network.min.js"
 Cohesion: 0.05
-Nodes (37): qv, aT(), Ax(), Bk(), Bx(), cO(), $d(), ey() (+29 more)
+Nodes (33): aT(), Ax(), Bk(), Bx(), $d(), Dy(), ey(), fm() (+25 more)
 
-### Community 3 - "onboard_repository"
+### Community 3 - "test_treesitter_extract.py"
 Cohesion: 0.06
-Nodes (31): [2026-10-04] — EAKG engineering graph MVP, as_analyzer(), DotNetRoslynAdapter, as_analyzer(), _ensure_ignore(), GraphifyAstAdapter, __getattr__(), Analyzer (+23 more)
+Nodes (32): [2026-10-04] — EAKG engineering graph MVP, as_analyzer(), DotNetRoslynAdapter, as_analyzer(), _ensure_ignore(), GraphifyAstAdapter, __getattr__(), Analyzer (+24 more)
 
 ### Community 4 - "_"
 Cohesion: 0.02
-Nodes (135): _, Ad(), At(), ax, Bd(), bi(), Bn(), br() (+127 more)
+Nodes (128): _, Ad(), ae(), ax, Bd(), bi(), Bn(), br() (+120 more)
 
-### Community 5 - ".bind"
-Cohesion: 0.06
-Nodes (10): activateOneOf(), constructor(), hl(), iy, Lb, oh, sh, th (+2 more)
+### Community 5 - "constructor"
+Cohesion: 0.08
+Nodes (10): activateOneOf(), Af, constructor(), iy, Lb, Lf, sh, th (+2 more)
 
 ### Community 6 - "devDependencies"
 Cohesion: 0.10
 Nodes (19): devDependencies, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals, @types/node, @types/react (+11 more)
 
 ### Community 7 - "explain_capability"
-Cohesion: 0.07
-Nodes (55): 10 · Final API selection (agent receives subset) ✅, 11 · MCP integration ✅, 5. Live SSE tools (replaces tools_api), ADR-022 — Read-only tool policy and EAKG tools live in LoanOps.Tools, 3. How people use it today, Explicitly out of scope (v1), What works now, Tools registered on Streamable HTTP MCP (+47 more)
+Cohesion: 0.08
+Nodes (46): 10 · Final API selection (agent receives subset) ✅, 11 · MCP integration ✅, 5. Live SSE tools (replaces tools_api), ADR-022 — Read-only tool policy and EAKG tools live in LoanOps.Tools, Tools registered on Streamable HTTP MCP, F11 — Real MCP Streamable HTTP, What GraphRAG means here, Checklist (+38 more)
 
 ### Community 8 - "Program"
 Cohesion: 0.06
 Nodes (21): EakgDotnetExtract, EvDto, CommitSha, Confidence, DetectorId, DetectorVersion, FilePath, LineEnd (+13 more)
 
 ### Community 9 - "test_loan_data.py"
-Cohesion: 0.12
-Nodes (17): _apply_delinquencies(), FixtureLoanProvider, test_apply_delinquencies_overrides_payment_count(), test_fixture_provider_escrow_breakdown(), test_fixture_provider_get_loan_normalizes_upstream_shape(), test_fixture_provider_payment_schedule(), test_fixture_provider_search_by_name(), _test_fixtures_root() (+9 more)
+Cohesion: 0.11
+Nodes (18): FixtureLoanProvider, test_apply_delinquencies_overrides_payment_count(), test_fixture_provider_escrow_breakdown(), test_fixture_provider_get_loan_normalizes_upstream_shape(), test_fixture_provider_payment_schedule(), test_fixture_provider_search_by_name(), _test_fixtures_root(), test_json_file_provider_lookup_known_loan() (+10 more)
 
-### Community 10 - "eakg_runtime"
-Cohesion: 0.08
-Nodes (19): 10. Integration Points, access_check(), changed_files(), clone_or_fetch(), path_with_namespace_from_url(), project_api_path(), remote_head(), run_git() (+11 more)
+### Community 10 - "onboard_repository"
+Cohesion: 0.07
+Nodes (22): 10. Integration Points, access_check(), changed_files(), clone_or_fetch(), path_with_namespace_from_url(), project_api_path(), remote_head(), run_git() (+14 more)
 
 ### Community 12 - "wu"
-Cohesion: 0.07
-Nodes (15): cu(), dh(), Fu, Iv(), Kv, Mu(), nv(), Ou() (+7 more)
+Cohesion: 0.10
+Nodes (10): cu(), Fu, Mu(), Ou(), su, uu(), vu(), wu() (+2 more)
 
 ### Community 13 - "properties"
 Cohesion: 0.05
@@ -755,25 +752,25 @@ Nodes (18): compilerOptions, allowImportingTsExtensions, erasableSyntaxOnly, jsx
 Cohesion: 0.11
 Nodes (17): compilerOptions, allowImportingTsExtensions, erasableSyntaxOnly, lib, module, moduleDetection, moduleResolution, noEmit (+9 more)
 
-### Community 19 - "layer5.py"
-Cohesion: 0.09
-Nodes (36): CaseResult, Layer5Report, _load_golden(), _load_outcomes(), main(), OutcomeCase, _print_report(), _repo_data_dir() (+28 more)
+### Community 19 - "score_outcome"
+Cohesion: 0.18
+Nodes (20): _citation_matches(), _cite_stem(), OutcomeExpectation, OutcomeObservation, OutcomeResult, score_outcome(), _tool_corpus(), ToolResultSnippet (+12 more)
 
 ### Community 20 - "properties"
 Cohesion: 0.08
 Nodes (25): type, type, $id, type, items, additionalProperties, properties, required (+17 more)
 
 ### Community 21 - "test_adr029_investigate.py"
-Cohesion: 0.07
-Nodes (27): CandidateProposal, _check_boundary(), _check_conflict_with_established(), _check_evidence(), _check_scope(), GateVerdict, _try_schema(), validate_candidate() (+19 more)
+Cohesion: 0.04
+Nodes (53): ADR-029 — Deterministic extract, LLM investigation, pattern feedback, [2026-10-15] — ADR-029 investigator + pattern feedback (implemented), CandidateProposal, _check_boundary(), _check_conflict_with_established(), _check_evidence(), _check_scope(), GateVerdict (+45 more)
 
 ### Community 22 - "agent_api/main.py"
-Cohesion: 0.08
-Nodes (11): _agent_owns_vector_store(), chat(), _get_bound_providers(), get_chat_memory(), health(), AuditRecord, ChatMemoryResponse, ChatRequest (+3 more)
+Cohesion: 0.09
+Nodes (11): 24. Open Questions, chat(), _get_bound_providers(), get_chat_memory(), health(), AuditRecord, ChatMemoryResponse, ChatRequest (+3 more)
 
 ### Community 23 - "providers/factory.py"
 Cohesion: 0.04
-Nodes (4): ProviderCallEvent, ProviderError, ProviderHealth, get_eval_store_provider()
+Nodes (5): ADR-032 — EvalStore via Langfuse for Layers 7-9, ProviderCallEvent, ProviderError, ProviderHealth, get_eval_store_provider()
 
 ### Community 24 - "properties"
 Cohesion: 0.12
@@ -792,8 +789,8 @@ Cohesion: 0.08
 Nodes (26): Decision branches (quick), F10 — Custom JSON tool API (`/mcp/tools*`), F12 — MCP auth failure, F13 — MCP GET-only / body reject, F14 — SSE catalog search → live invoke, F15 — SSE fixture / catalog-only mode, F16 — EAKG capability tools via MCP, F17 — Docs search (when configured) (+18 more)
 
 ### Community 34 - "python.py"
-Cohesion: 0.12
-Nodes (26): cheap_contains(), iter_source_files(), node_text(), _callee_parts(), _collect_use_prefixes(), _extract_from_tree(), extract_node_routes(), _handler_name() (+18 more)
+Cohesion: 0.14
+Nodes (23): cheap_contains(), iter_source_files(), node_text(), _callee_parts(), _collect_use_prefixes(), _extract_from_tree(), _handler_name(), _has_framework_import() (+15 more)
 
 ### Community 35 - "Update Worktree"
 Cohesion: 0.04
@@ -803,29 +800,29 @@ Nodes (48): Actions, Actions, Actions, Actions, Actions, Actions, AlreadyUpToDat
 Cohesion: 0.04
 Nodes (46): Actions, Actions, Actions, Actions, Actions, AlreadyOnWorktreeError, Bundled Script, Error Handling (+38 more)
 
-### Community 41 - "_FakeClient"
+### Community 41 - "eval_run.py"
 Cohesion: 0.09
-Nodes (8): 7. Data and configs, _FakeClient, main(), _Op, _run_case(), run_mcp_eval(), _settings(), test_run_mcp_eval_all_pass()
+Nodes (10): 7. Data and configs, McpEvalCase, _FakeClient, main(), _Op, _run_case(), run_mcp_eval(), _settings() (+2 more)
 
-### Community 42 - "test_agent_core.py"
+### Community 42 - "_agent.py"
 Cohesion: 0.06
-Nodes (16): _emit_runtime_spans(), _one_call(), _normalize_legacy_tool_names(), _records_to_items(), _run_body(), _tool_executor(), _validator(), _summary_cap() (+8 more)
+Nodes (15): ADR-007 — Native Tool Calling, _emit_runtime_spans(), _one_call(), _normalize_legacy_tool_names(), _records_to_items(), _run_body(), _validator(), _summary_cap() (+7 more)
 
-### Community 43 - "layer1.py"
-Cohesion: 0.10
-Nodes (18): eval_settings(), CaseResult, _error_path_ok(), FakeAudit, Layer1Report, _load_json(), main(), _normalize_tools_for_snapshot() (+10 more)
+### Community 43 - ".bind"
+Cohesion: 0.05
+Nodes (21): an(), Ds(), Es(), Fs(), hl(), hs(), Is(), ks() (+13 more)
 
 ### Community 44 - "layer3.py"
-Cohesion: 0.09
-Nodes (38): ArgsCase, CaseResult, Layer3Report, _load_args_cases(), _load_golden(), main(), _print_report(), _repo_data_dir() (+30 more)
+Cohesion: 0.06
+Nodes (46): ArgsCase, CaseResult, Layer3Report, _load_args_cases(), _load_golden(), main(), _print_report(), _repo_data_dir() (+38 more)
 
-### Community 45 - "ApiSearchService"
-Cohesion: 0.10
-Nodes (10): P3–P5 implementation targets, [2026-10-09] — Phase 3: vector index + two-stage search, record_metric(), ApiSearchService, _cosine(), format_search_outcome(), _mean_top3(), SearchHit (+2 more)
+### Community 45 - "modular_tools.py"
+Cohesion: 0.06
+Nodes (7): eakg_capability_search_block(), make_eakg_capability_search_block(), make_sparql_capability_search_block(), eakg_capability_search_block(), assert_sse_read_only(), body_present(), ToolPolicyError
 
 ### Community 46 - "execute_tool"
-Cohesion: 0.14
-Nodes (19): [2026-10-02] - EAKG points 3–5 + Phase 8 slice, [2026-10-02] - Gap 1+2: capability bind + requiresPermission at MCP, McpConfig, execute_tool(), FakeAudit, FakeClient, _Op, _settings() (+11 more)
+Cohesion: 0.12
+Nodes (15): execute_tool(), FakeAudit, FakeClient, _Op, _settings(), test_call_sse_api_get_reaches_client(), test_call_sse_api_injects_principal_headers(), test_call_sse_api_rejects_post_and_body() (+7 more)
 
 ### Community 47 - "Create Worktree"
 Cohesion: 0.04
@@ -839,25 +836,25 @@ Nodes (13): dependencies, @slidev/cli, @slidev/theme-default, @slidev/theme-seri
 Cohesion: 0.04
 Nodes (44): Actions, Actions, Actions, Actions, Actions, Actions, Error Handling, Example 1: Fresh Setup (Node.js project with promp) (+36 more)
 
-### Community 51 - "_make_result"
-Cohesion: 0.07
-Nodes (13): AgentTurnOutput, compute_citation_coverage(), compute_citation_groundedness(), compute_cost_avg(), compute_latency_p95(), compute_refusal_correctness(), EvalItemResult, _make_result() (+5 more)
+### Community 51 - "run_eval"
+Cohesion: 0.06
+Nodes (16): EscalationItem, compute_citation_coverage(), compute_citation_groundedness(), compute_cost_avg(), compute_latency_p95(), compute_refusal_correctness(), EvalItemResult, _load_golden() (+8 more)
 
-### Community 52 - "t"
+### Community 52 - ".replace"
 Cohesion: 0.04
-Nodes (32): Acceptance-Criteria Conflicts Specifically, After Resolution, Conflict Surfacing & Resolution, Presenting a Conflict, The Resolution Flow, User Choices, What Counts as a Conflict, cl() (+24 more)
+Nodes (22): Skills, Acceptance-Criteria Conflicts Specifically, After Resolution, Conflict Surfacing & Resolution, Presenting a Conflict, The Resolution Flow, User Choices, What Counts as a Conflict (+14 more)
 
 ### Community 53 - "run_agent_turn"
 Cohesion: 0.09
-Nodes (10): [2026-06-08] — Fix mypy test monkeypatch signatures, run_agent_turn(), test_agent_turn_via_mcp_tools_client(), test_execute_tools_unwraps_text_payload(), test_free_form_loan_query_nudged_to_call_sse_api(), scripted_chat(), TestAgentRunner, always_fails() (+2 more)
+Nodes (11): [2026-06-08] — Fix mypy test monkeypatch signatures, run_agent_turn(), test_agent_turn_via_mcp_tools_client(), tool_then_answer(), test_execute_tools_unwraps_text_payload(), test_free_form_loan_query_nudged_to_call_sse_api(), scripted_chat(), TestAgentRunner (+3 more)
 
 ### Community 54 - "settings.py"
-Cohesion: 0.09
-Nodes (27): AISearchConfig, AOAIChatConfig, AOAIEmbeddingConfig, AuditConfig, BedrockChatConfig, BedrockEmbeddingConfig, ChatConfig, EakgStoreConfig (+19 more)
+Cohesion: 0.07
+Nodes (35): _settings(), AISearchConfig, AOAIChatConfig, AOAIEmbeddingConfig, AuditConfig, BedrockChatConfig, BedrockEmbeddingConfig, CapabilityKgConfig (+27 more)
 
-### Community 55 - "score_trajectory"
-Cohesion: 0.16
-Nodes (18): _check_dependencies(), _first_index(), score_trajectory(), TrajectoryExpectation, TrajectoryResult, test_allowed_path_sets_either_alt_passes(), test_dependency_after_without_before_fails(), test_dependency_not_checked_when_after_absent() (+10 more)
+### Community 55 - "layer4.py"
+Cohesion: 0.08
+Nodes (33): CaseResult, Layer4Report, _load_golden(), _load_trajectories(), main(), _print_report(), _repo_data_dir(), run_canned() (+25 more)
 
 ### Community 56 - "Merge Worktree"
 Cohesion: 0.05
@@ -868,68 +865,68 @@ Cohesion: 0.05
 Nodes (39): Actions, Actions, Actions, AuthenticationError, Commit and Push, Commit Errors (delegated to {{prompt:commit}}), CommitMessageGenerationError, Error Handling (+31 more)
 
 ### Community 59 - "test_capability_kg.py"
-Cohesion: 0.11
-Nodes (16): build_index(), cosine(), EmbeddingEntry, embeddings_path_for_shards(), embeddings_path_for_ttl(), load_index(), rank(), save_index() (+8 more)
+Cohesion: 0.13
+Nodes (13): _app_id_from_uri(), embeddings_path_for_ttl(), load_index(), save_index(), build_graph_from_openapi_dict(), load_graph(), save_graph(), _stub_embed() (+5 more)
 
 ### Community 61 - "invoke_sse_api"
-Cohesion: 0.09
-Nodes (26): 10. Graphify (LoanOps only), Current controls, _app_id(), _app_label(), effective_base(), _emit_live_read(), _env(), invoke_sse_api() (+18 more)
+Cohesion: 0.07
+Nodes (32): test_isolation_latency(), _p95_for(), origin_of(), _app_id(), _app_label(), effective_base(), _emit_live_read(), _env() (+24 more)
 
-### Community 62 - "fc"
+### Community 62 - "r"
 Cohesion: 0.05
-Nodes (47): ac(), ap, bc(), ca(), dc(), Do(), dt(), ec() (+39 more)
+Nodes (110): aa(), ac(), ao(), At(), bc(), be(), ca(), ci() (+102 more)
 
 ### Community 63 - "create_app"
-Cohesion: 0.17
-Nodes (9): main(), create_app(), describe_application_tool(), explain_capability_tool(), find_providers_tool(), impact_of_change_tool(), _run(), search_capabilities_tool() (+1 more)
+Cohesion: 0.15
+Nodes (11): main(), create_app(), describe_application_tool(), explain_capability_tool(), find_providers_tool(), impact_of_change_tool(), _run(), search_capabilities_tool() (+3 more)
 
-### Community 64 - "AppTarget"
-Cohesion: 0.12
-Nodes (9): 2.2 Component design, 8.2 Modified files, P1 / P2 quality-gate blockers (for execution), [2026-10-09] — Phase 4: CredentialBroker + per-app invoke, _p95_for(), origin_of(), resolve_swagger_links(), AppTarget (+1 more)
+### Community 64 - "layer5.py"
+Cohesion: 0.15
+Nodes (16): CaseResult, Layer5Report, _load_golden(), _load_outcomes(), main(), OutcomeCase, _print_report(), _repo_data_dir() (+8 more)
 
 ### Community 66 - "reindex"
-Cohesion: 0.14
-Nodes (22): _chunks(), IndexManifest, IndexReport, load_manifest(), ManifestEntry, _meta(), model_fingerprint(), namespace_for() (+14 more)
+Cohesion: 0.10
+Nodes (31): 9.3 Phase 3 — Vector index and search, 9.4 Phase 4 — Credentials and per-app invoke, 9.5 Phase 5 — Health, metrics, schedule, scale, 9.6 Scheduled refresh, 9. Implementation Details, _chunks(), IndexManifest, IndexReport (+23 more)
 
 ### Community 67 - "properties"
 Cohesion: 0.10
 Nodes (19): type, type, type, type, $id, items, additionalProperties, properties (+11 more)
 
 ### Community 68 - "Implementation Plan: Enterprise App Scale"
-Cohesion: 0.13
-Nodes (15): Architecture Overview, Code Review Checklist, Dependencies, Final Validation, How to Use This Plan, Implementation Plan: Enterprise App Scale, Post-Implementation, Quick Command Reference (+7 more)
+Cohesion: 0.08
+Nodes (23): Architecture Overview, Code Review Checklist, Dependencies, Final Validation, How to Use This Plan, Implementation Phases, Implementation Plan: Enterprise App Scale, Phase 1 — Registry, spec cache, catalog from cache (no boot network) (+15 more)
 
-### Community 69 - "ApiOperation"
-Cohesion: 0.13
-Nodes (14): 9.1 Phase 1 — Registry, spec cache, catalog from cache, AmbiguousOperationError, _extract_server_url(), find_operation(), parse_openapi_document(), _parse_parameters(), _slugify(), summarize_operation() (+6 more)
+### Community 69 - "test_catalog.py"
+Cohesion: 0.06
+Nodes (29): 3.2 Unified id and join (FR-006, FR-012, FR-013), Header, Recommended (non-blocking notes), Spec Design Review — enterprise-app-scale (iteration 1), Strengths, Verdict, [2026-10-09] — Phase 2: unified ops, resolver, bind, AmbiguousOperationError (+21 more)
 
 ### Community 70 - "LastEscrowAnalysisDate"
 Cohesion: 0.67
 Nodes (3): format, type, LastEscrowAnalysisDate
 
 ### Community 71 - "EvalPortal.tsx"
-Cohesion: 0.13
-Nodes (20): EvalPortal(), onRowsChange(), onSaved(), Health, normalizeApiRow(), View, DEMO_SCENARIOS, PHASE_LABEL (+12 more)
+Cohesion: 0.10
+Nodes (23): EvalPortal(), onRowsChange(), onSaved(), Health, normalizeApiRow(), View, DEMO_SCENARIOS, PipelineCard (+15 more)
 
 ### Community 72 - "Instructions"
 Cohesion: 0.09
 Nodes (23): Actions, Actions, Actions, Actions, Actions, Inputs, Inputs, Inputs (+15 more)
 
 ### Community 74 - "v"
-Cohesion: 0.07
+Cohesion: 0.08
 Nodes (5): v, c(), l(), o(), s()
 
-### Community 75 - "capability_text"
+### Community 75 - "embed_index.py"
 Cohesion: 0.12
-Nodes (12): Code, Enable, Implemented flow, Phase 9 — Semantic capability retrieval, Problem, Ranking tip, [2026-10-04] — Richer capability embed text, capability_text() (+4 more)
+Nodes (11): build_index(), capability_text(), _CapLike, cosine(), EmbeddingEntry, _path_phrases(), rank(), _split_ident() (+3 more)
 
 ### Community 76 - "ControllerBase"
 Cohesion: 0.11
 Nodes (7): Fees.WebApi.Controllers, Escrow.Api.Controllers, LoanServices.WebApi.Controllers, EscrowController, FeeController, LoansController, PaymentSchedulesController
 
-### Community 77 - "OpenApiCatalogService"
+### Community 77 - "_op"
 Cohesion: 0.10
-Nodes (19): 1.1 Approval gates (must be cleared before the gated phase starts), 1. Overview, OpenApiCatalogService, _AuditCapture, _op(), _PerHostTransport, _target(), test_401_retry_then_no_access() (+11 more)
+Nodes (14): _AuditCapture, _op(), _PerHostTransport, _target(), test_401_retry_then_no_access(), test_403_no_access(), test_audit_live_read_emitted(), test_client_authorization_stripped() (+6 more)
 
 ### Community 78 - "Constrained Decoding — Simple Guide"
 Cohesion: 0.15
@@ -939,49 +936,49 @@ Nodes (12): 1. What is constrained decoding?, 2. plaisse-wiki, 3. LoanOps-Agent,
 Cohesion: 0.05
 Nodes (36): Actions, Actions, Actions, Actions, Actions, Bundled Scripts, Create and Switch Worktree, Created and switched via Cursor MCP (+28 more)
 
-### Community 80 - "build_operations_from_openapi"
-Cohesion: 0.12
-Nodes (12): 4.2 Spec pointer (`repos/<id>/openapi/<env>/current.json`), 4.3 Unified operation (`packages/api_index/records.py`), 4.4 Vector document metadata (namespace `api_ops_<env>_<model8>`), 4.5 Credentials (in memory only, never persisted), 4.6 Supporting types (referenced by §5.4 signatures), 4. Data Model, build_operations_from_openapi(), _last_literal() (+4 more)
+### Community 80 - "scheduler.py"
+Cohesion: 0.11
+Nodes (9): stop_scheduler(), extract_controllers_roslyn(), _loanops_repo_root(), roslyn_tool_available(), _run_extractor(), _tool_dll(), _tool_proj(), test_extract_loanservices_roslyn_ops() (+1 more)
 
 ### Community 81 - "Enterprise App Scale"
 Cohesion: 0.09
 Nodes (22): Architecture Summary, Core Approach, Dependencies, Documents, Enterprise App Scale, Executive Summary, Getting Started, Implementation Overview (+14 more)
 
 ### Community 82 - "CapabilityCatalog"
-Cohesion: 0.15
-Nodes (10): 1 · API discovery at scale ✅, 7 · Combined retrieval 🟡, [2026-09-30] — ADR-014 RDF Capability KG + Phase 1 baseline refresh, [2026-09-30] — Phase 9 semantic capability retrieval, _app_id_from_uri(), CapabilityCatalog, CapabilityRecord, _to_record() (+2 more)
+Cohesion: 0.26
+Nodes (5): 1 · API discovery at scale ✅, 7 · Combined retrieval 🟡, CapabilityCatalog, CapabilityRecord, _to_record()
 
-### Community 83 - "eakg/models.py"
-Cohesion: 0.13
-Nodes (29): Decision 2: Tiered extraction (inventory decides, Phase 1 confirms), build_interface(), _evidence(), extract_connections(), extract_controllers(), extract_packages(), extract_proxies(), extract_repo() (+21 more)
+### Community 83 - "dotnet.py"
+Cohesion: 0.19
+Nodes (25): Decision 2: Tiered extraction (inventory decides, Phase 1 confirms), build_interface(), _evidence(), extract_connections(), extract_controllers(), extract_packages(), extract_proxies(), extract_repo() (+17 more)
 
 ### Community 84 - "run.py"
-Cohesion: 0.06
-Nodes (26): 5. Observability, EvalReport, GoldenItem, MetricValues, ThresholdBreach, _compute_ragas_metrics(), _load_golden(), main() (+18 more)
+Cohesion: 0.09
+Nodes (13): EvalReport, MetricValues, ThresholdBreach, main(), _print_report(), test_all_passing_no_breaches(), test_seeded_regression_answer_relevance_breach(), test_seeded_regression_citation_breach() (+5 more)
 
 ### Community 85 - "properties"
 Cohesion: 0.05
 Nodes (37): type, additionalProperties, type, type, type, type, minimum, type (+29 more)
 
-### Community 86 - "test_extract.py"
-Cohesion: 0.15
-Nodes (11): cache_key(), cache_path(), read_cache(), write_cache(), ground_extraction(), normalize_ws(), test_cache_key_deterministic(), test_extract_chunk_uses_cache() (+3 more)
+### Community 86 - "json"
+Cohesion: 0.08
+Nodes (21): cache_key(), cache_path(), read_cache(), write_cache(), _ChatLike, extract_chunk(), _parse_payload(), from_dropped() (+13 more)
 
 ### Community 88 - "Core Entities"
-Cohesion: 0.12
-Nodes (16): 1. Identify Memory Strategy Effectiveness, 2. Find Conversations Where Memory Prevented Escalation, 3. Context Overlap & Redundancy, 4. Memory Impact on Tool Usage, Compliance Note, Conversation Memory Graph Models, Core Entities, Graph Schema Extensions for Graphify (+8 more)
+Cohesion: 0.11
+Nodes (17): Message, 1. Identify Memory Strategy Effectiveness, 2. Find Conversations Where Memory Prevented Escalation, 3. Context Overlap & Redundancy, 4. Memory Impact on Tool Usage, Compliance Note, Conversation Memory Graph Models, Core Entities (+9 more)
 
 ### Community 89 - "test_capability_authz.py"
 Cohesion: 0.20
 Nodes (11): allowed_permissions_for_role(), assert_capability_permission(), normalize_permission(), test_configured_permissions_override_role_defaults(), test_empty_required_ok(), test_enforce_false_always_allows(), test_enforce_true_matching_permission_ok(), test_enforce_true_mismatch_raises_policy_error() (+3 more)
 
-### Community 90 - "o"
-Cohesion: 0.07
-Nodes (45): Step 2: Load Jira Config, Step 2a: Conditionally Bootstrap via `configure-jira` (when `found = false` or `error.code = "PROJECT_NOT_IN_CONFIG"`), Step 2: Load Jira Config, Step 2a: Conditionally Bootstrap via `configure-jira` (when `found = false` or `error.code = "PROJECT_NOT_IN_CONFIG"`), ae(), al(), be(), de() (+37 more)
+### Community 90 - "code"
+Cohesion: 0.06
+Nodes (47): Step 2: Load Jira Config, Step 2a: Conditionally Bootstrap via `configure-jira` (when `found = false` or `error.code = "PROJECT_NOT_IN_CONFIG"`), Step 2: Load Jira Config, Step 2a: Conditionally Bootstrap via `configure-jira` (when `found = false` or `error.code = "PROJECT_NOT_IN_CONFIG"`), u(), add(), assign(), block() (+39 more)
 
 ### Community 91 - "Technical Specification: Eval Improvement Platform"
-Cohesion: 0.05
-Nodes (38): 10. Security Considerations, 11. Performance Considerations, 12. Testing Strategy, 13. Configuration, 14. Dependencies, 15. Portal Screen Spec (IA), 16. Open Technical Questions, 17. References (+30 more)
+Cohesion: 0.08
+Nodes (26): 10. Security Considerations, 11. Performance Considerations, 13. Configuration, 14. Dependencies, 15. Portal Screen Spec (IA), 16. Open Technical Questions, 17. References, 1.1 High-level (+18 more)
 
 ### Community 93 - "Remove Worktree"
 Cohesion: 0.05
@@ -992,8 +989,8 @@ Cohesion: 0.22
 Nodes (9): C — Cleanup, D1 options (plain English), D4 context (why it mattered), D — Decisions, Decide (D) and Cleanup (C) board, Scoreboard, Suggested next, What is “C”? (+1 more)
 
 ### Community 95 - "PolicyError"
-Cohesion: 0.10
-Nodes (21): apply_capability_bind(), apply_capability_bind_async(), assert_call_matches_binding(), CapabilityBinding, CapabilityLookup, GraphStoreCapabilityLookup, OperationResolveLookup, _record_from_explain() (+13 more)
+Cohesion: 0.09
+Nodes (22): apply_capability_bind(), apply_capability_bind_async(), assert_call_matches_binding(), CapabilityBinding, CapabilityLookup, catalog_from_settings(), GraphStoreCapabilityLookup, OperationResolveLookup (+14 more)
 
 ### Community 96 - "Create GitLab Project"
 Cohesion: 0.11
@@ -1008,12 +1005,12 @@ Cohesion: 0.06
 Nodes (34): Actions, Actions, Actions, AuthenticationError, Error Handling, Example 1: Clean Push, Example 2: Push with Skipped Hooks, Example 3: Error Case - Remote Has Diverged (+26 more)
 
 ### Community 100 - "e"
-Cohesion: 0.04
-Nodes (44): aa(), an(), bs(), cc(), e(), Cs(), df(), Ds() (+36 more)
+Cohesion: 0.08
+Nodes (24): cc(), e(), df(), Ei(), f, fw(), hasType(), hi() (+16 more)
 
-### Community 101 - "po"
-Cohesion: 0.13
-Nodes (15): ao(), As(), ci(), co(), ev, fo(), Im, lo() (+7 more)
+### Community 101 - "score_tool_selection"
+Cohesion: 0.20
+Nodes (13): score_tool_selection(), ToolSelectionExpectation, ToolSelectionResult, test_allowed_tool_sets_either_alt_passes(), test_forbidden_fails(), test_order_ignored(), test_refusal_empty_passes(), test_refusal_with_tools_fails() (+5 more)
 
 ### Community 102 - "PiiTokenizer"
 Cohesion: 0.13
@@ -1024,16 +1021,16 @@ Cohesion: 0.05
 Nodes (41): $id, type, items, additionalProperties, properties, required, type, format (+33 more)
 
 ### Community 104 - "Any"
-Cohesion: 0.24
-Nodes (5): _as_dict_list(), _build_mock_escrow_breakdown(), _build_mock_payment_schedule(), RestApiLoanProvider, _unwrap_payload()
+Cohesion: 0.12
+Nodes (23): _apply_delinquencies(), _as_dict_list(), _build_mock_escrow_breakdown(), _build_mock_payment_schedule(), _derive_delinquency_days(), _derive_flags(), _derive_status(), _merge_loan_sources() (+15 more)
 
 ### Community 105 - "ModularToolsClient"
-Cohesion: 0.05
-Nodes (32): 10b. RDF Capability Knowledge Graph (ADR-012 / ADR-014), 12. Safety, 13. Evaluation, 14. Audit and Observability, 15. Existing MCP, 1. Executive Summary, 25. Final Recommendation, 2. Repository Structure (+24 more)
+Cohesion: 0.06
+Nodes (34): 10. Graphify (LoanOps only), 10b. RDF Capability Knowledge Graph (ADR-012 / ADR-014), 12. Safety, 13. Evaluation, 15. Existing MCP, 1. Executive Summary, 2. Repository Structure, 3. Current Runtime Architecture (+26 more)
 
 ### Community 106 - "Product Requirements Document â€” LoanOps Agent ("Helix")"
 Cohesion: 0.07
-Nodes (28): 14. Delivery Phasing & Milestones, 15. RACI Matrix, 16. Risks & Mitigations, 17.1 Hard Constraints, 17.2 Key Architecture Decisions (ADRs), 17.3 Assumptions, 17. Constraints & Assumptions, 18. Glossary (+20 more)
+Nodes (29): 13.1 Metrics & Thresholds, 13.2 Eval Harness, 13.3 Sacred Rule, 13.4 CI Workflows, 13. Evaluation & Quality Gates, 14. Delivery Phasing & Milestones, 15. RACI Matrix, 16. Risks & Mitigations (+21 more)
 
 ### Community 107 - "6. Functional Requirements"
 Cohesion: 0.25
@@ -1051,169 +1048,169 @@ Nodes (29): Categories, Critical — missing core functionality (requirement), E
 Cohesion: 0.08
 Nodes (25): Acceptance scenarios, Do NOT put implementation detail in the story, Each story MUST have, Edge Cases as Questions, Errors, Format-Pluggable Authoring, ID stability, Independently testable is non-negotiable (+17 more)
 
-### Community 111 - "ingest_sops"
-Cohesion: 0.09
-Nodes (17): D10 — Cross-project imports, D1 — Artifact vs SPARQL store, D2 — Extraction model pinning, D3 — Vector target, D4 — Golden tool names + `_TOOL_NAMES`, D5 — Faithfulness contexts, D6 — Reranker wiring, D7 — Kill-gate ordering (+9 more)
+### Community 111 - "docs/ingest.py"
+Cohesion: 0.06
+Nodes (18): D10 — Cross-project imports, D1 — Artifact vs SPARQL store, D2 — Extraction model pinning, D3 — Vector target, D4 — Golden tool names + `_TOOL_NAMES`, D5 — Faithfulness contexts, D7 — Kill-gate ordering, D8 — Community algorithm (+10 more)
 
 ### Community 112 - "tools_for_role"
 Cohesion: 0.29
 Nodes (7): tools_for_role(), tools_for_scopes(), test_customer_blocked_from_wiki(), test_dev_has_wiki(), test_eakg_read_includes_describe_and_search_code(), test_helix_scopes_removed(), test_system_has_sse_and_docs_not_db()
 
-### Community 113 - "test_memory_endpoint.py"
-Cohesion: 0.15
-Nodes (5): _make_mock_session_store(), mock_session_store_factory(), test_get_chat_memory_empty_session(), test_get_chat_memory_not_found(), test_get_chat_memory_success()
+### Community 113 - "_make_mock_session_store"
+Cohesion: 0.24
+Nodes (4): _make_mock_session_store(), test_get_chat_memory_empty_session(), test_get_chat_memory_not_found(), test_get_chat_memory_success()
 
-### Community 114 - "test_taxonomy.py"
-Cohesion: 0.15
+### Community 114 - "FeedbackRequest"
+Cohesion: 0.17
 Nodes (4): FeedbackRequest, ReviewTaxonomy, test_fail_ok(), test_fail_requires_category()
 
-### Community 115 - "test_interface_surface.py"
-Cohesion: 0.15
-Nodes (11): rebuild_graphs_from_interfaces(), _iface(), test_describe_application_from_graph(), test_describe_application_interface_fallback(), test_describe_application_tool_dispatch(), test_eakg_engineering_graph_setting_default(), test_interface_to_graph_emits_proxy_triples(), test_rebuild_graphs_from_interfaces() (+3 more)
+### Community 115 - "LocalFilePolicyProvider"
+Cohesion: 0.14
+Nodes (9): LocalFilePolicyProvider, PolicyPage, scrub_text(), test_composite_concatenates(), fetch_pages(), test_local_provider_includes_confluence_artifacts(), test_local_provider_skips_underscore_dirs(), test_scrub_off_passthrough() (+1 more)
 
 ### Community 116 - "Step 2 — Generate commit message"
 Cohesion: 0.29
 Nodes (6): Examples from this repo, Scope rules, Step 1 — Show current status, Step 2 — Generate commit message, Subject rules, Types
 
-### Community 117 - "mcp/harness.py"
-Cohesion: 0.10
-Nodes (21): _empty_text(), FakeClient, FakeMode, FixtureCatalogClient, _ok_text(), _Op, percentile(), run_execute() (+13 more)
+### Community 117 - "pytest"
+Cohesion: 0.03
+Nodes (65): Add a case, all_cases(), contract_cases(), error_cases(), functional_cases(), McpL1Case, perf_cases(), protocol_cases() (+57 more)
 
 ### Community 120 - "schemas.py"
-Cohesion: 0.15
-Nodes (9): [2026-06-18] — Fix EscrowBalance Field Collision, DisbursementItem, EligibilityHint, EscrowBreakdown, LoanSummary, PaymentSchedule, PaymentScheduleItem, PolicyChunks (+1 more)
+Cohesion: 0.13
+Nodes (11): [2026-06-18] — Fix EscrowBalance Field Collision, AgentTurnOutput, CitationItem, DisbursementItem, EligibilityHint, EscrowBreakdown, LoanSummary, PaymentSchedule (+3 more)
 
 ### Community 121 - "cli.py"
 Cohesion: 0.29
 Nodes (8): _cmd_agreement(), _cmd_calibrate(), _cmd_promote(), _cmd_sync(), _cmd_sync_async(), _cmd_validate(), main(), _repo_data_dir()
 
-### Community 122 - "onboard.py"
-Cohesion: 0.08
-Nodes (18): CoverageManifest, detect_technology(), build_ledger(), from_conflicts(), from_coverage(), from_detector_near_misses(), from_openapi_join_report(), from_process_draft() (+10 more)
+### Community 122 - "runner.py"
+Cohesion: 0.06
+Nodes (31): catalog(), _log_tail(), run_detail(), runs_list(), start_run(), StartRunBody, StartRunResponse, test_catalog_start_and_get_run() (+23 more)
 
 ### Community 123 - "McpToolsClient"
-Cohesion: 0.04
-Nodes (43): ADR-020 — uv workspace projects (csproj-style), 8.1 Auth / identity (explicitly skipped), 8.2 PII / audit redaction (explicitly skipped), 8.3 UI chat / Agent API, 8. Deferred — not now, 4. Agent / client flow (MCP-centric), 8. Gap analysis vs nine layers, 9. Risks and unknowns (+35 more)
+Cohesion: 0.07
+Nodes (25): ADR-020 — uv workspace projects (csproj-style), Cursor `mcp.json` snippet, Evidence, Fix during validation, Goal, MCP Cursor Validation, Out of scope, Prerequisites (+17 more)
 
 ### Community 124 - "Qc"
-Cohesion: 0.19
-Nodes (15): By, Ay(), em(), Fy(), Gc(), im(), Jc(), nm() (+7 more)
+Cohesion: 0.33
+Nodes (8): By, Ay(), Fy(), Ny(), Qc(), Qx(), Zx(), zy()
 
 ### Community 125 - "Examples (source → output)"
-Cohesion: 0.13
-Nodes (15): 1. EAKG sync, 2. API index refresh, 3. SOP / policy ingest, 4. GraphRAG build, 5. EAKG capability embeddings, 6. TAAC refresh, 7. Eval gate, 8. `index_docs` (on demand) (+7 more)
+Cohesion: 0.20
+Nodes (10): 1. EAKG sync, 2. API index refresh, 3. SOP / policy ingest, 4. GraphRAG build, 5. EAKG capability embeddings, 6. TAAC refresh, 7. Eval gate, 8. `index_docs` (on demand) (+2 more)
 
-### Community 126 - "search_docs"
+### Community 126 - "DocsService"
 Cohesion: 0.04
-Nodes (62): ADR-030 — Doc GraphRAG under kill gate (draft), Alternatives considered, Approval checklist, Consequences, Decision, Negative, Neutral / process, Positive (+54 more)
+Nodes (30): Architecture, Component Design, Data Flow, DocLinkGraph (LoanOps.Rag or LoanOps.Docs), DocsService (LoanOps.Docs) — P1 path + P3 retrieval, Eval metrics (LoanOps.Eval), GraphRagService (LoanOps.GraphRag) — P4+ only, High-Level Architecture (+22 more)
 
 ### Community 127 - "EAKG extractor upgrade"
-Cohesion: 0.20
+Cohesion: 0.22
 Nodes (9): Acceptance, Build tool (once), C# — Roslyn, Default, EAKG extractor upgrade, Merge + identity, Non-.NET — tree-sitter, Out / parked (+1 more)
 
 ### Community 128 - "pb"
-Cohesion: 0.15
-Nodes (23): Nb(), Rb, Zv(), ab(), _b(), bb(), cb(), db() (+15 more)
+Cohesion: 0.21
+Nodes (19): Zv(), ab(), bb(), cb(), db(), Eb(), fb(), gb() (+11 more)
 
 ### Community 129 - "sse/semantic.py"
-Cohesion: 0.13
-Nodes (20): 3.5 Two-stage search (FR-004, FR-017, FR-018, NFR-003), search_operations(), _cosine(), _embed_missing(), _one(), load_openapi_index(), openapi_embeddings_path(), OpenApiEmbeddingEntry (+12 more)
+Cohesion: 0.12
+Nodes (22): 3.1 Path normalization, 3.3 Alias resolution (FR-012, US5), 3.4 Incremental reindex (FR-015, US7), 3.5 Two-stage search (FR-004, FR-017, FR-018, NFR-003), 3.6 Spec refresh with last-good retention (FR-007, FR-016), 3.7 Credential cache (single-flight), 3.8 Per-app circuit breaker (NFR-004, US3 #4), 3. Algorithms & Logic (+14 more)
 
 ### Community 130 - "LoanOps Agent"
-Cohesion: 0.07
-Nodes (24): 1. The 30-second pitch, 2. System at a glance (C4 container view), 3. Request flow (one turn), 4. The load-bearing idea: Provider Abstraction, 5. Knowledge pipeline (RAG ingest), 6. Data modes — mock vs real, 7. Responsible-AI controls (the compliance story), 8. Live demo runbook (+16 more)
+Cohesion: 0.13
+Nodes (14): Agenda, Eval gate is sacred, Guardrails (compliance story), Knowledge pipeline (RAG), Live demo — what to watch, Loan data — mock vs real, LoanOps Agent, One turn — request flow (+6 more)
 
-### Community 131 - "RepoInterface"
-Cohesion: 0.05
-Nodes (55): explain_operation(), _files_match(), _filter_graph_nodes(), _label_matches_action(), _load_graphify(), _node_blob(), _parse_graphify_query_nodes(), _posix() (+47 more)
+### Community 131 - "typing"
+Cohesion: 0.03
+Nodes (72): Classes, explain_operation(), _files_match(), _filter_graph_nodes(), _label_matches_action(), _load_graphify(), _node_blob(), _parse_graphify_query_nodes() (+64 more)
 
 ### Community 132 - "ShardStore"
-Cohesion: 0.09
-Nodes (9): ADR-024 — Enterprise app scale: registry-driven API catalog (30+ apps), 9. STEP 5 (EAKG write RDF) — short, enrich_interface(), fetch_spec(), fetch_spec_with_source(), load_fixture_spec(), _same_origin(), content_hash() (+1 more)
+Cohesion: 0.06
+Nodes (28): ADR-024 — Enterprise app scale: registry-driven API catalog (30+ apps), 9. STEP 5 (EAKG write RDF) — short, [2026-10-09] — Phase 1: spec cache, registry catalog, pgvector, enrich_operations_from_openapi(), enrich_interface(), fetch_spec(), fetch_spec_with_source(), load_fixture_spec() (+20 more)
 
 ### Community 133 - "layer7.py"
-Cohesion: 0.08
-Nodes (20): aggregate_results(), CaseAgg, VariantAgg, wilson_lower_bound(), FaultyToolsClient, Layer7Report, _load_golden(), _load_jsonl() (+12 more)
+Cohesion: 0.12
+Nodes (20): [2026-10-29] — Layers 7-9 on Langfuse (EvalStore), GoldenExpected, Layer7Report, _load_golden(), _load_jsonl(), _load_traj(), main(), _min_rates() (+12 more)
 
-### Community 134 - "test_search.py"
-Cohesion: 0.13
-Nodes (19): OperationSet, backend_header(), _CountingEmbedder, _FailingEmbedder, _FailingVectorStore, _FlakyThenOkEmbedder, _op(), _ops() (+11 more)
+### Community 134 - "ApiSearchService"
+Cohesion: 0.06
+Nodes (35): Notes, P3–P5 implementation targets, [2026-10-09] — Phase 3: vector index + two-stage search, KeywordIndex, _op_haystack(), _split_ident(), _tokens(), unified_to_api_operation() (+27 more)
 
 ### Community 135 - "build_deck.py"
 Cohesion: 0.11
 Nodes (12): build_pdf(), build_pptx(), _lines(), main(), _rect(), _rgb(), S(), SECTION() (+4 more)
 
 ### Community 136 - "test_scale.py"
-Cohesion: 0.09
-Nodes (27): 14.2 Scale suite (`-m scale`, Phase 5), Header, Pass Scores, Recommended (non-blocking notes), Required Changes, Requirement Coverage, Spec Design Review — enterprise-app-scale (iteration 1), Strengths (+19 more)
+Cohesion: 0.11
+Nodes (20): 14.2 Scale suite (`-m scale`, Phase 5), Requirement Coverage, [2026-10-09] — Phase 5: health, metrics, scheduler, scale suite, AppHealthService, seconds_until_hour_utc(), _gen_fixture(), _load_generate(), _materialize() (+12 more)
 
 ### Community 137 - "SqlServerClient"
-Cohesion: 0.10
-Nodes (16): 7. Tool Inventory, Not used, Extra tools in ModularToolsClient (not MCP-registered), F18 — Dev-only SQL / wiki / index_docs, classify_read_only(), DbConfig, SqlServerClient, strip_literals_and_comments() (+8 more)
+Cohesion: 0.12
+Nodes (13): classify_read_only(), DbConfig, SqlServerClient, strip_literals_and_comments(), test_delete_rejected(), test_select_into_rejected_via_keyword(), test_select_ok(), test_eakg_tool_via_modular_client() (+5 more)
 
-### Community 138 - "eval_routes.py"
-Cohesion: 0.09
-Nodes (17): _compute_alignment(), eval_health(), FeedbackResponse, get_matrix(), get_trace(), HealthResponse, _label_to_outcome(), _latest_review_by_trace() (+9 more)
+### Community 138 - "pydantic"
+Cohesion: 0.04
+Nodes (40): 12. Testing Strategy, _compute_alignment(), eval_health(), FeedbackResponse, get_matrix(), get_trace(), HealthResponse, _label_to_outcome() (+32 more)
 
 ### Community 139 - "parse_agent_output"
-Cohesion: 0.06
-Nodes (15): Context, CitationGrounder (AgentCore), P1 — Measurement, ADR-007 — Native Tool Calling, AgentParseError, _fix_citations(), _normalize_turn_payload(), parse_agent_output() (+7 more)
+Cohesion: 0.08
+Nodes (9): Context, CitationGrounder (AgentCore), _fix_citations(), _normalize_turn_payload(), parse_agent_output(), _stringify_answer(), build_valid_json_output(), TestOutputParser (+1 more)
 
-### Community 140 - "layer4.py"
-Cohesion: 0.16
-Nodes (15): CaseResult, Layer4Report, _load_golden(), _load_trajectories(), main(), _print_report(), _repo_data_dir(), run_canned() (+7 more)
+### Community 140 - "ap"
+Cohesion: 0.11
+Nodes (3): ap, pf, tp
 
-### Community 141 - "traces.py"
-Cohesion: 0.10
-Nodes (19): _persist_trace(), test_feedback_and_health(), CitationItem, EscalationItem, test_build_and_persist_trace(), AgentTrace, append_review_record(), _as_span_kind() (+11 more)
+### Community 141 - "Evaluation System — Phase 1 Analysis"
+Cohesion: 0.12
+Nodes (15): 4. Agent / client flow (MCP-centric), 5. Observability, 8. Gap analysis vs nine layers, 9. Risks and unknowns, Appendix A — Thresholds in force (do not lower), Appendix B — Reuse candidates already in repo, Appendix C — Official portal taxonomy (approved refinements), Eval surfaces (priority order) (+7 more)
 
 ### Community 142 - "Workflow"
-Cohesion: 0.29
-Nodes (7): Step 1: Validate the connection (soft), Step 2: Build one CQL query, Step 3: Run the search, Step 4: Map matches to RankedResult, Step 5: Return the envelope, Workflow, Step 4: Map Matches to `RankedResult`
+Cohesion: 0.17
+Nodes (12): Step 1: Validate the connection (soft), Step 2: Build one CQL query, Step 3: Run the search, Step 4: Map matches to RankedResult, Step 5: Return the envelope, Workflow, Step 1: Validate the Connection (Soft), Step 2: Build One CQL Query (+4 more)
 
 ### Community 143 - "promote_candidates"
-Cohesion: 0.07
-Nodes (20): 2.1 `AgentTrace` (canonical envelope) — FR-001, 2.2 Review taxonomy metadata — FR-002…FR-006, FR-018, 2.3 `StageScore` naming — FR-011, 2.4 `ImprovementCycle` — FR-014, 2.5 Golden candidate extension — FR-007, FR-008, 2. Data Model, 4.1 `POST /eval/feedback` — FR-002…FR-006, 4.2 `GET /eval/traces/{trace_id}` — FR-001, FR-017 (+12 more)
+Cohesion: 0.11
+Nodes (14): 2.1 `AgentTrace` (canonical envelope) — FR-001, 2.2 Review taxonomy metadata — FR-002…FR-006, FR-018, 2.3 `StageScore` naming — FR-011, 2.4 `ImprovementCycle` — FR-014, 2.5 Golden candidate extension — FR-007, FR-008, 2. Data Model, 4.1 `POST /eval/feedback` — FR-002…FR-006, 4.2 `GET /eval/traces/{trace_id}` — FR-001, FR-017 (+6 more)
 
 ### Community 144 - "Enterprise AI Evaluation & Improvement Platform — Architecture Assessment"
 Cohesion: 0.11
 Nodes (19): 10. Golden Dataset Governance, 11. Data Model and API Recommendations, 12. Security and Governance, 14. Risks and Trade-offs, 15. Final Recommendations, 1. Executive Summary, 3. Current Architecture, 8. Evaluation Framework Design (+11 more)
 
-### Community 146 - "4. End-to-End Request Flow"
-Cohesion: 0.11
-Nodes (18): 5.1 MCP tool surface (additive), ju(), 22. Migration Plan, 4. End-to-End Request Flow, Phase 1, Phase 2, Phase 3, Phase 4 (+10 more)
+### Community 146 - ".operation_id"
+Cohesion: 0.04
+Nodes (48): 5.1 MCP tool surface (additive), 5.2 `/ready` (MCP) — Phase 5, 5.3 CLIs, 5.4 Function signatures (public surface), 5. API Design, ju(), 16. What Should Remain Unchanged, 17. What Needs to Change (+40 more)
 
-### Community 147 - "AsgiMcpDriver"
-Cohesion: 0.10
-Nodes (14): AsgiMcpDriver, _parse_rpc_body(), RpcResponse, tool_list_snapshot_payload(), test_payload_budgets(), test_initialize_negotiates_protocol_version(), test_malformed_json_parse_error(), test_missing_required_param_fails() (+6 more)
+### Community 147 - "FaultyToolsClient"
+Cohesion: 0.12
+Nodes (5): Drivers, Layer 7 — Robustness, Run, Scoring, FaultyToolsClient
 
 ### Community 148 - "GraphRagService"
-Cohesion: 0.16
-Nodes (7): [2026-10-15] — Doc GraphRAG P4 summary routing (golden deferred), GraphRagArtifact, GraphRagService, _docs_mock(), test_degraded_on_absent_artifact(), test_global_search_citable_plus_summary(), test_maybe_wrap_absent_returns_docs()
+Cohesion: 0.12
+Nodes (10): Agent / tools / MCP, API Design / Function Signatures, Eval, Health (P6 / FR-014), [2026-10-15] — Doc GraphRAG P4 summary routing (golden deferred), GraphRagService, _docs_mock(), test_degraded_on_absent_artifact() (+2 more)
 
 ### Community 149 - "Feature Specification: Web UI Process Pipeline"
-Cohesion: 0.12
-Nodes (17): Business Constraints, Dependencies & Constraints, External Dependencies, Feature Specification: Web UI Process Pipeline, Functional Requirements, Key Entities *(include if feature involves data)*, Measurable Outcomes, Non-Functional Requirements (+9 more)
+Cohesion: 0.08
+Nodes (24): Business Constraints, Dependencies & Constraints, Edge Cases, External Dependencies, Feature Specification: Web UI Process Pipeline, Functional Requirements, Key Entities *(include if feature involves data)*, Measurable Outcomes (+16 more)
 
 ### Community 150 - "Eval Improvement Platform — Implementation Plan"
 Cohesion: 0.14
 Nodes (14): Dependencies between phases, Eval Improvement Platform — Implementation Plan, Explicit non-goals (reminders), Goal, Goal, Notes, Notes, Phase 1 — Observe foundation (+6 more)
 
 ### Community 151 - "bl"
-Cohesion: 0.04
-Nodes (11): bl(), hs(), il(), Iw, kl(), nl(), ol(), rl() (+3 more)
+Cohesion: 0.06
+Nodes (9): bl(), il(), Iw, kl(), Mg(), nl(), vl(), wl() (+1 more)
 
 ### Community 152 - "Eval layers — plain English"
 Cohesion: 0.08
 Nodes (25): Built suites today, Eval layers — plain English, Executable golden cases, How they stack, Layer 1 — MCP server, Layer 3 — Arguments, Layer 4 — Trajectory, Layer 5 — Outcomes (+17 more)
 
-### Community 153 - "cases.py"
-Cohesion: 0.20
-Nodes (13): Add a case, Layer 1 — MCP server evaluation, Notes, Run, Snapshots, Suites, all_cases(), contract_cases() (+5 more)
+### Community 153 - "i"
+Cohesion: 0.15
+Nodes (17): a(), em(), Gc(), i(), im(), Jc(), jy(), Kc() (+9 more)
 
 ### Community 154 - "doc-graphrag - Implementation Plan"
-Cohesion: 0.12
-Nodes (17): Architecture Overview, Blockers / decisions (fill during execution), Core Dependencies, Deviations, doc-graphrag - Implementation Plan, How to Use This Plan, Implementation Phases, Notes (+9 more)
+Cohesion: 0.11
+Nodes (18): Architecture Overview, Blockers / decisions (fill during execution), Core Dependencies, Deviations, doc-graphrag - Implementation Plan, Existing Infrastructure, How to Use This Plan, Implementation Phases (+10 more)
 
 ### Community 155 - "retrieval/harness.py"
 Cohesion: 0.22
@@ -1227,8 +1224,8 @@ Nodes (26): printError(), printJson(), printProgress(), printSuccess(), printSum
 Cohesion: 0.12
 Nodes (16): AuthenticationError, BackendUnavailableError, Error Handling, Example 1: Create MR from current branch (no parameters), Example 2: Create a draft MR with a custom title, Example 3: Create MR targeting a specific branch, Examples, MRCreationFailedError (+8 more)
 
-### Community 160 - "graph_rag/service.py"
-Cohesion: 0.11
+### Community 160 - "build_community_records"
+Cohesion: 0.12
 Nodes (8): build_community_records(), extractive_summary(), graph_from_doc_links(), louvain_communities(), select_route(), test_build_community_records(), test_louvain_seed_deterministic(), test_select_route_global_hints()
 
 ### Community 161 - "Step 3: Verify Each Project"
@@ -1244,28 +1241,28 @@ Cohesion: 0.08
 Nodes (25): "401 Unauthorized" Error, Author, Backends, `check-branch-protection`, Development, Environment Configuration, `gitlab-backend`, GitLab CI/CD Prompts (+17 more)
 
 ### Community 164 - "Web UI Process Pipeline — Implementation Plan"
-Cohesion: 0.13
-Nodes (15): Dependencies between phases, Explicit non-goals (reminders), Goal, Goal, Notes, Notes, Phase 2 — Extraction, Phase 5 — Docs, graph, pilot (+7 more)
+Cohesion: 0.08
+Nodes (25): Dependencies between phases, Explicit non-goals (reminders), Goal, Goal, Goal, Goal, Notes, Notes (+17 more)
 
-### Community 165 - "LastInvokeRing"
-Cohesion: 0.17
-Nodes (3): LastInvoke, LastInvokeRing, _now()
+### Community 165 - "BreakerRegistry"
+Cohesion: 0.10
+Nodes (4): LastInvoke, LastInvokeRing, _now(), BreakerRegistry
 
 ### Community 166 - "validate.py"
-Cohesion: 0.17
-Nodes (10): sync_approved(), test_validate_registry_passes(), _case_ids_from_layer_file(), list_rubric_versions(), _load_jsonl(), load_registry(), RegistryEntry, _token_set() (+2 more)
+Cohesion: 0.19
+Nodes (9): sync_approved(), _case_ids_from_layer_file(), list_rubric_versions(), _load_jsonl(), load_registry(), RegistryEntry, _token_set(), validate_governance() (+1 more)
 
 ### Community 167 - "api_index/catalog.py"
 Cohesion: 0.08
-Nodes (18): 9.3 Phase 3 — Vector index and search, 9.4 Phase 4 — Credentials and per-app invoke, 9.5 Phase 5 — Health, metrics, schedule, scale, 9.6 Scheduled refresh, 9. Implementation Details, _attach_capabilities(), build_operations(), _facts_from_interface() (+10 more)
+Nodes (20): _attach_capabilities(), build_operations(), _facts_from_interface(), load_operations(), mismatch_report(), OperationCatalog, write_operations(), AppHealth (+12 more)
 
 ### Community 168 - "Web UI Process Pipeline — Technical Specification"
-Cohesion: 0.12
-Nodes (17): CLI (PowerShell), Data Models, Edge Cases, File Structure, Interfaces, Internal Python API, Open Technical Questions, Performance Considerations (+9 more)
+Cohesion: 0.08
+Nodes (25): Approval Gates (AGENTS.md "Approval required before"), Architecture, CLI (PowerShell), Component Overview, Data Flow, Data Models, Edge Cases, File Structure (+17 more)
 
 ### Community 169 - "Technical Specification: Enterprise App Scale"
-Cohesion: 0.06
-Nodes (33): 13. Performance Considerations, 14.1 Unit / integration by phase, 14.3 Gates per phase, 14.4 Coverage / thresholds — G10, 14. Testing Strategy, 15. Configuration, 16. Deployment Considerations, 17. Dependencies (+25 more)
+Cohesion: 0.05
+Nodes (37): 12. Security Considerations, 13. Performance Considerations, 14.1 Unit / integration by phase, 14.3 Gates per phase, 14.4 Coverage / thresholds — G10, 14. Testing Strategy, 15. Configuration, 16. Deployment Considerations (+29 more)
 
 ### Community 170 - "Git Workflow Prompts"
 Cohesion: 0.07
@@ -1275,25 +1272,21 @@ Nodes (28): Author, Automatic Pre-Commit Fix Handling, Automatic Retry Errors, B
 Cohesion: 0.19
 Nodes (13): cellText(), ColKey, COLS, EvalSpreadsheet(), bulkMarkGood(), patchRow(), FilterOutcome, HighlightedAnswer() (+5 more)
 
-### Community 172 - "PHASE_STATUS.md"
-Cohesion: 0.16
-Nodes (4): Evidence (2026-10-03), Live SSE swagger verification, Not proven, Servicing Agent â€” Task Tracker
-
-### Community 173 - "scheduler.py"
-Cohesion: 0.14
-Nodes (7): ensure_scheduler_started(), run_nightly_locked(), scheduler_loop(), seconds_until_hour_utc(), start_scheduler_task(), stop_scheduler(), test_seconds_until_hour_utc()
+### Community 173 - "run_nightly_locked"
+Cohesion: 0.23
+Nodes (4): ensure_scheduler_started(), run_nightly_locked(), scheduler_loop(), start_scheduler_task()
 
 ### Community 175 - "policy_source.py"
-Cohesion: 0.06
-Nodes (25): ADR-008 — Live Confluence SOP ingest (composite, gitignored artifacts), [2026-07-21] — Live Confluence SOP ingest (Escrow + Hardship), _confluence_policy_provider(), get_policy_source_provider(), AbstractPolicySourceProvider, _category_for(), CompositePolicyProvider, ConfluencePolicyProvider (+17 more)
+Cohesion: 0.14
+Nodes (10): [2026-07-21] — Live Confluence SOP ingest (Escrow + Hardship), _category_for(), ConfluencePolicyProvider, _extract_dp_code(), _scrub_async(), _scrub_regex(), _slugify(), ConfluenceConfig (+2 more)
 
-### Community 176 - "Ff"
-Cohesion: 0.21
-Nodes (4): Af, Ff, Lf, Qf
+### Community 176 - "t"
+Cohesion: 0.06
+Nodes (30): ev, Example(), Ff, getValue(), Header(), Im, ir(), t() (+22 more)
 
 ### Community 177 - "build_modular_tools_client"
-Cohesion: 0.08
-Nodes (24): Context brief — enterprise-app-scale (execution grounding), Conventions execution must follow, Gap classification summary, Integration & wiring points, P1–P2 already shipped (touch carefully; gates verify), Relevant files, Sizing, Tests present vs plan names (+16 more)
+Cohesion: 0.07
+Nodes (27): 2.1 High-level, 2.2 Component design, 2.3 Data flow, 2. Architecture, 8.2 Modified files, Context brief — enterprise-app-scale (execution grounding), Conventions execution must follow, Gap classification summary (+19 more)
 
 ### Community 178 - "LoanOps Agent — One-Pager (archived draft)"
 Cohesion: 0.08
@@ -1312,16 +1305,16 @@ Cohesion: 0.18
 Nodes (3): mock_chat_provider(), mock_prompt_store(), mock_tools_client()
 
 ### Community 187 - "LoanOps — Current State & Possible Future"
-Cohesion: 0.12
-Nodes (16): 1. What the app does, 2. Current state, 4. Connected applications & links, 5. Possible future state, 6. Architecture picture, 7. Lucid chart map, 8. Where to go next, At a glance (+8 more)
+Cohesion: 0.11
+Nodes (19): 1. What the app does, 2. Current state, 3. How people use it today, 4. Connected applications & links, 5. Possible future state, 6. Architecture picture, 7. Lucid chart map, 8. Where to go next (+11 more)
 
-### Community 188 - "layer8.py"
-Cohesion: 0.10
+### Community 188 - "operations/metrics.py"
+Cohesion: 0.09
 Nodes (17): _fixture_traces(), Layer8Report, load_slos(), main(), _print_report(), _repo_data_dir(), run_layer8(), run_layer8_async() (+9 more)
 
 ### Community 189 - "version"
-Cohesion: 0.14
-Nodes (12): Process KG curated maps, Predicates, 6. Existing tests and evals, Golden datasets on disk, What is covered, What is not covered (or only declared), 10.1 Synthetic Loans (`data/loans.json`), 10.2 Synthetic SOPs (`data/sops/`) (+4 more)
+Cohesion: 0.11
+Nodes (16): Process KG curated maps, Capability Ontology, CrossAppRelationship kinds, Example (conceptual), Predicates, Review status literals, 6. Existing tests and evals, Golden datasets on disk (+8 more)
 
 ### Community 190 - "Doc GraphRAG"
 Cohesion: 0.12
@@ -1336,16 +1329,16 @@ Cohesion: 0.19
 Nodes (6): build_history_messages(), estimate_tokens(), export_memory_markdown(), test_build_history_messages_budget(), test_build_history_messages_empty(), test_build_history_messages_loan_retention()
 
 ### Community 195 - "RepositoryRegistry"
-Cohesion: 0.05
-Nodes (47): 4.1 Registry record (persisted YAML; additive) — G2, 8.1 New files, [2026-10-09] — Phase 1: spec cache, registry catalog, pgvector, AppEnvironment, _environments(), import_taac(), ImportReport, load_api_identifier() (+39 more)
+Cohesion: 0.08
+Nodes (27): 4.1 Registry record (persisted YAML; additive) — G2, 8.1 New files, AppEnvironment, _environments(), import_taac(), ImportReport, load_api_identifier(), _lifecycle() (+19 more)
 
 ### Community 197 - "gitlab/1.3.1/README.md"
-Cohesion: 0.17
+Cohesion: 0.15
 Nodes (8): Edge Cases, GitLab Backend, MR Review Address, Prerequisites, Replying to GitLab Discussions, Resuming a Previous Session, Scripts Reference, Tracker CLI
 
 ### Community 198 - "Technical Specification: Doc GraphRAG"
-Cohesion: 0.05
-Nodes (37): Algorithms & Logic, API Design / Function Signatures, Architecture, Citation grounding, Community routing (P4), Configuration, Data Flow, Data Model (+29 more)
+Cohesion: 0.06
+Nodes (32): Algorithms & Logic, Citation grounding, Community routing (P4), Configuration, Data Model, Dependencies, Deployment / Migration, `doc_links.json` (+24 more)
 
 ### Community 199 - "apps/web_ui/package.json"
 Cohesion: 0.10
@@ -1353,7 +1346,7 @@ Nodes (23): name, private, scripts, build, dev, lint, postinstall, preview (+15 
 
 ### Community 200 - "call_sse_api"
 Cohesion: 0.04
-Nodes (63): 1. Loan summary (SSE), 2. Payment schedules (SSE), 3. Escrow (SSE), 4. Borrower summary (SSE), Demo queries — live Loan Services (Path A), Run one, 1. Two graphs (do not conflate), 2. EAKG pipeline (what actually runs) (+55 more)
+Nodes (85): 7. Tool Inventory, 9. Configuration, 2. Env var quick reference (all from `settings.py`), A.2 Users, 1. Loan summary (SSE), 2. Payment schedules (SSE), 3. Escrow (SSE), 4. Borrower summary (SSE) (+77 more)
 
 ### Community 201 - "store.ts"
 Cohesion: 0.16
@@ -1364,16 +1357,16 @@ Cohesion: 0.24
 Nodes (7): _case_injection_marker(), _case_scope_deny(), _case_write_rejected(), L6Case, Layer6Report, main(), run_layer6()
 
 ### Community 207 - "ChatPane.tsx"
-Cohesion: 0.13
-Nodes (20): App(), AgentStepItem(), AgentSteps(), AgentStepsProps, ChatMessage(), ChatMessageProps, ChatPane(), Message (+12 more)
+Cohesion: 0.14
+Nodes (19): App(), AgentStepItem(), AgentSteps(), AgentStepsProps, ChatMessage(), ChatMessageProps, ChatPane(), AgentTurnOutput (+11 more)
 
 ### Community 208 - "Servicing Agent â€” Architecture Decision Records"
-Cohesion: 0.10
-Nodes (21): ADR-001 â€” Orchestration: Microsoft Agent Framework, ADR-002 â€” Local LLM: Ollama + Llama 3.1 8B, ADR-003 â€” Rep UI: Streamlit, ADR-004 â€” Provider Abstraction Pattern, ADR-005 â€” Unified Agent Rules: AGENTS.md, ADR-006 â€” Rep UI: React with TypeScript, ADR-009 — Independent loan vs SOP source switches, ADR-010 — One modular Python product (+13 more)
-
-### Community 210 - "get_graph_store"
 Cohesion: 0.06
-Nodes (23): After each session, Approval required before, Build a step, Check provider invariants, Common workflows, Knowledge graph (Graphify) — mandatory, Module layout, Quick reference (+15 more)
+Nodes (32): ADR-001 â€” Orchestration: Microsoft Agent Framework, ADR-002 â€” Local LLM: Ollama + Llama 3.1 8B, ADR-003 â€” Rep UI: Streamlit, ADR-004 â€” Provider Abstraction Pattern, ADR-005 â€” Unified Agent Rules: AGENTS.md, ADR-006 â€” Rep UI: React with TypeScript, ADR-009 — Independent loan vs SOP source switches, ADR-010 — One modular Python product (+24 more)
+
+### Community 210 - "get_credential_broker"
+Cohesion: 0.06
+Nodes (28): After each session, Approval required before, Build a step, Check provider invariants, Common workflows, Knowledge graph (Graphify) — mandatory, LoanOps + provider_contracts lockstep (new libraries), Module layout (+20 more)
 
 ### Community 219 - "Story ⇄ Jira Sync"
 Cohesion: 0.11
@@ -1387,21 +1380,21 @@ Nodes (13): Approval needed before build, Architecture Summary, Core Approach, D
 Cohesion: 0.11
 Nodes (9): lifespan(), call_mcp_tool(), list_mcp_tools(), McpToolCallRequest, register_mcp_key(), RegisterKeyRequest, create_webhook(), get_fee() (+1 more)
 
-### Community 227 - "Phase 1 Plan"
-Cohesion: 0.14
-Nodes (14): 1. Phase-1 intent, 2. In / out of scope, 3. Mapping user’s “implementation order” → reality, 4. Proposed work packages (after approval), 5. Acceptance criteria (Phase 1 done), 6. Suggested sequencing (post-approval), 7. Risks & mitigations, 8. Decision needed from reviewers (+6 more)
+### Community 227 - "aggregate.py"
+Cohesion: 0.20
+Nodes (7): aggregate_results(), CaseAgg, VariantAgg, wilson_lower_bound(), test_aggregate_fail_below_floor(), test_aggregate_pass(), test_wilson_perfect()
 
 ### Community 228 - "servicing-agent"
-Cohesion: 0.44
-Nodes (17): loanops-agent-api, loanops-agent-core, loanops-api-index, loanops-capability-kg, loanops-common, loanops-db, loanops-docs, loanops-eakg (+9 more)
+Cohesion: 0.42
+Nodes (18): loanops-agent-api, loanops-agent-core, loanops-api-index, loanops-capability-kg, loanops-common, loanops-db, loanops-docs, loanops-eakg (+10 more)
 
 ### Community 231 - "Feature Specification: Eval Improvement Platform"
 Cohesion: 0.15
 Nodes (13): Controlled Failure Taxonomy (v1) — user-facing labels, Dependencies & Constraints, Feature Specification: Eval Improvement Platform, Functional Requirements, Key Entities *(business meaning)*, Non-Functional Requirements, Open Questions, Out of Scope (+5 more)
 
 ### Community 232 - "test_validate.py"
-Cohesion: 0.17
-Nodes (8): AgreementReport, _cohen_kappa(), compute_agreement(), calibrate_judge(), CalibrateReport, test_agreement_and_calibrate(), test_jaccard(), jaccard()
+Cohesion: 0.15
+Nodes (9): AgreementReport, _cohen_kappa(), compute_agreement(), calibrate_judge(), CalibrateReport, test_agreement_and_calibrate(), test_jaccard(), test_validate_registry_passes() (+1 more)
 
 ### Community 233 - "Standalone retirement checklist (ADR-010)"
 Cohesion: 0.40
@@ -1419,17 +1412,17 @@ Nodes (14): Config & Connection Remediation, Estimate: Check and Set, Example 1 
 Cohesion: 0.08
 Nodes (26): Actions, Actions, Actions, Actions, Actions, Inputs, Inputs, Inputs (+18 more)
 
-### Community 237 - ".defaults"
-Cohesion: 0.12
-Nodes (17): 1.4.0, Drift Detection, Fallback Behavior, How Workflow Skills Resolve the Active Project, Multi-Project Example, Per-Team Configuration, Quick Start, What's in It (+9 more)
+### Community 237 - "Version History"
+Cohesion: 0.10
+Nodes (20): 1.0.0, 1.10.0, 1.1.x, 1.2.0, 1.3.0, 1.4.0, 1.5.0, 1.7.0 (+12 more)
 
 ### Community 238 - ".fail"
 Cohesion: 0.08
 Nodes (29): Constraints on the Method, Errors, Inputs, Invocation Contract, Pass 1 — Requirement Coverage, Pass 2 — Architectural Soundness, Pass 3 — Buildability, Pass 4 — Testability (+21 more)
 
 ### Community 239 - "TraceReviewDrawer.tsx"
-Cohesion: 0.13
-Nodes (24): EvalInsightsBar(), LayerHealth, DEPT_RUBRICS, formatMs(), kindColor(), spanDepth(), spansToToolCalls(), TraceReviewDrawer() (+16 more)
+Cohesion: 0.11
+Nodes (27): Step 6 — Logical Name to Live Field Name, EvalInsightsBar(), LayerHealth, DEPT_RUBRICS, formatMs(), kindColor(), spanDepth(), spansToToolCalls() (+19 more)
 
 ### Community 240 - "Search Jira (Atlassian Search Source)"
 Cohesion: 0.20
@@ -1469,23 +1462,27 @@ Nodes (36): AC Mode Detection, Bug Creation, Bug Description Strategy, Common Bu
 
 ### Community 257 - "logs.md"
 Cohesion: 0.03
-Nodes (64): [2026-05-28] — Step 7: Safety layer implemented, [2026-05-31] — Tooling: Graphify knowledge graph, [2026-06-09] — Graphify-first rule added to all agent instructions, [2026-06-10] — Conversational Memory Feature, [2026-06-18] — Bedrock API Key Auth & PII Stub Fixes, [2026-06-21] — Langfuse Telemetry Integration, [2026-07-24] — Independent DATA__LOAN_SOURCE / DATA__SOP_SOURCE, [2026-09-29] — ADR-010 One modular Python product (+56 more)
+Nodes (68): [2026-05-28] — Step 7: Safety layer implemented, [2026-05-31] — Tooling: Graphify knowledge graph, [2026-06-09] — Graphify-first rule added to all agent instructions, [2026-06-10] — Conversational Memory Feature, [2026-06-18] — Bedrock API Key Auth & PII Stub Fixes, [2026-06-21] — Langfuse Telemetry Integration, [2026-07-24] — Independent DATA__LOAN_SOURCE / DATA__SOP_SOURCE, [2026-09-29] — ADR-010 One modular Python product (+60 more)
 
 ### Community 258 - "borrower-summary.schema.json"
 Cohesion: 0.25
 Nodes (7): $id, items, $ref, minItems, $schema, title, type
 
-### Community 269 - "extract_openapi.py"
-Cohesion: 0.18
-Nodes (8): build_graph_from_openapi_dict(), build_graph_from_operations(), camel_to_snake(), _capability_comment(), capability_id_for_operation(), _safe_local(), uri_to_str(), test_capability_id_for_operation()
+### Community 269 - "build_graph_from_operations"
+Cohesion: 0.22
+Nodes (6): build_graph_from_operations(), camel_to_snake(), _capability_comment(), capability_id_for_operation(), _safe_local(), test_capability_id_for_operation()
 
 ### Community 270 - "CapabilityCatalogService"
 Cohesion: 0.10
-Nodes (11): ADR-019 — EAKG settings namespace and index schedule, ADR-023 — Cached EAKG catalog + OpenAPI embedding sidecar, [2026-04-08] — Cursor → MCP hardening (5 Required), _Cache, CapabilityCatalogService, shard_fingerprint(), _stamp(), test_catalog_reuses_merge_until_fingerprint_changes() (+3 more)
+Nodes (10): ADR-019 — EAKG settings namespace and index schedule, embeddings_path_for_shards(), _Cache, CapabilityCatalogService, shard_fingerprint(), _stamp(), use_semantic(), test_catalog_reuses_merge_until_fingerprint_changes() (+2 more)
 
 ### Community 271 - "Jira Field Mappings"
 Cohesion: 0.10
 Nodes (20): Acceptance Criteria, Bug Field Allowed Values, Bug-Specific Fields, Environment (`{{bugEnvironmentFieldId}}`), Epic Acceptance Criteria Field Availability, Epic-Specific Fields, Format Type Rules, Issue Type IDs (+12 more)
+
+### Community 273 - "CompositePolicyProvider"
+Cohesion: 0.16
+Nodes (7): Integration Points, ADR-008 — Live Confluence SOP ingest (composite, gitignored artifacts), _confluence_policy_provider(), get_policy_source_provider(), AbstractPolicySourceProvider, CompositePolicyProvider, Step 3 — RAG pipeline
 
 ### Community 275 - "me"
 Cohesion: 0.11
@@ -1516,20 +1513,20 @@ Cohesion: 0.17
 Nodes (11): Decisions and branches, Gazetteers (approved maps), Header, Hub topics, Ordered steps, Process extract grammar (ADR-028), Provenance, Sections (+3 more)
 
 ### Community 285 - "stack_ops.py"
-Cohesion: 0.19
+Cohesion: 0.27
 Nodes (7): cmd_health(), cmd_refresh_index(), cmd_status(), cmd_wait(), http_ok(), main(), tcp_open()
 
 ### Community 286 - "server.py"
-Cohesion: 0.07
-Nodes (13): 12. Security Considerations, [2026-10-09] — P1/P2 quality gates closed, _Audit, CaptureHeadersMiddleware, _CatalogSvc, _meta(), _Op, _record_mcp_metrics() (+5 more)
+Cohesion: 0.09
+Nodes (8): _Audit, CaptureHeadersMiddleware, _CatalogSvc, _meta(), _Op, RequestMeta, sanitize_args(), _Tools
 
 ### Community 287 - "Story Examples"
 Cohesion: 0.10
 Nodes (19): Acceptance Scenarios, Bad, Bad, Bad, Bad, Bad (not independently testable), Bad (too technical), Boundary Violations (story vs design) (+11 more)
 
-### Community 288 - "r"
-Cohesion: 0.04
-Nodes (120): Skills, a(), c(), u(), add(), c(), l(), assign() (+112 more)
+### Community 288 - "S"
+Cohesion: 0.05
+Nodes (64): a(), c(), As(), c(), l(), b, bo(), c() (+56 more)
 
 ### Community 289 - "glab CLI Command Map"
 Cohesion: 0.11
@@ -1591,17 +1588,17 @@ Nodes (4): maxLength, minLength, type, MailingRegion
 Cohesion: 0.50
 Nodes (4): PropertyRegion, maxLength, minLength, type
 
-### Community 309 - "test_ingest_sops_indexes_markdown"
-Cohesion: 0.14
-Nodes (3): _Emb, _Store, test_ingest_sops_indexes_markdown()
+### Community 309 - "get_settings"
+Cohesion: 0.17
+Nodes (7): _agent_owns_vector_store(), get_settings(), load_artifact(), _read_json(), write_artifact(), main(), _run()
 
 ### Community 311 - "Story ⇄ Story Dependency Linking"
 Cohesion: 0.11
 Nodes (17): 1. Resolve every story to a Jira issue key, 2. Orient the edges, 3. Push the batch through jira, 4. Relay the result, Consuming the jira Layer, Dependency Is Not Parent, Direction: dependsOn Blocks Story, Errors (+9 more)
 
 ### Community 312 - "build.py"
-Cohesion: 0.11
-Nodes (15): Graph artifact (P5) — `data/graphrag/`, load_artifact(), _read_json(), refuse_confluence_repo_write(), write_artifact(), _assert_model_pin(), build_and_index(), _chunk_corpus() (+7 more)
+Cohesion: 0.13
+Nodes (12): refuse_confluence_repo_write(), _assert_model_pin(), build_and_index(), _chunk_corpus(), main(), _resolved_model_id(), _run_extract(), corpus_hash() (+4 more)
 
 ### Community 313 - "Create Technical Specification"
 Cohesion: 0.33
@@ -1656,8 +1653,8 @@ Cohesion: 0.13
 Nodes (15): Actions, Actions, Actions, Actions, Actions, Instructions, Outputs, Report (+7 more)
 
 ### Community 415 - "jira"
-Cohesion: 0.08
-Nodes (25): 1.0.0, 1.10.0, 1.1.x, 1.2.0, 1.3.0, 1.5.0, 1.7.0, 1.8.0 (+17 more)
+Cohesion: 0.09
+Nodes (22): Author, Composing With This Package, Configuration Skills, Development, Drift Detection, Fallback Behavior, How Workflow Skills Resolve the Active Project, Installation (+14 more)
 
 ### Community 416 - "Link Jira Issues"
 Cohesion: 0.13
@@ -1687,9 +1684,9 @@ Nodes (14): 1. Orient on the spec, 2. Explore the actual codebase, 3. Classify g
 Cohesion: 0.13
 Nodes (14): Cross-References, Errors, Inputs, Invocation Contract, Pre-Handoff Check, Procedure, Reference Documents, Returns (+6 more)
 
-### Community 423 - "Review Spec Design"
-Cohesion: 0.33
-Nodes (5): Error Handling, Instructions, Parameters, Response Format, Review Spec Design
+### Community 423 - "Auth in simple words — Wiki, MCP Gateway, and LoanOps"
+Cohesion: 0.15
+Nodes (13): Auth in simple words — Wiki, MCP Gateway, and LoanOps, Cheat sheet, How the three fit together (long term), LoanOps today — what we actually do, One sentence, Picture in plain words, Plaisse MCP Gateway — how login works, Plaisse wiki — how login works (+5 more)
 
 ### Community 424 - "Story Review"
 Cohesion: 0.20
@@ -1744,11 +1741,11 @@ Cohesion: 0.15
 Nodes (12): 1. Title & Metadata, 2. Summary & Health Score, 3. Requirement Coverage, 4. Test Coverage, 5. Findings, 6. Plan-Todo Accuracy, 7. Recommendations, 8. Positive Notes (+4 more)
 
 ### Community 458 - "layer2.py"
-Cohesion: 0.09
-Nodes (28): CaseResult, Layer2Report, _load_golden(), _load_trajectories(), main(), _print_report(), _repo_data_dir(), run_canned() (+20 more)
+Cohesion: 0.16
+Nodes (15): CaseResult, Layer2Report, _load_golden(), _load_trajectories(), main(), _print_report(), _repo_data_dir(), run_canned() (+7 more)
 
-### Community 462 - "test_graph_store.py"
-Cohesion: 0.21
+### Community 462 - "asyncio"
+Cohesion: 0.22
 Nodes (6): fake_store(), test_fake_replace_and_select(), test_fake_replace_clears_prior(), test_http_query_error_surface(), test_http_store_against_fake_endpoint(), handler()
 
 ### Community 496 - "fixtures/package.json"
@@ -1784,8 +1781,8 @@ Cohesion: 0.11
 Nodes (19): Add — Success Response, AddFailedError (`add`), Critical Error Handling Requirements, DirtyWorktreeError (`update`), Error Handling, Git Submodule Operations, Notes, Operation Selection (+11 more)
 
 ### Community 504 - "ground_citations"
-Cohesion: 0.17
-Nodes (14): extract_paths_and_texts(), ground_citations(), GroundingReport, _normalize_ws(), policy_citation_grounded(), _tool_name(), _tool_summary(), _search_docs_summary() (+6 more)
+Cohesion: 0.13
+Nodes (16): extract_paths_and_texts(), ground_citations(), GroundingReport, _normalize_ws(), policy_citation_grounded(), _tool_name(), _tool_summary(), _strip_thinking_tags() (+8 more)
 
 ### Community 505 - "Instructions"
 Cohesion: 0.22
@@ -1804,8 +1801,8 @@ Cohesion: 0.18
 Nodes (10): Author, Dependencies, Installation, License, story, Templates, The three lifecycle dimensions, Usage (+2 more)
 
 ### Community 509 - "Plaisse MCP Gateway vs LoanOps — comparison"
-Cohesion: 0.14
-Nodes (13): Adding a new app, Can Cedar describe relationships between two apps?, Cheat sheet, How to combine later (not built yet), Invented APIs: we focused here, Login and permissions: they are ahead, One sentence each, Picture in plain words (+5 more)
+Cohesion: 0.12
+Nodes (15): Adding a new app, Can Cedar describe relationships between two apps?, Cheat sheet, How to combine later (not built yet), Invented APIs: we focused here, Login and permissions: they are ahead, One sentence each, Our Lucid (what we built) (+7 more)
 
 ### Community 510 - "StaticTokenVerifier"
 Cohesion: 0.17
@@ -1819,13 +1816,13 @@ Nodes (10): Commit and Push, Create Branch, Full Verification (Default), Pull, S
 Cohesion: 0.20
 Nodes (9): Additional Tools (if available), Alternative Backend: glab CLI (when GitLab MCP is unavailable), Cleanup Instructions, Expected Success Criteria, GitLab Pipeline Log Retrieval Prompt, Prerequisites, Purpose, Tool Details: (+1 more)
 
-### Community 513 - "ApiIndexConfig"
+### Community 513 - "LoanOps Agent — Demo Architecture"
 Cohesion: 0.17
-Nodes (10): Implementation Phases, Phase 1 — Registry, spec cache, catalog from cache (no boot network), Phase 2 — Unified operation record, id join, bind fix, Phase 3 — Vector index, incremental reindex, two-stage search, Phase 4 — CredentialBroker, per-app invoke, registry allow-list, clear access errors, Phase 5 — Per-app health, metrics, scheduled refresh, scale validation, Phase 6 — Documentation and graph upkeep, Status snapshot (+2 more)
+Nodes (10): 1. The 30-second pitch, 2. System at a glance (C4 container view), 3. Request flow (one turn), 4. The load-bearing idea: Provider Abstraction, 5. Knowledge pipeline (RAG ingest), 6. Data modes — mock vs real, 7. Responsible-AI controls (the compliance story), 8. Live demo runbook (+2 more)
 
 ### Community 514 - "LAYERS.md"
-Cohesion: 0.05
-Nodes (30): Drivers, Files, Layer 2 — Tool selection, Out of scope, Run, Scoring rules, Drivers, Files (+22 more)
+Cohesion: 0.04
+Nodes (37): Layer 1 — MCP server evaluation, Notes, Run, Snapshots, Suites, Drivers, Files, Layer 2 — Tool selection (+29 more)
 
 ### Community 515 - "tom-select.complete.min.js"
 Cohesion: 0.18
@@ -1856,12 +1853,12 @@ Cohesion: 0.22
 Nodes (9): additionalProperties, description, type, additionalProperties, description, type, properties, defaults (+1 more)
 
 ### Community 524 - "CONTEXT.md — Quick-Reference Companion"
-Cohesion: 0.08
-Nodes (23): 9. Configuration, 10. PII patterns (Presidio), 11. Common one-liners, 12. Module layout (scaffold status), 13. Data directory, 14. Docker dependencies (local dev), 15. Commit conventions, 17. CI / CD (`.github/workflows/`) (+15 more)
+Cohesion: 0.14
+Nodes (14): 10. PII patterns (Presidio), 11. Common one-liners, 12. Module layout (scaffold status), 13. Data directory, 14. Docker dependencies (local dev), 15. Commit conventions, 17. CI / CD (`.github/workflows/`), 18. Current focus (+6 more)
 
-### Community 525 - "extract_chunk"
-Cohesion: 0.17
-Nodes (7): _ChatLike, extract_chunk(), _parse_payload(), from_dropped(), _id(), LedgerItem, shape_key()
+### Community 525 - "gm"
+Cohesion: 0.20
+Nodes (10): Nb(), qv, Rb, _b(), gm(), km(), vm(), wm() (+2 more)
 
 ### Community 526 - "Test Session: 2026-06-05"
 Cohesion: 0.13
@@ -1899,13 +1896,17 @@ Nodes (9): Errors, Invocation Contract, operation: assign, operation: point, ope
 Cohesion: 0.25
 Nodes (7): Constraints, Handoff IN, Instructions, Return to caller, Role, Skills, Spec Author
 
+### Community 535 - "JsonFileLoanProvider"
+Cohesion: 0.08
+Nodes (5): get_loan_data_provider(), AbstractLoanDataProvider, optional(), JsonFileLoanProvider, loan_fixtures_dir()
+
 ### Community 536 - "Spec Section Examples"
 Cohesion: 0.25
 Nodes (7): Algorithms & Logic, Architecture & Data Flow, Data Model, Edge Cases & Error Handling, Spec Section Examples, Technical Decisions, Testing Strategy
 
 ### Community 537 - "Settings"
-Cohesion: 0.10
-Nodes (24): R8c. MCP health and settings, load_operations(), write_operations(), api_index_dir(), manifest_path(), operations_path(), sidecar_path(), _caps() (+16 more)
+Cohesion: 0.07
+Nodes (22): record_metric(), api_index_dir(), manifest_path(), sidecar_path(), _caps(), _env(), _exit_code(), main() (+14 more)
 
 ### Community 538 - "Story Reviewer"
 Cohesion: 0.25
@@ -1973,7 +1974,7 @@ Nodes (6): Error Handling, Get Jira Ticket, Instructions, Parameters, Response F
 
 ### Community 554 - "eakg/__main__.py"
 Cohesion: 0.05
-Nodes (73): loanops_ns(), upload_graph(), main(), _load(), _upload_apps(), ChildStub, _clip(), CuratedMaps (+65 more)
+Nodes (68): loanops_ns(), upload_graph(), main(), _load(), _upload_apps(), ChildStub, _clip(), CuratedMaps (+60 more)
 
 ### Community 555 - "Search and Summarize Confluence"
 Cohesion: 0.29
@@ -1991,9 +1992,9 @@ Nodes (6): Error Handling, Instructions, Parameters, Response Format, Success Re
 Cohesion: 0.29
 Nodes (6): Error Handling, Instructions, Parameters, Response Format, Success Response, Update Jira Task
 
-### Community 559 - "loan_data.py"
-Cohesion: 0.15
-Nodes (19): _derive_delinquency_days(), _derive_flags(), _derive_status(), _merge_loan_sources(), _normalize_escrow_breakdown(), _normalize_loan(), _normalize_payment_schedule(), _normalize_search_results() (+11 more)
+### Community 559 - "4. End-to-End Request Flow"
+Cohesion: 0.20
+Nodes (6): 4. End-to-End Request Flow, Agent-facing tool list (chat path), _tools_for_client(), test_eakg_tools_are_advertised(), main(), path_params()
 
 ### Community 560 - "projects"
 Cohesion: 0.29
@@ -2008,20 +2009,16 @@ Cohesion: 0.29
 Nodes (6): aidev Triage (Tier 1 failure handling), Detection Algorithm (ordered), Invocation Strategy, Quality-Gate Detection, Tier 2 — Repo `package.json` Scripts (fallback), Tier 3 — Skip With a Noted Assumption
 
 ### Community 563 - ".description"
-Cohesion: 0.07
-Nodes (34): `addressMRReview`, `createProject`, `openMR`, Pipeline Log Retrieval, Prompts, `setup`, Create, createBug (+26 more)
+Cohesion: 0.06
+Nodes (37): `addressMRReview`, `createProject`, `openMR`, Pipeline Log Retrieval, Prompts, `setup`, Create, createBug (+29 more)
 
 ### Community 564 - "12. Safety & Responsible AI"
 Cohesion: 0.22
 Nodes (9): 12.1 Grounding Rule, 12.2 Human-in-the-Loop (HITL), 12.3 PII Redaction at Ingress, 12.4 Content Safety at Egress, 12.5 Audit Trail, 12.6 Prompt-Injection Hardening, 12.7 Disclaimers, 12.8 Supervisor Oversight (+1 more)
 
-### Community 565 - "pytest"
-Cohesion: 0.12
-Nodes (5): pytest_addoption(), scale_profile(), scale_sizes(), provider(), TestContentSafetyProviderContract
-
-### Community 566 - "Story ⇄ Jira Field Mapping"
-Cohesion: 0.18
-Nodes (10): Acceptance-criteria diff (item-level), acceptanceCriteria, Choosing acMergeMode, description, Extracting Each Field, Putting It Together, Story ⇄ Jira Field Mapping, summary (+2 more)
+### Community 566 - "validate_data.py"
+Cohesion: 0.29
+Nodes (6): _log(), main(), _resolve_data_dir(), validate_golden(), validate_loans(), validate_sops()
 
 ### Community 567 - "resolve_destination"
 Cohesion: 0.23
@@ -2040,8 +2037,8 @@ Cohesion: 0.29
 Nodes (6): Error Handling, Instructions, Notes, Parameters, Response Format, Transition Story
 
 ### Community 571 - "PiiSpan"
-Cohesion: 0.21
-Nodes (8): 1. Project map (file → purpose), 6. Safety middleware processing order, [2026-06-09] — Fix Safety Middleware Showstopper, SafetyPipeline, EvaluationResult, PiiSpan, SanitizeResult, test_safety_pipeline_integration()
+Cohesion: 0.18
+Nodes (8): 1. Project map (file → purpose), 6. Safety middleware processing order, evaluate_outbound(), SafetyPipeline, sanitize_inbound(), EvaluationResult, PiiSpan, SanitizeResult
 
 ### Community 572 - "Instructions"
 Cohesion: 0.33
@@ -2059,9 +2056,9 @@ Nodes (6): Example 1: Clean Commit, Pull, Push, Example 2: Commit with Fixes, Pu
 Cohesion: 0.33
 Nodes (6): Actions, Inputs, Outputs, Step 1: Stage All Local Changes, Validation, Workflow
 
-### Community 576 - "packages_common_providers_testing"
-Cohesion: 0.07
-Nodes (8): build_doc_links(), DocLinkGraph, write_doc_links(), main(), _FakeEmbed, _FakeReranker, test_build_doc_links_category_and_markdown(), test_search_one_hop_and_rerank()
+### Community 576 - "docs/service.py"
+Cohesion: 0.09
+Nodes (5): build_doc_links(), write_doc_links(), main(), test_build_doc_links_category_and_markdown(), GraphRagArtifact
 
 ### Community 577 - "Step 3: Retrieve Pipeline Status for Commit"
 Cohesion: 0.33
@@ -2076,12 +2073,12 @@ Cohesion: 0.20
 Nodes (9): Constraints, Handoff IN, Instructions, Jira lifecycle via the story package, Output, Role, Skills, Spec Execution Coordinator (+1 more)
 
 ### Community 580 - "Field Mapping Heuristics"
-Cohesion: 0.29
-Nodes (6): Field Mapping Heuristics, Override Emission Rules, Step 6 — Logical Name to Live Field Name, Step 7 — AC Mode Detection, Step 7 — Channel Requirement Detection, Severity
+Cohesion: 0.40
+Nodes (4): Field Mapping Heuristics, Override Emission Rules, Step 7 — AC Mode Detection, Step 7 — Channel Requirement Detection
 
 ### Community 581 - "pathlib"
-Cohesion: 0.03
-Nodes (25): 12 · Context graph 🟡, [2026-10-02] - EAKG point 1: review + GetLoanSummary + SSE shards, [2026-10-04] — Wire EAKG capability embeddings, get_eakg_artifact_store(), normalize_asyncpg_dsn(), resolve_eakg_store_dsn(), embed_from_settings(), embed_shards() (+17 more)
+Cohesion: 0.05
+Nodes (16): anyio_backend(), get_eakg_artifact_store(), resolve_eakg_store_dsn(), embed_from_settings(), embed_shards(), _persist_index(), _embed_cli(), migrate_from_disk() (+8 more)
 
 ### Community 582 - "Create Story"
 Cohesion: 0.29
@@ -2131,13 +2128,13 @@ Nodes (5): Commit Errors (delegated to {{prompt:commit}}), CommitMessageGenerati
 Cohesion: 0.40
 Nodes (5): Pull Errors (delegated to {{prompt:pull}}), PullError, RebaseError, StashError, StashPopConflictError
 
-### Community 594 - "sample_score.py"
-Cohesion: 0.32
-Nodes (3): _looks_like_pii(), SampleScore, score_sampled_trace()
+### Community 594 - "ADR-030 — Doc GraphRAG under kill gate (draft)"
+Cohesion: 0.22
+Nodes (9): ADR-030 — Doc GraphRAG under kill gate (draft), Alternatives considered, Approval checklist, Consequences, Decision, Negative, Neutral / process, Positive (+1 more)
 
-### Community 595 - "3. Algorithms & Logic"
-Cohesion: 0.29
-Nodes (7): 3.1 Path normalization, 3.3 Alias resolution (FR-012, US5), 3.4 Incremental reindex (FR-015, US7), 3.6 Spec refresh with last-good retention (FR-007, FR-016), 3.7 Credential cache (single-flight), 3.8 Per-app circuit breaker (NFR-004, US3 #4), 3. Algorithms & Logic
+### Community 595 - "api_index/tests/conftest.py"
+Cohesion: 0.25
+Nodes (3): pytest_addoption(), scale_profile(), scale_sizes()
 
 ### Community 596 - "Step 2: Stash Local Changes"
 Cohesion: 0.40
@@ -2175,9 +2172,13 @@ Nodes (10): 1. North-star diagram, 2. Responsibility matrix, 3. Capability model
 Cohesion: 0.25
 Nodes (7): Constraints, Handoff IN, Instructions, Return to caller, Role, Skills, Spec Design Reviewer
 
-### Community 605 - "secrets"
-Cohesion: 0.28
-Nodes (5): D9 — `CredentialBroker` as a local provider with static impl first — G7, mock_broker(), secrets(), static_broker(), TestStaticSharedApps
+### Community 605 - "test_credential_broker.py"
+Cohesion: 0.18
+Nodes (7): 6.2 `CredentialBroker` protocol — G7, mock_broker(), secrets(), static_broker(), TestCachingCredentialBroker, get_token(), TestStaticSharedApps
+
+### Community 606 - "test_search_capabilities_no_explain_and_caches_dumps"
+Cohesion: 0.22
+Nodes (3): clear_sparql_dump_caches(), _CountingGraphStore, test_search_capabilities_no_explain_and_caches_dumps()
 
 ### Community 607 - "Step 2: Verify GitLab Project Access"
 Cohesion: 0.40
@@ -2198,10 +2199,6 @@ Nodes (5): Authentication Errors (401, 403), Error Handling Throughout Process, 
 ### Community 611 - "Example Usage"
 Cohesion: 0.40
 Nodes (5): Example 1: Auto-detect from current directory, Example 2: Explicit project_id, Example 3: Using repo_url, Example 4: Search by repo_name, Example Usage
-
-### Community 612 - "mcp_server/policy.py"
-Cohesion: 0.20
-Nodes (3): assert_sse_read_only(), assert_tool_allowed(), AuthError
 
 ### Community 613 - "worktree-create.sh"
 Cohesion: 0.70
@@ -2268,7 +2265,7 @@ Cohesion: 0.50
 Nodes (4): workStream, description, pattern, type
 
 ### Community 629 - "InMemoryBreaker"
-Cohesion: 0.22
+Cohesion: 0.25
 Nodes (3): _AppBreaker, InMemoryBreaker, _breaker_state()
 
 ### Community 631 - "Plaisse wiki vs LoanOps — simple comparison"
@@ -2276,24 +2273,24 @@ Cohesion: 0.14
 Nodes (14): Are we “achieving wiki” with LoanOps?, Auth, env, safety, Cheat sheet, Extra specialists (wiki only), How knowledge is made (the important split), How to think about combining them (not built), Live APIs: find and GET, One sentence each (+6 more)
 
 ### Community 641 - "t"
-Cohesion: 0.08
-Nodes (47): Fm, o(), a(), aC(), AE(), bC(), bE(), BS() (+39 more)
+Cohesion: 0.09
+Nodes (38): Fm, o(), aC(), AE(), bC(), bE(), BS(), C() (+30 more)
 
 ### Community 642 - "probe_loan_api.py"
-Cohesion: 0.20
-Nodes (10): main(), print_props(), resolve_ref(), schema_ref(), _get(), main(), _mask_token(), _preview_body() (+2 more)
+Cohesion: 0.36
+Nodes (6): _get(), main(), _mask_token(), _preview_body(), _print_section(), run_test()
 
 ### Community 643 - "pg"
-Cohesion: 0.21
-Nodes (12): Dy(), Ig(), jg(), Kv(), mg(), pg(), py(), qg() (+4 more)
+Cohesion: 0.31
+Nodes (9): Ig(), jg(), mg(), pg(), qg(), Rg(), Sg(), Tg() (+1 more)
 
 ### Community 644 - "DataConfig"
 Cohesion: 0.21
 Nodes (6): test_defaults_are_mock_local_cache(), test_explicit_confluence_only_overrides_legacy(), test_explicit_loan_and_sop_without_mode(), test_legacy_mode_mock_maps_to_local(), test_legacy_mode_real_maps_to_both_live(), DataConfig
 
-### Community 646 - "UnifiedOperation"
-Cohesion: 0.08
-Nodes (25): Notes, 11. Edge Cases & Error Handling, 2.3 Data flow, 3.2 Unified id and join (FR-006, FR-012, FR-013), 6.4 `invoke_sse_api` per-app flow (FR-009, FR-010, NFR-010), 9.2 Phase 2 — Unified record and bind fix, D5 — Public id keeps today's `app:operationId` format, [2026-10-09] — Phase 2: unified ops, resolver, bind (+17 more)
+### Community 646 - "Required Changes"
+Cohesion: 0.24
+Nodes (12): 11. Edge Cases & Error Handling, 6.4 `invoke_sse_api` per-app flow (FR-009, FR-010, NFR-010), 9.2 Phase 2 — Unified record and bind fix, Required Changes, Ambiguous, NotFound, Resolved, OperationResolver (+4 more)
 
 ### Community 647 - "Pointing Policy"
 Cohesion: 0.20
@@ -2307,9 +2304,9 @@ Nodes (7): Error Handling, Instructions, Parameters, Response Format, Search, Su
 Cohesion: 0.29
 Nodes (6): Error Handling, Instructions, Link Story Dependencies, Notes, Parameters, Response Format
 
-### Community 653 - "sse/tools.py"
+### Community 653 - "OpenApiCatalogService"
 Cohesion: 0.07
-Nodes (28): Breakpoints (`LAYER2-BP`), Debug Layer 2 (one request), normalize_path(), test_assemble_search_parts_openapi_before_eakg(), test_parse_fixture_openapi(), test_route_invoke_params_fills_lone_path_placeholder(), test_route_invoke_params_promotes_query_keys(), test_search_operations_prefers_payment() (+20 more)
+Nodes (27): 1.1 Approval gates (must be cleared before the gated phase starts), 1. Overview, 9.1 Phase 1 — Registry, spec cache, catalog from cache, Breakpoints (`LAYER2-BP`), Debug Layer 2 (one request), normalize_path(), summarize_operation(), OpenApiCatalogService (+19 more)
 
 ### Community 654 - "Examples"
 Cohesion: 0.33
@@ -2319,13 +2316,21 @@ Nodes (6): Example 1: Add a knowledge base submodule tracking a branch, Example 
 Cohesion: 0.14
 Nodes (13): dependencies, express, fastify, name, private, version, app, express (+5 more)
 
+### Community 656 - "Story Author"
+Cohesion: 0.25
+Nodes (7): Constraints, Handoff IN, Instructions, Return to caller, Role, Skills, Story Author
+
 ### Community 658 - "dependencies"
 Cohesion: 0.29
 Nodes (7): dependencies, lucide-react, react, react-dom, redoc, tailwindcss, @tailwindcss/vite
 
-### Community 659 - "pattern_backtest.py"
-Cohesion: 0.12
-Nodes (13): ADR-029 — Deterministic extract, LLM investigation, pattern feedback, _apply_owner_patterns(), _apply_sdk_patterns(), backtest_from_dirs(), backtest_pattern_proposal(), BacktestReport, _patterns_from_fragment(), _sdk_match() (+5 more)
+### Community 659 - "How TAAC becomes part of the knowledge graph"
+Cohesion: 0.25
+Nodes (8): Commands, How TAAC becomes part of the knowledge graph, How the rest of EAKG attaches, Is there a TTL file?, One sentence, Two graphs (do not mix them), What TAAC is, What we build from TAAC (the skeleton)
+
+### Community 662 - "_inspect_swagger.py"
+Cohesion: 0.48
+Nodes (4): main(), print_props(), resolve_ref(), schema_ref()
 
 ### Community 663 - "MCP Gemini Validation"
 Cohesion: 0.29
@@ -2339,17 +2344,21 @@ Nodes (8): _app_id(), _app_label(), _build_benchmark(), _build_registry(), _buil
 Cohesion: 0.60
 Nodes (5): filterHighlight(), highlightFilter(), neighbourhoodHighlight(), selectNode(), selectNodes()
 
-### Community 666 - "re"
-Cohesion: 0.09
-Nodes (12): _iter_project_py_files(), test_domain_packages_do_not_import_provider_sdks(), test_no_os_environ_outside_settings(), test_no_provider_contracts_outside_common_providers(), _log(), main(), _resolve_data_dir(), validate_golden() (+4 more)
+### Community 666 - "test_provider_boundaries.py"
+Cohesion: 0.24
+Nodes (4): _iter_project_py_files(), test_domain_packages_do_not_import_provider_sdks(), test_no_os_environ_outside_settings(), test_no_provider_contracts_outside_common_providers()
 
-### Community 667 - "MCP + Capability KG + ARD — Phase Status"
+### Community 667 - "2.1 Capability rollup"
 Cohesion: 0.29
-Nodes (7): Done, MCP + Capability KG + ARD — Phase Status, Parked, Partial, Pending (next), Preserve (do not replace), Skipped
+Nodes (6): 2.1 Capability rollup, 2.2 Evaluation layers (engine), 2.3 Human review & taxonomy, 2.4 Prior assessment corrections (2026-11-03 → 2026-11-10), 2. Existing Implementation Inventory, _compute_ragas_metrics()
 
-### Community 668 - "test_eakg.py"
-Cohesion: 0.05
-Nodes (55): 5 · Business-process graph ✅, Capability Ontology, Classes, CrossAppRelationship kinds, Example (conceptual), Review status literals, Commands, How TAAC becomes part of the knowledge graph (+47 more)
+### Community 668 - "RepoInterface"
+Cohesion: 0.07
+Nodes (38): 5 · Business-process graph ✅, Where the code is, collect_near_misses(), detect_auth_dependency(), detect_capability_overlap(), detect_data_store(), detect_event_topic(), detect_nuget_sdk() (+30 more)
+
+### Community 669 - "5. Technical Decisions"
+Cohesion: 0.33
+Nodes (6): 5. Technical Decisions, D1 — Langfuse/EvalStore SoR; Arize UX only, D2 — Taxonomy in metadata before ABC break, D3 — Error analysis before LLM judges — FR-019, D4 — AgentCore TelemetryProvider instrumentation, D5 — No auto-apply Copilot — FR-016
 
 ### Community 670 - "RDF and SPARQL Demo"
 Cohesion: 0.40
@@ -2363,9 +2372,9 @@ Nodes (4): TestCredentialBrokerContract, get(), get_or_default(), __init__()
 Cohesion: 0.29
 Nodes (6): Error Handling, Instructions, Notes, Parameters, Response Format, Sync Story to Jira
 
-### Community 674 - "live_mcp_server"
-Cohesion: 0.22
-Nodes (3): live_mcp_server(), LiveMcpDriver, test_live_tools_list_via_sdk_client()
+### Community 674 - "Offline / batch pipelines (source → knowledge)"
+Cohesion: 0.33
+Nodes (6): Control plane (ADR-033), Data → knowledge (AI-accessible), Not a product pipeline — Graphify (this LoanOps repo), Offline / batch pipelines (source → knowledge), Quick flow (mental model), Where outputs live
 
 ### Community 675 - "Local stack scripts"
 Cohesion: 0.33
@@ -2373,10 +2382,10 @@ Nodes (5): Local stack scripts, Notes, Ports, Quick start, What `start-stack.ps1
 
 ### Community 676 - "Section A â€” Project Brief"
 Cohesion: 0.06
-Nodes (31): A.10 Top risks and mitigations, A.1 Business problem, A.3 In-scope and out-of-scope, A.4 Success metrics, A.5 Hybrid architecture, A.6 Tech stack, A.7 Responsible AI controls, A.8 Delivery phasing (+23 more)
+Nodes (32): A.10 Top risks and mitigations, A.1 Business problem, A.3 In-scope and out-of-scope, A.4 Success metrics, A.5 Hybrid architecture, A.6.1 Provider Abstraction Pattern, A.6 Tech stack, A.7 Responsible AI controls (+24 more)
 
 ### Community 677 - "Capability Knowledge Graph"
-Cohesion: 0.20
+Cohesion: 0.25
 Nodes (8): Capability Knowledge Graph, Initial capabilities (from Loan Services catalog), Lifecycle (governance), Not this graph, Ontology, Purpose, Related docs, Stack
 
 ### Community 678 - "Algorithms"
@@ -2390,10 +2399,6 @@ Nodes (5): Author Specification, Error Handling, Instructions, Parameters, Respo
 ### Community 680 - "7. Target Architecture"
 Cohesion: 0.20
 Nodes (10): 7.1 Current vs target, 7.2 Component responsibilities, 7.3 Data flow, 7.4 Evaluation execution sequence, 7.5 Human review sequence, 7.6 Integration boundaries, 7.7 Recommended entities (logical), 7.8 API contract examples (illustrative) (+2 more)
-
-### Community 681 - "13. Evaluation & Quality Gates"
-Cohesion: 0.40
-Nodes (5): 13.1 Metrics & Thresholds, 13.2 Eval Harness, 13.3 Sacred Rule, 13.4 CI Workflows, 13. Evaluation & Quality Gates
 
 ### Community 683 - "ARD Resource Choice (decision draft)"
 Cohesion: 0.29
@@ -2423,8 +2428,8 @@ Nodes (6): FHA with Non-Impound Lines, Procedure, Procedures, Purpose, Related P
 Cohesion: 0.33
 Nodes (6): 7.1 Performance, 7.2 Security, 7.3 Reliability, 7.4 Maintainability, 7.5 Portability, 7. Non-Functional Requirements
 
-### Community 692 - "docs/service.py"
-Cohesion: 0.13
+### Community 692 - "test_path_metadata.py"
+Cohesion: 0.16
 Nodes (6): build_chunk_metadata(), _parse_frontmatter(), relative_corpus_path(), test_chunk_id_identical_for_same_relative_meta(), test_relative_corpus_path_stable_across_roots(), test_state_inferred_from_state_specific_path()
 
 ### Community 693 - "Step 1: Resolve the update target(s)"
@@ -2451,17 +2456,17 @@ Nodes (5): EAKG index schedule (ops), GitLab CI, Prerequisites, TAAC refresh, Wi
 Cohesion: 0.15
 Nodes (13): Actions, Actions, Actions, Inputs, Inputs, Outputs, Outputs, Remove Workflow (+5 more)
 
-### Community 700 - "User Scenarios & Testing *(mandatory)*"
-Cohesion: 0.29
-Nodes (7): Edge Cases, User Scenarios & Testing *(mandatory)*, User Story 1 - See an application's screens and what each one uses (Priority: P1), User Story 2 - Review and approve recovered flows (Priority: P1), User Story 3 - See what the pipeline could not resolve (Priority: P2), User Story 4 - Related steps appear in assistant answers (Priority: P2), User Story 5 - Keep results fresh as applications change (Priority: P3)
+### Community 700 - "LoanOps Agent — Internal AI Platform"
+Cohesion: 0.33
+Nodes (5): AI / agent context, Key constraints, Layout, LoanOps Agent — Internal AI Platform, Quick start
 
 ### Community 703 - "Graphify Setup"
 Cohesion: 0.33
 Nodes (5): Configuration, Graphify Setup, Installation, Output, Usage
 
-### Community 709 - "Workflow"
+### Community 709 - "3. Algorithms & Logic"
 Cohesion: 0.40
-Nodes (5): Step 1: Validate the Connection (Soft), Step 2: Build One CQL Query, Step 3: Run the Search, Step 5: Return the Envelope, Workflow
+Nodes (5): 3.1 Build `AgentTrace` from a live turn, 3.2 Signal ranking — FR-012, 3.3 Improvement cycle regression — FR-014, SC-006, 3.4 Experiment compare — FR-015, 3. Algorithms & Logic
 
 ### Community 712 - "Phase 3 — Continual improvement UX"
 Cohesion: 0.40
@@ -2479,65 +2484,49 @@ Nodes (6): Agent / MCP, EAKG: committed vs local-only, File mode (`EAKG_STORE__B
 Cohesion: 0.40
 Nodes (4): ARD Integration (later), Prerequisites before ARD, Role, Target shape
 
-### Community 721 - "test_invoke_read_only.py"
-Cohesion: 0.22
-Nodes (3): fixture_loan(), fixture_payments(), test_invoke_rejects_post()
+### Community 722 - "8.3 UI chat / Agent API"
+Cohesion: 0.50
+Nodes (4): 8.1 Auth / identity (explicitly skipped), 8.2 PII / audit redaction (explicitly skipped), 8.3 UI chat / Agent API, 8. Deferred — not now
 
-### Community 722 - "Phase 3 — Flows, review, graph"
-Cohesion: 0.40
-Nodes (5): Goal, Notes, Phase 3 — Flows, review, graph, Success criteria, Work
-
-### Community 723 - "sanitize_inbound"
-Cohesion: 0.18
-Nodes (4): evaluate_outbound(), sanitize_inbound(), test_evaluate_outbound_unit(), test_sanitize_inbound_unit()
+### Community 723 - "test_evaluate_outbound_unit"
+Cohesion: 0.29
+Nodes (3): test_evaluate_outbound_unit(), test_safety_pipeline_integration(), test_sanitize_inbound_unit()
 
 ### Community 724 - "Technical Decisions"
 Cohesion: 0.40
 Nodes (5): Decision 1: Static extraction, not a browser crawl, Decision 3: UiPage as evidence layer, process flow as review layer, Decision 4: Separate named graph per application, Decision 5: Advisory-only, flag-gated runtime, Technical Decisions
 
-### Community 725 - "scrub_extraction"
-Cohesion: 0.36
-Nodes (4): _allowed_token(), _looks_like_pii(), scrub_extraction(), test_pii_scrub_drops_personish_keeps_state()
+### Community 725 - "17. Constraints & Assumptions"
+Cohesion: 0.50
+Nodes (4): 17.1 Hard Constraints, 17.2 Key Architecture Decisions (ADRs), 17.3 Assumptions, 17. Constraints & Assumptions
 
 ### Community 727 - "Og"
-Cohesion: 0.33
-Nodes (7): bg(), Cg(), Eg(), kg(), Og(), wg(), xg()
+Cohesion: 0.29
+Nodes (8): bg(), Cg(), Eg(), _g(), kg(), Og(), wg(), xg()
 
 ### Community 728 - "Ask app teams: export OpenAPI in CI (`dotnet swagger tofile`)"
-Cohesion: 0.40
-Nodes (5): Ask app teams: export OpenAPI in CI (`dotnet swagger tofile`), Ask (copy to Jira / Slack), Contract for EAKG consumers, Out of scope here, Why
+Cohesion: 0.21
+Nodes (8): Ask app teams: export OpenAPI in CI (`dotnet swagger tofile`), Ask (copy to Jira / Slack), Contract for EAKG consumers, Out of scope here, Why, Evidence (2026-10-03), Live SSE swagger verification, Not proven
 
-### Community 732 - "mcp_tools_client.py"
-Cohesion: 0.07
-Nodes (9): mcp_endpoint_url(), McpSessionHooks, StreamableHttpMcpSession, _text_from_result(), FakeMcpSession, test_call_denied_by_scope(), test_call_success_and_error(), test_list_tools_filters_by_role() (+1 more)
+### Community 732 - "get_tools_client_provider"
+Cohesion: 0.06
+Nodes (15): Flow B — UI with MCP hop, ProviderConfigError, build_mcp_tools_client(), get_tools_client_provider(), mcp_endpoint_url(), McpSessionHooks, StreamableHttpMcpSession, _text_from_result() (+7 more)
 
 ### Community 734 - "1. Stack and structure"
 Cohesion: 0.40
 Nodes (4): 1. Stack and structure, CI, How to run locally, AgentRuntimeConfig
 
-### Community 735 - "Overview"
-Cohesion: 0.50
-Nodes (4): Approval Gates (AGENTS.md "Approval required before"), Goals, Non-Goals, Overview
-
 ### Community 736 - "Review Story"
-Cohesion: 0.29
-Nodes (6): Error Handling, Instructions, Notes, Parameters, Response Format, Review Story
-
-### Community 737 - "GoldenExpected"
-Cohesion: 0.19
-Nodes (13): Drivers, Files, Layer 5 — Outcomes, Out of scope, Run, Scoring rules, GoldenExpected, RunObservation (+5 more)
+Cohesion: 0.14
+Nodes (11): Error Handling, Instructions, Parameters, Response Format, Review Spec Design, Error Handling, Instructions, Notes (+3 more)
 
 ### Community 738 - "8. System Architecture"
 Cohesion: 0.50
 Nodes (4): 8.1 Module Layout, 8.2 Tech Stack, 8.3 Architecture Diagram, 8. System Architecture
 
 ### Community 739 - "MCP Client Integration"
-Cohesion: 0.40
-Nodes (5): Cursor / Gemini / other, Custom Agent API `/mcp/tools`, LoanOps Agent, MCP Client Integration, Product shape
-
-### Community 740 - "Phase 1 — Approval, inventory, fixtures"
-Cohesion: 0.40
-Nodes (5): Goal, Notes, Phase 1 — Approval, inventory, fixtures, Success criteria, Work
+Cohesion: 0.50
+Nodes (4): Cursor / Gemini / other, Custom Agent API `/mcp/tools`, LoanOps Agent, MCP Client Integration
 
 ### Community 741 - "Phase 4 — Related steps in search (optional, flag-gated)"
 Cohesion: 0.40
@@ -2551,25 +2540,17 @@ Nodes (5): 5. Reuse vs Build Analysis, Build (must be ours), Do not build / do n
 Cohesion: 0.40
 Nodes (5): 6. Langfuse Integration Strategy, Boundary rule, Stay in Langfuse, Stay in LoanOps portal / APIs, What we have installed
 
-### Community 745 - "Architecture"
-Cohesion: 0.50
-Nodes (4): Architecture, Component Overview, Data Flow, System Context
-
 ### Community 747 - "4. Open-Source Project Comparison"
 Cohesion: 0.50
 Nodes (4): 4.1 Project profiles, 4.2 Feature comparison matrix, 4.3 Classification (what to do), 4. Open-Source Project Comparison
-
-### Community 748 - "EakgConfig"
-Cohesion: 0.40
-Nodes (3): _settings(), CapabilityKgConfig, EakgConfig
 
 ### Community 749 - "9. Human Review Workflow"
 Cohesion: 0.50
 Nodes (4): 9. Human Review Workflow, OSS annotation reuse, Spreadsheet columns (portal), Workflow
 
-### Community 751 - "get_credential_broker"
+### Community 751 - "get_chat_provider"
 Cohesion: 0.06
-Nodes (26): LoanOps + provider_contracts lockstep (new libraries), Provider Abstraction (load-bearing rule), 6.1 Provider abstraction compliance, 8. Real API Integration, 3. Provider layer (load-bearing abstraction), Pattern, Provider categories, Rules (+18 more)
+Nodes (24): D6 — Reranker wiring, 14. Audit and Observability, 3. Provider layer (load-bearing abstraction), Pattern, Provider categories, Rules, event_generator(), _env_label() (+16 more)
 
 ### Community 752 - "Onboard repository #N (registry-only)"
 Cohesion: 0.50
@@ -2579,25 +2560,29 @@ Nodes (4): Live repo #4+, Onboard repository #N (registry-only), Proof already i
 Cohesion: 0.67
 Nodes (3): How layers fit together, Implications, Stack layer decisions
 
+### Community 755 - "catalog_from_shards"
+Cohesion: 0.12
+Nodes (14): 12 · Context graph 🟡, Code, Enable, Implemented flow, Phase 9 — Semantic capability retrieval, Problem, Ranking tip, [2026-10-02] - EAKG point 1: review + GetLoanSummary + SSE shards (+6 more)
+
 ## Knowledge Gaps
-- **3001 isolated node(s):** `name`, `version`, `description`, `author`, `license` (+2996 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 4908 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **287 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **3016 isolated node(s):** `name`, `version`, `description`, `author`, `license` (+3011 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 4955 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **285 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `_` connect `_` to `pb`, `t`, `vis-network.min.js`, `.bind`, `Ba`, `wu`, `x`, `4. End-to-End Request Flow`, `me`, `bl`, `lu`, `r`, `ay`, `Workflow`, `qa`, `policy_source.py`, `Ff`, `t`, `fc`, `call_sse_api`, `v`, `o`, `Story ⇄ Jira Sync`, `Um`, `e`, `po`, `Spec Review Rubric`, `.fail`, `Qc`, `search_docs`?**
-  _High betweenness centrality (0.150) - this node is a cross-community bridge._
-- **Why does `[2026-07-21] — Live Confluence SOP ingest (Escrow + Hardship)` connect `policy_source.py` to `logs.md`, `_`?**
-  _High betweenness centrality (0.040) - this node is a cross-community bridge._
-- **Why does `4. End-to-End Request Flow` connect `4. End-to-End Request Flow` to `sse/semantic.py`, `mcp_routes.py`, `classify_intent`, `explain_capability`, `call_sse_api`, `ModularToolsClient`, `test_agent_core.py`, `parse_agent_output`, `ChatPane.tsx`, `get_credential_broker`, `build_modular_tools_client`, `run_agent_turn`, `re`, `Story ⇄ Jira Sync`, `invoke_sse_api`, `search_docs`?**
-  _High betweenness centrality (0.037) - this node is a cross-community bridge._
+- **Why does `_` connect `_` to `pb`, `t`, `constructor`, `ap`, `Ba`, `wu`, `gm`, `.operation_id`, `me`, `bl`, `lu`, `S`, `ay`, `.bind`, `Workflow`, `qa`, `policy_source.py`, `t`, `.replace`, `r`, `call_sse_api`, `v`, `code`, `Story ⇄ Jira Sync`, `Um`, `e`, `Spec Review Rubric`, `.fail`, `Qc`, `DocsService`?**
+  _High betweenness centrality (0.161) - this node is a cross-community bridge._
+- **Why does `4. End-to-End Request Flow` connect `4. End-to-End Request Flow` to `sse/semantic.py`, `mcp_routes.py`, `classify_intent`, `explain_capability`, `call_sse_api`, `ModularToolsClient`, `_agent.py`, `parse_agent_output`, `ChatPane.tsx`, `get_chat_provider`, `.operation_id`, `run_agent_turn`, `Story ⇄ Jira Sync`, `get_tools_client_provider`, `invoke_sse_api`?**
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
+- **Why does `[2026-07-21] — Live Confluence SOP ingest (Escrow + Hardship)` connect `policy_source.py` to `logs.md`, `LocalFilePolicyProvider`, `_`, `CompositePolicyProvider`?**
+  _High betweenness centrality (0.041) - this node is a cross-community bridge._
 - **Are the 7 inferred relationships involving `_` (e.g. with `l()` and `i()`) actually correct?**
   _`_` has 7 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 56 inferred relationships involving `t()` (e.g. with `a()` and `aa()`) actually correct?**
   _`t()` has 56 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 68 inferred relationships involving `r()` (e.g. with `a()` and `aa()`) actually correct?**
-  _`r()` has 68 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `name`, `version`, `description` to the rest of the system?**
-  _3001 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _3016 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Feature Specification: Enterprise App Scale` be split into smaller, more focused modules?**
+  _Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected._

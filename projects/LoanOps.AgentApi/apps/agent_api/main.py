@@ -22,6 +22,7 @@ _logger = logging.getLogger(__name__)
 
 from apps.agent_api.eval_routes import router as eval_router
 from apps.agent_api.mcp_routes import router as mcp_router
+from apps.agent_api.pipeline_routes import router as pipeline_router
 from apps.agent_api.models import (
     AuditRecord,
     ChatMemoryResponse,
@@ -177,6 +178,7 @@ app.add_middleware(
 
 app.include_router(mcp_router)
 app.include_router(eval_router)
+app.include_router(pipeline_router)
 
 
 # ---------------------------------------------------------------------------

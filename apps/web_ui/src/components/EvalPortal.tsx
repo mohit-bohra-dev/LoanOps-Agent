@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { EvalInsightsBar } from "../eval/EvalInsightsBar";
 import { EvalSpreadsheet } from "../eval/EvalSpreadsheet";
 import { DEMO_SCENARIOS } from "../eval/mockData";
+import { PipelinesView } from "../eval/PipelinesView";
 import { ScenarioBoard } from "../eval/ScenarioBoard";
 import { loadReviewerName, saveReviewerName } from "../eval/scenarios";
 import { TraceReviewDrawer } from "../eval/TraceReviewDrawer";
@@ -20,7 +21,7 @@ type Health = {
   release_gate: { ready?: boolean; reasons?: string[] };
 };
 
-type View = "scenarios" | "matrix" | "insights" | "candidates";
+type View = "scenarios" | "matrix" | "insights" | "candidates" | "pipelines";
 
 function normalizeApiRow(raw: Record<string, unknown>, idx: number): EvalMatrixRow {
   return {
@@ -150,6 +151,7 @@ export function EvalPortal({ onClose }: { onClose: () => void }) {
               ["matrix", "Spreadsheet Matrix"],
               ["insights", "Insights & Layers"],
               ["candidates", "Golden Candidates"],
+              ["pipelines", "Pipelines"],
             ] as const
           ).map(([id, label]) => (
             <button
@@ -274,6 +276,8 @@ export function EvalPortal({ onClose }: { onClose: () => void }) {
             ))}
           </div>
         )}
+
+        {view === "pipelines" && <PipelinesView reviewer={reviewer} />}
       </div>
 
       {inspect && (

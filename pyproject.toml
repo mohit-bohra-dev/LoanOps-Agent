@@ -16,6 +16,7 @@ dependencies = [
     "loanops-capability-kg",
     "loanops-eakg",
     "loanops-api-index",
+    "loanops-pipelines",
     "loanops-tools",
     "loanops-agent-core",
     "loanops-mcp-server",
@@ -59,6 +60,7 @@ mypy_path = [
     "projects/LoanOps.CapabilityKg",
     "projects/LoanOps.Eakg",
     "projects/LoanOps.ApiIndex",
+    "projects/LoanOps.Pipelines",
     "projects/LoanOps.Tools",
     "projects/LoanOps.AgentCore",
     "projects/LoanOps.McpServer",
@@ -83,6 +85,7 @@ pythonpath = [
     "projects/LoanOps.CapabilityKg",
     "projects/LoanOps.Eakg",
     "projects/LoanOps.ApiIndex",
+    "projects/LoanOps.Pipelines",
     "projects/LoanOps.Tools",
     "projects/LoanOps.AgentCore",
     "projects/LoanOps.McpServer",
@@ -116,6 +119,7 @@ loanops-sse = { workspace = true }
 loanops-capability-kg = { workspace = true }
 loanops-eakg = { workspace = true }
 loanops-api-index = { workspace = true }
+loanops-pipelines = { workspace = true }
 loanops-tools = { workspace = true }
 loanops-agent-core = { workspace = true }
 loanops-mcp-server = { workspace = true }

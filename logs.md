@@ -1,3 +1,19 @@
+## [2026-11-10] — Pipeline control plane Phase 1 PoC (ADR-033)
+
+**Session type:** Implementation
+
+**Completed:**
+- ADR-033: FastAPI + Postgres/file run ledger; Step Functions later; Dagster optional
+- `eakg_pipeline_runs` + artifact store put/get/list; ApiIndex manifest via `eakg_kv` in Postgres mode
+- New `loanops-pipelines`: catalog (`openapi_to_api_index`), create/dispatch_local/execute, CLI
+- Agent API `/pipelines/*`; Eval Portal Pipelines tab; tests green; mypy `--strict` clean
+
+**Risk:** `/pipelines` POST unauthenticated (same as `/eval/*`); stuck `running` if child killed.
+
+**Next:** Phase 2 Step Functions launcher behind provider; remaining six pipelines; auth scopes.
+
+---
+
 ## [2026-11-10] — Make search_sse_apis cheap
 
 **Session type:** Performance (latency)

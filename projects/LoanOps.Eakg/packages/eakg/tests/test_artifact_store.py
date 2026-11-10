@@ -59,3 +59,19 @@ def test_file_store_registry_and_interface(tmp_path: Path) -> None:
     assert store.get_engineering("fees", "links.json") == {"edges": []}
     store.put_sop_page("escrow/x.md", "# hi\n")
     assert store.get_sop_page("escrow/x.md") == "# hi\n"
+    store.put_pipeline_run(
+        "run_1",
+        "openapi_to_api_index",
+        {
+            "status": "succeeded",
+            "started_at": "2026-11-10T12:00:00Z",
+            "params": {"environment": "dev"},
+        },
+    )
+    got = store.get_pipeline_run("run_1")
+    assert got is not None
+    assert got["status"] == "succeeded"
+    assert got["pipeline_id"] == "openapi_to_api_index"
+    listed = store.list_pipeline_runs("openapi_to_api_index", limit=10)
+    assert len(listed) == 1
+    assert listed[0]["run_id"] == "run_1"
