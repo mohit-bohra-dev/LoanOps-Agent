@@ -31,15 +31,32 @@ export interface EvalCitation {
   snippet: string;
 }
 
+export type SpanKind = "turn" | "llm" | "tool" | "subtool" | "safety" | "validator";
+
 export interface EvalSpan {
   span_id: string;
+  parent_span_id?: string | null;
   name: string;
+  kind?: SpanKind;
   tool?: string | null;
   args?: Record<string, unknown>;
   result?: string | null;
   result_summary?: string | null;
+  start_offset_ms?: number;
   latency_ms?: number;
   is_error?: boolean;
+  error_message?: string | null;
+  attributes?: Record<string, unknown>;
+  token_usage?: Record<string, number>;
+  model?: string | null;
+}
+
+export interface PipelineHits {
+  eakg: Record<string, unknown>[];
+  api_index: Record<string, unknown>[];
+  docs: Record<string, unknown>[];
+  graph_rag: Record<string, unknown>[];
+  code: Record<string, unknown>[];
 }
 
 export interface EvalMatrixRow {
@@ -51,6 +68,12 @@ export interface EvalMatrixRow {
   spans: EvalSpan[];
   latency_ms: number;
   token_usage: Record<string, number>;
+  pipeline_hits?: PipelineHits;
+  model?: string | null;
+  rounds_used?: number;
+  validation_retries?: number;
+  confidence?: number | null;
+  status?: string | null;
   model_critique: string | null;
   model_outcome: OutcomeStatus | null;
   human_critique: string | null;

@@ -187,14 +187,51 @@ class DocsService:
         return hits[0] if hits else None
 
     async def search(self, query: str, *, top_k: int = 5) -> str:
-        emb = await self._embedding.embed(query)
+        from contextlib import asynccontextmanager
+        from collections.abc import AsyncIterator
+
+        @asynccontextmanager
+        async def _docs_span(name: str, **attrs: Any) -> AsyncIterator[Any]:
+            try:
+                from packages.common.providers.factory import get_telemetry_provider
+
+                tel = get_telemetry_provider()
+                async with tel.span(name, attributes=dict(attrs), kind="subtool") as ctx:
+                    yield ctx
+                return
+            except Exception:  # noqa: BLE001
+                pass
+            from packages.common.providers.telemetry import trace_span
+
+            async with trace_span(name, attributes=dict(attrs), kind="subtool") as ctx:
+                yield ctx
+
+        async with _docs_span("docs.embed", query_len=len(query)) as emb_span:
+            emb = await self._embedding.embed(query)
+            emb_span.output = {"dims": len(emb.vector) if emb.vector else 0}
+
         retrieve_k = self._candidate_k if self._reranker is not None else top_k
-        hits = await self._store.search(
-            emb.vector,
-            query_text=query,
-            namespace=self._namespace,
-            top_k=retrieve_k,
-        )
+        async with _docs_span(
+            "docs.vector_search",
+            retrieve_k=retrieve_k,
+            query=query[:200],
+        ) as vs_span:
+            hits = await self._store.search(
+                emb.vector,
+                query_text=query,
+                namespace=self._namespace,
+                top_k=retrieve_k,
+            )
+            hit_paths = [
+                {
+                    "path": str((h.metadata or {}).get("path") or h.id),
+                    "score": float(h.score),
+                }
+                for h in hits[:10]
+            ]
+            vs_span.attributes["hit_count"] = len(hits)
+            vs_span.attributes["hits"] = hit_paths
+            vs_span.output = {"hit_count": len(hits), "hits": hit_paths}
 
         by_path: dict[str, SearchResult] = {}
         for hit in hits:
@@ -202,33 +239,53 @@ class DocsService:
             by_path.setdefault(p, hit)
 
         if self._link_graph is not None and by_path:
-            # One-hop from the top ranking hit (and others already retrieved).
-            seed_paths = list(by_path.keys())[:3]
-            for seed in seed_paths:
-                for neighbor in self._link_graph.neighbors(seed):
-                    if neighbor in by_path:
-                        continue
-                    fetched = await self._fetch_by_path(emb.vector, neighbor)
-                    if fetched is not None:
-                        by_path[neighbor] = fetched
+            async with _docs_span("docs.link_expand") as link_span:
+                seed_paths = list(by_path.keys())[:3]
+                added = 0
+                for seed in seed_paths:
+                    for neighbor in self._link_graph.neighbors(seed):
+                        if neighbor in by_path:
+                            continue
+                        fetched = await self._fetch_by_path(emb.vector, neighbor)
+                        if fetched is not None:
+                            by_path[neighbor] = fetched
+                            added += 1
+                link_span.attributes["seed_count"] = len(seed_paths)
+                link_span.attributes["added_neighbors"] = added
+                link_span.output = {
+                    "seed_count": len(seed_paths),
+                    "added_neighbors": added,
+                }
 
         candidates = list(by_path.values())
         if not candidates:
             return "No matching documents."
 
         if self._reranker is not None and len(candidates) > 1:
-            docs_text = [c.text or "" for c in candidates]
-            ranked = await self._reranker.rerank(query, docs_text)
-            ordered: list[SearchResult] = []
-            for rr in ranked:
-                if 0 <= rr.index < len(candidates):
-                    ordered.append(candidates[rr.index])
-            # Append any missed (defensive)
-            seen_ids = {o.id for o in ordered}
-            for c in candidates:
-                if c.id not in seen_ids:
-                    ordered.append(c)
-            candidates = ordered
+            async with _docs_span(
+                "docs.rerank",
+                candidate_count=len(candidates),
+            ) as rr_span:
+                docs_text = [c.text or "" for c in candidates]
+                ranked = await self._reranker.rerank(query, docs_text)
+                ordered: list[SearchResult] = []
+                for rr in ranked:
+                    if 0 <= rr.index < len(candidates):
+                        ordered.append(candidates[rr.index])
+                seen_ids = {o.id for o in ordered}
+                for c in candidates:
+                    if c.id not in seen_ids:
+                        ordered.append(c)
+                candidates = ordered
+                top = [
+                    {
+                        "path": str((c.metadata or {}).get("path") or c.id),
+                        "score": float(c.score),
+                    }
+                    for c in candidates[:10]
+                ]
+                rr_span.attributes["hits"] = top
+                rr_span.output = {"hits": top}
 
         lines: list[str] = []
         for hit in candidates[:top_k]:

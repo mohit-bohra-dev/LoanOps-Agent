@@ -10,12 +10,15 @@ Endpoints:
 from __future__ import annotations
 
 import json
+import logging
 import time
 import uuid
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from typing import Any
+
+_logger = logging.getLogger(__name__)
 
 from apps.agent_api.eval_routes import router as eval_router
 from apps.agent_api.mcp_routes import router as mcp_router
@@ -240,7 +243,52 @@ async def chat(request: ChatRequest) -> StreamingResponse:
     async def event_generator() -> AsyncGenerator[str, None]:
         turn_id = str(uuid.uuid4())
         t0 = time.perf_counter()
+        from packages.common.providers.telemetry import begin_trace_collection
+        from packages.eval.traces import build_agent_trace, persist_agent_trace
 
+        tel = None
+        try:
+            tel = get_telemetry_provider()
+        except Exception:  # noqa: BLE001
+            tel = None
+
+        async def _persist_trace(**kwargs: Any) -> None:
+            try:
+                persist_agent_trace(build_agent_trace(**kwargs))
+            except Exception as exc:  # noqa: BLE001
+                _logger.warning("agent_trace_persist_failed: %s", exc)
+
+        def _env_label() -> str:
+            lf = get_settings().telemetry.langfuse
+            env = lf.environment if lf is not None else "local"
+            return env if env in ("prod", "eval", "local") else "local"
+
+        begin_trace_collection(turn_id)
+        try:
+            turn_cm = (
+                tel.span(
+                    "agent.turn",
+                    attributes={
+                        "agent.trace_id": turn_id,
+                        "user_query_len": len(request.message),
+                        "span.kind": "turn",
+                    },
+                    kind="turn",
+                )
+                if tel is not None
+                else None
+            )
+            turn_ctx = await turn_cm.__aenter__() if turn_cm is not None else None
+            # Langfuse may mint the canonical trace_id; keep buffer + persist aligned.
+            if turn_ctx is not None and getattr(turn_ctx, "trace_id", None):
+                minted = str(turn_ctx.trace_id)
+                if minted != turn_id:
+                    turn_id = minted
+        except Exception:  # noqa: BLE001
+            turn_cm = None
+            turn_ctx = None
+
+        sanitize_result = None
         try:
             # 1. Obtain providers via factories (no concrete imports)
             chat_provider = get_chat_provider()
@@ -254,7 +302,21 @@ async def chat(request: ChatRequest) -> StreamingResponse:
             # 1.5 PII handling — mode controlled by PII__MODE env var
             pii_mode = get_settings().pii.mode
 
-            sanitize_result = await sanitize_inbound(request.message, pii_provider, audit_sink)
+            if tel is not None:
+                async with tel.span(
+                    "safety.pii_inbound",
+                    attributes={"agent.trace_id": turn_id, "span.kind": "safety"},
+                    kind="safety",
+                ) as pii_span:
+                    sanitize_result = await sanitize_inbound(
+                        request.message, pii_provider, audit_sink
+                    )
+                    pii_span.attributes["pii_mode"] = pii_mode
+                    pii_span.output = {"entity_count": len(sanitize_result.token_map)}
+            else:
+                sanitize_result = await sanitize_inbound(
+                    request.message, pii_provider, audit_sink
+                )
             pii_token_map: dict[str, str] = {}
 
             if pii_mode == "tokenize":
@@ -270,16 +332,33 @@ async def chat(request: ChatRequest) -> StreamingResponse:
             history: list[LLMMessage] | None = None
 
             if request.session_id:
-                session = await session_store.get_session(request.session_id)
-                if session is None:
-                    session = await session_store.create_session(
-                        session_id=request.session_id,
-                        rep_id=request.rep_id,
-                        loan_id=request.loan_id,
+                if tel is not None:
+                    async with tel.span(
+                        "session.load_history",
+                        attributes={"agent.trace_id": turn_id},
+                        kind="subtool",
+                    ):
+                        session = await session_store.get_session(request.session_id)
+                        if session is None:
+                            session = await session_store.create_session(
+                                session_id=request.session_id,
+                                rep_id=request.rep_id,
+                                loan_id=request.loan_id,
+                            )
+                        history = build_history_messages(
+                            session, agent_prompt, max_tokens=request.max_history_tokens
+                        )
+                else:
+                    session = await session_store.get_session(request.session_id)
+                    if session is None:
+                        session = await session_store.create_session(
+                            session_id=request.session_id,
+                            rep_id=request.rep_id,
+                            loan_id=request.loan_id,
+                        )
+                    history = build_history_messages(
+                        session, agent_prompt, max_tokens=request.max_history_tokens
                     )
-                history = build_history_messages(
-                    session, agent_prompt, max_tokens=request.max_history_tokens
-                )
 
             # 2. Run agent turn with configured prompt mode; tools detokenize server-side
             output = await run_agent_turn(
@@ -289,6 +368,7 @@ async def chat(request: ChatRequest) -> StreamingResponse:
                 prompt_store=prompt_store,
                 history=history,
                 pii_token_map=pii_token_map,
+                trace_id=turn_id,
             )
             # Prefer agent-emitted trace_id; fall back to turn_id
             if not output.trace_id:
@@ -334,7 +414,25 @@ async def chat(request: ChatRequest) -> StreamingResponse:
                         f.write(export_memory_markdown(session_for_dump))
 
             # 2.5 Evaluate outbound safety
-            eval_result = await evaluate_outbound(output.answer, safety_provider, audit_sink)
+            if tel is not None:
+                async with tel.span(
+                    "safety.outbound_eval",
+                    attributes={"agent.trace_id": turn_id, "span.kind": "safety"},
+                    kind="safety",
+                ) as out_span:
+                    eval_result = await evaluate_outbound(
+                        output.answer, safety_provider, audit_sink
+                    )
+                    out_span.output = {
+                        "is_safe": eval_result.is_safe,
+                        "reason": eval_result.reason,
+                    }
+                    if not eval_result.is_safe:
+                        out_span.is_error = True
+            else:
+                eval_result = await evaluate_outbound(
+                    output.answer, safety_provider, audit_sink
+                )
 
             if not eval_result.is_safe:
                 output.answer = ""
@@ -342,32 +440,52 @@ async def chat(request: ChatRequest) -> StreamingResponse:
                 output.confidence = 0.0
 
             latency_ms = round((time.perf_counter() - t0) * 1000, 2)
+            if turn_ctx is not None:
+                turn_ctx.input = agent_prompt[:2000]
+                turn_ctx.output = (output.answer or output.refusal or "")[:2000]
+                if tel is not None:
+                    try:
+                        await tel.record_metric(
+                            "agent.turn.latency_ms",
+                            latency_ms,
+                            unit="ms",
+                            attributes={"agent.trace_id": output.trace_id or turn_id},
+                        )
+                    except Exception:  # noqa: BLE001
+                        pass
+            # Close root span before persist so it is included in the buffer drain.
+            if turn_cm is not None:
+                try:
+                    await turn_cm.__aexit__(None, None, None)
+                except Exception:  # noqa: BLE001
+                    pass
+                turn_cm = None
+
             output_dict = output.model_dump()
 
-            # 2.6 Persist AgentTrace for Observe / feedback (fail-open)
-            try:
-                from packages.eval.traces import build_agent_trace, persist_agent_trace
+            status = "ok"
+            if output.escalation is not None:
+                status = "escalated"
+            elif output.refusal:
+                status = "refused"
 
-                lf = get_settings().telemetry.langfuse
-                env = lf.environment if lf is not None else "local"
-                if env not in ("prod", "eval", "local"):
-                    env = "local"
-                persist_agent_trace(
-                    build_agent_trace(
-                        trace_id=output.trace_id or turn_id,
-                        user_query=sanitize_result.anonymized_text,
-                        answer=output.answer,
-                        citations=output.citations,
-                        tool_calls=output.tool_calls,
-                        refusal=output.refusal,
-                        escalation=output.escalation,
-                        environment=env,  # type: ignore[arg-type]
-                        session_id=request.session_id,
-                        latency_ms=latency_ms,
-                    )
-                )
-            except Exception:  # noqa: BLE001
-                pass
+            # 2.6 Persist AgentTrace for Observe / feedback (fail-open)
+            await _persist_trace(
+                trace_id=output.trace_id or turn_id,
+                user_query=sanitize_result.anonymized_text,
+                answer=output.answer,
+                citations=output.citations,
+                tool_calls=output.tool_calls,
+                refusal=output.refusal,
+                escalation=output.escalation,
+                environment=_env_label(),
+                session_id=request.session_id,
+                latency_ms=latency_ms,
+                token_usage=output.token_usage,
+                confidence=output.confidence,
+                model=output.model,
+                status=status,
+            )
 
             # 3. Build audit record (always uses redacted prompt — no real PII)
             audit_payload = AuditRecord(
@@ -400,8 +518,36 @@ async def chat(request: ChatRequest) -> StreamingResponse:
             yield f"data: {json.dumps(output_dict)}\n\n"
 
         except Exception as exc:  # noqa: BLE001
+            latency_ms = round((time.perf_counter() - t0) * 1000, 2)
+            if turn_cm is not None:
+                try:
+                    await turn_cm.__aexit__(type(exc), exc, exc.__traceback__)
+                except Exception:  # noqa: BLE001
+                    pass
+                turn_cm = None
+            query = (
+                sanitize_result.anonymized_text
+                if sanitize_result is not None
+                else request.message
+            )
+            await _persist_trace(
+                trace_id=turn_id,
+                user_query=query,
+                answer="",
+                environment=_env_label(),
+                session_id=request.session_id,
+                latency_ms=latency_ms,
+                status="error",
+                error=str(exc),
+            )
             error_payload = {"error": str(exc), "turn_id": turn_id}
             yield f"data: {json.dumps(error_payload)}\n\n"
+        finally:
+            if turn_cm is not None:
+                try:
+                    await turn_cm.__aexit__(None, None, None)
+                except Exception:  # noqa: BLE001
+                    pass
 
     return StreamingResponse(
         event_generator(),

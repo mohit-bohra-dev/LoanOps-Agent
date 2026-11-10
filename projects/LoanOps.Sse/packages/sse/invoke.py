@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 import time
 import uuid
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from typing import Any, Literal
 from urllib.parse import quote, urlencode, urljoin, urlparse
 
@@ -52,6 +54,26 @@ async def _record_invoke_metrics(
         )
     except Exception:  # noqa: BLE001
         return
+
+
+@asynccontextmanager
+async def _sse_subspan(name: str, **attrs: Any) -> AsyncIterator[Any]:
+    """Open a sub-tool span (Langfuse when configured, else local buffer)."""
+    tel = None
+    try:
+        from packages.common.providers.factory import get_telemetry_provider
+
+        tel = get_telemetry_provider()
+    except Exception:  # noqa: BLE001
+        tel = None
+    if tel is not None:
+        async with tel.span(name, attributes=dict(attrs), kind="subtool") as ctx:
+            yield ctx
+        return
+    from packages.common.providers.telemetry import trace_span
+
+    async with trace_span(name, attributes=dict(attrs), kind="subtool") as ctx:
+        yield ctx
 
 InvokeOutcome = Literal[
     "ok", "no_access", "unavailable", "not_found", "rejected", "error"
@@ -396,8 +418,16 @@ async def invoke_sse_api(
     if credentials is not None and target is not None:
         audience = target.audience
         try:
-            access = await credentials.get_token(app_id, audience, principal=principal)
-            token_value = access.token.get_secret_value()
+            async with _sse_subspan(
+                "sse.auth_token",
+                app_id=app_id,
+                audience=audience,
+            ) as auth_span:
+                access = await credentials.get_token(
+                    app_id, audience, principal=principal
+                )
+                token_value = access.token.get_secret_value()
+                auth_span.output = {"outcome": "ok"}
         except CredentialNotConfigured:
             duration = (time.perf_counter() - started) * 1000
             result = _result(
@@ -486,24 +516,39 @@ async def invoke_sse_api(
             return await client.request(method_u, url, headers=hdrs)
 
     try:
-        resp = await _do_request(req_headers)
-        if (
-            resp.status_code == 401
-            and credentials is not None
-            and target is not None
-            and token_value is not None
-        ):
-            await credentials.invalidate(app_id, target.audience)
-            try:
-                access2 = await credentials.get_token(
-                    app_id, target.audience, principal=principal
-                )
-                new_token = access2.token.get_secret_value()
-            except CredentialError:
-                new_token = token_value
-            if new_token != token_value:
-                req_headers["Authorization"] = f"Bearer {new_token}"
-                resp = await _do_request(req_headers)
+        async with _sse_subspan(
+            "sse.http_get",
+            app_id=app_id,
+            operation_id=op_id or "",
+            url_template=path or "",
+            method=method_u,
+        ) as http_span:
+            resp = await _do_request(req_headers)
+            if (
+                resp.status_code == 401
+                and credentials is not None
+                and target is not None
+                and token_value is not None
+            ):
+                await credentials.invalidate(app_id, target.audience)
+                try:
+                    async with _sse_subspan(
+                        "sse.auth_token",
+                        app_id=app_id,
+                        audience=target.audience,
+                        refresh=True,
+                    ):
+                        access2 = await credentials.get_token(
+                            app_id, target.audience, principal=principal
+                        )
+                        new_token = access2.token.get_secret_value()
+                except CredentialError:
+                    new_token = token_value
+                if new_token != token_value:
+                    req_headers["Authorization"] = f"Bearer {new_token}"
+                    resp = await _do_request(req_headers)
+            http_span.attributes["status"] = resp.status_code
+            http_span.output = {"status": resp.status_code}
     except httpx.TimeoutException:
         duration = (time.perf_counter() - started) * 1000
         if breaker is not None:

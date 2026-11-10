@@ -35,7 +35,12 @@ export function AgentSteps({ toolCalls }: AgentStepsProps) {
       
       <div className="bg-surface-2/50 px-4 py-2 border-t border-surface-3 text-xs text-text-muted flex justify-between">
         <span>{toolCalls.length} step{toolCalls.length !== 1 ? 's' : ''} taken</span>
-        <span>~{(toolCalls.length * 0.4).toFixed(1)}s</span>
+        <span>
+          {(() => {
+            const totalMs = toolCalls.reduce((sum, t) => sum + (t.latency_ms ?? 0), 0);
+            return totalMs > 0 ? `${(totalMs / 1000).toFixed(1)}s` : "—";
+          })()}
+        </span>
       </div>
     </div>
   );
@@ -129,6 +134,18 @@ function AgentStepItem({ tool, index }: { tool: ToolCallItem; index: number }) {
           <span className="text-sm font-medium text-text-primary group-hover:text-brand-300 transition-colors">
             {label}
           </span>
+          {tool.is_error ? (
+            <span className="text-[10px] uppercase tracking-wide text-rose-300 border border-rose-500/40 px-1.5 py-0.5 rounded">
+              error
+            </span>
+          ) : null}
+          {tool.latency_ms != null && tool.latency_ms > 0 ? (
+            <span className="text-[10px] font-mono text-text-muted">
+              {tool.latency_ms >= 1000
+                ? `${(tool.latency_ms / 1000).toFixed(1)}s`
+                : `${Math.round(tool.latency_ms)}ms`}
+            </span>
+          ) : null}
           {expanded ? (
             <ChevronDown className="h-3 w-3 text-text-muted ml-auto" />
           ) : (

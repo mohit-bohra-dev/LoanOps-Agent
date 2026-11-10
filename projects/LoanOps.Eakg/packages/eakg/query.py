@@ -8,6 +8,53 @@ from packages.capability_kg.ontology import DEFAULT_NAMESPACE
 from packages.common.providers.graph_store import AbstractGraphStore, GraphStoreError
 
 
+async def _traced_query(
+    store: AbstractGraphStore,
+    sparql: str,
+    *,
+    operation: str = "sparql",
+) -> dict[str, Any]:
+    """Run SPARQL under an ``eakg.sparql_query`` sub-span when telemetry is available."""
+    from contextlib import asynccontextmanager
+    from collections.abc import AsyncIterator
+
+    @asynccontextmanager
+    async def _span() -> AsyncIterator[Any]:
+        try:
+            from packages.common.providers.factory import get_telemetry_provider
+
+            tel = get_telemetry_provider()
+            async with tel.span(
+                "eakg.sparql_query",
+                attributes={"operation": operation, "span.kind": "subtool"},
+                kind="subtool",
+            ) as ctx:
+                yield ctx
+            return
+        except Exception:  # noqa: BLE001
+            pass
+        from packages.common.providers.telemetry import trace_span
+
+        async with trace_span(
+            "eakg.sparql_query",
+            attributes={"operation": operation},
+            kind="subtool",
+        ) as ctx:
+            yield ctx
+
+    async with _span() as span:
+        try:
+            data = await store.query(sparql)
+            bindings = data.get("results", {}).get("bindings", []) if isinstance(data, dict) else []
+            span.attributes["binding_count"] = len(bindings)
+            span.output = {"binding_count": len(bindings)}
+            return data if isinstance(data, dict) else {"results": {"bindings": []}}
+        except Exception as exc:
+            span.is_error = True
+            span.error_message = str(exc)
+            raise
+
+
 def _normalize_needle(value: str) -> str:
     return value.lower().replace(" ", "_").replace("-", "_")
 
@@ -130,7 +177,9 @@ async def _fetch_operations(
     *,
     namespace: str,
 ) -> list[dict[str, Any]]:
-    data = await store.query(_prefix_block(namespace) + _OPS_SELECT)
+    data = await _traced_query(
+        store, _prefix_block(namespace) + _OPS_SELECT, operation="fetch_operations"
+    )
     return list(data.get("results", {}).get("bindings", []))
 
 
@@ -163,7 +212,7 @@ SELECT ?ev ?pred ?obj WHERE {{
 }}
 """
     )
-    data = await store.query(sparql)
+    data = await _traced_query(store, sparql, operation="evidence")
     by_ev: dict[str, dict[str, str]] = {}
     for row in data.get("results", {}).get("bindings", []):
         ev = _binding_str(row, "ev") or "_"
@@ -237,7 +286,7 @@ WHERE {
 }
 """
     )
-    data = await store.query(sparql)
+    data = await _traced_query(store, sparql, operation="explain_capability")
     for row in data.get("results", {}).get("bindings", []):
         lab = _normalize_needle(_binding_str(row, "label") or "")
         uri = _binding_str(row, "cap") or ""
@@ -299,7 +348,7 @@ SELECT ?cap ?label ?oid ?path WHERE {
 }
 """
     )
-    data = await store.query(sparql)
+    data = await _traced_query(store, sparql, operation="search_capabilities")
     for row in data.get("results", {}).get("bindings", []):
         label = _binding_str(row, "label") or ""
         uri = _binding_str(row, "cap") or ""
@@ -378,7 +427,7 @@ WHERE {
 """
     )
     try:
-        data = await store.query(sparql)
+        data = await _traced_query(store, sparql, operation="impact_of_change")
     except GraphStoreError:
         raise
     impacts: list[dict[str, Any]] = []
@@ -607,11 +656,11 @@ WHERE {{
 """
     )
     try:
-        keys_data = await store.query(keys_q)
-        proxy_data = await store.query(proxy_q)
-        pkg_data = await store.query(pkg_q)
-        topic_data = await store.query(topic_q)
-        route_data = await store.query(route_q)
+        keys_data = await _traced_query(store, keys_q, operation="describe_application.keys")
+        proxy_data = await _traced_query(store, proxy_q, operation="describe_application.proxies")
+        pkg_data = await _traced_query(store, pkg_q, operation="describe_application.packages")
+        topic_data = await _traced_query(store, topic_q, operation="describe_application.topics")
+        route_data = await _traced_query(store, route_q, operation="describe_application.routes")
     except GraphStoreError:
         raise
 

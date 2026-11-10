@@ -52,6 +52,12 @@ class MatrixRow(BaseModel):
     spans: list[dict[str, Any]] = Field(default_factory=list)
     latency_ms: float = 0.0
     token_usage: dict[str, int] = Field(default_factory=dict)
+    pipeline_hits: dict[str, Any] = Field(default_factory=dict)
+    model: str | None = None
+    rounds_used: int = 0
+    validation_retries: int = 0
+    confidence: float | None = None
+    status: str | None = None
     model_critique: str | None = None
     model_outcome: str | None = None
     human_critique: str | None = None
@@ -226,6 +232,12 @@ async def get_matrix(limit: int = 100) -> MatrixResponse:
                 spans=[s.model_dump(mode="json") for s in tr.spans],
                 latency_ms=tr.latency_ms,
                 token_usage=dict(tr.token_usage),
+                pipeline_hits=tr.pipeline_hits.model_dump(mode="json"),
+                model=tr.model,
+                rounds_used=tr.rounds_used,
+                validation_retries=tr.validation_retries,
+                confidence=tr.confidence,
+                status=tr.status,
                 model_critique=rev.get("model_critique"),
                 model_outcome=str(model_outcome) if model_outcome else None,
                 human_critique=rev.get("comment"),

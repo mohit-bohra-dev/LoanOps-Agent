@@ -13,6 +13,7 @@ interface Message {
 
 export function ChatPane() {
   const [sessionId, setSessionId] = useState(() => crypto.randomUUID());
+  const [isolatedNoMemory, setIsolatedNoMemory] = useState(true);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "init",
@@ -111,7 +112,8 @@ export function ChatPane() {
         },
         body: JSON.stringify({
           message: userText,
-          session_id: sessionId,
+          // Isolated mode: omit session_id so history is not loaded or stored.
+          ...(isolatedNoMemory ? {} : { session_id: sessionId }),
           rep_id: "rep-456",
         }),
       });
@@ -184,10 +186,22 @@ export function ChatPane() {
         <h2 className="text-sm font-semibold tracking-wide text-text-secondary uppercase">
           Conversation
         </h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <label
+            className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium text-text-secondary"
+            title="Omit session_id — each message is a cold turn (recommended for scenario testing)"
+          >
+            <input
+              type="checkbox"
+              checked={isolatedNoMemory}
+              onChange={(e) => setIsolatedNoMemory(e.target.checked)}
+            />
+            Isolated (no memory)
+          </label>
           <button
             onClick={() => setShowMemoryViewer(true)}
-            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-3 hover:text-text-primary transition-colors"
+            disabled={isolatedNoMemory}
+            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-3 hover:text-text-primary transition-colors disabled:opacity-40"
           >
             <Brain className="h-4 w-4" />
             Memory

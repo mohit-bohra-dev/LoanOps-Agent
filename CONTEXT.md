@@ -87,7 +87,7 @@
 | `TELEMETRY__LANGFUSE__ENVIRONMENT` | `local` | Separates prod MCP spans from offline `eval` scores (ADR-032 / L8) |
 | `EVAL_STORE__PROVIDER` | `jsonl` | `jsonl` / `langfuse` — L7–L9 datasets/runs/scores (ADR-032) |
 | `EVAL_STORE__JSONL_DIR` | `./out/eval_store` | Local EvalStore root when provider=jsonl |
-| `TOOLS_CLIENT__PROVIDER` | `modular` | `modular` (in-process) / `mcp` (Streamable HTTP → `:8001`, ADR-013) |
+| `TOOLS_CLIENT__PROVIDER` | `mcp` | `mcp` (Streamable HTTP → `:8001`, ADR-013, product default) / `modular` (in-process rollback) |
 | `AGENT_ROLE` | `system` | Role allow-list (`system`/`user`/`dev`/`pm`/…; `care_rep`=`user` alias) |
 | `MCP__HOST` / `MCP__PORT` / `MCP__PATH` | `127.0.0.1` / `8001` / `/mcp` | MCP listener bind + path |
 | `MCP__AUTH_TOKEN` | `""` | Bearer for MCP; empty rejects; required when provider=`mcp` |

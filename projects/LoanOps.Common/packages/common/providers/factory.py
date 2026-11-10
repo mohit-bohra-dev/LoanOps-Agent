@@ -497,11 +497,17 @@ def get_graph_store() -> AbstractGraphStore:
     """Return the HTTP SPARQL graph store (GRAPH_STORE__*)."""
     from provider_contracts.graph_store.sparql_http import HttpSparqlGraphStore
 
-    cfg = _get_settings().graph_store
+    settings = _get_settings()
+    cfg = settings.graph_store
+    region = cfg.region.strip()
+    if cfg.auth_mode == "sigv4" and not region:
+        region = settings.llm.bedrock.region if settings.llm.bedrock else "us-east-1"
     return HttpSparqlGraphStore(
         query_url=cfg.query_url,
         update_url=cfg.update_url,
         auth_token=cfg.auth_token,
+        auth_mode=cfg.auth_mode,
+        region=region,
         timeout_seconds=cfg.timeout_seconds,
     )
 

@@ -1,4 +1,4 @@
-variable "app_name" {}
+variable "app_name" { type = string }
 
 resource "aws_ecr_repository" "agent_api" {
   name                 = "${var.app_name}-agent-api"
@@ -9,8 +9,8 @@ resource "aws_ecr_repository" "agent_api" {
   }
 }
 
-resource "aws_ecr_repository" "tools_api" {
-  name                 = "${var.app_name}-tools-api"
+resource "aws_ecr_repository" "mcp_server" {
+  name                 = "${var.app_name}-mcp-server"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -22,6 +22,6 @@ output "agent_image_url" {
   value = aws_ecr_repository.agent_api.repository_url
 }
 
-output "tools_image_url" {
-  value = aws_ecr_repository.tools_api.repository_url
+output "mcp_image_url" {
+  value = aws_ecr_repository.mcp_server.repository_url
 }

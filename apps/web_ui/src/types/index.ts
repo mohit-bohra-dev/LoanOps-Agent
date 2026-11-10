@@ -8,6 +8,8 @@ export interface ToolCallItem {
   name: string;
   args: Record<string, unknown>;
   result_summary: string;
+  latency_ms?: number;
+  is_error?: boolean;
 }
 
 export interface EscalationItem {

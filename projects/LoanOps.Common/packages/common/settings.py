@@ -233,11 +233,11 @@ class EvalStoreConfig(BaseModel):
 class ToolsClientConfig(BaseModel):
     """Tools routing.
 
-    ``modular`` = in-process SSE OpenAPI catalog + docs (+ optional SQL).
-    ``mcp`` = Streamable HTTP client to ``packages.mcp_server`` (ADR-013).
+    ``mcp`` = Streamable HTTP client to ``packages.mcp_server`` (ADR-013). Product default.
+    ``modular`` = in-process SSE OpenAPI catalog + docs (+ optional SQL). Single-process rollback.
     """
 
-    provider: Literal["modular", "mcp"] = "modular"
+    provider: Literal["modular", "mcp"] = "mcp"
 
 
 class PromptStoreConfig(BaseModel):
@@ -378,18 +378,21 @@ class CredentialsConfig(BaseModel):
 
 
 class GraphStoreConfig(BaseModel):
-    """HTTP SPARQL graph store (ADR-026). GraphDB local; Neptune RDF later."""
+    """HTTP SPARQL graph store (ADR-026). Local GraphDB; AWS product = Neptune SigV4."""
 
     query_url: str = "http://localhost:7200/repositories/loanops"
     update_url: str = "http://localhost:7200/repositories/loanops/statements"
     auth_token: str = ""
+    # none | bearer (GraphDB token) | sigv4 (Neptune; needs region + task role).
+    auth_mode: Literal["none", "bearer", "sigv4"] = "none"
+    region: str = ""  # empty → LLM bedrock region when auth_mode=sigv4
     timeout_seconds: int = Field(default=30, ge=1, le=300)
 
 
 class EakgStoreConfig(BaseModel):
     """Non-graph EAKG artifacts (ADR-027): registry, interface, OpenAPI, ApiIndex ops.
 
-    Product: ``backend=postgres`` (GraphDB + Postgres + pgvector; no repo file truth).
+    Product: ``backend=postgres`` (Neptune SPARQL + Postgres + pgvector; no repo file truth).
     Tests/offline: ``backend=file`` under ``file_shard_dir`` mirroring
     ``GraphDb/``, ``Postgres/``, ``Pgvector/``.
     """

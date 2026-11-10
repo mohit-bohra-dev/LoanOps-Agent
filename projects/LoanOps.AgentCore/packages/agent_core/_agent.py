@@ -33,6 +33,10 @@ from packages.common.providers.agent_runtime import (
     ToolCallRecord,
 )
 from packages.common.providers.factory import get_agent_runtime_provider, get_telemetry_provider
+from packages.common.providers.telemetry import (
+    current_span_context,
+    record_completed_span,
+)
 from packages.common.schemas import AgentTurnOutput, EscalationItem, ToolCallItem
 from packages.safety.tokenizer import PiiTokenizer
 
@@ -238,6 +242,24 @@ def _normalize_legacy_tool_names(prompt: str) -> str:
     return out
 
 
+def _summary_cap(call_name: str) -> int:
+    if call_name == "search_docs":
+        return 8000
+    if call_name in {
+        "search_sse_apis",
+        "list_sse_apis",
+        "call_sse_api",
+        "describe_application",
+        "search_capabilities",
+        "explain_capability",
+        "find_providers",
+        "impact_of_change",
+        "search_code",
+    }:
+        return 4000
+    return 500
+
+
 async def _execute_tools(
     tool_calls: list[ToolCallRequest],
     tools_client: ToolsClientProvider,
@@ -263,30 +285,24 @@ async def _execute_tools(
 
         async def _one_call() -> ToolCallItem:
             tool = ToolCall(tool_name=call_name, parameters=call_params)
+            t0 = time.perf_counter()
             result = await tools_client.call(tool)
-            # search_docs / SSE search+call need enough room for OpenAPI hits + live JSON
-            if call_name == "search_docs":
-                summary_cap = 8000
-            elif call_name in {
-                "search_sse_apis",
-                "list_sse_apis",
-                "call_sse_api",
-                "describe_application",
-                "search_capabilities",
-                "explain_capability",
-                "find_providers",
-                "impact_of_change",
-                "search_code",
-            }:
-                summary_cap = 4000
-            else:
-                summary_cap = 500
+            latency_ms = round((time.perf_counter() - t0) * 1000, 2)
+            summary = (
+                _tool_result_text(result.data)[: _summary_cap(call_name)]
+                if result.success
+                else (result.error or "error")
+            )
             return ToolCallItem(
                 name=call_name,
                 args=call_args,
-                result_summary=_tool_result_text(result.data)[:summary_cap]
-                if result.success
-                else result.error or "error",
+                result_summary=summary,
+                latency_ms=latency_ms,
+                is_error=not result.success,
+                attributes={
+                    "result_chars": len(summary),
+                    "truncated": len(summary) >= _summary_cap(call_name),
+                },
             )
 
         if tel is None:
@@ -298,12 +314,21 @@ async def _execute_tools(
                 attributes={
                     "tool": call_name,
                     "agent.trace_id": trace_id or "",
+                    "span.kind": "tool",
                 },
+                kind="tool",
             ) as span:
                 item = await _one_call()
                 # Langfuse log tab reads span input/output, not metadata.
                 span.input = call_args
                 span.output = item.result_summary
+                span.is_error = item.is_error
+                if item.is_error:
+                    span.error_message = item.result_summary
+                span.attributes.update(item.attributes)
+                # Prefer measured tool latency over wrapper overhead when available.
+                if item.latency_ms > 0:
+                    span.latency_ms = item.latency_ms
                 recorded.append(item)
         except Exception:  # noqa: BLE001
             recorded.append(await _one_call())
@@ -316,6 +341,9 @@ def _records_to_items(records: list[ToolCallRecord]) -> list[ToolCallItem]:
             name=r.name,
             args=dict(r.arguments),
             result_summary=r.result_summary,
+            latency_ms=r.latency_ms,
+            is_error=not r.success,
+            attributes={"error": r.error} if r.error else {},
         )
         for r in records
     ]
@@ -323,6 +351,57 @@ def _records_to_items(records: list[ToolCallRecord]) -> list[ToolCallItem]:
 
 def _with_trace(output: AgentTurnOutput, trace_id: str) -> AgentTurnOutput:
     return output.model_copy(update={"trace_id": trace_id})
+
+
+def _emit_runtime_spans(
+    *,
+    result: Any,
+    trace_id: str,
+) -> None:
+    """Mirror runtime LLM / validator records into the active span buffer."""
+    parent = current_span_context()
+    parent_id = parent.span_id if parent is not None else None
+    for call in getattr(result, "llm_calls", []) or []:
+        with contextlib.suppress(Exception):
+            record_completed_span(
+                name="llm.chat",
+                kind="llm",
+                latency_ms=float(getattr(call, "latency_ms", 0.0) or 0.0),
+                attributes={
+                    "round_idx": getattr(call, "round_idx", 0),
+                    "phase": getattr(call, "phase", "tool_loop"),
+                    "tool_calls_requested": getattr(call, "tool_calls_requested", 0),
+                    "agent.trace_id": trace_id,
+                    "span.kind": "llm",
+                },
+                usage={
+                    "prompt_tokens": int(getattr(call, "prompt_tokens", 0) or 0),
+                    "completion_tokens": int(getattr(call, "completion_tokens", 0) or 0),
+                    "prompt": int(getattr(call, "prompt_tokens", 0) or 0),
+                    "completion": int(getattr(call, "completion_tokens", 0) or 0),
+                },
+                model=getattr(call, "model", None),
+                parent_span_id=parent_id,
+                trace_id=trace_id,
+            )
+    for attempt in getattr(result, "validation_attempts", []) or []:
+        with contextlib.suppress(Exception):
+            record_completed_span(
+                name="agent.validate",
+                kind="validator",
+                latency_ms=float(getattr(attempt, "latency_ms", 0.0) or 0.0),
+                attributes={
+                    "attempt": getattr(attempt, "attempt", 0),
+                    "is_valid": getattr(attempt, "is_valid", False),
+                    "agent.trace_id": trace_id,
+                    "span.kind": "validator",
+                },
+                is_error=not bool(getattr(attempt, "is_valid", False)),
+                error_message=getattr(attempt, "retry_feedback", None),
+                output=getattr(attempt, "retry_feedback", None),
+                parent_span_id=parent_id,
+                trace_id=trace_id,
+            )
 
 
 async def run_agent_turn(
@@ -333,16 +412,43 @@ async def run_agent_turn(
     prompt_store: PromptStoreProvider,
     history: list[LLMMessage] | None = None,
     pii_token_map: dict[str, str] | None = None,
+    trace_id: str | None = None,
 ) -> AgentTurnOutput:
     """Run a single agent turn and return structured output."""
-    trace_id = str(uuid.uuid4())
+    # Prefer caller-owned turn id (from /chat) so root + nested spans share one tree.
+    active = current_span_context()
+    if trace_id is None:
+        if active is not None and active.trace_id:
+            trace_id = active.trace_id
+        else:
+            trace_id = str(uuid.uuid4())
     t0 = time.perf_counter()
     tel = None
     with contextlib.suppress(Exception):
         tel = get_telemetry_provider()
+    open_own_turn = active is None or active.name != "agent.turn"
 
     async def _run_body() -> AgentTurnOutput:
-        intent, reason, detail = classify_intent(prompt)
+        intent: IntentType
+        reason: str
+        detail: str | None
+        if tel is not None:
+            try:
+                async with tel.span(
+                    "agent.classify_intent",
+                    attributes={"agent.trace_id": trace_id, "span.kind": "subtool"},
+                    kind="subtool",
+                ) as intent_span:
+                    intent, reason, detail = classify_intent(prompt)
+                    intent_span.output = {
+                        "intent": intent.value if hasattr(intent, "value") else str(intent),
+                        "reason": reason,
+                    }
+                    intent_span.attributes["intent"] = intent_span.output["intent"]
+            except Exception:  # noqa: BLE001
+                intent, reason, detail = classify_intent(prompt)
+        else:
+            intent, reason, detail = classify_intent(prompt)
 
         if intent == IntentType.REFUSE:
             return _with_trace(
@@ -430,7 +536,9 @@ async def run_agent_turn(
                     name=i.name,
                     arguments=dict(i.args),
                     result_summary=i.result_summary,
-                    success=True,
+                    success=not i.is_error,
+                    latency_ms=i.latency_ms,
+                    error=i.result_summary if i.is_error else None,
                 )
                 for i in items
             ]
@@ -462,8 +570,11 @@ async def run_agent_turn(
             validator=_validator,
             tool_executor=_tool_executor,
         )
+        _emit_runtime_spans(result=result, trace_id=trace_id)
 
         recorded_tools = _records_to_items(list(result.tool_calls))
+        token_usage = dict(getattr(result, "token_usage", {}) or {})
+        model = getattr(result, "model", None)
 
         if result.parsed_output is not None and hasattr(result.parsed_output, "answer"):
             parsed = result.parsed_output
@@ -476,6 +587,8 @@ async def run_agent_turn(
                     confidence=parsed.confidence,
                     refusal=parsed.refusal,
                     escalation=parsed.escalation,
+                    token_usage=token_usage,
+                    model=model,
                 ),
                 trace_id,
             )
@@ -492,11 +605,13 @@ async def run_agent_turn(
                     f"{result.raw_text[:200]}"
                 ),
                 escalation=None,
+                token_usage=token_usage,
+                model=model,
             ),
             trace_id,
         )
 
-    if tel is None:
+    if tel is None or not open_own_turn:
         return await _run_body()
     try:
         cm = tel.span(
@@ -504,7 +619,9 @@ async def run_agent_turn(
             attributes={
                 "agent.trace_id": trace_id,
                 "user_query_len": len(prompt),
+                "span.kind": "turn",
             },
+            kind="turn",
         )
         ctx = await cm.__aenter__()
     except Exception:  # noqa: BLE001

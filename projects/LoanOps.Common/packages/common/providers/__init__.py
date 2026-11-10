@@ -82,7 +82,17 @@ from packages.common.providers.session_store import (
     ConversationSession,
     ConversationTurn,
 )
-from packages.common.providers.telemetry import SpanContext, TelemetryProvider
+from packages.common.providers.telemetry import (
+    BufferedSpan,
+    SpanContext,
+    SpanKind,
+    TelemetryProvider,
+    begin_trace_collection,
+    current_span_context,
+    drain_trace_spans,
+    record_completed_span,
+    trace_span,
+)
 from packages.common.providers.tools_client import ToolCall, ToolResult, ToolsClientProvider
 from packages.common.providers.vector_store import (
     SearchResult,
@@ -120,6 +130,13 @@ __all__ = [
     "SecretsProvider",
     "TelemetryProvider",
     "SpanContext",
+    "BufferedSpan",
+    "SpanKind",
+    "begin_trace_collection",
+    "current_span_context",
+    "drain_trace_spans",
+    "record_completed_span",
+    "trace_span",
     "EvalStoreProvider",
     "DatasetItem",
     "ReviewLabel",

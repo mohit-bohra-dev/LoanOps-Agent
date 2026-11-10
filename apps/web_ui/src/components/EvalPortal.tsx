@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { EvalInsightsBar } from "../eval/EvalInsightsBar";
 import { EvalSpreadsheet } from "../eval/EvalSpreadsheet";
 import { DEMO_SCENARIOS } from "../eval/mockData";
+import { ScenarioBoard } from "../eval/ScenarioBoard";
+import { loadReviewerName, saveReviewerName } from "../eval/scenarios";
 import { TraceReviewDrawer } from "../eval/TraceReviewDrawer";
 import {
   summarizeInsights,
@@ -18,7 +20,7 @@ type Health = {
   release_gate: { ready?: boolean; reasons?: string[] };
 };
 
-type View = "matrix" | "insights" | "candidates";
+type View = "scenarios" | "matrix" | "insights" | "candidates";
 
 function normalizeApiRow(raw: Record<string, unknown>, idx: number): EvalMatrixRow {
   return {
@@ -30,6 +32,12 @@ function normalizeApiRow(raw: Record<string, unknown>, idx: number): EvalMatrixR
     spans: Array.isArray(raw.spans) ? (raw.spans as EvalMatrixRow["spans"]) : [],
     latency_ms: Number(raw.latency_ms ?? 0),
     token_usage: (raw.token_usage as Record<string, number>) ?? {},
+    pipeline_hits: (raw.pipeline_hits as EvalMatrixRow["pipeline_hits"]) ?? undefined,
+    model: (raw.model as string | null) ?? null,
+    rounds_used: Number(raw.rounds_used ?? 0),
+    validation_retries: Number(raw.validation_retries ?? 0),
+    confidence: (raw.confidence as number | null) ?? null,
+    status: (raw.status as string | null) ?? null,
     model_critique: (raw.model_critique as string | null) ?? null,
     model_outcome: (raw.model_outcome as OutcomeStatus | null) ?? null,
     human_critique: (raw.human_critique as string | null) ?? null,
@@ -56,7 +64,7 @@ function normalizeApiRow(raw: Record<string, unknown>, idx: number): EvalMatrixR
  * Spreadsheet-style AI Agent Evaluation & Human Review workspace.
  */
 export function EvalPortal({ onClose }: { onClose: () => void }) {
-  const [view, setView] = useState<View>("matrix");
+  const [view, setView] = useState<View>("scenarios");
   const [includeDemo, setIncludeDemo] = useState(true);
   const [liveRows, setLiveRows] = useState<EvalMatrixRow[]>([]);
   const [demoRows, setDemoRows] = useState<EvalMatrixRow[]>(DEMO_SCENARIOS);
@@ -64,6 +72,7 @@ export function EvalPortal({ onClose }: { onClose: () => void }) {
   const [inspect, setInspect] = useState<EvalMatrixRow | null>(null);
   const [agentVersionFilter, setAgentVersionFilter] = useState("all");
   const [loadNote, setLoadNote] = useState("");
+  const [reviewer, setReviewer] = useState(() => loadReviewerName());
 
   const load = useCallback(async () => {
     try {
@@ -121,9 +130,23 @@ export function EvalPortal({ onClose }: { onClose: () => void }) {
           </h1>
           <p className="text-[11px] text-text-muted">{loadNote}</p>
         </div>
+        <label className="flex items-center gap-1.5 text-xs text-text-secondary">
+          Reviewer
+          <input
+            type="text"
+            value={reviewer}
+            placeholder="your.name"
+            className="w-28 bg-surface-0 border border-surface-3 rounded px-2 py-1 text-text-primary"
+            onChange={(e) => {
+              setReviewer(e.target.value);
+              saveReviewerName(e.target.value);
+            }}
+          />
+        </label>
         <nav className="flex gap-1 text-xs">
           {(
             [
+              ["scenarios", "Scenarios"],
               ["matrix", "Spreadsheet Matrix"],
               ["insights", "Insights & Layers"],
               ["candidates", "Golden Candidates"],
@@ -164,6 +187,8 @@ export function EvalPortal({ onClose }: { onClose: () => void }) {
       </header>
 
       <div className="flex-1 min-h-0 flex flex-col gap-3 p-3 overflow-hidden">
+        {view === "scenarios" && <ScenarioBoard reviewer={reviewer} />}
+
         {(view === "matrix" || view === "insights") && (
           <EvalInsightsBar
             insights={insights}
@@ -254,6 +279,7 @@ export function EvalPortal({ onClose }: { onClose: () => void }) {
       {inspect && (
         <TraceReviewDrawer
           row={inspect}
+          defaultReviewer={reviewer}
           onClose={() => setInspect(null)}
           onSaved={onSaved}
         />

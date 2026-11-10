@@ -18,11 +18,15 @@ F1. Why did escrow jump on loan 1000002245?
 ## Smoke set (paste into /chat or MCP) — re-verify after stack recycle
 
 1. Show me the loan summary for 1000002245
-   UNTESTED — expect search_sse_apis → call_sse_api (GetLoanSummary / similar)
+   PARTIAL 2026-11-10 — search → call GetLoanSummary 200; final answer refused (empty answer, 2 attempts).
+   tools: search_sse_apis, call_sse_api loanservices:GET_api_loans_id_summary.
+   trace 08e8a451585d51fd643ae72ec7607c0f
 
 2. Show payment schedule for loan 1000002245
-   OK — 2026-11-05: search_sse_apis → call_sse_api loanservices:GET_api_loans_id_paymentschedules → 200
-   trace 0246a0efa79f2a1f8518917e873c3b00. Wording tested was "Show payment schedule…", not "What are the payment schedules…".
+   OK — 2026-11-05: search → call loanservices:GET_api_loans_id_paymentschedules → 200
+   trace 0246a0efa79f2a1f8518917e873c3b00.
+   PARTIAL 2026-11-10 — same tools/op; SSE returned 500 unavailable. Agent answered truthfully.
+   trace 72fc288b842d8eee8981e9296fb8a4da
 
 4. What fees apply for loan 1000002245?
    UNTESTED
@@ -45,7 +49,9 @@ F1. Why did escrow jump on loan 1000002245?
 
 8. Does loanservices use any Facades? List them.
    PARTIAL — 2026-11-05: search_code loanservices query Facade fired; engineering graph missing
-   (needs EAKG__ENGINEERING_GRAPH onboard). trace d65d1a76dd2f9fc8b4153040c130978a
+   (needs EAKG__ENGINEERING_GRAPH onboard).
+   retest isolated (no session_id) same: error path Temp\eakg-eng-loanservices-...\graph.json
+   traces d65d1a76dd2f9fc8b4153040c130978a ; 9f3eea5de58bc9cb0fd7261a79e76590
 
 9. Which applications depend on the escrow API?
    OK — 2026-11-05: impact_of_change target "escrow API" → empty dependents (tool OK)
@@ -58,7 +64,10 @@ F1. Why did escrow jump on loan 1000002245?
 # Expect = tool(s) the agent should call. Mark OK/PARTIAL/FAIL + trace id after each run.
 
 S1. Live loan API (call_sse_api) — Show me the loan summary for 1000002245
-   Expect: search_sse_apis → call_sse_api loanservices loan summary. UNTESTED
+   Expect: search_sse_apis → call_sse_api loanservices loan summary.
+   PARTIAL 2026-11-10 — tools OK (Summary 200); agent refusal after 2 attempts, answer empty.
+   tools: search_sse_apis, call_sse_api loanservices:GET_api_loans_id_summary.
+   trace 08e8a451585d51fd643ae72ec7607c0f
 
 S2. Live loan API, second app (escrow) — Get escrow details for loan 1000002245
    Expect: search_sse_apis → call_sse_api escrow GetEscrowByLoanNumber. OK (trace 655680b6746c1f6e5bf6f10eed0891ca)
@@ -94,7 +103,10 @@ S11. Docs + live API together — Loan 1000002245 escrow jumped. Pull the escrow
    Expect: search_sse_apis → call_sse_api escrow + search_docs escrow/annual-analysis.md. UNTESTED
 
 S12. Interface + docs together — Which apps does loanservices call outbound, and is there an SOP for escrow disbursements?
-   Expect: describe_application loanservices + search_docs escrow/escrow-disbursements.md. UNTESTED
+   Expect: describe_application loanservices + search_docs escrow/escrow-disbursements.md.
+   PARTIAL 2026-11-09 — describe OK (proxies); docs miss escrow-disbursements.md (annual-analysis/IOE hits).
+   tools: describe_application, search_docs. requires_human_approval=true.
+   trace de5ae4eb8ba4328c586f823b8e17bb46
 
 # Still not wired into /chat (or search expansion):
 #  process KG (hasStep edges), GraphRAG communities (GRAPHRAG__ENABLED default off).

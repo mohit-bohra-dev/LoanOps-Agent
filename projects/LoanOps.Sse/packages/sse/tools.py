@@ -255,12 +255,29 @@ async def handle_search_sse_apis(
 
     if api_search is not None:
         # Duck-typed ApiSearchService — sse must not import api_index (dep direction).
-        outcome = await api_search.search(
-            query,
-            limit=limit,
-            application_ids=application_ids,
-            permission=permission_s,
-        )
+        from packages.sse.invoke import _sse_subspan
+
+        async with _sse_subspan(
+            "api_index.search",
+            query=query[:200],
+            top_k=limit,
+        ) as search_span:
+            outcome = await api_search.search(
+                query,
+                limit=limit,
+                application_ids=application_ids,
+                permission=permission_s,
+            )
+            hits = getattr(outcome, "hits", None) or []
+            top_ops: list[dict[str, Any]] = []
+            for h in list(hits)[:5]:
+                op = getattr(h, "operation", None) or getattr(h, "operation_id", None)
+                score = getattr(h, "score", None)
+                op_id = getattr(op, "operation_id", None) if op is not None else op
+                top_ops.append({"operation_id": str(op_id or ""), "score": score})
+            search_span.attributes["hit_count"] = len(hits)
+            search_span.attributes["hits"] = top_ops
+            search_span.output = {"hit_count": len(hits), "hits": top_ops}
         format_fn = getattr(api_search, "format_outcome", None)
         body = (
             format_fn(outcome, query)
@@ -284,13 +301,13 @@ async def handle_search_sse_apis(
     )
     if not hits and not kg_block:
         return "No matching SSE API operations."
-    openapi_body: str | None = None
+    openapi_fallback: str | None = None
     if hits:
         header = "OpenAPI operations:"
         if not used_semantic:
             header = "(keyword search — embeddings unavailable)\n" + header
-        openapi_body = header + "\n" + "\n".join(summarize_operation(op) for op in hits)
-    return _assemble_search_parts(openapi_body=openapi_body, kg_block=kg_block)
+        openapi_fallback = header + "\n" + "\n".join(summarize_operation(op) for op in hits)
+    return _assemble_search_parts(openapi_body=openapi_fallback, kg_block=kg_block)
 
 
 def _matches_source_filter(op: ApiOperation, needle: str) -> bool:

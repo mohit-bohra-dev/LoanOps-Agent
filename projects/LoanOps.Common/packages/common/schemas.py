@@ -112,6 +112,9 @@ class ToolCallItem(BaseModel):
     name: str
     args: dict[str, Any]
     result_summary: str
+    latency_ms: float = 0.0
+    is_error: bool = False
+    attributes: dict[str, Any] = Field(default_factory=dict)
 
 
 class EscalationItem(BaseModel):
@@ -132,3 +135,5 @@ class AgentTurnOutput(BaseModel):
     refusal: str | None = None
     escalation: EscalationItem | None = None
     trace_id: str | None = None
+    token_usage: dict[str, int] = Field(default_factory=dict)
+    model: str | None = None
