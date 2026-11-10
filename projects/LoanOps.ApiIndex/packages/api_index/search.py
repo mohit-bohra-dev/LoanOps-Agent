@@ -105,6 +105,7 @@ class ApiSearchService:
         self._enforce_permissions = enforce_permissions
         self._query_cache: OrderedDict[str, list[float]] = OrderedDict()
         self._model_mismatch = False
+        self._model_probed = False
         self._live_model_id = ""
         self._manifest_model_id = ""
         self._namespace = ""
@@ -135,13 +136,15 @@ class ApiSearchService:
         self._keyword = keyword_index
         self._refresh_manifest_state()
         self._query_cache.clear()
+        self._model_probed = False
+        self._model_mismatch = False
+        self._live_model_id = ""
 
-    async def _ensure_model(self) -> None:
-        if self._embedder is None:
-            self._model_mismatch = True
+    def _record_live_model(self, *, model: str, dimensions: int) -> None:
+        """Capture live embedder identity from a successful query embed (no probe)."""
+        if self._model_probed:
             return
-        probe = await self._embedder.embed("probe")
-        self._live_model_id = f"{probe.model}:{probe.dimensions}"
+        self._live_model_id = f"{model}:{dimensions}"
         if self._manifest_model_id and self._live_model_id != self._manifest_model_id:
             self._model_mismatch = True
         else:
@@ -150,6 +153,7 @@ class ApiSearchService:
             self._namespace = namespace_for(
                 self._namespace_prefix, self._environment, self._live_model_id
             )
+        self._model_probed = True
 
     async def _embed_cached(self, query: str) -> list[float]:
         if self._embedder is None:
@@ -160,6 +164,7 @@ class ApiSearchService:
             self._query_cache.move_to_end(key)
             return cached
         result = await self._embedder.embed(query)
+        self._record_live_model(model=result.model, dimensions=result.dimensions)
         vec = list(result.vector)
         self._query_cache[key] = vec
         while len(self._query_cache) > _QUERY_EMBED_LRU:
@@ -345,9 +350,17 @@ class ApiSearchService:
         if not q:
             return SearchOutcome(hits=[], backend="keyword", confident=False)
 
+        if self._embedder is None:
+            warnings.append("embed_unavailable")
+            return self._keyword_only(
+                q, limit=limit, shortlist=list(application_ids or []), permission=permission, warnings=warnings
+            )
+
+        # Derive live model id from the query embed (no separate embed("probe")).
         try:
-            await self._ensure_model()
+            qvec = await self._embed_cached(q)
         except Exception:  # noqa: BLE001
+            # Do not set _model_probed — transient embedder failures must recover.
             warnings.append("embed_unavailable")
             return self._keyword_only(
                 q, limit=limit, shortlist=list(application_ids or []), permission=permission, warnings=warnings
@@ -356,25 +369,12 @@ class ApiSearchService:
         if self._model_mismatch:
             warnings.append("embed_model_mismatch")
             if self._sidecar and self._manifest_model_id:
-                # sidecar may still match if written with same model as live
-                try:
-                    qvec = await self._embed_cached(q)
-                    shortlist = list(application_ids or [])
-                    if not shortlist:
-                        shortlist = self._keyword.exact_name_apps(q)[:_SHORTLIST_CAP]
-                    return await self._sidecar_search(
-                        q, qvec, limit=limit, shortlist=shortlist, permission=permission, warnings=warnings
-                    )
-                except Exception:  # noqa: BLE001
-                    pass
-            return self._keyword_only(
-                q, limit=limit, shortlist=list(application_ids or []), permission=permission, warnings=warnings
-            )
-
-        try:
-            qvec = await self._embed_cached(q)
-        except Exception:  # noqa: BLE001
-            warnings.append("embed_unavailable")
+                shortlist = list(application_ids or [])
+                if not shortlist:
+                    shortlist = self._keyword.exact_name_apps(q)[:_SHORTLIST_CAP]
+                return await self._sidecar_search(
+                    q, qvec, limit=limit, shortlist=shortlist, permission=permission, warnings=warnings
+                )
             return self._keyword_only(
                 q, limit=limit, shortlist=list(application_ids or []), permission=permission, warnings=warnings
             )

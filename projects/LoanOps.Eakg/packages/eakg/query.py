@@ -2,10 +2,17 @@
 
 from __future__ import annotations
 
+import time
 from typing import Any
 
 from packages.capability_kg.ontology import DEFAULT_NAMESPACE
 from packages.common.providers.graph_store import AbstractGraphStore, GraphStoreError
+
+# Process-local TTL cache for full-graph SPARQL dumps used by capability search.
+# Neither dump depends on the search query string.
+_SPARQL_DUMP_TTL_S = 60.0
+_ops_dump_cache: dict[tuple[int, str], tuple[float, list[dict[str, Any]]]] = {}
+_caps_dump_cache: dict[tuple[int, str], tuple[float, list[dict[str, Any]]]] = {}
 
 
 async def _traced_query(
@@ -171,16 +178,96 @@ WHERE {
 }
 """
 
+_CAPS_SELECT = """
+SELECT ?cap ?label ?op ?oid ?method ?path ?app ?appLabel ?code ?codeLabel ?perm ?authz
+WHERE {
+  GRAPH ?g {
+    ?cap a lo:Capability .
+    OPTIONAL { ?cap rdfs:label ?label }
+    OPTIONAL {
+      ?cap lo:implementedBy ?op .
+      OPTIONAL { ?op lo:operationId ?oid }
+      OPTIONAL { ?op lo:httpMethod ?method }
+      OPTIONAL { ?op lo:httpPath ?path }
+      OPTIONAL {
+        ?op lo:belongsToApp ?app .
+        OPTIONAL { ?app rdfs:label ?appLabel }
+      }
+      OPTIONAL {
+        ?op lo:implementedByCodeUnit ?code .
+        OPTIONAL { ?code rdfs:label ?codeLabel }
+      }
+      OPTIONAL { ?op lo:requiresPermission ?perm }
+      OPTIONAL { ?op lo:authzSource ?authz }
+    }
+  }
+}
+"""
+
+
+def _cache_get(
+    cache: dict[tuple[int, str], tuple[float, list[dict[str, Any]]]],
+    key: tuple[int, str],
+) -> list[dict[str, Any]] | None:
+    hit = cache.get(key)
+    if hit is None:
+        return None
+    expires_at, rows = hit
+    if time.monotonic() >= expires_at:
+        cache.pop(key, None)
+        return None
+    return rows
+
+
+def _cache_put(
+    cache: dict[tuple[int, str], tuple[float, list[dict[str, Any]]]],
+    key: tuple[int, str],
+    rows: list[dict[str, Any]],
+) -> None:
+    cache[key] = (time.monotonic() + _SPARQL_DUMP_TTL_S, rows)
+
+
+def clear_sparql_dump_caches() -> None:
+    """Test helper: drop process-local SPARQL dump caches."""
+    _ops_dump_cache.clear()
+    _caps_dump_cache.clear()
+
 
 async def _fetch_operations(
     store: AbstractGraphStore,
     *,
     namespace: str,
 ) -> list[dict[str, Any]]:
+    key = (id(store), namespace)
+    cached = _cache_get(_ops_dump_cache, key)
+    if cached is not None:
+        return cached
     data = await _traced_query(
         store, _prefix_block(namespace) + _OPS_SELECT, operation="fetch_operations"
     )
-    return list(data.get("results", {}).get("bindings", []))
+    rows = list(data.get("results", {}).get("bindings", []))
+    _cache_put(_ops_dump_cache, key, rows)
+    return rows
+
+
+async def _fetch_capabilities(
+    store: AbstractGraphStore,
+    *,
+    namespace: str,
+) -> list[dict[str, Any]]:
+    """Full Capability→op projection (same shape as explain_capability SELECT)."""
+    key = (id(store), namespace)
+    cached = _cache_get(_caps_dump_cache, key)
+    if cached is not None:
+        return cached
+    data = await _traced_query(
+        store,
+        _prefix_block(namespace) + _CAPS_SELECT,
+        operation="search_capabilities",
+    )
+    rows = list(data.get("results", {}).get("bindings", []))
+    _cache_put(_caps_dump_cache, key, rows)
+    return rows
 
 
 async def list_operation_records(
@@ -311,7 +398,11 @@ async def _search_capability_rows(
     *,
     namespace: str = DEFAULT_NAMESPACE,
 ) -> list[dict[str, Any]]:
-    """Score-ranked capability/operation rows (all HTTP methods)."""
+    """Score-ranked capability/operation rows (all HTTP methods).
+
+    Builds capability hits from a single full-projection SPARQL dump — no
+    per-hit ``explain_capability`` (avoids N+1 SPARQL).
+    """
     q, tokens = _query_tokens(query)
     scored: list[tuple[int, dict[str, Any]]] = []
     seen: set[str] = set()
@@ -332,33 +423,21 @@ async def _search_capability_rows(
             continue
         _add(score, _row_from_op_binding(row, capability_id=oid or path))
 
-    sparql = (
-        _prefix_block(namespace)
-        + """
-SELECT ?cap ?label ?oid ?path WHERE {
-  GRAPH ?g {
-    ?cap a lo:Capability .
-    OPTIONAL { ?cap rdfs:label ?label }
-    OPTIONAL {
-      ?cap lo:implementedBy ?op .
-      OPTIONAL { ?op lo:operationId ?oid }
-      OPTIONAL { ?op lo:httpPath ?path }
-    }
-  }
-}
-"""
-    )
-    data = await _traced_query(store, sparql, operation="search_capabilities")
-    for row in data.get("results", {}).get("bindings", []):
+    caps = await _fetch_capabilities(store, namespace=namespace)
+    for row in caps:
         label = _binding_str(row, "label") or ""
         uri = _binding_str(row, "cap") or ""
+        uri_tail = uri.rsplit("/", 1)[-1] if uri else ""
         oid = _binding_str(row, "oid") or ""
         path = _binding_str(row, "path") or ""
         score = _score_match(q, tokens, label, uri, path, oid)
         if score is None:
             continue
-        explained = await explain_capability(store, label or uri, namespace=namespace)
-        _add(score, explained or {"id": label or uri, "uri": uri})
+        cap_id = label or uri_tail or uri
+        result = _row_from_op_binding(row, capability_id=cap_id)
+        result["id"] = cap_id
+        result["uri"] = uri
+        _add(score, result)
 
     scored.sort(key=lambda t: (t[0], str(t[1].get("id") or "")))
     return [row for _, row in scored]

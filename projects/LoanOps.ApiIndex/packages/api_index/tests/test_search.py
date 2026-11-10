@@ -417,3 +417,91 @@ def test_manifest_model_id_written(tmp_path: Path) -> None:
         ),
     )
     assert (tmp_path / "m.json").is_file()
+
+
+class _CountingEmbedder(MockEmbeddingProvider):
+    def __init__(self, dimensions: int = 8) -> None:
+        super().__init__(dimensions=dimensions)
+        self.texts: list[str] = []
+
+    async def embed(self, text: str) -> Any:
+        self.texts.append(text)
+        return await super().embed(text)
+
+
+@pytest.mark.asyncio
+async def test_search_embeds_query_once_no_probe(tmp_path: Path) -> None:
+    """Cold search embeds the query only — never a separate embed('probe')."""
+    ops = _ops()
+    vs = MockVectorStoreProvider()
+    emb = _CountingEmbedder(dimensions=8)
+    manifest = tmp_path / "m.json"
+    sidecar = tmp_path / "s.json"
+    await reindex(
+        "local",
+        OperationSet(environment="local", built_at=datetime.now(UTC), operations=ops),
+        vector_store=vs,
+        embedder=MockEmbeddingProvider(dimensions=8),
+        manifest_path=manifest,
+        namespace_prefix="api_ops",
+        sidecar_path=sidecar,
+    )
+    svc = ApiSearchService(
+        operations=ops,
+        keyword_index=KeywordIndex(ops),
+        vector_store=vs,
+        embedder=emb,
+        environment="local",
+        namespace_prefix="api_ops",
+        manifest_path=manifest,
+        sidecar_path=sidecar,
+    )
+    await svc.search("get fees", limit=5)
+    assert emb.texts == ["get fees"]
+    assert "probe" not in emb.texts
+
+    # Same query hits query embed LRU — zero additional embeds.
+    await svc.search("get fees", limit=5)
+    assert emb.texts == ["get fees"]
+
+    # Distinct query pays one more embed.
+    await svc.search("loan summary", limit=5)
+    assert emb.texts == ["get fees", "loan summary"]
+    assert "probe" not in emb.texts
+
+
+class _FlakyThenOkEmbedder(_CountingEmbedder):
+    def __init__(self, dimensions: int = 8) -> None:
+        super().__init__(dimensions=dimensions)
+        self.fail_once = True
+
+    async def embed(self, text: str) -> Any:
+        self.texts.append(text)
+        if self.fail_once:
+            self.fail_once = False
+            raise RuntimeError("transient")
+        return await MockEmbeddingProvider.embed(self, text)
+
+
+@pytest.mark.asyncio
+async def test_transient_embed_failure_does_not_poison_probe(tmp_path: Path) -> None:
+    """Failed embed must not set _model_probed so the next call can recover."""
+    ops = _ops()
+    emb = _FlakyThenOkEmbedder(dimensions=8)
+    svc = ApiSearchService(
+        operations=ops,
+        keyword_index=KeywordIndex(ops),
+        vector_store=MockVectorStoreProvider(),
+        embedder=emb,
+        environment="local",
+        namespace_prefix="api_ops",
+        manifest_path=tmp_path / "m.json",
+        sidecar_path=tmp_path / "s.json",
+    )
+    out1 = await svc.search("getFees", limit=5)
+    assert out1.backend == "keyword"
+    assert svc._model_probed is False
+
+    out2 = await svc.search("getFees", limit=5)
+    assert out2.backend in {"vector_index", "sidecar", "keyword"}
+    assert svc._model_probed is True

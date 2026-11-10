@@ -407,3 +407,71 @@ def test_relationship_without_evidence_dropped() -> None:
         evidence=[],
     )
     assert bad.validate() is False
+
+
+_NS = "https://loanops.local/ontology/"
+_CAP_GRAPH_TTL = f"""
+@prefix lo: <{_NS}> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+lo:cap_get_payment_schedule a lo:Capability ;
+  rdfs:label "get_payment_schedule" ;
+  lo:implementedBy lo:op_GetPaymentSchedules .
+
+lo:op_GetPaymentSchedules a lo:APIOperation ;
+  lo:operationId "GetPaymentSchedules" ;
+  lo:httpMethod "GET" ;
+  lo:httpPath "/api/Loans/{{id}}/PaymentSchedules" ;
+  lo:belongsToApp lo:app_loanservices .
+
+lo:app_loanservices a lo:Application ;
+  rdfs:label "Loan Services" .
+"""
+
+
+class _CountingGraphStore(FakeGraphStore):
+    def __init__(self) -> None:
+        super().__init__()
+        self.query_count = 0
+
+    async def query(self, sparql: str) -> dict[str, Any]:
+        self.query_count += 1
+        return await super().query(sparql)
+
+
+@pytest.mark.asyncio
+async def test_search_capabilities_no_explain_and_caches_dumps(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """search_capabilities must not N+1 explain_capability; dumps TTL-cached."""
+    from packages.eakg import query as query_mod
+
+    query_mod.clear_sparql_dump_caches()
+    gs = _CountingGraphStore()
+    await gs.replace_named_graph(f"{_NS}g1", _CAP_GRAPH_TTL)
+
+    explain_calls = 0
+    real_explain = query_mod.explain_capability
+
+    async def _spy_explain(*args: Any, **kwargs: Any) -> Any:
+        nonlocal explain_calls
+        explain_calls += 1
+        return await real_explain(*args, **kwargs)
+
+    monkeypatch.setattr(query_mod, "explain_capability", _spy_explain)
+
+    hits = await search_capabilities(gs, "payment schedule", namespace=_NS, limit=5)
+    assert hits
+    assert explain_calls == 0
+    top = hits[0]
+    assert top.get("http_method") == "GET"
+    assert top.get("application") == "Loan Services"
+    first_queries = gs.query_count
+    assert first_queries >= 1  # ops dump + caps dump
+
+    # Second search reuses TTL caches — no additional SPARQL.
+    hits2 = await search_capabilities(gs, "payment", namespace=_NS, limit=5)
+    assert hits2
+    assert gs.query_count == first_queries
+    assert explain_calls == 0
+    query_mod.clear_sparql_dump_caches()

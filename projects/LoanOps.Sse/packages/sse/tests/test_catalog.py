@@ -102,3 +102,85 @@ async def test_catalog_service_fixture(tmp_path: Path) -> None:
     assert len(catalog.operations) == 2
     text = await dispatch_sse_tool(svc, "search_sse_apis", {"query": "loan"})
     assert "getLoan" in text or "Loans" in text
+
+
+@pytest.mark.asyncio
+async def test_handle_search_parallel_and_skips_load_when_api_search() -> None:
+    """capability_block + api_search run concurrently; service.load skipped."""
+    import asyncio
+    import time
+    from types import SimpleNamespace
+
+    from packages.sse.tools import handle_search_sse_apis
+
+    load_calls = 0
+
+    class _Svc:
+        async def load(self, refresh: bool = False) -> object:
+            nonlocal load_calls
+            load_calls += 1
+            await asyncio.sleep(0.05)
+            return SimpleNamespace(operations=[])
+
+    started: list[float] = []
+    finished: list[float] = []
+
+    async def slow_kg(query: str, limit: int) -> str:
+        started.append(time.perf_counter())
+        await asyncio.sleep(0.08)
+        finished.append(time.perf_counter())
+        return "Capabilities (EAKG):\n- capability: demo"
+
+    class _ApiSearch:
+        async def search(self, query: str, **kwargs: object) -> SimpleNamespace:
+            started.append(time.perf_counter())
+            await asyncio.sleep(0.08)
+            finished.append(time.perf_counter())
+            op = SimpleNamespace(
+                operation_id="demo:GET_api",
+                public_id="demo:GET_api",
+                application_id="demo",
+                method="get",
+                path="/api/demo",
+                summary="demo",
+                parameters=[],
+                tags=[],
+                source_id="demo",
+                source_label="Demo",
+            )
+            hit = SimpleNamespace(operation=op, operation_id=op.operation_id, score=0.9, record=op)
+            return SimpleNamespace(hits=[hit], backend="vector_index", confident=True)
+
+        def format_outcome(self, outcome: object, query: str) -> str:
+            return "backend: vector_index\n(vector index)\nOpenAPI operations:\n- id: demo:GET_api"
+
+    t0 = time.perf_counter()
+    text = await handle_search_sse_apis(
+        _Svc(),  # type: ignore[arg-type]
+        {"query": "demo", "limit": 5},
+        capability_block=slow_kg,
+        api_search=_ApiSearch(),
+    )
+    wall = time.perf_counter() - t0
+    assert load_calls == 0
+    assert "demo:GET_api" in text
+    assert "Capabilities (EAKG)" in text
+    # Parallel: wall ≈ max(0.08, 0.08), not sum (~0.16).
+    assert wall < 0.14, f"wall={wall:.3f}s suggests serial execution"
+    assert len(started) == 2
+    # Both started before either finished (overlap).
+    assert max(started) < min(finished)
+
+    # KG failure must not abort OpenAPI search.
+    async def boom(_q: str, _n: int) -> str:
+        raise RuntimeError("kg down")
+
+    text2 = await handle_search_sse_apis(
+        _Svc(),  # type: ignore[arg-type]
+        {"query": "demo"},
+        capability_block=boom,
+        api_search=_ApiSearch(),
+    )
+    assert "demo:GET_api" in text2
+    assert "Capabilities (EAKG)" not in text2
+    assert load_calls == 0

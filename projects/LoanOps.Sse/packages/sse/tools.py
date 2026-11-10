@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import re
 import uuid
@@ -232,6 +233,20 @@ def _assemble_search_parts(
     return "\n\n".join(parts)
 
 
+async def _safe_capability_block(
+    capability_block: CapabilityBlock | None,
+    query: str,
+    limit: int,
+) -> str | None:
+    """Run capability_block; KG failures must not abort OpenAPI search."""
+    if capability_block is None:
+        return None
+    try:
+        return await capability_block(query, limit)
+    except Exception:  # noqa: BLE001 — isolate KG hiccups
+        return None
+
+
 async def handle_search_sse_apis(
     service: OpenApiCatalogService,
     args: dict[str, Any],
@@ -240,44 +255,47 @@ async def handle_search_sse_apis(
     embed: EmbedFn | None = None,
     api_search: Any | None = None,
 ) -> str:
-    catalog = await service.load()
     # LAYER2-BP S1: OpenAPI vector search + optional EAKG block
     limit = min(int(args.get("limit") or 15), 50)
     query = str(args.get("query") or "")
     permission = args.get("permission")
     permission_s = str(permission).strip() if isinstance(permission, str) and permission.strip() else None
     application_ids = _application_ids(args)
-
-    # Cap EAKG rows so noisy alphabetical SPARQL hits do not drown OpenAPI ops.
-    kg_block: str | None = None
-    if capability_block is not None:
-        kg_block = await capability_block(query, min(limit, 5))
+    kg_limit = min(limit, 5)
 
     if api_search is not None:
         # Duck-typed ApiSearchService — sse must not import api_index (dep direction).
+        # Skip service.load(): catalog unused on api_search branch.
         from packages.sse.invoke import _sse_subspan
 
-        async with _sse_subspan(
-            "api_index.search",
-            query=query[:200],
-            top_k=limit,
-        ) as search_span:
-            outcome = await api_search.search(
-                query,
-                limit=limit,
-                application_ids=application_ids,
-                permission=permission_s,
-            )
-            hits = getattr(outcome, "hits", None) or []
-            top_ops: list[dict[str, Any]] = []
-            for h in list(hits)[:5]:
-                op = getattr(h, "operation", None) or getattr(h, "operation_id", None)
-                score = getattr(h, "score", None)
-                op_id = getattr(op, "operation_id", None) if op is not None else op
-                top_ops.append({"operation_id": str(op_id or ""), "score": score})
-            search_span.attributes["hit_count"] = len(hits)
-            search_span.attributes["hits"] = top_ops
-            search_span.output = {"hit_count": len(hits), "hits": top_ops}
+        async def _run_api_search() -> Any:
+            async with _sse_subspan(
+                "api_index.search",
+                query=query[:200],
+                top_k=limit,
+            ) as search_span:
+                outcome = await api_search.search(
+                    query,
+                    limit=limit,
+                    application_ids=application_ids,
+                    permission=permission_s,
+                )
+                hits = getattr(outcome, "hits", None) or []
+                top_ops: list[dict[str, Any]] = []
+                for h in list(hits)[:5]:
+                    op = getattr(h, "operation", None) or getattr(h, "operation_id", None)
+                    score = getattr(h, "score", None)
+                    op_id = getattr(op, "operation_id", None) if op is not None else op
+                    top_ops.append({"operation_id": str(op_id or ""), "score": score})
+                search_span.attributes["hit_count"] = len(hits)
+                search_span.attributes["hits"] = top_ops
+                search_span.output = {"hit_count": len(hits), "hits": top_ops}
+                return outcome
+
+        kg_block, outcome = await asyncio.gather(
+            _safe_capability_block(capability_block, query, kg_limit),
+            _run_api_search(),
+        )
         format_fn = getattr(api_search, "format_outcome", None)
         body = (
             format_fn(outcome, query)
@@ -290,15 +308,24 @@ async def handle_search_sse_apis(
         openapi_body = body if hits else None
         return _assemble_search_parts(openapi_body=openapi_body, kg_block=kg_block)
 
-    embed_fn = embed if embed is not None else _live_embed()
-    hits, used_semantic = await search_operations_with_embeddings(
-        catalog.operations,
-        query,
-        cache=service.openapi_embed_cache,
-        limit=limit,
-        embed=embed_fn,
-        hashes=service.openapi_embed_hashes,
+    # Legacy path: load catalog + embed search in parallel with capability block.
+    async def _run_legacy_search() -> tuple[list[ApiOperation], bool]:
+        catalog = await service.load()
+        embed_fn = embed if embed is not None else _live_embed()
+        return await search_operations_with_embeddings(
+            catalog.operations,
+            query,
+            cache=service.openapi_embed_cache,
+            limit=limit,
+            embed=embed_fn,
+            hashes=service.openapi_embed_hashes,
+        )
+
+    kg_block, legacy = await asyncio.gather(
+        _safe_capability_block(capability_block, query, kg_limit),
+        _run_legacy_search(),
     )
+    hits, used_semantic = legacy
     if not hits and not kg_block:
         return "No matching SSE API operations."
     openapi_fallback: str | None = None

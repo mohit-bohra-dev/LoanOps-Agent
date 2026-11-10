@@ -1,3 +1,20 @@
+## [2026-11-10] — Make search_sse_apis cheap
+
+**Session type:** Performance (latency)
+
+**Completed:**
+- Diagnosed turn latency from agent traces: `search_sse_apis` 2.1–6.7s (SLO p95 1.5s) — waste was per-call `embed("probe")`, serial KG+OpenAPI, and N+1 SPARQL `explain_capability`
+- `ApiSearchService`: derive live model id / mismatch / namespace from first successful query embed; no separate `embed("probe")`; transient embed fail does not set `_model_probed`
+- `eakg/query.py`: full Capability→op SPARQL projection; drop N+1 `explain_capability` from `_search_capability_rows`; 60s TTL cache for ops + caps dumps
+- `handle_search_sse_apis`: `asyncio.gather` capability_block ∥ api_search; skip unused `service.load()` on ApiIndex path; isolate KG errors
+- Tests: embed-once / no-probe, transient recovery, no-explain + dump cache, parallel wall-time; related suites green; mypy `--strict` clean on touched modules
+
+**Risk:** Warm path still needs `API_INDEX__ENABLED` + healthy vector index; first call still pays one query embed + one SPARQL dump fill.
+
+**Next:** Optional search-result string LRU; measure warm `search_sse_apis` on live stack vs 1.5s SLO.
+
+---
+
 ## [2026-11-03] — Eval Improvement Platform Phase 1
 
 **Session type:** Implementation (spec Phase 1)
