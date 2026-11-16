@@ -159,6 +159,12 @@ class AbstractEakgArtifactStore(ABC):
         self, pipeline_id: str | None = None, *, limit: int = 50
     ) -> list[dict[str, Any]]: ...
 
+    @abstractmethod
+    def put_asset_state(self, asset_key: str, payload: dict[str, Any]) -> None: ...
+
+    @abstractmethod
+    def get_asset_state(self, asset_key: str) -> dict[str, Any] | None: ...
+
 
 class FileEakgArtifactStore(AbstractEakgArtifactStore):
     """Disk mirror under ``<root>/Postgres/…`` (tests / offline)."""
@@ -399,6 +405,21 @@ class FileEakgArtifactStore(AbstractEakgArtifactStore):
             rows.append(raw)
         rows.sort(key=lambda r: str(r.get("started_at") or ""), reverse=True)
         return rows[: max(0, limit)]
+
+    def put_asset_state(self, asset_key: str, payload: dict[str, Any]) -> None:
+        safe = asset_key.replace("/", "__").replace(":", "__")
+        dest = self.pg / "asset_state" / f"{safe}.json"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        row = {"asset_key": asset_key, **payload}
+        dest.write_text(json.dumps(row, indent=2), encoding="utf-8")
+
+    def get_asset_state(self, asset_key: str) -> dict[str, Any] | None:
+        safe = asset_key.replace("/", "__").replace(":", "__")
+        path = self.pg / "asset_state" / f"{safe}.json"
+        if not path.is_file():
+            return None
+        raw: object = json.loads(path.read_text(encoding="utf-8"))
+        return raw if isinstance(raw, dict) else None
 
 
 _SCHEMA_SQL = (Path(__file__).parent / "sql" / "eakg_artifacts.sql").read_text(encoding="utf-8")
@@ -946,6 +967,46 @@ class PostgresEakgArtifactStore(AbstractEakgArtifactStore):
                 if isinstance(payload, dict):
                     out.append(payload)
             return out
+        finally:
+            await conn.close()
+
+    def put_asset_state(self, asset_key: str, payload: dict[str, Any]) -> None:
+        _run_sync(self._put_asset_state(asset_key, payload))
+
+    async def _put_asset_state(self, asset_key: str, payload: dict[str, Any]) -> None:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            await conn.execute(
+                """
+                INSERT INTO eakg_asset_state (asset_key, payload, updated_at)
+                VALUES ($1, $2::jsonb, now())
+                ON CONFLICT (asset_key) DO UPDATE
+                SET payload = EXCLUDED.payload, updated_at = now()
+                """,
+                asset_key,
+                json.dumps({"asset_key": asset_key, **payload}),
+            )
+        finally:
+            await conn.close()
+
+    def get_asset_state(self, asset_key: str) -> dict[str, Any] | None:
+        return _run_sync(self._get_asset_state(asset_key))
+
+    async def _get_asset_state(self, asset_key: str) -> dict[str, Any] | None:
+        import asyncpg
+
+        conn = await asyncpg.connect(self._dsn)
+        try:
+            row = await conn.fetchrow(
+                "SELECT payload FROM eakg_asset_state WHERE asset_key = $1",
+                asset_key,
+            )
+            if row is None:
+                return None
+            payload = _loads_obj(row["payload"])
+            return payload if isinstance(payload, dict) else None
         finally:
             await conn.close()
 

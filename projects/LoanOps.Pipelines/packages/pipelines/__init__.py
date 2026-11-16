@@ -10,7 +10,9 @@ from packages.pipelines.runner import (
     dispatch_local,
     execute_run,
     get_run,
+    list_catalog,
     list_runs,
+    sweep_stale_runs,
 )
 
 __all__ = [
@@ -23,5 +25,7 @@ __all__ = [
     "execute_run",
     "get_pipeline",
     "get_run",
+    "list_catalog",
     "list_runs",
+    "sweep_stale_runs",
 ]

@@ -135,14 +135,6 @@ class ChatConfig(BaseModel):
     deterministic_by_default: bool = False
 
 
-class QdrantConfig(BaseModel):
-    url: str = "http://localhost:6333"
-    collection: str = "sops"
-    # Local embedded mode (no Docker): set path to a directory or ":memory:".
-    # When set, url is ignored. Leanest no-Docker option via qdrant-client.
-    path: str | None = None
-
-
 class AISearchConfig(BaseModel):
     endpoint: str = ""
     api_key: str = ""
@@ -151,8 +143,7 @@ class AISearchConfig(BaseModel):
 
 
 class VectorStoreConfig(BaseModel):
-    provider: Literal["qdrant", "ai_search", "pgvector"] = "qdrant"
-    qdrant: QdrantConfig = Field(default_factory=QdrantConfig)
+    provider: Literal["ai_search", "pgvector"] = "pgvector"
     ai_search: AISearchConfig | None = None
     pgvector_dsn: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/loanops"
     pgvector_dimensions: int = 384

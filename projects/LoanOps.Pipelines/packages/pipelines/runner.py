@@ -7,7 +7,7 @@ import subprocess
 import sys
 import time
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -15,10 +15,13 @@ from packages.common.settings import get_settings
 from packages.eakg.locks import RepoLock
 from packages.eakg.runtime import eakg_runtime
 from packages.pipelines.catalog import PIPELINES, get_pipeline
+from packages.pipelines.freshness import evaluate_freshness
 
 logger = logging.getLogger(__name__)
 
 _ACTIVE = frozenset({"queued", "running"})
+# Kill stuck ledger rows so a crashed child does not block forever (no new env var).
+STALE_RUN_TIMEOUT = timedelta(minutes=30)
 
 
 class PipelineNotFoundError(KeyError):
@@ -33,10 +36,54 @@ def _now_iso() -> str:
     return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
+def _parse_started_at(raw: object) -> datetime | None:
+    if not isinstance(raw, str) or not raw.strip():
+        return None
+    text = raw.strip().replace("Z", "+00:00")
+    try:
+        dt = datetime.fromisoformat(text)
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC)
+
+
 def _arts() -> Any:
     _registry, _store, arts = eakg_runtime()
     arts.ensure_schema()
     return arts
+
+
+def sweep_stale_runs(
+    arts: Any,
+    pipeline_id: str,
+    *,
+    now: datetime | None = None,
+    timeout: timedelta = STALE_RUN_TIMEOUT,
+) -> list[str]:
+    """Mark queued/running rows older than ``timeout`` as failed. Returns run_ids."""
+    current = now or datetime.now(UTC)
+    swept: list[str] = []
+    for row in arts.list_pipeline_runs(pipeline_id, limit=50):
+        if row.get("status") not in _ACTIVE:
+            continue
+        started = _parse_started_at(row.get("started_at"))
+        if started is None or current - started < timeout:
+            continue
+        run_id = str(row.get("run_id") or "")
+        if not run_id:
+            continue
+        payload = {
+            **{k: v for k, v in row.items() if k not in ("run_id", "pipeline_id")},
+            "status": "failed",
+            "error": "stale_timeout",
+            "finished_at": _now_iso(),
+        }
+        arts.put_pipeline_run(run_id, pipeline_id, payload)
+        swept.append(run_id)
+        logger.warning("pipeline run stale_timeout run_id=%s pipeline=%s", run_id, pipeline_id)
+    return swept
 
 
 def create_run(
@@ -51,6 +98,7 @@ def create_run(
         raise PipelineNotFoundError(pipeline_id)
 
     arts = _arts()
+    sweep_stale_runs(arts, pipeline_id)
     for row in arts.list_pipeline_runs(pipeline_id, limit=20):
         if row.get("status") in _ACTIVE:
             raise PipelineBusyError(
@@ -70,6 +118,8 @@ def create_run(
         "report": None,
         "error": None,
         "log_path": log_path,
+        "quality_status": None,
+        "cascade_runs": [],
     }
     arts.put_pipeline_run(run_id, pipeline_id, payload)
     return run_id
@@ -116,9 +166,15 @@ async def execute_run(run_id: str) -> dict[str, Any]:
     arts.put_pipeline_run(run_id, pipeline_id, running)
 
     cfg = get_settings()
+    # Share ApiIndex lock with in-process nightly scheduler; other pipelines get own lock.
+    lock_name = (
+        "api_index_refresh"
+        if pipeline_id == "openapi_to_api_index"
+        else f"pipeline_{pipeline_id}"
+    )
     lock = RepoLock(
         Path(cfg.eakg.workspace_dir) / ".locks",
-        "api_index_refresh",
+        lock_name,
         timeout_s=30.0,
     )
     try:
@@ -143,14 +199,38 @@ async def execute_run(run_id: str) -> dict[str, Any]:
             exec_status = "partial"
         else:
             exec_status = "failed"
+        quality_status = report.get("quality_status")
         done: dict[str, Any] = {
             **running,
             "status": exec_status,
             "report": report,
+            "quality_status": quality_status,
             "error": report.get("error") if exec_status == "failed" else None,
             "finished_at": _now_iso(),
             "duration_ms": round((time.perf_counter() - started) * 1000.0, 2),
         }
+
+        cascade_ids: list[str] = []
+        if exec_status in ("succeeded", "partial") and bool(params.get("cascade_downstream")):
+            for dep_id in spec.downstream:
+                try:
+                    dep_params = {
+                        "environment": params.get("environment") or "dev",
+                        "cascade_downstream": False,
+                    }
+                    if params.get("repository_id"):
+                        dep_params["repository_id"] = params["repository_id"]
+                    child_id = create_run(
+                        dep_id,
+                        dep_params,
+                        triggered_by=f"cascade:{run_id}",
+                    )
+                    await execute_run(child_id)
+                    cascade_ids.append(child_id)
+                except Exception as exc:  # noqa: BLE001
+                    logger.exception("cascade failed parent=%s dep=%s", run_id, dep_id)
+                    done["error"] = f"cascade:{dep_id}:{str(exc)[:120]}"
+        done["cascade_runs"] = cascade_ids
         arts.put_pipeline_run(run_id, pipeline_id, done)
         return done
     except Exception as exc:  # noqa: BLE001
@@ -168,19 +248,23 @@ async def execute_run(run_id: str) -> dict[str, Any]:
         lock.release()
 
 
-def list_catalog() -> list[dict[str, Any]]:
-    """Catalog rows with last run (if any)."""
+def list_catalog(*, environment: str = "dev") -> list[dict[str, Any]]:
+    """Catalog rows with last run + freshness (when hash policy exists)."""
     arts = _arts()
     out: list[dict[str, Any]] = []
     for spec in PIPELINES.values():
         runs = arts.list_pipeline_runs(spec.pipeline_id, limit=1)
+        freshness = evaluate_freshness(arts, spec.pipeline_id, environment=environment)
         out.append(
             {
                 "pipeline_id": spec.pipeline_id,
                 "title": spec.title,
                 "description": spec.description,
                 "default_params": spec.default_params,
+                "downstream": list(spec.downstream),
+                "long_running": spec.long_running,
                 "last_run": runs[0] if runs else None,
+                "freshness": freshness,
             }
         )
     return out

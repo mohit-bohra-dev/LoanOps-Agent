@@ -1,23 +1,23 @@
-# LoanOps Complete Guide
+# LoanOps overview decks
 
-One deck, two formats. Written for tech leads and stakeholders **without** code access. You can send either file by email or Teams.
+Written for tech leads and stakeholders **without** code access. Send either file by email or Teams.
 
-| Format | File |
-| --- | --- |
-| PowerPoint | [`LoanOps-Complete-Guide.pptx`](LoanOps-Complete-Guide.pptx) |
-| PDF | [`LoanOps-Complete-Guide.pdf`](LoanOps-Complete-Guide.pdf) |
+| Deck | PowerPoint | PDF |
+| --- | --- | --- |
+| Long guide | [`LoanOps-Complete-Guide.pptx`](LoanOps-Complete-Guide.pptx) | [`LoanOps-Complete-Guide.pdf`](LoanOps-Complete-Guide.pdf) |
+| Short briefing | [`LoanOps-Stakeholder-Briefing-v2.pptx`](LoanOps-Stakeholder-Briefing-v2.pptx) | [`LoanOps-Stakeholder-Briefing-v2.pdf`](LoanOps-Stakeholder-Briefing-v2.pdf) |
 
-65 slides in 7 sections:
+The long guide is 66 slides in 7 sections. Each component is WHAT / USE / WHY.
 
 - **A. Why LoanOps exists:** the problem, the goal, what it is and is not, who it is for
-- **B. How it is used:** the two clients, why the Chat UI exists, example questions, one answer step by step, refusals
-- **C. Runtime building blocks:** Chat UI, Agent, AI model, the MCP tool room, tools, live API calls, credential broker, swappable providers
-- **D. Knowledge:** EAKG, embeddings, capability embeddings, ApiIndex, document embeddings, GraphRAG, engineering map, Graphify, stores, product vs test mode
-- **E. Pipelines:** each one with its source, output, an example, and why it exists
-- **F. Safety, security, quality:** privacy, read-only layers, auth, citations and audit, quality targets
-- **G. Status and reference:** connected apps, status, gaps, roadmap, recommended decisions, glossary, FAQ
+- **B. How it is used:** IDE and Chat UI, Eval Portal, one answer step by step, refusals
+- **C. Runtime building blocks:** Chat UI, Agent, AI model, the tool room, tools, live API calls, credential broker, swappable providers
+- **D. Knowledge:** EAKG, embeddings, ApiIndex, documents, GraphRAG, engineering map, Graphify, stores
+- **E. Pipelines:** each job, plus how you start a run, see if it finished, and see if data is fresh
+- **F. Safety:** privacy, read-only layers, login today vs person login, citations, quality targets
+- **G. Status:** connected apps (Core Components live reads paused), cloud design, gaps, roadmap, glossary, FAQ
 
-Each component is explained as WHAT / USE / WHY.
+The short briefing is 30 slides for a meeting: problem, tool room, knowledge jobs, login, cloud design, and the decisions we want. Term-by-term slides stay in the long guide.
 
 ## Regenerate after edits
 

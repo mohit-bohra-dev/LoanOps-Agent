@@ -10,10 +10,13 @@ import pytest
 from packages.eakg.artifact_store import FileEakgArtifactStore
 from packages.pipelines import catalog as catalog_mod
 from packages.pipelines.catalog import PipelineSpec
+from datetime import UTC, datetime, timedelta
+
 from packages.pipelines.runner import (
     PipelineBusyError,
     create_run,
     execute_run,
+    sweep_stale_runs,
 )
 
 
@@ -133,3 +136,43 @@ async def test_busy_conflict(
     create_run("fake_busy", {}, triggered_by="test")
     with pytest.raises(PipelineBusyError):
         create_run("fake_busy", {}, triggered_by="test")
+
+
+@pytest.mark.asyncio
+async def test_stale_running_does_not_block(
+    file_store: FileEakgArtifactStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setitem(
+        catalog_mod.PIPELINES,
+        "fake_stale",
+        PipelineSpec(
+            pipeline_id="fake_stale",
+            title="Fake Stale",
+            description="test",
+            entrypoint=_ok,
+        ),
+    )
+    old = (datetime.now(UTC) - timedelta(minutes=45)).isoformat().replace("+00:00", "Z")
+    file_store.put_pipeline_run(
+        "run_old",
+        "fake_stale",
+        {"status": "running", "started_at": old, "params": {}},
+    )
+    swept = sweep_stale_runs(file_store, "fake_stale")
+    assert "run_old" in swept
+    stale_row = file_store.get_pipeline_run("run_old")
+    assert stale_row is not None
+    assert stale_row["status"] == "failed"
+    assert stale_row["error"] == "stale_timeout"
+    run_id = create_run("fake_stale", {}, triggered_by="test")
+    assert run_id
+
+    # Fresh running still blocks.
+    fresh = datetime.now(UTC).isoformat().replace("+00:00", "Z")
+    file_store.put_pipeline_run(
+        "run_fresh",
+        "fake_stale",
+        {"status": "running", "started_at": fresh, "params": {}},
+    )
+    with pytest.raises(PipelineBusyError):
+        create_run("fake_stale", {}, triggered_by="test")

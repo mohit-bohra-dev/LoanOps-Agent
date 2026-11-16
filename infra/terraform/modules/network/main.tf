@@ -1,4 +1,5 @@
 # Discover corp VPC (plaisse pattern) or create a sandbox VPC.
+# Includes free S3 Gateway endpoint on created VPCs to avoid NAT data-transfer fees.
 
 variable "app_name" { type = string }
 variable "env_name" { type = string }
@@ -7,6 +8,8 @@ variable "create_network" { type = bool }
 variable "network_stack_name" { type = string }
 variable "runtime_subnet_name_prefix" { type = string }
 variable "db_subnet_name_prefix" { type = string }
+
+data "aws_region" "current" {}
 
 locals {
   network_stack_name = var.network_stack_name != "" ? var.network_stack_name : "infra-network-${var.env_name}"
@@ -32,6 +35,15 @@ module "vpc" {
 
   enable_nat_gateway = true
   single_nat_gateway = true
+}
+
+# Free S3 Gateway VPC endpoint (saves ECR layer pulls & S3 traffic from NAT charges)
+resource "aws_vpc_endpoint" "s3" {
+  count             = var.create_network ? 1 : 0
+  vpc_id            = module.vpc[0].vpc_id
+  service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = module.vpc[0].private_route_table_ids
 }
 
 # --- Discover path (corp) ---
@@ -80,7 +92,6 @@ data "aws_subnets" "public" {
 
 locals {
   vpc_id = var.create_network ? module.vpc[0].vpc_id : data.aws_vpc.corp[0].id
-  # Internal ALB still needs two subnets; prefer public when present, else runtime.
   alb_subnet_ids = var.create_network ? module.vpc[0].public_subnets : (
     length(data.aws_subnets.public[0].ids) >= 2 ? sort(data.aws_subnets.public[0].ids) : sort(data.aws_subnets.runtime[0].ids)
   )
@@ -88,18 +99,7 @@ locals {
   db_subnet_ids      = var.create_network ? module.vpc[0].private_subnets : sort(data.aws_subnets.db[0].ids)
 }
 
-output "vpc_id" {
-  value = local.vpc_id
-}
-
-output "alb_subnet_ids" {
-  value = local.alb_subnet_ids
-}
-
-output "runtime_subnet_ids" {
-  value = local.runtime_subnet_ids
-}
-
-output "db_subnet_ids" {
-  value = local.db_subnet_ids
-}
+output "vpc_id" { value = local.vpc_id }
+output "alb_subnet_ids" { value = local.alb_subnet_ids }
+output "runtime_subnet_ids" { value = local.runtime_subnet_ids }
+output "db_subnet_ids" { value = local.db_subnet_ids }

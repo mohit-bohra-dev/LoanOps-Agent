@@ -341,15 +341,26 @@ logic — only catalog, trigger, and run history.
 | Child / ECS entry | `python -m packages.pipelines execute <run_id>` |
 | CLI (foreground) | `python -m packages.pipelines start openapi_to_api_index --env dev` |
 
-**Phase 1 catalog:** `openapi_to_api_index` only (calls `refresh_all` / `refresh_app`).
+**Catalog:** `openapi_to_api_index`, `eakg_sync_nightly`, `code_to_eakg`,
+`eakg_to_capability_embeddings`, `sop_to_doc_embeddings`, `sop_to_graphrag`,
+`code_to_engineering_kg`.
 
 **Ledger payload fields:** `status` (`queued`\|`running`\|`succeeded`\|`partial`\|`failed`),
 `params`, `triggered_by`, `report`, `error`, `started_at`, `finished_at`,
-`duration_ms`, `log_path`.
+`duration_ms`, `log_path`, `quality_status`, `cascade_runs`.
 
 **Local launch:** API inserts a `queued` row then `subprocess.Popen` the execute
-command (stdout/stderr → `logs/pipelines/<run_id>.log`). **AWS (later):** same
-command via Step Functions → ECS `RunTask`.
+command (stdout/stderr → `logs/pipelines/<run_id>.log`). Stuck `queued`/`running`
+rows older than 30 minutes are marked `failed` (`stale_timeout`) before the busy check.
+
+**Freshness:** `eakg_asset_state` stores per-app `spec_hash` / `interface_hash` after
+ApiIndex runs. `GET /pipelines/catalog` returns `freshness: fresh|stale|unknown`.
+`POST .../runs` accepts `cascade_downstream` to walk declared dependents in-process.
+
+**AWS:** EventBridge Scheduler runs
+`python -m packages.pipelines start openapi_to_api_index --env dev` on the existing
+ECS sync task (`apiindex_schedule`, default 02:30 UTC). Step Functions deferred
+until `PIPELINE_ORCHESTRATOR__PROVIDER` is approved. No Dagster.
 
 **Postgres ApiIndex manifest:** under `EAKG_STORE__BACKEND=postgres`, reindex
 seeds/writes `eakg_kv` key `api_index.manifest.{env}` so incremental embeds work

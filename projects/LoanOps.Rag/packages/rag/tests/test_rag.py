@@ -28,11 +28,11 @@ def test_markdown_chunker_respects_size() -> None:
 
 def test_rag_ingest_end_to_end_local() -> None:
     """
-    Integration test for the ingest pipeline using LocalBge and Qdrant.
+    Integration test for the ingest pipeline using LocalBge and pgvector.
     Requires local services to be running or mocks.
     """
     # This is usually marked as integration and skipped in default CI
-    pytest.skip("Requires live Qdrant and BGE providers")
+    pytest.skip("Requires live pgvector and BGE providers")
 
 
 def test_nearest_neighbour_retrieval() -> None:

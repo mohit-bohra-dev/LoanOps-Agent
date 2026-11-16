@@ -7,6 +7,8 @@ type PipelineCard = {
   title: string;
   description: string;
   last_run: Record<string, unknown> | null;
+  freshness?: { status?: string; reason?: string } | null;
+  long_running?: boolean;
 };
 
 type RunRow = Record<string, unknown> & {
@@ -74,6 +76,7 @@ export function PipelinesView({ reviewer }: Props) {
           environment: env,
           repository_id: repositoryId.trim() || null,
           sidecar_only: false,
+          cascade_downstream: false,
           triggered_by: reviewer || "anonymous",
         }),
       });
@@ -146,6 +149,7 @@ export function PipelinesView({ reviewer }: Props) {
         {catalog.map((p) => {
           const last = p.last_run;
           const status = String(last?.status ?? "never");
+          const fresh = String(p.freshness?.status ?? "unknown");
           const ops = (last?.report as { operations?: number } | undefined)?.operations;
           return (
             <div
@@ -157,9 +161,14 @@ export function PipelinesView({ reviewer }: Props) {
                   <h3 className="text-sm font-medium truncate">{p.title}</h3>
                   <p className="text-[11px] text-text-muted font-mono">{p.pipeline_id}</p>
                 </div>
-                <span className="text-[10px] px-2 py-0.5 rounded-full border border-surface-3 text-text-secondary shrink-0">
-                  {status}
-                </span>
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full border border-surface-3 text-text-secondary">
+                    {status}
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full border border-surface-3 text-text-muted">
+                    {fresh}
+                  </span>
+                </div>
               </div>
               <p className="text-[11px] text-text-secondary line-clamp-2">{p.description}</p>
               <p className="text-[11px] text-text-muted">

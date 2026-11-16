@@ -1,3 +1,55 @@
+## [2026-11-13] — AWS draw.io + agent-plugins skills
+
+**Session type:** Docs / skills
+
+**Completed:**
+- Installed `vidanov/aws-architecture-diagram-skill` → `.cursor/skills/aws-architecture-diagram`
+- Installed `awslabs/agent-plugins` `deploy-on-aws` skills → `.cursor/skills/deploy-on-aws`, `elastic-beanstalk` (+ validate scripts)
+- Wrote `docs/architecture/loanops-aws-auth.drawio` (AWS4 LTR + Auth0/OneLogin/AD/AppAuth + M2M) + companion `.md`
+- `validate_drawio.py` PASS (fixed invalid `sdk` shape → `traditional_server`; stripped XML comments)
+- v2 build-spec diagram: 16 numbered steps on arrows, single ECS cluster box (2 services + 1 scheduled task), Steps + FAQ + Dev/Prod panels on canvas; facts from `infra/terraform`
+
+**Risk:** No draw.io Desktop on PATH → PNG export manual via diagrams.net. Cursor Marketplace `deploy-on-aws` still optional for MCP pricing.
+
+**Next:** Open draw.io in diagrams.net; optional Marketplace plugin for live `awspricing` MCP.
+
+---
+
+## [2026-11-11] — ARC HA: Lucid labels + Terraform prod knobs
+
+**Session type:** Docs / IaC
+
+**Completed:**
+- Lucid AWS ARC page: Dev vs Prod HA callouts on Agent, MCP, ALB, Aurora, Neptune, Pipelines + footer
+- Terraform env-aware locals: prod → On-Demand ×2, Aurora min 0.5 ACU, Insights on; dev → Spot ×1, Aurora 0
+- `service_desired_count`, nullable `use_fargate_spot` / `aurora_min_acu` / `enable_container_insights`
+- Pipelines stay Spot via `jobs_use_fargate_spot` (default true)
+- README HA posture section
+
+**Risk:** Existing tfvars that relied on literal defaults still OK (null → env defaults).
+
+**Next:** terraform plan with `env_name=prod` to confirm HA diffs before apply.
+
+---
+
+## [2026-11-11] — Pipeline control plane next (no auth)
+
+**Session type:** Implementation
+
+**Completed:**
+- Stale `queued`/`running` sweep (30m → `failed`/`stale_timeout`)
+- `corecomponents` dev `enabled: false` (DNS)
+- Catalog: EAKG sync, code_to_eakg, capability embed, SOP ingest, GraphRAG, engineering KG
+- `eakg_asset_state` + catalog freshness; `cascade_downstream`
+- ApiIndex `mismatch_report` → `quality_status`
+- EventBridge `apiindex_schedule` → `pipelines start openapi_to_api_index` (Step Functions deferred)
+
+**Risk:** Long-running pipelines share one ECS task definition; GraphRAG/docs need corpus present.
+
+**Next:** Optional Step Functions after env-var approval; live Recall@5 quality gate.
+
+---
+
 ## [2026-11-10] — Pipeline control plane Phase 1 PoC (ADR-033)
 
 **Session type:** Implementation

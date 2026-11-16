@@ -9,8 +9,8 @@ An **internal, citation-grounded AI platform** for enterprise teams (any role:
 engineers, PMs, ops, analysts — not a single job title). Discovers capabilities
 (EAKG), calls APIs via MCP/SSE, searches docs, and drafts grounded answers.
 
-Hybrid architecture: identical Python codebase runs locally (Ollama + Qdrant)
-or on AWS (Bedrock + Qdrant Cloud) via env-var swap. Early docs still say
+Hybrid architecture: identical Python codebase runs locally (Ollama + pgvector)
+or on AWS (Bedrock + pgvector on RDS Postgres) via env-var swap. Early docs still say
 “care rep”; product direction is **general internal users** (ADR-021).
 Brief: `docs/01-servicing-agent-prompts.md` (system prompt + build history).
 
@@ -63,7 +63,7 @@ Windsurf, etc.).
 | Orchestration | provider_contracts agent_runtime (LangGraph / native) | Same |
 | LLM | Ollama Llama 3.1 8B | Amazon Bedrock GPT-4o |
 | Embeddings | bge-small-en-v1.5 | text-embedding-3-large |
-| Vector store | Qdrant (Docker) | Qdrant Cloud |
+| Vector store | pgvector (Postgres) | pgvector on RDS Postgres |
 | PII | Presidio | Presidio |
 | Content safety | Rule-based stub | AWS Content Safety |
 | Audit log | JSONL on disk | CloudWatch Logs + S3 |

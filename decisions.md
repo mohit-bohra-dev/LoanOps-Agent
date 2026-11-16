@@ -956,3 +956,26 @@ Provider lockstep (`PipelineOrchestratorProvider`) deferred until AWS
 engine lands (new env var needs approval).
 
 **Status:** Accepted 2026-11-10 (Phase 1 PoC).
+
+## ADR-034 — Remove Qdrant; pgvector is the only self-hosted vector store
+
+**Decision:** Remove the Qdrant vector-store provider entirely
+(`provider_contracts.vector_store.qdrant`, `qdrant-client` extra, factory
+branch, `QdrantConfig`, `.env.example` entries). `VECTOR_STORE__PROVIDER`
+accepts `pgvector` (default) or `ai_search` only.
+
+**Context:** Qdrant was the original local default (`localhost:6333` or
+embedded path mode), but every production-facing path already moved to
+pgvector: `.env.example` recommended it, the API-index product runtime
+(ADR-024) uses it, and the embedded path mode was already rejected by the
+factory. Two vector stores for the same job doubled test surface and
+deployment options for no active use case.
+
+**Alternatives:** Keep Qdrant as an optional adapter; swap to InMemory;
+adopt another managed vector DB.
+
+**Reasoning:** One backend (Postgres + pgvector) serves local dev, the API
+index, and AWS (RDS Postgres) with no extra service. `qdrant_client` stays
+on the contract-test forbidden-import list to prevent silent reintroduction.
+
+**Status:** Accepted 2026-11-13.

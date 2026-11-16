@@ -222,18 +222,6 @@ def get_embedding_provider() -> AbstractEmbeddingProvider:
 def get_vector_store_provider() -> AbstractVectorStoreProvider:
     """Return the configured vector store provider."""
     cfg = _get_settings()
-    if cfg.vector_store.provider == "qdrant":
-        from provider_contracts.vector_store.qdrant import QdrantVectorStoreProvider
-
-        if cfg.vector_store.qdrant.path:
-            raise ProviderConfigError(
-                "VECTOR_STORE__QDRANT__PATH is no longer supported; "
-                "use a Qdrant server URL (VECTOR_STORE__QDRANT__URL)"
-            )
-        return QdrantVectorStoreProvider(
-            url=cfg.vector_store.qdrant.url,
-            collection=cfg.vector_store.qdrant.collection,
-        )
     if cfg.vector_store.provider == "ai_search":
         from provider_contracts.vector_store.azure_ai_search import (
             AzureAISearchVectorStoreProvider,

@@ -93,3 +93,9 @@ CREATE TABLE IF NOT EXISTS eakg_pipeline_runs (
 );
 CREATE INDEX IF NOT EXISTS eakg_pipeline_runs_by_pipeline
     ON eakg_pipeline_runs (pipeline_id, started_at DESC);
+
+CREATE TABLE IF NOT EXISTS eakg_asset_state (
+    asset_key TEXT PRIMARY KEY,
+    payload JSONB NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

@@ -75,3 +75,10 @@ def test_file_store_registry_and_interface(tmp_path: Path) -> None:
     listed = store.list_pipeline_runs("openapi_to_api_index", limit=10)
     assert len(listed) == 1
     assert listed[0]["run_id"] == "run_1"
+    store.put_asset_state(
+        "openapi_to_api_index:dev",
+        {"apps": {"fees": {"spec_hash": "abc", "interface_hash": "def"}}},
+    )
+    asset = store.get_asset_state("openapi_to_api_index:dev")
+    assert asset is not None
+    assert asset["apps"]["fees"]["spec_hash"] == "abc"

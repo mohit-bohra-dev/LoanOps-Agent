@@ -10,12 +10,27 @@ output "ecs_cluster_name" {
 
 output "alb_dns" {
   value       = module.ecs.alb_dns
-  description = "Internal ALB DNS (Agent API + MCP path rules)"
+  description = "Internal ALB DNS (/chat* -> Agent API :8000, /mcp* -> MCP :8001)"
 }
 
 output "agent_api_url" {
-  value       = "http://${module.ecs.alb_dns}"
-  description = "Base URL for /chat (HTTP; add ACM for HTTPS)"
+  value       = module.ecs.base_url
+  description = "Base URL for Agent API + remote MCP (HTTPS when acm_certificate_arn set)"
+}
+
+output "mcp_internal_dns" {
+  value       = module.ecs.mcp_internal_dns
+  description = "AWS Cloud Map private DNS used by Agent API -> MCP"
+}
+
+output "web_ui_url" {
+  value       = var.enable_web_ui ? module.ui[0].ui_url : null
+  description = "CloudFront URL for static React Web UI"
+}
+
+output "web_ui_bucket" {
+  value       = var.enable_web_ui ? module.ui[0].bucket_name : null
+  description = "Private S3 bucket for static Web UI assets"
 }
 
 output "neptune_sparql_query_url" {
@@ -30,7 +45,7 @@ output "neptune_sparql_update_url" {
 
 output "rds_endpoint" {
   value       = module.rds.endpoint
-  description = "Postgres hostname"
+  description = "Aurora PostgreSQL Serverless v2 cluster endpoint"
 }
 
 output "ecr_agent_repository" {
@@ -48,10 +63,15 @@ output "github_actions_role_arn" {
 
 output "app_secret_arn" {
   value       = module.secrets.secret_arn
-  description = "Secrets Manager JSON with DSNs + MCP__AUTH_TOKEN"
+  description = "Secrets Manager JSON with Aurora DSNs, MCP__AUTH_TOKEN, Auth0 M2M, Langfuse"
 }
 
 output "sync_task_definition_arn" {
   value       = module.jobs.sync_task_definition_arn
-  description = "EAKG nightly/audit Fargate task definition"
+  description = "Serverless Fargate Spot batch task definition"
+}
+
+output "pipeline_schedules" {
+  value       = module.jobs.schedule_names
+  description = "EventBridge Scheduler cron names"
 }

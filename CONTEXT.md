@@ -68,9 +68,7 @@
 | `EMBEDDING__PROVIDER` | `local_bge` | `local_bge` / `aoai` |
 | `EMBEDDING__AOAI__ENDPOINT` | `""` | Azure embedding endpoint |
 | `EMBEDDING__AOAI__DEPLOYMENT` | `text-embedding-3-large` | Azure embedding deployment |
-| `VECTOR_STORE__PROVIDER` | `pgvector` | `pgvector` (API index) / `qdrant` / `ai_search` |
-| `VECTOR_STORE__QDRANT__URL` | `http://localhost:6333` | Qdrant endpoint |
-| `VECTOR_STORE__QDRANT__COLLECTION` | `sops` | Qdrant collection name |
+| `VECTOR_STORE__PROVIDER` | `pgvector` | `pgvector` / `ai_search` |
 | `VECTOR_STORE__AI_SEARCH__ENDPOINT` | `""` | AI Search endpoint |
 | `VECTOR_STORE__AI_SEARCH__API_KEY` | `""` | AI Search API key |
 | `VECTOR_STORE__AI_SEARCH__INDEX` | `sops` | AI Search index name |
@@ -174,7 +172,7 @@ packages/common/providers/testing.py → re-exports InMemory mocks
 |---|----------|-----------|---------------|------------------|
 | 1 | `chat` | Ollama (Llama 3.1 8B) | Azure OpenAI GPT-4o / Bedrock | `get_chat_provider()` |
 | 2 | `embedding` | SentenceTransformers (bge-small) | Azure OpenAI / Bedrock | `get_embedding_provider()` |
-| 3 | `vector_store` | Qdrant (default); API index prefers pgvector | Azure AI Search / Qdrant Cloud | `get_vector_store_provider()` |
+| 3 | `vector_store` | pgvector (default) | Azure AI Search | `get_vector_store_provider()` |
 | 4 | `pii` | Presidio Analyzer + Anonymizer | Same | `get_pii_provider()` |
 | 5 | `content_safety` | Rule-based stub | Azure AI Content Safety | `get_content_safety_provider()` |
 | 6 | `audit_sink` | JSONL file | App Insights + ADLS | `get_audit_sink_provider()` |
@@ -206,7 +204,6 @@ packages/common/providers/testing.py → re-exports InMemory mocks
 | Web UI | Vite `:5173` | `/api` → Agent `:8000` | **done — Step 9** |
 | | | Borrower pane uses MCP `call_sse_api` | **done** |
 | | | `/docs/` | **Redoc Portal** |
-| Qdrant | `:6333` or embedded path | vector store | external / local |
 | Ollama | `:11434` | optional local LLM | external |
 
 ---
@@ -450,9 +447,6 @@ Demo mix: `DATA__LOAN_SOURCE=mock` + `DATA__SOP_SOURCE=confluence` +
 ## 14. Docker dependencies (local dev)
 
 ```bash
-# Start Qdrant
-docker run -d -p 6333:6333 qdrant/qdrant
-
 # Start Ollama
 docker run -d -p 11434:11434 ollama/ollama
 docker exec -it <container> ollama pull llama3.1:8b

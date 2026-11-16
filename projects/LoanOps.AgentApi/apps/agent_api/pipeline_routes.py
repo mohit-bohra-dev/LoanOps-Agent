@@ -24,6 +24,7 @@ class StartRunBody(BaseModel):
     environment: str = "dev"
     repository_id: str | None = None
     sidecar_only: bool = False
+    cascade_downstream: bool = False
     triggered_by: str = "anonymous"
 
 
@@ -47,8 +48,10 @@ def _log_tail(path: str | None, *, lines: int = 200) -> list[str]:
 
 
 @router.get("/catalog")
-async def catalog() -> dict[str, Any]:
-    return {"pipelines": list_catalog()}
+async def catalog(
+    environment: str = Query(default="dev"),
+) -> dict[str, Any]:
+    return {"pipelines": list_catalog(environment=environment), "environment": environment}
 
 
 @router.post("/{pipeline_id}/runs", status_code=202, response_model=StartRunResponse)
@@ -56,6 +59,7 @@ async def start_run(pipeline_id: str, body: StartRunBody) -> StartRunResponse:
     params: dict[str, Any] = {
         "environment": body.environment,
         "sidecar_only": body.sidecar_only,
+        "cascade_downstream": body.cascade_downstream,
     }
     if body.repository_id:
         params["repository_id"] = body.repository_id

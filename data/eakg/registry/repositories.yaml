@@ -21,7 +21,9 @@ repositories:
   api_project_path: src/CoreComponents.Api
   service_url_key: CoreComponentsApiUrl
   environments:
+    # Host does not resolve (getaddrinfo failed); re-enable when DNS works.
     dev:
+      enabled: false
       base_url: https://corecomponentsapi-plaisse-dev.pnmac.com
       auth_audience: https://pennymac
 - repository_id: escrow

@@ -24,6 +24,7 @@ from reportlab.pdfgen import canvas as pdf_canvas
 OUT = Path(__file__).resolve().parent
 NAME = "LoanOps-Complete-Guide"
 LUCID_URL = "https://lucid.app/lucidchart/214feeb3-4a57-4947-b742-38e660794ada/view"
+LUCID_CLOUD = "https://lucid.app/lucidchart/729e9984-d335-4bdc-bb6e-9a1a238a4208/edit"
 
 NAVY = "0B1F33"
 CARD = "14324A"
@@ -127,7 +128,8 @@ SLIDES: list[Slide] = [
         "Everything flows through the same MCP tool room",
         "IDE assistant (e.g. Cursor) :: talks straight to the tool room — proves the tools work",
         "Chat UI :: goes through our Agent, which then uses the tool room — proves full answers",
-        "Fallback :: Chat UI can call tools directly for demos if the tool room is down",
+        "Same website :: Eval Portal for quality checks and a Pipelines screen",
+        "Later :: the wiki and other agents use this same room, and name the person and the app",
         "Why one room :: fix or improve a tool once and every client benefits",
     ),
     S(
@@ -209,6 +211,7 @@ SLIDES: list[Slide] = [
         "WHAT :: a browser chat with a conversation pane and a loan lookup sidebar",
         "USE :: ask questions, see answers, citations and the tool trace",
         "WHY :: realistic way to evaluate the tool room end to end",
+        "Eval Portal :: quality checks, traces, and a screen to start pipeline jobs",
         "Sidebar :: quick loan/borrower lookup that calls one API directly, without AI",
     ),
     S(
@@ -257,7 +260,7 @@ SLIDES: list[Slide] = [
         "Getting the right key for the right system",
         "WHAT :: component that fetches a machine-to-machine token per destination",
         "USE :: each live call gets a token tied to the system it is calling",
-        "Today :: Auth0 machine credentials to Plaisse",
+        "Today :: Auth0 machine login to Plaisse. Plaisse sees our bot, not the person",
         "WHY :: no shared master key; tokens bound to their destination",
     ),
     S(
@@ -421,12 +424,13 @@ SLIDES: list[Slide] = [
         "WHY :: catch regressions whenever prompts, tools or indexes change",
     ),
     S(
-        "How often pipelines run",
-        "Today vs later",
-        "Today :: run on demand when sources change",
-        "Later :: scheduled (e.g. nightly) once stable",
-        "Ask-time :: no pipeline runs — tools read prepared knowledge only",
-        "Live data :: the only thing fetched at ask-time is the business API call itself",
+        "How pipelines are run",
+        "Start a job, see if it finished, see if the data is fresh",
+        "On demand :: start a job from the Eval Portal Pipelines screen, or from a command",
+        "History :: each run is queued, running, done, or failed. A run stuck 30 minutes is marked failed",
+        "Freshness :: after an API-index run, each app is fresh, stale, or unknown",
+        "Cloud timer (designed) :: every night — map at 02:00, API menu at 02:30, policy docs at 03:00 UTC. Weekly map check Monday 06:00",
+        "Ask-time :: no pipeline runs. The only live fetch is the business read itself",
     ),
     # ---------------- F
     SECTION("F", "Safety, security, quality", "Why the answers can be trusted"),
@@ -448,11 +452,12 @@ SLIDES: list[Slide] = [
     ),
     S(
         "Access and authentication",
-        "Today and next",
-        "Into the tool room :: access token required; empty token is rejected",
-        "Roles :: each role sees only its allowed tools",
-        "Out to Plaisse :: machine credentials per destination",
-        "Next :: per-user identity passed through, and permission checks at each call",
+        "Who is asking, and who Plaisse sees",
+        "Today, in :: one shared password opens the tool room. One role applies to the whole process",
+        "Today, out :: machine login. Plaisse sees our bot, not the person who asked",
+        "Hint only :: a name sent with the call is not proof. Anyone with the shared password can type a name",
+        "Target :: the person signs in with company login (OneLogin → Auth0). We check they have a LoanOps role",
+        "Still the bot :: Plaisse keeps seeing our bot until we later choose to call as the person",
     ),
     S(
         "Citations and audit",
@@ -476,44 +481,55 @@ SLIDES: list[Slide] = [
     S(
         "Business systems connected (dev)",
         "Plaisse applications in the enterprise map",
-        "Core Components",
-        "Escrow Manager",
-        "Fees",
-        "Loan Services",
-        "More apps :: can be onboarded into the same map over time",
+        "Escrow Manager :: live reads work in dev",
+        "Fees :: live reads work in dev",
+        "Loan Services :: live reads work in dev",
+        "Core Components :: on the map. Live reads are paused — its dev address does not resolve",
+        "More apps :: can join the same map over time",
+    ),
+    S(
+        "Cloud home (designed)",
+        "Written down. Daily work still runs on a developer machine",
+        "Private :: company network or VPN only. No public front door",
+        "Always on :: a chat service and the tool room, in one cluster",
+        "Night jobs :: map, API menu, and policy docs, then the job stops. Weekly map check on Monday",
+        "Data and model :: Aurora for records and search, Neptune for the map, Amazon Bedrock in the cloud",
+        "Size :: dev uses one cheap task each. Prod uses two always-on tasks each",
     ),
     S(
         "Current status",
         "Working internal prototype",
         "Working :: tool room, Agent, live read-only calls, enterprise map, API index",
-        "Working :: engineering map, document search path, evaluation gate",
-        "In progress :: Chat UI as evaluation harness",
-        "Partial :: per-user auth, human review screen for the enterprise map",
-        "Not yet :: production cloud deployment as the daily home",
+        "Working :: document search, quality gate, Pipelines screen (start, history, fresh or stale)",
+        "Designed :: cloud home above. It is not the daily home yet",
+        "Partial :: login is one shared password. Map-link review is still a command",
+        "Paused :: Core Components live reads, until its address resolves",
     ),
     S(
         "Known gaps",
         "Honest list",
-        "Auth :: shared tool-room token today; per-user identity still to come",
-        "Governance :: review of map links is command-line, no review screen yet",
-        "Coverage :: four applications connected; more to onboard",
-        "Docs :: full Confluence policy coverage still growing",
+        "Login :: one shared password. We cannot yet prove which person or which app asked",
+        "Core Components :: live reads stay off until its dev address resolves",
+        "Review :: approving map links is still a command, not a screen",
+        "Docs :: full policy coverage is still growing",
+        "Cloud :: the design is written. People do not work there every day yet",
     ),
     S(
         "Roadmap",
         "Now → next → later",
-        "Now :: prove the tool room with IDE + Chat UI + evaluation gate",
-        "Next :: onboard more apps · per-user auth · review screen",
-        "Then :: Chat UI as a real internal client · richer policy knowledge · cloud deploy",
-        "Later (optional) :: write actions only after explicit policy approval + proven quality",
+        "Now :: prove the tool room with the IDE, Chat UI, quality gate, and visible pipeline runs",
+        "Next :: person login · turn Core Components reads back on · more apps · a review screen",
+        "Then :: cloud as the daily home · Chat UI as a real internal client · richer policy knowledge",
+        "Later :: write actions only after explicit approval and a proven quality bar",
     ),
     S(
         "Decisions we recommend",
         "For tech lead and sponsors",
-        "Endorse :: MCP-first — one tool room for IDE assistants and Chat UI",
-        "Endorse :: Chat UI as the evaluation harness for that room",
-        "Endorse :: read-only + citations + quality gate for v1",
-        "Prioritize :: next apps to onboard and auth hardening",
+        "Endorse :: one tool room for IDE assistants and the Chat UI",
+        "Endorse :: Chat UI as the evaluation harness, with a Pipelines screen to run and check jobs",
+        "Endorse :: read-only, citations, and the quality gate for v1",
+        "Prioritize :: person login, Core Components live reads, and the next apps",
+        "Cloud :: build from the written design when we leave local-only",
     ),
     S(
         "Glossary cheat sheet (1/2)",
@@ -548,8 +564,264 @@ SLIDES: list[Slide] = [
         "Thank you",
         "LoanOps — trusted internal answers from one tool room",
         "Questions and feedback welcome",
-        f"Architecture visuals (Lucid) :: {LUCID_URL}",
+        f"Runtime picture (Lucid) :: {LUCID_URL}",
+        f"Cloud picture (Lucid, ARC + Identity Auth) :: {LUCID_CLOUD}",
         "Live demo on request :: one loan + policy question end to end",
+    ),
+]
+
+
+# Short room deck. Same facts as the complete guide, fewer slides.
+BRIEFING: list[Slide] = [
+    S(
+        "LoanOps",
+        "Internal AI platform for teams — find the right API or policy, call read-only data, answer with citations",
+        "Briefing for tech leads and stakeholders · no code access needed",
+        "Visual architecture: Lucid chart (link on the closing slide)",
+    ),
+    S(
+        "What we need from you today",
+        "Alignment — not a code review",
+        "Confirm the problem is worth solving this way",
+        "Confirm one shared tool room, with the Chat UI as the way we test it",
+        "Confirm read-only answers, citations, and a quality bar we do not lower",
+        "Align on next work: person login, Core Components live reads, more apps",
+    ),
+    S(
+        "Agenda",
+        None,
+        "1. Problem and outcome",
+        "2. What LoanOps is, and what it is not",
+        "3. How people use it — IDE, Chat UI, Pipelines screen",
+        "4. Building blocks — what each does and why it exists",
+        "5. How knowledge is prepared",
+        "6. Connected systems, login, cloud design, roadmap",
+    ),
+    S(
+        "The problem",
+        "Answers are slow, scattered, and hard to audit",
+        "People jump across APIs, wikis, repos, and screens for one fact",
+        "“Which system owns this?” lives in a few people’s heads",
+        "Assistants that guess create compliance and trust risk",
+        "We need one trusted tool room many clients can share",
+    ),
+    S(
+        "The outcome we want",
+        "Ask in plain English. Get a grounded, cited draft for a human to check",
+        "Discover the right capability or API operation",
+        "Search policy when the question needs written rules",
+        "Call live loan-servicing APIs — read only",
+        "Return an answer with clear citations",
+        "Leave an audit trail of what was used",
+    ),
+    S(
+        "What LoanOps is",
+        "An internal platform — one tool room over enterprise APIs and documents",
+        "MCP is the standard door AI clients use to call our tools",
+        "Same tools for IDE assistants (for example Cursor) and our Chat UI",
+        "Any internal role — engineers, analysts, PMs, ops",
+        "Same product shape locally or in the cloud, by configuration",
+    ),
+    S(
+        "What LoanOps is not",
+        "Boundaries are part of the design",
+        "No public borrower chat, voice, or email channel",
+        "Cannot post payments, start plans, place holds, or change data (v1)",
+        "No legal, tax, or rate-quote advice",
+        "The Chat UI tests the tool room. It is not the finished client yet",
+    ),
+    S(
+        "Why the Chat UI exists",
+        "So we can test the tool room the way a real chat client would",
+        "IDE use proves each tool and the protocol",
+        "Chat UI proves tool choice, multi-step answers, citations, and refusals",
+        "It adds memory, privacy checks, outbound safety, and an audit per turn",
+        "The same website has an Eval Portal: quality checks and a Pipelines screen",
+        "Once quality clears the bar, this UI can become a real internal client",
+    ),
+    S(
+        "How people use it today",
+        "Two clients now. One tool room",
+        "Engineers in the IDE talk straight to the tool room",
+        "Chat UI goes through our Agent, then the same tool room",
+        "Pipelines screen starts a knowledge job and shows if it finished",
+        "Later the wiki and other agents join this room and name the person and the app",
+    ),
+    S(
+        "North star",
+        "One picture to remember",
+        "You ask in the Chat UI or the IDE",
+        "The tool room checks the door, then allows a read-only call",
+        "The brain finds an API, searches docs, calls live data, and cites sources",
+        "Systems are Plaisse servicing APIs plus our knowledge stores",
+        "Login today: one shared password in. Machine login out. Plaisse sees our bot",
+    ),
+    S(
+        "One answer, step by step",
+        "What happens when someone asks",
+        "1. Privacy check on the message, then load earlier turns",
+        "2. Fast gate: refuse risky or out-of-scope asks before the model runs",
+        "3. The model may search and call a read-only API, up to a few rounds",
+        "4. The answer must include citations. The shape is checked",
+        "5. Outbound safety and an audit log, then the person sees the draft",
+    ),
+    S(
+        "Tool room (MCP)",
+        "Why we built it",
+        "One place to expose tools, shared by every client",
+        "One place for login, role limits, and read-only rules",
+        "Test quality once. The IDE and the Chat UI both benefit",
+        "Future clients plug into the same door",
+    ),
+    S(
+        "Agent (chat path)",
+        "Why we built it",
+        "Chat needs memory, safety, and a structured answer — raw tools are not enough",
+        "Turns a vague question into search, then call, then cite",
+        "Lets us judge the tool room under realistic pressure",
+        "Drafts for a person to review. No silent actions",
+    ),
+    S(
+        "Live API calls",
+        "Why we built them",
+        "Loan facts come from real systems, not from model memory",
+        "Find the right operation, then call it read-only",
+        "Machine login to Plaisse. Only allow-listed hosts",
+        "Plaisse sees our bot, not the person who asked",
+        "Each data claim can be tagged as a tool call",
+    ),
+    S(
+        "Enterprise map (EAKG)",
+        "Why we built it",
+        "Turns “which app can do this?” into searchable knowledge",
+        "Built from registered app repos, API specs, and the enterprise app list",
+        "Answers provider and impact questions across apps",
+        "We do not re-read whole codebases on every question",
+    ),
+    S(
+        "API search index",
+        "Why we built it",
+        "People ask in English. APIs are named for engineers",
+        "Meaning search, then a keyword check, finds the operation to call",
+        "Fed from the same registry and API specs as the enterprise map",
+        "The bridge between a sentence and the exact read-only call",
+    ),
+    S(
+        "Policy and document knowledge",
+        "Why we built it",
+        "Some answers need a written rule, not only live data",
+        "Document search returns a passage the answer can cite",
+        "Related policies can be grouped so one page is not the whole story",
+        "Separates “what policy says” from “what the system returned just now”",
+    ),
+    S(
+        "Engineering map (optional)",
+        "Why we built it",
+        "Helps engineers ask what an app exposes and where it is wired",
+        "Built from application structure. Not the main path for every chat user",
+        "Keeps “what can this app do?” separate from “where is the code?”",
+    ),
+    S(
+        "Safety and quality",
+        "Why we built them",
+        "Privacy check on the way in. Content safety on the way out",
+        "Audit record of the question, the tools used, and the answer",
+        "Golden tests for grounding, citations, and correct refusals",
+        "We fix the cause. We do not lower the quality bar to go green",
+    ),
+    S(
+        "Swappable providers",
+        "Why we use this pattern",
+        "The model, embeddings, vector search, and audit can change without a rewrite",
+        "Develop locally. Move to the enterprise cloud by configuration",
+        "Vendor lock-in stays at the edge. Core logic stays ours",
+    ),
+    S(
+        "How knowledge is prepared",
+        "Batch jobs, so the AI does not read raw repos on every question",
+        "App code and API specs become the enterprise map",
+        "API specs become the searchable operation menu",
+        "Policy pages become document search",
+        "You can start a job from the Pipelines screen and see if it finished",
+        "Freshness tells you if an app’s API spec is fresh, stale, or unknown",
+        "Cloud design runs these at night. Ask-time only does the live business read",
+    ),
+    S(
+        "Where knowledge lives",
+        "Three stores, three jobs",
+        "Graph database — links among apps, APIs, and capabilities",
+        "Operational database — registries, operation lists, document maps",
+        "Vector search — find the right API or policy passage by meaning",
+        "Product truth lives in these stores, not in files in a code repo",
+    ),
+    S(
+        "Words you will hear",
+        "One line each. The long guide has a slide per word",
+        "EAKG :: the enterprise map of apps, APIs, and capabilities",
+        "Embedding :: meaning turned into numbers, so similar wording lands close",
+        "ApiIndex :: the menu of callable API operations",
+        "GraphRAG :: how policy documents relate to each other",
+        "Graphify :: a map of this LoanOps repo for builders. Not used to answer a loan question",
+    ),
+    S(
+        "Login today and the target",
+        "Two different questions: who asked us, and who Plaisse sees",
+        "Today, in: one shared password. One role for the whole process",
+        "Today, out: machine login. Plaisse sees our bot",
+        "A name sent with the call is a hint. It is not proof of who asked",
+        "Target: the person signs in with company login. We check they have a LoanOps role",
+        "Even then, Plaisse sees our bot until we choose to call as the person",
+    ),
+    S(
+        "Cloud home (designed)",
+        "Written down. Daily work still runs on a developer machine",
+        "Company network or VPN only. No public front door",
+        "Chat service and tool room stay on, in one cluster",
+        "Night jobs: map at 02:00, API menu at 02:30, policy docs at 03:00 UTC. Weekly map check Monday 06:00",
+        "Aurora for records and search. Neptune for the map. Amazon Bedrock for the model",
+        "Dev uses one cheap task. Prod uses two always-on tasks",
+    ),
+    S(
+        "Business systems in dev",
+        "Plaisse apps in the enterprise map",
+        "Escrow Manager, Fees, and Loan Services — live reads work in dev",
+        "Core Components is on the map. Live reads are paused — its dev address does not resolve",
+        "More apps can join the same map over time",
+    ),
+    S(
+        "Guardrails we keep for v1",
+        None,
+        "Read-only. No payments, plans, holds, or data changes",
+        "Every factual answer needs a citation",
+        "Internal only. No borrower channel. No rate quotes or licensed advice",
+        "Quality bar stays. We fix the cause instead of relaxing the gate",
+        "A person reviews the draft before it is used",
+    ),
+    S(
+        "Where we are",
+        "Working prototype, with a written cloud home",
+        "Now: IDE and Chat UI share one tool room. Pipeline runs are visible",
+        "Live reads: three apps. Core Components is paused",
+        "Next: person login, turn Core Components back on, more apps, a review screen",
+        "Then: cloud as the daily home, and the Chat UI as a real internal client",
+        "Later: write actions only after explicit approval and a proven quality bar",
+    ),
+    S(
+        "Decisions we recommend",
+        "For the tech lead and sponsors",
+        "Endorse one tool room for the IDE and the Chat UI",
+        "Endorse the Chat UI as the test client, with a Pipelines screen",
+        "Endorse read-only answers, citations, and the quality gate for v1",
+        "Prioritize person login, Core Components live reads, and the next apps",
+        "Build the cloud home from the written design when we leave local-only",
+    ),
+    S(
+        "Thank you",
+        "LoanOps — trusted internal answers from one tool room",
+        "Questions and feedback welcome",
+        f"Runtime picture (Lucid) :: {LUCID_URL}",
+        f"Cloud picture (Lucid, ARC + Identity Auth) :: {LUCID_CLOUD}",
+        "Live demo on request: one loan and one policy question, end to end",
     ),
 ]
 
@@ -596,13 +868,13 @@ def _lines(text: str, chars_per_line: int) -> int:
     return max(1, math.ceil(len(text) / chars_per_line))
 
 
-def build_pptx(path: Path) -> None:
+def build_pptx(path: Path, slides: list[Slide], footer: str) -> None:
     prs = Presentation()
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
-    total = len(SLIDES)
+    total = len(slides)
 
-    for i, sl in enumerate(SLIDES, start=1):
+    for i, sl in enumerate(slides, start=1):
         slide = prs.slides.add_slide(prs.slide_layouts[6])
         is_cover = i == 1 or i == total
         _rect(slide, 0, 0, 13.333, 7.5, NAVY if (is_cover or sl.section) else CARD)
@@ -640,7 +912,7 @@ def build_pptx(path: Path) -> None:
 
         _text(
             slide, 0.5, 7.05, 12.3, 0.3,
-            [(f"LoanOps Complete Guide  ·  Internal  ·  {i}/{total}", False, MUTED)],
+            [(f"{footer}  ·  Internal  ·  {i}/{total}", False, MUTED)],
             10, PP_ALIGN.RIGHT,
         )
 
@@ -664,14 +936,14 @@ def _wrap(c: pdf_canvas.Canvas, text: str, font: str, size: float, width: float)
     return lines
 
 
-def build_pdf(path: Path) -> None:
+def build_pdf(path: Path, slides: list[Slide], footer: str, doc_title: str) -> None:
     W, H = landscape(letter)
     c = pdf_canvas.Canvas(str(path), pagesize=(W, H))
-    c.setTitle("LoanOps — Complete Guide")
-    total = len(SLIDES)
+    c.setTitle(doc_title)
+    total = len(slides)
     col = {k: HexColor(f"#{v}") for k, v in dict(NAVY=NAVY, CARD=CARD, TEAL=TEAL, CREAM=CREAM, MUTED=MUTED, AMBER=AMBER).items()}
 
-    for i, sl in enumerate(SLIDES, start=1):
+    for i, sl in enumerate(slides, start=1):
         is_cover = i == 1 or i == total
         c.setFillColor(col["NAVY"] if (is_cover or sl.section) else col["CARD"])
         c.rect(0, 0, W, H, fill=1, stroke=0)
@@ -719,18 +991,23 @@ def build_pdf(path: Path) -> None:
                 y -= box_h + 8
 
         c.setFillColor(col["MUTED"]); c.setFont("Helvetica", 8)
-        c.drawRightString(W - 0.5 * inch, 0.35 * inch, f"LoanOps Complete Guide  ·  Internal  ·  {i}/{total}")
+        c.drawRightString(W - 0.5 * inch, 0.35 * inch, f"{footer}  ·  Internal  ·  {i}/{total}")
         c.showPage()
     c.save()
 
 
 def main() -> None:
-    pptx_path, pdf_path = OUT / f"{NAME}.pptx", OUT / f"{NAME}.pdf"
-    build_pptx(pptx_path)
-    build_pdf(pdf_path)
-    print(f"{len(SLIDES)} slides")
-    print(f"Wrote {pptx_path}")
-    print(f"Wrote {pdf_path}")
+    decks = (
+        (SLIDES, NAME, "LoanOps Complete Guide", "LoanOps — Complete Guide"),
+        (BRIEFING, "LoanOps-Stakeholder-Briefing-v2", "LoanOps Agent", "LoanOps — Stakeholder Briefing"),
+    )
+    for slides, name, footer, title in decks:
+        pptx_path, pdf_path = OUT / f"{name}.pptx", OUT / f"{name}.pdf"
+        build_pptx(pptx_path, slides, footer)
+        build_pdf(pdf_path, slides, footer, title)
+        print(f"{name}: {len(slides)} slides")
+        print(f"Wrote {pptx_path}")
+        print(f"Wrote {pdf_path}")
 
 
 if __name__ == "__main__":

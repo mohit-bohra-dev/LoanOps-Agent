@@ -1,4 +1,4 @@
-"""Offline capability embedding index (Phase 9). Not Qdrant. Not Graphify."""
+"""Offline capability embedding index (Phase 9). Not Graphify."""
 
 from __future__ import annotations
 

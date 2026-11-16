@@ -7,6 +7,8 @@ dependencies = [
     "loanops-common",
     "loanops-eakg",
     "loanops-api-index",
+    "loanops-docs",
+    "loanops-graphrag",
 ]
 
 [build-system]

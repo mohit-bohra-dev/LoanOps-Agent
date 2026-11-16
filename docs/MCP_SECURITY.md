@@ -1,5 +1,7 @@
 # MCP Security
 
+Plain-language overview (wiki vs Gateway vs LoanOps, who/which client): [`11-auth-simple-words.md`](11-auth-simple-words.md).
+
 ## Current controls
 
 | Control | Where |

@@ -14,7 +14,7 @@ from packages.common.providers.vector_store import VectorDocument
 async def test_nearest_neighbour_retrieval_with_known_queries() -> None:
     """
     Integration test for nearest-neighbour retrieval using 10 known queries.
-    Requires vector store to be running (Qdrant or Azure AI Search).
+    Requires vector store to be running (pgvector or Azure AI Search).
     """
     # Get providers
     embedder = get_embedding_provider()

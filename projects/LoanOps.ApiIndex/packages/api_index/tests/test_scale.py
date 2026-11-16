@@ -3,7 +3,7 @@
 Default profile ``small`` (5 apps × 20 ops) for CI. Full 30×170 via
 ``pytest -m scale --scale-profile=full``.
 
-Local bge+Qdrant variants override providers in-fixture (ignore .env pgvector).
+Local bge+pgvector variants override providers in-fixture (ignore .env ai_search).
 """
 
 from __future__ import annotations
@@ -204,7 +204,7 @@ async def test_top5_recall(tmp_path: Path, scale_sizes: tuple[int, int, int]) ->
         sidecar_path=sidecar,
     )
     # Mock embed is hash(text) — query with indexed text for deterministic match.
-    # Local bge+Qdrant path is test_discovery_p95_local / --scale-profile=full.
+    # Local bge+pgvector path is test_discovery_p95_local / --scale-profile=full.
     hits_ok = 0
     total = 0
     sample = [op for op in op_set.operations if "Shared" not in op.public_id]
@@ -225,10 +225,10 @@ async def test_top5_recall(tmp_path: Path, scale_sizes: tuple[int, int, int]) ->
 
 @pytest.mark.asyncio
 async def test_discovery_p95_local(tmp_path: Path, scale_sizes: tuple[int, int, int]) -> None:
-    """SC-003 local bge+Qdrant — records budgets; skips when providers unavailable."""
+    """SC-003 local bge+pgvector — records budgets; skips when providers unavailable."""
     apps, ops, queries = scale_sizes
     # Providers only via factory (AGENTS.md). Needs EMBEDDING__PROVIDER=local_bge
-    # and VECTOR_STORE__PROVIDER=qdrant with a live Qdrant server.
+    # and VECTOR_STORE__PROVIDER=pgvector with a live Postgres server.
     from packages.common.providers.factory import (
         get_embedding_provider,
         get_vector_store_provider,
@@ -236,8 +236,8 @@ async def test_discovery_p95_local(tmp_path: Path, scale_sizes: tuple[int, int, 
     from packages.common.settings import get_settings
 
     cfg = get_settings()
-    if cfg.embedding.provider != "local_bge" or cfg.vector_store.provider != "qdrant":
-        pytest.skip("requires EMBEDDING__PROVIDER=local_bge and VECTOR_STORE__PROVIDER=qdrant")
+    if cfg.embedding.provider != "local_bge" or cfg.vector_store.provider != "pgvector":
+        pytest.skip("requires EMBEDDING__PROVIDER=local_bge and VECTOR_STORE__PROVIDER=pgvector")
 
     try:
         emb = get_embedding_provider()
@@ -245,7 +245,7 @@ async def test_discovery_p95_local(tmp_path: Path, scale_sizes: tuple[int, int, 
         await emb.embed("probe")
         await vs.ensure_namespace("probe_ns", vector_size=384)
     except Exception as exc:  # noqa: BLE001
-        pytest.skip(f"local bge+Qdrant unavailable: {exc}")
+        pytest.skip(f"local bge+pgvector unavailable: {exc}")
 
     fix = _gen_fixture(tmp_path / "p95_local", min(apps, 8), min(ops, 40))
     _reg, store, op_set = await _materialize(fix, tmp_path / "shards_p95_local")
